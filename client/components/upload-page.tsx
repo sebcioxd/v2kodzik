@@ -31,12 +31,22 @@ import {
 import { Upload, X, Terminal } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
+import { useRouter } from "next/navigation";
 
-// Define form schema
+
+
+
 const formSchema = z.object({
   files: z.array(z.instanceof(File)).min(1, { message: "Proszę wybrać przynajmniej jeden plik" }),
-  slug: z.string()
+  slug: z.string().trim()
     .min(4, { message: "Nazwa linku musi mieć przynajmniej 4 znaki" })
+    .refine((value) => {
+      const restrictedPaths = ['/upload', '/search', '/faq', '/api', '/admin'];
+      return !restrictedPaths.some(path => 
+        value.toLowerCase().trim() === path.replace('/', '').trim() || 
+        value.toLowerCase().trim().startsWith(path.replace('/', '').trim())
+      );
+    }, { message: "Ta nazwa jest zarezerwowana dla systemu" })
     .optional()
     .or(z.literal('')),
 });
@@ -47,7 +57,8 @@ export function UploadPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
-
+  const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,29 +79,30 @@ export function UploadPage() {
       data.files.forEach((file) => {
         formData.append("files", file);
       });
+      formData.append("slug", data.slug || "");
 
-      const res = await fetch(`someapi`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/upload`, {
         method: "POST",
         credentials: "include",
         body: formData,
       });
 
-      console.log(res);
-
-      if (!res.ok) {
+      if (res.status === 200) {
+        const data = await res.json();
+        setSuccess(true);
+        setError(false);
+        form.reset();
+        router.push(`/success?slug=${data.slug}`);
+      } else {
         setError(true);
         setSuccess(false);
-        return;
+        const data = await res.json();
+        setErrorMessage(data.message);
       }
-
-      setSuccess(true);
-      setError(false);
-      form.reset();
     } catch (error) {
       console.error("Error uploading files:", error);
       setError(true);
       setSuccess(false);
-      console.log(error);
     } finally {
       setIsSubmitting(false);
     }
@@ -159,11 +171,14 @@ export function UploadPage() {
             <FormItem>
             <FormLabel className="text-zinc-400 animate-fade-in-01-text">Wprowadz nazwę linku</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Zostaw puste aby automatycznie wygenerować..."
+                <div className="flex items-center gap-2">
+                  <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 border-zinc-800 rounded-md px-1 py-1">dajkodzik.pl/</span>
+                  <Input
+                    {...field}
+                    placeholder="Zostaw puste aby automatycznie wygenerować..."
                   className="w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text"
                 />
+                </div>
               </FormControl>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
             </FormItem>
@@ -173,7 +188,7 @@ export function UploadPage() {
 
         <Button
           type="submit"
-          className="w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400  animate-slide-in-left"
+          className={`w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400  animate-slide-in-left ${isSubmitting ? "bg-zinc-900/20" : ""}`}
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -198,7 +213,8 @@ export function UploadPage() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Wysyłanie...
+              
+              Zostałem sam na lodzie, lodzie...
             </span>
           ) : (
             <span className="flex items-center justify-center">
@@ -210,7 +226,7 @@ export function UploadPage() {
 
         {error && (
           <div className="p-2  border border-dashed border-red-800 text-red-300 text-center rounded-md text-sm animate-fade-in-01-text max-w-md">
-            wystąpił problem podczas wysyłania plików.
+            {errorMessage}
           </div>
         )}
 
@@ -226,7 +242,7 @@ export function UploadPage() {
       <Terminal className="h-4 w-4 " />
       <AlertTitle className="text-sm">Wskazówka</AlertTitle>
       <AlertDescription className="text-[0.7rem]">
-        Linki są dostępne tylko przez 24 godziny.
+        Linki są dostępne przez 24 godziny.
       </AlertDescription>
     </Alert>
     </section>

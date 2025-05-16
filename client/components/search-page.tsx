@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -16,7 +17,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-// Define form schema
 const formSchema = z.object({
   searchQuery: z.string().min(1, { message: "Proszę wprowadzić tekst do wyszukania" }),
 });
@@ -26,7 +26,7 @@ type FormData = z.infer<typeof formSchema>;
 export default function SearchPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -38,28 +38,9 @@ export default function SearchPage() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch(`your-api-endpoint`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ query: data.searchQuery }),
-      });
-
-      if (!res.ok) {
-        setError(true);
-        setSuccess(false);
-        return;
-      }
-
-      setSuccess(true);
-      setError(false);
-      form.reset();
+      router.push(`/${data.searchQuery}`);
     } catch (error) {
-      console.error("Error searching:", error);
       setError(true);
-      setSuccess(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -67,7 +48,7 @@ export default function SearchPage() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full  max-w-md mx-auto">
         <FormField
           control={form.control}
           name="searchQuery"
@@ -118,11 +99,7 @@ export default function SearchPage() {
           </div>
         )}
 
-        {success && (
-          <div className="p-2 border border-dashed border-green-800 text-green-300 text-center rounded-md text-sm animate-fade-in-01-text max-w-md">
-            Wyszukiwanie zakończone pomyślnie.
-          </div>
-        )}
+        
       </form>
     </Form>
   );
