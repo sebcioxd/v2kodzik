@@ -1,5 +1,5 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2 } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -16,6 +16,66 @@ interface FilesProps {
   totalSize: number;
   createdAt: string;
   storagePath: string;
+}
+
+function getFileIcon(fileName: string, fileType?: string) {
+  const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
+
+  // Image files
+  if (
+    ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg", "ico"].includes(extension) ||
+    fileType?.startsWith("image/")
+  ) {
+    return <ImageIcon className="h-5 w-5 text-zinc-400" />;
+  }
+
+  // Video files
+  if (
+    ["mp4", "avi", "mov", "wmv", "flv", "mkv", "webm"].includes(extension) ||
+    fileType?.startsWith("video/")
+  ) {
+    return <FileVideoIcon className="h-5 w-5 text-zinc-400" />;
+  }
+
+  // Audio files
+  if (
+    ["mp3", "wav", "ogg", "m4a", "flac", "aac"].includes(extension) ||
+    fileType?.startsWith("audio/")
+  ) {
+    return <FileAudioIcon className="h-5 w-5 text-zinc-400" />;
+  }
+
+  // Text/Document files
+  if (
+    ["txt", "md", "rtf", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(extension) ||
+    fileType?.startsWith("text/")
+  ) {
+    return <FileTextIcon className="h-5 w-5 text-zinc-400" />;
+  }
+
+  // Code files
+  if (
+    ["html", "css", "js", "jsx", "ts", "tsx", "json", "xml", "php", "py", "rb", 
+     "java", "c", "cpp", "cs", "go", "rust", "swift", "kotlin", "dart"].includes(extension)
+  ) {
+    return <FileCodeIcon className="h-5 w-5 text-zinc-400" />;
+  }
+
+  // Archive files
+  if (["zip", "rar", "7z", "tar", "gz", "bz2", "iso"].includes(extension)) {
+    return <FileArchiveIcon className="h-5 w-5 text-zinc-400" />;
+  }
+
+  // Executable/Application files
+  if (
+    ["exe", "msi", "app", "apk", "deb", "rpm", "dmg"].includes(extension) ||
+    fileType?.startsWith("application/")
+  ) {
+    return <FileCogIcon className="h-5 w-5 text-zinc-400" />;
+  }
+
+  // Default file icon
+  return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
 export default function Files({ files, totalSize, createdAt }: FilesProps) {
@@ -142,7 +202,7 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <FileIcon className="h-5 w-5 text-zinc-400" />
+                {getFileIcon(file.fileName)}
                 <div className="flex flex-col">
                   <span className="text-zinc-200 text-sm">{file.fileName}</span>
                   <span className="text-zinc-500 text-xs">{formatBytes(file.size)}</span>
