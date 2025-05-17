@@ -32,6 +32,7 @@ import { Upload, X, Terminal } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 
 
@@ -89,40 +90,41 @@ export function UploadPage() {
       });
       formData.append("slug", data.slug || "");
 
-      const xhr = new XMLHttpRequest();
-      
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 100);
-          setUploadProgress(progress);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/upload`, 
+        formData, 
+        {
+          withCredentials: true,
+          onUploadProgress: (progressEvent) => {
+            if (progressEvent.total) {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              setUploadProgress(percentCompleted);
+            }
+          }
         }
-      };
+      );
 
-      const response = await new Promise((resolve, reject) => {
-        xhr.open('POST', `${process.env.NEXT_PUBLIC_API_URL}/v1/upload`);
-        xhr.withCredentials = true;
-
-        xhr.onload = () => resolve(xhr);
-        xhr.onerror = () => reject(xhr);
-        xhr.send(formData);
-      });
-
-      if (xhr.status === 200) {
-        const data = JSON.parse(xhr.responseText);
+      if (response.status === 200) {
         setSuccess(true);
         setError(false);
         form.reset();
-        router.push(`/success?slug=${data.slug}`);
+        router.push(`/success?slug=${response.data.slug}`);
       } else {
         setError(true);
         setSuccess(false);
-        const data = JSON.parse(xhr.responseText);
-        setErrorMessage(data.message);
+        setErrorMessage(response.data.message);
       }
     } catch (error) {
       console.error("Error uploading files:", error);
       setError(true);
       setSuccess(false);
+      if (axios.isAxiosError(error) && error.response) {
+        setErrorMessage(error.response.data.message || "Failed to upload files");
+      } else {
+        setErrorMessage("An unexpected error occurred");
+      }
     } finally {
       setIsSubmitting(false);
       setUploadProgress(0);
