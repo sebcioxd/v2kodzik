@@ -14,19 +14,21 @@ export default function Hero() {
 
         
         <section className="flex flex-row gap-4">
-            <Button className="mt-4 bg-zinc-900 text-zinc-400 hover:bg-zinc-800">
-                <Link href="/upload" className="flex items-center">
+        <Link href="/upload" className="flex items-center hover:cursor-pointer">
+            <Button className="mt-4 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:cursor-pointer animate-slide-in-bottom">
+                
                     Przejdź do przesyłania
                 <ArrowRight className="w-4 h-4 ml-2" />
-            </Link>
+            
         </Button>
-
-        <Button className="mt-4 bg-zinc-900 text-zinc-400 hover:bg-zinc-800">
-            <Link href="/search" className="flex items-center">
+        </Link>
+        <Link href="/search" className="flex items-center hover:cursor-pointer">
+        <Button className="mt-4 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:cursor-pointer animate-slide-in-bottom">
+            
                 Dostałem link
                 <LinkIcon className="w-4 h-4 ml-2" />
-            </Link>
-        </Button>
+            </Button>
+        </Link>
 
         </section>
     </main>

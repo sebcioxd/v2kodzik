@@ -23,7 +23,7 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
 
   const fetchShare = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/share/${slug}`);
+      const res = await fetch(`${process.env.API_URL}/v1/share/${slug}`);
       if (!res.ok) {
         return null;
       }
