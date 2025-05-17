@@ -228,7 +228,7 @@ export function UploadPage() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              {uploadProgress > 0 ? `Wysyłanie... ${uploadProgress}%` : 'Generowanie...'}
+              {uploadProgress > 0 ? `Wysyłanie... ${uploadProgress}%` : 'Ostatnie szlify...'}
             </span>
           ) : (
             <span className="flex items-center justify-center">
@@ -242,7 +242,7 @@ export function UploadPage() {
           <div className="w-full animate-fade-in-01-text">
             <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-zinc-400 transition-all duration-300 ease-in-out"
+                className="h-full bg-zinc-400 transition-all duration-500 ease-out transform origin-left rounded-full"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
