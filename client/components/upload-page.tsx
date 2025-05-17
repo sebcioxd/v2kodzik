@@ -136,7 +136,7 @@ export function UploadPage() {
                     // Calculate ETA in seconds
                     const remainingBytes = (total || 1) - loaded;
                     const etaSeconds = remainingBytes / (byteDiff / timeDiff * 1000);
-                    setEstimatedTime(Math.round(etaSeconds));
+                    setEstimatedTime(etaSeconds);
                   }
                 }
                 
@@ -367,7 +367,10 @@ export function UploadPage() {
                 <p>
                   {estimatedTime > 60 
                     ? `~ ${Math.floor(estimatedTime / 60)}m ${estimatedTime % 60}s pozostało` 
-                    : `~ ${estimatedTime}s pozostało`}
+                    : `~ ${estimatedTime < 1 
+                        ? `${estimatedTime.toFixed(1)}s pozostało` 
+                        : `${Math.round(estimatedTime)}s pozostało`}`
+                  }
                 </p>
               )}
             </div>
