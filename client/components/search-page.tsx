@@ -56,11 +56,14 @@ export default function SearchPage() {
             <FormItem>
             <FormLabel className="text-zinc-400 animate-fade-in-01-text">Podaj kod od znajomego</FormLabel>
               <FormControl>
+              <div className="flex items-center gap-2">
+              <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 border-zinc-800 rounded-md px-1 py-1">dajkodzik.pl/</span>
                 <Input
                   {...field}
                   placeholder="Wyszukaj..."
                   className="w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text"
                 />
+                </div>
               </FormControl>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
             </FormItem>

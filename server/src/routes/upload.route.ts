@@ -4,6 +4,8 @@ import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
 import { db } from "../db";
 import { shares, uploadedFiles } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { getConnInfo } from 'hono/bun'
+import { getRateLimiter } from "../lib/rate-limiter";
 const uploadRoute = new Hono();
 
 const supabase = createClient(
@@ -12,6 +14,24 @@ const supabase = createClient(
 );
 
 uploadRoute.post("/", async (c) => {
+
+  const connInfo = getConnInfo(c);
+
+  const limiter = await getRateLimiter({keyPrefix: "upload" });
+
+  let remaining_requests = 0;
+
+  try {
+    const rlRes = await limiter.consume(connInfo.remote.address || "127.0.0.1");
+    remaining_requests = rlRes.remainingPoints;
+    if (rlRes.remainingPoints <= 0) {
+        return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+    }
+    } catch (error) {
+        return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+    }
+
+  
   const formData = await c.req.formData();
   const files = formData.getAll("files") as File[];
   let slug = formData.get("slug") as string;

@@ -58,6 +58,7 @@ export function UploadPage() {
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
   const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -73,22 +74,34 @@ export function UploadPage() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    setUploadProgress(0);
     try {
-      // Create FormData to send files
       const formData = new FormData();
       data.files.forEach((file) => {
         formData.append("files", file);
       });
       formData.append("slug", data.slug || "");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/upload`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
+      const xhr = new XMLHttpRequest();
+      
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          setUploadProgress(progress);
+        }
+      };
+
+      const response = await new Promise((resolve, reject) => {
+        xhr.open('POST', `${process.env.NEXT_PUBLIC_API_URL}/v1/upload`);
+        xhr.withCredentials = true;
+
+        xhr.onload = () => resolve(xhr);
+        xhr.onerror = () => reject(xhr);
+        xhr.send(formData);
       });
 
-      if (res.status === 200) {
-        const data = await res.json();
+      if (xhr.status === 200) {
+        const data = JSON.parse(xhr.responseText);
         setSuccess(true);
         setError(false);
         form.reset();
@@ -96,7 +109,7 @@ export function UploadPage() {
       } else {
         setError(true);
         setSuccess(false);
-        const data = await res.json();
+        const data = JSON.parse(xhr.responseText);
         setErrorMessage(data.message);
       }
     } catch (error) {
@@ -105,6 +118,7 @@ export function UploadPage() {
       setSuccess(false);
     } finally {
       setIsSubmitting(false);
+      setUploadProgress(0);
     }
   };
 
@@ -188,7 +202,7 @@ export function UploadPage() {
 
         <Button
           type="submit"
-          className={`w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400  animate-slide-in-left ${isSubmitting ? "bg-zinc-900/20" : ""}`}
+          className={`w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400 animate-slide-in-left ${isSubmitting ? "bg-zinc-900/20" : ""}`}
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -213,8 +227,7 @@ export function UploadPage() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              
-              Zostałem sam na lodzie, lodzie...
+              {uploadProgress > 0 ? `Wysyłanie... ${uploadProgress}%` : 'Generowanie...'}
             </span>
           ) : (
             <span className="flex items-center justify-center">
