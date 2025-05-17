@@ -48,7 +48,8 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         files={share.files} 
         totalSize={share.totalSize} 
         createdAt={share.createdAt}
-        storagePath={share.storagePath} 
+        storagePath={share.storagePath}
+        slug={slug}
       />
     </div>
   );

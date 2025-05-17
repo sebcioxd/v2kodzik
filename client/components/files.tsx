@@ -1,7 +1,7 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface File {
   id: string;
@@ -16,6 +16,7 @@ interface FilesProps {
   totalSize: number;
   createdAt: string;
   storagePath: string;
+  slug: string;
 }
 
 function getFileIcon(fileName: string, fileType?: string) {
@@ -78,10 +79,23 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
-export default function Files({ files, totalSize, createdAt }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, slug }: FilesProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<Record<string, boolean>>({});
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [isSharing, setIsSharing] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  
+  // Hide toast after timeout
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(false);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
 
   // Function to format bytes to human readable format
   const formatBytes = (bytes: number) => {
@@ -196,17 +210,49 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
     }
   };
 
+  const handleShare = async () => {
+    setIsSharing(true);
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Shared Files',
+          url: `https://www.dajkodzik.pl/${slug}`
+        });
+      } else {
+        await navigator.clipboard.writeText(`https://www.dajkodzik.pl/${slug}`);
+        setToastMessage('Link skopiowany do schowka!');
+        setShowToast(true);
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      setToastMessage('Nie udało się udostępnić linku');
+      setShowToast(true);
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   return (
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10 ">
       <div className="w-full space-y-4">
+        {/* Notification Toast */}
+        {showToast && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+            <div className="bg-zinc-800 text-zinc-200 px-4 py-2 rounded-md border border-zinc-700 shadow-lg flex items-center space-x-2">
+              <Share2 className="h-4 w-4" />
+              <span>{toastMessage}</span>
+            </div>
+          </div>
+        )}
+        
         <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
           <span>Link wygaśnie za:</span>
           <span className="font-medium text-zinc-200">{formatTimeRemaining(createdAt)}</span>
         </div>
 
-        <div className="w-full">
+        <div className="w-full flex gap-2">
           <Button 
-            className="w-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
+            className="flex-1 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
             size="sm"
             onClick={handleBulkDownload}
             disabled={isDownloading}
@@ -224,15 +270,28 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
             )}
           </Button>
           
-          {isDownloading && (
-            <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
-              <div 
-                className="bg-zinc-400 h-1.5 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${downloadProgress}%` }}
-              ></div>
-            </div>
-          )}
+          <Button 
+            className="bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
+            size="sm"
+            onClick={handleShare}
+            disabled={isSharing}
+          >
+            {isSharing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Share2 className="h-4 w-4" />
+            )}
+          </Button>
         </div>
+          
+        {isDownloading && (
+          <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
+            <div 
+              className="bg-zinc-400 h-1.5 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${downloadProgress}%` }}
+            ></div>
+          </div>
+        )}
 
         <div className="flex justify-between items-center text-zinc-400 text-sm border-b border-dashed border-zinc-800 pb-2">
           <span>Pliki ({files.length})</span>

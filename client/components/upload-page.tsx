@@ -283,11 +283,11 @@ export function UploadPage() {
                   <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 border-zinc-800 rounded-md px-1 py-1">dajkodzik.pl/</span>
                   <Input
                     {...field}
-                    placeholder="Zostaw puste aby automatycznie wygenerować..."
-                  className="w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text"
-                />
+                    className="w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text"
+                  />
                 </div>
               </FormControl>
+              <p className="text-xs text-zinc-400 mt-1">Wpisz własną nazwę lub zostaw puste dla auto-generacji.</p>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
             </FormItem>
           )}
