@@ -67,6 +67,8 @@ export function UploadPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
+  const [uploadSpeed, setUploadSpeed] = useState<number | null>(null);
+  const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
   const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -75,6 +77,10 @@ export function UploadPage() {
       slug: "",
     },
   });
+  const cancelTokenSource = React.useRef<any>(null);
+  const lastLoaded = React.useRef<number>(0);
+  const lastTime = React.useRef<number>(0);
+  const progressUpdateThrottle = React.useRef<NodeJS.Timeout | null>(null);
 
   const onFileReject = React.useCallback((file: File, message: string) => {
     console.log(message);
@@ -83,6 +89,14 @@ export function UploadPage() {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     setUploadProgress(0);
+    setUploadSpeed(null);
+    setEstimatedTime(null);
+    lastLoaded.current = 0;
+    lastTime.current = Date.now();
+    
+    // Create a new cancel token source
+    cancelTokenSource.current = axios.CancelToken.source();
+    
     try {
       const formData = new FormData();
       data.files.forEach((file) => {
@@ -95,12 +109,43 @@ export function UploadPage() {
         formData, 
         {
           withCredentials: true,
+          cancelToken: cancelTokenSource.current.token,
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              setUploadProgress(percentCompleted);
+              // Throttle UI updates to every 100ms
+              if (progressUpdateThrottle.current) {
+                clearTimeout(progressUpdateThrottle.current);
+              }
+              
+              progressUpdateThrottle.current = setTimeout(() => {
+                const now = Date.now();
+                const loaded = progressEvent.loaded;
+                const total = progressEvent.total;
+                
+                // Calculate percentage
+                const percentCompleted = Math.round((loaded * 100) / (total || 1));
+                
+                // Calculate upload speed (bytes per second)
+                if (lastTime.current && lastLoaded.current) {
+                  const timeDiff = now - lastTime.current;
+                  if (timeDiff > 0) {
+                    const byteDiff = loaded - lastLoaded.current;
+                    const speedMBps = (byteDiff / timeDiff) * 1000 / (1024 * 1024);
+                    setUploadSpeed(speedMBps);
+                    
+                    // Calculate ETA in seconds
+                    const remainingBytes = (total || 1) - loaded;
+                    const etaSeconds = remainingBytes / (byteDiff / timeDiff * 1000);
+                    setEstimatedTime(Math.round(etaSeconds));
+                  }
+                }
+                
+                // Update references for next calculation
+                lastLoaded.current = loaded;
+                lastTime.current = now;
+                
+                setUploadProgress(percentCompleted);
+              }, 100);
             }
           }
         }
@@ -117,18 +162,37 @@ export function UploadPage() {
         setErrorMessage(response.data.message);
       }
     } catch (error) {
-      console.error("Error uploading files:", error);
-      setError(true);
-      setSuccess(false);
-      if (axios.isAxiosError(error) && error.response) {
-        setErrorMessage(error.response.data.message || "Failed to upload files");
+      // Check if error is from a cancelled request
+      if (axios.isCancel(error)) {
+        setErrorMessage("Upload was canceled");
       } else {
-        setErrorMessage("An unexpected error occurred");
+        console.error("Error uploading files:", error);
+        setError(true);
+        setSuccess(false);
+        if (axios.isAxiosError(error) && error.response) {
+          setErrorMessage(error.response.data.message || "Failed to upload files");
+        } else {
+          setErrorMessage("An unexpected error occurred");
+        }
       }
     } finally {
+      if (progressUpdateThrottle.current) {
+        clearTimeout(progressUpdateThrottle.current);
+      }
       setIsSubmitting(false);
       setUploadProgress(0);
+      setUploadSpeed(null);
+      setEstimatedTime(null);
+      cancelTokenSource.current = null;
     }
+  };
+
+  const cancelUpload = () => {
+    if (cancelTokenSource.current) {
+      cancelTokenSource.current.cancel('Upload canceled by user');
+    }
+    setIsSubmitting(false);
+    setUploadProgress(0);
   };
 
   return (
@@ -279,12 +343,34 @@ export function UploadPage() {
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
-            <p className="text-xs text-zinc-400 mt-1 text-center">
-              {uploadProgress === 100 
-                ? 'Przetwarzanie plików...' 
-                : `${uploadProgress}% ukończono`
-              }
-            </p>
+            <div className="flex justify-between text-xs text-zinc-400 mt-1">
+              <p>
+                {uploadProgress === 100 
+                  ? 'Przetwarzanie plików...' 
+                  : `${uploadProgress}% ukończono`
+                }
+              </p>
+              {uploadSpeed !== null && (
+                <p>{uploadSpeed.toFixed(1)} MB/s</p>
+              )}
+              {estimatedTime !== null && uploadProgress < 100 && (
+                <p>
+                  {estimatedTime > 60 
+                    ? `~ ${Math.floor(estimatedTime / 60)}m ${estimatedTime % 60}s pozostało` 
+                    : `~ ${estimatedTime}s pozostało`}
+                </p>
+              )}
+            </div>
+            {uploadProgress < 100 && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={cancelUpload} 
+                className="mt-2 border-zinc-800 text-zinc-400 text-xs hover:bg-red-950/20 hover:border-red-800 hover:text-red-400"
+              >
+                Anuluj wysyłanie
+              </Button>
+            )}
           </div>
         )}
 
