@@ -56,6 +56,12 @@ uploadRoute.post("/", async (c) => {
     return c.json({ message: "nie wybrano plików" }, 400);
   }
 
+  // check if file names have any special characters
+  const specialChars = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;  // blocks parentheses and other special characters
+  if (files.some(file => specialChars.test(file.name))) {
+    return c.json({ message: "nazwa pliku nie może zawierać znaków specjalnych jak nawiasy () i inne" }, 400);
+  }
+
   // check if slug is already in use
   const existingShare = await db.select().from(shares).where(eq(shares.slug, slug));
   if (existingShare.length > 0) {
