@@ -17,7 +17,7 @@ const authPrefixesPoints: Record<AuthPrefixes, number> = {
 
 // Duration of the block (rate limiting)
 const authPrefixesDuration: Record<AuthPrefixes, number> = {
-    "upload": 600,
+    "upload": 1800,
     "default": 90,
 }
 
