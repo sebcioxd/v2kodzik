@@ -53,12 +53,19 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+function formatBytes(bytes: number) {
+  if (bytes === 0) return "0 MB";
+  const mb = bytes / (1024 * 1024);
+  return `${mb.toFixed(1)} MB`;
+}
+
 export function UploadPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [totalSize, setTotalSize] = useState(0);
   const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -138,7 +145,11 @@ export function UploadPage() {
                   maxTotalSize={10 * 1024 * 1024}
                   className="w-full max-w-md animate-fade-in-01-text" 
                   value={field.value}
-                  onValueChange={field.onChange}
+                  onValueChange={(files) => {
+                    field.onChange(files);
+                    const newTotalSize = files.reduce((acc, file) => acc + file.size, 0);
+                    setTotalSize(newTotalSize);
+                  }}
                   onFileReject={onFileReject}
                   multiple
                 >
@@ -171,6 +182,23 @@ export function UploadPage() {
                       </FileUploadItem>
                     ))}
                   </FileUploadList>
+                  {field.value.length > 0 && (
+                    <div className="mt-4 space-y-1 animate-fade-in-01-text">
+                      <div className="flex justify-between items-center text-xs text-zinc-400">
+                        <span>Całkowity rozmiar</span>
+                        <span>{formatBytes(totalSize)} / 10 MB</span>
+                      </div>
+                      <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
+                          style={{ 
+                            width: `${Math.min((totalSize / (10 * 1024 * 1024)) * 100, 100)}%`,
+                            backgroundColor: totalSize > (10 * 1024 * 1024) ? '#ef4444' : undefined
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </FileUpload>
               </FormControl>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
@@ -228,7 +256,7 @@ export function UploadPage() {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              {uploadProgress > 0 ? `Wysyłanie... ${uploadProgress}%` : 'Ostatnie szlify...'}
+              {uploadProgress > 0 ? `Wysyłanie... ${uploadProgress}%` : 'Przetwarzanie...'}
             </span>
           ) : (
             <span className="flex items-center justify-center">
