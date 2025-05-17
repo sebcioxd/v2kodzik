@@ -81,6 +81,7 @@ function getFileIcon(fileName: string, fileType?: string) {
 export default function Files({ files, totalSize, createdAt }: FilesProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<Record<string, boolean>>({});
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   // Function to format bytes to human readable format
   const formatBytes = (bytes: number) => {
@@ -108,7 +109,7 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
     return `${hours}h ${minutes}m`;
   };
 
-    const handleDownload = async (path: string, fileId: string) => {
+  const handleDownload = async (path: string, fileId: string) => {
     setDownloadingFiles(prev => ({ ...prev, [fileId]: true }));
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download`, {
@@ -142,6 +143,23 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
 
   const handleBulkDownload = async () => {
     setIsDownloading(true);
+    setDownloadProgress(0);
+    
+    // Calculate expected preparation time based on file sizes
+    // Rough estimation: 1MB takes ~100ms to process
+    const totalMB = totalSize / (1024 * 1024);
+    const estimatedTimeMs = Math.max(500, Math.min(10000, totalMB * 100));
+    const updateInterval = Math.max(50, estimatedTimeMs / 100); // More frequent updates for larger files
+    
+    let startTime = Date.now();
+    
+    // More realistic progress simulation based on file sizes
+    const progressInterval = setInterval(() => {
+      const elapsedTime = Date.now() - startTime;
+      const progress = Math.min(95, (elapsedTime / estimatedTimeMs) * 100);
+      setDownloadProgress(progress);
+    }, updateInterval);
+    
     try {
       const paths = files.map(file => file.storagePath);
       
@@ -152,6 +170,9 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
         },
         body: JSON.stringify({ paths }),
       });
+      
+      clearInterval(progressInterval);
+      setDownloadProgress(100); // Download is ready
       
       if (!response.ok) throw new Error('Bulk download failed');
       
@@ -165,9 +186,13 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
       window.URL.revokeObjectURL(url);
       a.remove();
     } catch (error) {
+      clearInterval(progressInterval);
       alert('nie udało się pobrać plików');
     } finally {
-      setIsDownloading(false);
+      setTimeout(() => {
+        setIsDownloading(false);
+        setDownloadProgress(0);
+      }, 1000); // Keep 100% progress visible briefly
     }
   };
 
@@ -179,16 +204,35 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
           <span className="font-medium text-zinc-200">{formatTimeRemaining(createdAt)}</span>
         </div>
 
-        
-        <Button 
-          className="w-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
-          size="sm"
-          onClick={handleBulkDownload}
-          disabled={isDownloading}
-        >
-          <Archive className="h-4 w-4 mr-2" />
-          {isDownloading ? 'Przygotowywanie...' : `Pobierz wszystkie (${formatBytes(totalSize)})`}
-        </Button>
+        <div className="w-full">
+          <Button 
+            className="w-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
+            size="sm"
+            onClick={handleBulkDownload}
+            disabled={isDownloading}
+          >
+            {isDownloading ? (
+              <div className="flex items-center">
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <span>Przygotowywanie... {downloadProgress.toFixed(0)}%</span>
+              </div>
+            ) : (
+              <>
+                <Archive className="h-4 w-4 mr-2" />
+                Pobierz wszystkie ({formatBytes(totalSize)})
+              </>
+            )}
+          </Button>
+          
+          {isDownloading && (
+            <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
+              <div 
+                className="bg-zinc-400 h-1.5 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${downloadProgress}%` }}
+              ></div>
+            </div>
+          )}
+        </div>
 
         <div className="flex justify-between items-center text-zinc-400 text-sm border-b border-dashed border-zinc-800 pb-2">
           <span>Pliki ({files.length})</span>

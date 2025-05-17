@@ -53,15 +53,6 @@ export default function FAQ() {
               Obecnie program nie jest open source. W przyszłości może się to zmienić.
             </AccordionContent>
         </AccordionItem>
-
-        <AccordionItem value="item-6" className="border border-dashed border-zinc-800 rounded-md px-4 bg-zinc-950/10">
-            <AccordionTrigger className="text-zinc-200 hover:text-zinc-100 hover:no-underline">
-              Jakich technologii użyto ?
-            </AccordionTrigger>
-            <AccordionContent className="text-zinc-400 text-sm">
-              Front-end to NextJS. backend jest postawiony na Bun i Hono. Baza danych to Supabase PostgreSQL oraz Storage.
-            </AccordionContent>
-        </AccordionItem>
       </Accordion>
     </main>
   );
