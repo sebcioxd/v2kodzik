@@ -199,6 +199,7 @@ export function UploadPage() {
           )}
         />
               
+        
 
         <Button
           type="submit"
@@ -236,6 +237,20 @@ export function UploadPage() {
             </span>
           )}
         </Button>
+
+        {isSubmitting && uploadProgress > 0 && (
+          <div className="w-full animate-fade-in-01-text">
+            <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-zinc-400 transition-all duration-300 ease-in-out"
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
+            <p className="text-xs text-zinc-400 mt-1 text-center">
+              {uploadProgress}% ukończono
+            </p>
+          </div>
+        )}
 
         {error && (
           <div className="p-2  border border-dashed border-red-800 text-red-300 text-center rounded-md text-sm animate-fade-in-01-text max-w-md">
