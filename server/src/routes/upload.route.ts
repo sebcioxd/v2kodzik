@@ -74,7 +74,7 @@ uploadRoute.post("/", async (c) => {
             .from("sharebucket")
             .upload(file.name ? `${slug}/${file.name}` : "unknown", file, {
               cacheControl: "3600",
-              upsert: false,
+              upsert: true,
               contentType: file.type || undefined
             });
           if (error) throw error;
