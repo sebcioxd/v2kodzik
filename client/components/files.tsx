@@ -112,7 +112,7 @@ export default function Files({ files, totalSize, createdAt }: FilesProps) {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center w-full max-w-md mx-auto animate-fade-in-01-text mt-10">
+    <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10 ">
       <div className="w-full space-y-4">
         <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
           <span>Link wygaśnie za:</span>

@@ -15,7 +15,7 @@ export default function Navbar() {
             <div className="flex justify-between items-center w-full">
                 <Link href="/" className="flex items-center gap-2">
                     
-                    <h1 className="text-zinc-400 md:text-lg text-sm font-bold font-mono">.kodzik</h1>
+                    <h1 className="text-zinc-400 md:text-lg text-lg font-bold font-mono">.kodzik</h1>
                 </Link>
                 
                 <button 

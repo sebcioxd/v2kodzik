@@ -5,7 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function SuccessPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center">
+      <div className="flex items-center justify-center ">
        <main className="flex flex-col items-center justify-center w-full max-w-md mx-auto animate-fade-in-01-text mt-10">
       <div className="w-full space-y-4">
         <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10">

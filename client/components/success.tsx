@@ -44,7 +44,7 @@ export default function Success() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center w-full max-w-md mx-auto space-y-6 animate-fade-in-01-text mt-6">
+    <main className="flex flex-col items-center justify-center w-full mx-auto space-y-6 animate-fade-in-01-text mt-6 container  md:max-w-nd max-w-sm">
       <Alert className="bg-zinc-950/10 border-zinc-800 border-dashed">
        
         <AlertTitle className="text-zinc-200">Link został wygenerowany!</AlertTitle>
