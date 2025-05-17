@@ -28,19 +28,32 @@ cronRoute.post("/", async (c) => {
   const foldersToDelete = folders.filter((folder) => !slugs.some((slug) => slug.slug === folder.name));
 
   // loop through the files in the folder and delete them
+  const deletionResults = [];
   for (const folder of foldersToDelete) {
     const { data: files, error: filesError } = await supabase.storage.from("sharebucket").list(folder.name);
     if (files) {
       const { error } = await supabase.storage.from("sharebucket").remove(files.map((file) => `${folder.name}/${file.name}`));
+      
+      // Instead of returning immediately, track the result
       if (error) {
-        return c.json({ message: error }, 404);
+        deletionResults.push({ folder: folder.name, success: false, error });
       } else {
-        return c.json({ message: "Pomyślnie usunięto pliki" }, 200);
+        // After deleting files, we also need to delete the empty folder
+        const { error: folderError } = await supabase.storage.from("sharebucket").remove([`${folder.name}/`]);
+        deletionResults.push({ 
+          folder: folder.name, 
+          success: !folderError, 
+          error: folderError 
+        });
       }
     }
   }
 
-  return c.json({ message: "Udało się sprawdzić foldery" }, 200);
+  return c.json({ 
+    message: "Operacja zakończona", 
+    deletedFolders: deletionResults,
+    totalProcessed: foldersToDelete.length
+  }, 200);
   
 });
 
