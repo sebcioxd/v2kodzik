@@ -23,7 +23,7 @@ export default function FAQ() {
               Jakie są ograniczenia dotyczące plików?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Maksymalnie 20 plików, 10MB maksymalnie.
+              Maksymalnie 20 plików, 20MB maksymalnie.
             </AccordionContent>
         </AccordionItem>
         
@@ -32,7 +32,7 @@ export default function FAQ() {
               Jakie są limity dotyczące linków?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Maksymalnie 5 linków co 30 minut na jeden adres IP.
+              Maksymalnie 3 linki co 10-20 minut na jeden adres IP.
             </AccordionContent>
         </AccordionItem>
 
