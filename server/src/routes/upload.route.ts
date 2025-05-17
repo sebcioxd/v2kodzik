@@ -66,7 +66,7 @@ uploadRoute.post("/", async (c) => {
       slug,
       createdAt: new Date(),
       updatedAt: new Date(),
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     }).returning({ id: shares.id });
 
     await Promise.all(
