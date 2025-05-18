@@ -40,3 +40,17 @@ NEXT_PUBLIC_SITE_URL,`
 - Back-end (NextJS) polecany jest żeby deployować na VPS przy użyciu Coolify lub Dokploy, lub rozwiązanie serverless Railway.
 
 *Aby skompilować backend, zalecane jest użycie buildera `Nixpacks`
+
+
+**Cron jobs**
+- Do efektywnego czyszczenia zbędnych plików i bazy danych, potrzebne są dwa cron joby lub jeden jesli mamy 3rd party serwis.
+- Polecam do tego użyć Supabase Cron.
+
+1. Pierwszy cron job:
+DELETE FROM shares WHERE expires_at < NOW(); 
+
+To jest SQL statement, ktory sprawdza kolumnę expires_at, jeśli jest mniejsza niż NOW(), to zostanie usunięty link.
+*Wszystkie pliki z samego storagu nie zostaną usunięte. Zostanie tylko usunięa tableka i powiązane z nią pliki (Cascade)
+
+2. Drugi cron job:
+POST request do /v1/cron z body {"key": ""}. CRON_BODY_KEY configurujecie w env vars. Musi on być zgodny z key jaki dajecie do body. 
