@@ -366,7 +366,7 @@ export function UploadPage() {
               {estimatedTime !== null && uploadProgress < 100 && (
                 <p>
                   {estimatedTime > 60 
-                    ? `~ ${Math.floor(estimatedTime / 60)}m ${estimatedTime % 60}s pozostało` 
+                    ? `~ ${Math.floor(estimatedTime / 60)}m ${Math.round(estimatedTime % 60)}s pozostało` 
                     : `~ ${estimatedTime < 1 
                         ? `${estimatedTime.toFixed(1)}s pozostało` 
                         : `${Math.round(estimatedTime)}s pozostało`}`
