@@ -110,7 +110,9 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
   const formatTimeRemaining = (createdAt: string) => {
     const created = new Date(createdAt);
     const expiresAt = new Date(created.getTime() + 24 * 60 * 60 * 1000); // 24 hours after creation
+    // minus 2 hours off the now date because of the timezone
     const now = new Date();
+    now.setHours(now.getHours() + 2);
     const diff = expiresAt.getTime() - now.getTime();
     
     if (diff <= 0) {
