@@ -159,18 +159,35 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
     setIsDownloading(true);
     setDownloadProgress(0);
     
-    // Calculate expected preparation time based on file sizes
-    // Rough estimation: 1MB takes ~100ms to process
+    // Calculate expected preparation time based on both file size and count
     const totalMB = totalSize / (1024 * 1024);
-    const estimatedTimeMs = Math.max(500, Math.min(10000, totalMB * 100));
-    const updateInterval = Math.max(50, estimatedTimeMs / 100); // More frequent updates for larger files
+    const fileCount = files.length;
     
+    // Base time for file processing overhead (ms)
+    const baseTimePerFile = 170; // 170ms overhead per file
+    const sizeBasedTime = totalMB * 100; // 100ms per MB
+    const estimatedTimeMs = Math.max(
+      500,
+      Math.min(15000, sizeBasedTime + (fileCount * baseTimePerFile))
+    );
+    
+    const updateInterval = Math.max(50, estimatedTimeMs / 120); // More frequent updates
     let startTime = Date.now();
     
-    // More realistic progress simulation based on file sizes
+    // Progressive progress simulation
     const progressInterval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
-      const progress = Math.min(95, (elapsedTime / estimatedTimeMs) * 100);
+      const progressRatio = elapsedTime / estimatedTimeMs;
+      
+      // Non-linear progress curve that slows down as it approaches 95%
+      // This better reflects the actual behavior of file processing
+      const progress = Math.min(
+        95,
+        progressRatio < 0.7
+          ? progressRatio * 85 // Faster progress initially
+          : 85 + Math.pow(progressRatio - 0.7, 0.5) * 10 // Slower progress near the end
+      );
+      
       setDownloadProgress(progress);
     }, updateInterval);
     
@@ -186,7 +203,7 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
       });
       
       clearInterval(progressInterval);
-      setDownloadProgress(100); // Download is ready
+      setDownloadProgress(100);
       
       if (!response.ok) throw new Error('Bulk download failed');
       
