@@ -4,6 +4,7 @@
 - Node.js i Bun zainstalowany na twoim systemie.
 - Dowonly package manager (npm, pnmp, yarn, bun)
 - Baza Supabase oraz Konto Railway
+- Ewentualnie serwer VPS oraz CMS typu Coolify czy Dokploy.
 
 **Zmienne środowiskowe /envs**
 
@@ -25,7 +26,7 @@ NEXT_PUBLIC_SITE_URL,`
 
 
 
-**Qucik Setup**
+**Quick Setup**
 1. Sklonuj repozytorium
 2. Przejdz do /server, uruchom komendę `npm install` aby zainstalować wszystkie wymagane moduły i bilioteki.
 3. Zainicjalizuj schemat bazy danych, używając `npx drizzle-kit push`, po uruchomieniu upewnij się że wszystkie modele są prawidłowo podłączone.
