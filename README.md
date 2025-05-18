@@ -66,6 +66,10 @@ NEXT_PUBLIC_SITE_URL=`
 
 6. **Uruchom oba serwery developersko**
 
+    W /server i /client osobno:
+
+    `npm run dev # lub bun dev`
+
 ---
 
 ## 🚀 Deploy
@@ -106,4 +110,4 @@ Content-Type: application/json
 
 > Cron czyszczący wszystkie pliki w storage, które nie mają odpowiednika w bazie danych
 
-### W razie wszelkich błędów, pomocy lub pytań, skontakuj się na [niarde.xyz][https://www.niarde.xyz/]
+### W razie wszelkich błędów, pomocy lub pytań, skontakuj się na [niarde.xyz](https://www.niarde.xyz/)
