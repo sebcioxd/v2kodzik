@@ -4,27 +4,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogOut, Clock, ExternalLink } from "lucide-react";
 import { authClient, User } from "@/lib/auth-client";
-
-type History = {
+import Link from "next/link";
+type Share = {
     id: string;
-    shareId: string;
-    fileName: string;
-    size: number;
-    storagePath: string;
+    slug: string;
     createdAt: string;
     updatedAt: string;
-}
-
-type HistoryResponse = {
-    uploaded_files: History;
-    shares: {
-        id: string;
-        slug: string;
-        createdAt: string;
-        updatedAt: string;
-        expiresAt: string;
-        userId: string;
-    };
+    expiresAt: string;
+    userId: string;
 }
 
 function formatBytes(bytes: number) {
@@ -62,7 +49,7 @@ function formatDate(dateString: string) {
     }
 }
 
-export default function UserPanel({ history, user }: { history: HistoryResponse[], user: User }) {
+export default function UserPanel({ shares, user }: { shares: Share[], user: User }) {
     const router = useRouter();
 
     const handleLogout = async () => {
@@ -95,36 +82,38 @@ export default function UserPanel({ history, user }: { history: HistoryResponse[
                 <div className="border-b border-dashed border-zinc-800 pb-4">
                     <h3 className="text-sm text-zinc-400 flex items-center gap-2 mb-4">
                         <Clock className="h-4 w-4" />
-                        Historia przesłanych plików
+                        Historia udostępnień
                     </h3>
                     
                     <div className="space-y-3">
-                        {history?.map((item) => (
+                        {shares.length === 0 && (
+                            <div className="text-zinc-400 text-sm">
+                                Brak udostępnień. <Link href="/upload" className="text-zinc-200 hover:text-zinc-200 hover:bg-zinc-800 rounded-md p-1">Dodaj nowe piki</Link>
+                            </div>
+                        )}
+                        {shares?.map((share) => (
                             <div 
-                                key={item.uploaded_files.id}
+                                key={share.id}
                                 className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors"
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="flex flex-col">
                                         <span className="text-zinc-200 text-sm font-medium">
-                                            {item.uploaded_files.fileName}
-                                        </span>
-                                        <span className="text-zinc-500 text-xs">
-                                            {formatBytes(Number(item.uploaded_files.size) || 0)}
+                                            Share Link: {share.slug}
                                         </span>
                                     </div>
                                     <Button
                                         variant="ghost"
                                         size="sm"
                                         className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-                                        onClick={() => router.push(`/${item.shares.slug}`)}
+                                        onClick={() => router.push(`/${share.slug}`)}
                                     >
                                         <ExternalLink className="h-4 w-4" />
                                     </Button>
                                 </div>
                                 <div className="flex justify-between items-center text-xs text-zinc-400">
-                                    <span>Utworzono: {formatDate(item.uploaded_files.createdAt)}</span>
-                                    <span>Wygasa: {formatDate(item.shares.expiresAt)}</span>
+                                    <span>Utworzono: {formatDate(share.createdAt)}</span>
+                                    <span>Wygasa: {formatDate(share.expiresAt)}</span>
                                 </div>
                             </div>
                         ))}
