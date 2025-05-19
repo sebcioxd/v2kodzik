@@ -43,7 +43,6 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
             fetchOptions: {
                 credentials: "include",
             onSuccess: () => {
-                    router.refresh();
                     refetch();
                     router.push("/auth");
                     setIsLoading(false);

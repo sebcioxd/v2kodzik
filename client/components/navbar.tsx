@@ -55,7 +55,9 @@ export default function Navbar() {
                     {isPending ? (
                         <div className="h-5 w-14 bg-zinc-800 animate-pulse rounded-full" />
                     ) : session ? (
-                        <button className="text-sm font-medium transition-colors text-zinc-400 hover:text-zinc-200" onClick={() => router.push("/panel")}>
+                        <button className={`text-sm font-medium transition-colors text-zinc-400 hover:text-zinc-200 ${
+                            pathname === "/panel" ? "text-zinc-200" : "text-zinc-400"
+                        }`} onClick={() => router.push("/panel")}>
                             Panel
                         </button>
                     ) : (
