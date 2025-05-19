@@ -41,7 +41,7 @@ export default async function UserPanelPage() {
         return redirect("/auth");
     }
 
-    const history = await axios.get<UserPanelResponse>("http://localhost:8080/v1/history", {
+    const history = await axios.get<UserPanelResponse>(`${process.env.BETTER_AUTH_URL}/v1/history`, {
         headers: {
             Cookie: (await cookies()).toString()
         },
