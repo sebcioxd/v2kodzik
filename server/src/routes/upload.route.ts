@@ -6,6 +6,7 @@ import { shares, uploadedFiles } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { getConnInfo } from 'hono/bun'
 import { getRateLimiter } from "../lib/rate-limiter";
+import { Context } from "hono";
 const uploadRoute = new Hono();
 
 const supabase = createClient(
@@ -13,23 +14,24 @@ const supabase = createClient(
   SUPABASE_SERVICE_ROLE_KEY
 );
 
-uploadRoute.post("/", async (c) => {
+uploadRoute.post("/", async (c: Context) => {
 
-  const connInfo = getConnInfo(c);
+  // const connInfo = getConnInfo(c);
+  const user = c.get("user")
 
-  const limiter = await getRateLimiter({keyPrefix: "upload" });
+  // const limiter = await getRateLimiter({keyPrefix: "upload" });
 
-  let remaining_requests = 0;
+  // let remaining_requests = 0;
 
-  try {
-    const rlRes = await limiter.consume(connInfo.remote.address || "127.0.0.1");
-    remaining_requests = rlRes.remainingPoints;
-    if (rlRes.remainingPoints <= 0) {
-        return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
-    }
-    } catch (error) {
-        return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
-    }
+  // try {
+  //   const rlRes = await limiter.consume(connInfo.remote.address || "127.0.0.1");
+  //   remaining_requests = rlRes.remainingPoints;
+  //   if (rlRes.remainingPoints <= 0) {
+  //       return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+  //   }
+  //   } catch (error) {
+  //       return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+  //   }
 
   
   const formData = await c.req.formData();
@@ -38,7 +40,7 @@ uploadRoute.post("/", async (c) => {
   slug = slug.replace(/\s+/g, ''); // clean slug from any whitespaces
 
   // check for restricted paths
-  const restrictedPaths = ['/upload', '/search', '/faq', '/api', '/admin'];
+  const restrictedPaths = ['/upload', '/search', '/faq', '/api', '/admin', '/auth'];
   if (restrictedPaths.some(path => slug === path.replace('/', ''))) {
     return c.json({ message: "nazwa linku jest zarezerwowana dla systemu" }, 400);
   }
@@ -93,6 +95,7 @@ uploadRoute.post("/", async (c) => {
       createdAt: new Date(),
       updatedAt: new Date(),
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      userId: user ? user.id : null
     }).returning({ id: shares.id });
 
     await Promise.all(

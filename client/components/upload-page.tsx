@@ -48,7 +48,7 @@ const formSchema = z.object({
   slug: z.string().trim()
     .min(4, { message: "Nazwa linku musi mieć przynajmniej 4 znaki" })
     .refine((value) => {
-      const restrictedPaths = ['/upload', '/search', '/faq', '/api', '/admin'];
+      const restrictedPaths = ['/upload', '/search', '/faq', '/api', '/admin', '/auth'];
       return !restrictedPaths.some(path => 
         value.toLowerCase().trim() === path.replace('/', '').trim() || 
         value.toLowerCase().trim().startsWith(path.replace('/', '').trim())

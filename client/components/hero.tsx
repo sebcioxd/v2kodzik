@@ -31,6 +31,16 @@ export default function Hero() {
         </Link>
 
         </section>
+
+        <div className="mt-8 p-3 border border-dashed border-zinc-800 rounded-lg bg-zinc-900/30 animate-slide-in-bottom">
+            <p className="text-zinc-400 text-sm flex items-center gap-2">
+                <span>✨</span>
+                <span>Zaloguj się, aby zobaczyć historię przesyłanych plików</span>
+                <Link href="/auth" className="text-zinc-300 hover:text-zinc-100 transition-colors underline underline-offset-4">
+                    Zaloguj
+                </Link>
+            </p>
+        </div>
     </main>
   )
 }
