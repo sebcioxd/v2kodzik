@@ -28,7 +28,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert"
-import { Upload, X, Terminal } from "lucide-react";
+import { Upload, X, Terminal, AlertCircle } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -307,13 +307,13 @@ export function UploadPage() {
                     </div>
                   )}
                   {rejectedFiles.length > 0 && (
-                    <div className="mt-2 animate-fade-in-01-text">
+                    <div className="mt-2 animate-fade-in-01-text ">
                       {rejectedFiles.map((file, index) => (
                         <TooltipProvider key={index}>
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div className="text-xs text-red-400 mb-1 cursor-pointer flex items-center gap-1">
-                                <span>⚠️</span>
+                                <AlertCircle className="size-4" />
                                 <span className="border-b border-dotted border-red-400/50">{file.name}</span>
                               </div>
                             </TooltipTrigger>

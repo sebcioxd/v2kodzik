@@ -1,4 +1,10 @@
+
+
+![logo-small](https://github.com/user-attachments/assets/1eeac40b-9d14-45f3-a751-8afc8dfca023)
+
+
 # dajkodzik.pl — v2
+
 
  Platforma do przesyłania kodu, oraz załączników z niestandardowymi linkami. 
 

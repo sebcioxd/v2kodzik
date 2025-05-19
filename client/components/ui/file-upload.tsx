@@ -416,7 +416,7 @@ const FileUploadRoot = React.forwardRef<HTMLDivElement, FileUploadRootProps>(
             filesToProcess = [];
 
             for (const file of rejectedFiles) {
-              let rejectionMessage = `Total file size would exceed maximum of ${formatBytes(maxTotalSize)}`;
+              let rejectionMessage = `Całkowity rozmiar plików przekroczy maksymalny rozmiar ${formatBytes(maxTotalSize)}`;
 
               if (onFileValidate) {
                 const validationMessage = onFileValidate(file);
