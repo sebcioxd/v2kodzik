@@ -5,8 +5,6 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import { User } from "@/lib/auth-client";
 
-export const dynamic = "force-dynamic";
-
 type Share = {
     id: string;
     slug: string;

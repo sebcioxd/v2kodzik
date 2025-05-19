@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, Clock, ExternalLink } from "lucide-react";
+import { LogOut, Clock, ExternalLink, Loader2 } from "lucide-react";
 import { authClient, User } from "@/lib/auth-client";
+import { useState } from "react";
+import { useSession } from "@/lib/auth-client";
 import Link from "next/link";
 type Share = {
     id: string;
@@ -12,26 +14,6 @@ type Share = {
     updatedAt: string;
     expiresAt: string;
     userId: string;
-}
-
-function formatBytes(bytes: number) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-function formatTimeRemaining(expiresAt: string) {
-    const expires = new Date(expiresAt);
-    const now = new Date();
-    if (expires < now) return "Wygasło";
-    
-    const diff = expires.getTime() - now.getTime();
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    return `${hours}h ${minutes}m`;
 }
 
 function formatDate(dateString: string) {
@@ -51,14 +33,22 @@ function formatDate(dateString: string) {
 
 export default function UserPanel({ shares, user }: { shares: Share[], user: User }) {
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const { refetch } = useSession();
 
     const handleLogout = async () => {
+        setIsLoading(true);
         await authClient.signOut({
             fetchOptions: {
                 credentials: "include",
             onSuccess: () => {
+                    router.refresh();
+                    refetch();
                     router.push("/auth");
+                    setIsLoading(false);
                 },
+            
             },
         });
     };
@@ -74,8 +64,8 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                         size="sm"
                         className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-dashed border-zinc-800"
                     >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Wyloguj
+                        
+                        {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Wylogowywanie...</> :  <><LogOut className="h-4 w-4 mr-2" /> Wyloguj</>}
                     </Button>
                 </div>
 
@@ -99,7 +89,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="flex flex-col">
                                         <span className="text-zinc-200 text-sm font-medium">
-                                            Share Link: {share.slug}
+                                            Kod: {share.slug}
                                         </span>
                                     </div>
                                     <Button
