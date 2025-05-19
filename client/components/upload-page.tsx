@@ -470,7 +470,7 @@ export function UploadPage() {
       <Terminal className="h-4 w-4 " />
       <AlertTitle className="text-sm">Wskazówka</AlertTitle>
       <AlertDescription className="text-[0.7rem]">
-        Dla plików większych niż 2MB, zalecane jest stabilne połączenie internetowe.
+        Nie zgub swoich plików! Zarejestruj się i zobacz historię przesyłanych plików.
       </AlertDescription>
     </Alert>
     </section>
