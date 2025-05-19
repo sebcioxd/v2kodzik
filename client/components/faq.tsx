@@ -23,7 +23,7 @@ export default function FAQ() {
               Jakie są ograniczenia dotyczące plików?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Maksymalnie 20 plików, 20MB maksymalnie.
+              Maksymalnie 20 plików, 40MB maksymalnie.
             </AccordionContent>
         </AccordionItem>
         

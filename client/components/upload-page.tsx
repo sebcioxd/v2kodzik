@@ -207,8 +207,8 @@ export function UploadPage() {
               <FormControl>
                 <FileUpload
                   maxFiles={20}
-                  maxSize={20 * 1024 * 1024}
-                  maxTotalSize={20 * 1024 * 1024}
+                  maxSize={40 * 1024 * 1024}
+                  maxTotalSize={40 * 1024 * 1024}
                   className="w-full max-w-md animate-fade-in-01-text" 
                   value={field.value}
                   onValueChange={(files) => {
@@ -226,7 +226,7 @@ export function UploadPage() {
                       </div>
                       <p className="font-medium text-sm text-zinc-200">Przeciągnij i upuść pliki tutaj</p>
                       <p className="text-zinc-400 text-xs">
-                        Lub kliknij aby przeglądać (maksymalnie 20 plików, 20MB maksymalnie)
+                        Lub kliknij aby przeglądać (maksymalnie 20 plików, 40MB maksymalnie)
                       </p>
                     </div>
                     <FileUploadTrigger asChild>
@@ -252,14 +252,14 @@ export function UploadPage() {
                     <div className="mt-4 space-y-1 animate-fade-in-01-text">
                       <div className="flex justify-between items-center text-xs text-zinc-400">
                         <span>Całkowity rozmiar</span>
-                        <span>{formatBytes(totalSize)} / 20 MB</span>
+                        <span>{formatBytes(totalSize)} / 40 MB</span>
                       </div>
                       <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
                           style={{ 
-                            width: `${Math.min((totalSize / (20 * 1024 * 1024)) * 100, 100)}%`,
-                            backgroundColor: totalSize > (20 * 1024 * 1024) ? '#ef4444' : undefined
+                            width: `${Math.min((totalSize / (40 * 1024 * 1024)) * 100, 100)}%`,
+                            backgroundColor: totalSize > (40 * 1024 * 1024) ? '#ef4444' : undefined
                           }}
                         />
                       </div>

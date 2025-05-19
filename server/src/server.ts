@@ -18,10 +18,6 @@ app.use(
 	}),
 );
 
-app.get('/', (c) => {
-  return c.text('Hello from dajkodzik API!')
-})
-
 app.route('/v1', routes)
 
 export default {
