@@ -33,6 +33,12 @@ import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 
 
@@ -48,6 +54,11 @@ const formSchema = z.object({
         value.toLowerCase().trim().startsWith(path.replace('/', '').trim())
       );
     }, { message: "Ta nazwa jest zarezerwowana dla systemu" })
+    .refine((value) => {
+      // Check for parentheses, Polish characters, and percentage signs
+      const invalidChars = /[\(\)ąćęłńóśźżĄĆĘŁŃÓŚŹŻ%]/;
+      return !invalidChars.test(value);
+    }, { message: "Link nie może zawierać nawiasów, polskich znaków ani znaku procenta" })
     .optional()
     .or(z.literal('')),
 });
@@ -81,9 +92,30 @@ export function UploadPage() {
   const lastLoaded = React.useRef<number>(0);
   const lastTime = React.useRef<number>(0);
   const progressUpdateThrottle = React.useRef<NodeJS.Timeout | null>(null);
+  const [rejectedFiles, setRejectedFiles] = useState<{ name: string; message: string }[]>([]);
+
+  const onFileValidate = React.useCallback((file: File): string | null => {
+    // Check for invalid characters in filename (including spaces)
+    const invalidChars = /[\(\)ąćęłńóśźżĄĆĘŁŃÓŚŹŻ%\s]/;
+    if (invalidChars.test(file.name)) {
+      return "Nazwa pliku nie może zawierać spacji, nawiasów, polskich znaków ani znaku procenta";
+    }
+
+    // Validate file size (max 40MB)
+    const MAX_SIZE = 40 * 1024 * 1024; // 40MB
+    if (file.size > MAX_SIZE) {
+      return `Plik musi być mniejszy niż ${MAX_SIZE / (1024 * 1024)}MB`;
+    }
+
+    return null;
+  }, []);
 
   const onFileReject = React.useCallback((file: File, message: string) => {
-    console.log(message);
+    setRejectedFiles(prev => [...prev, { name: file.name, message }]);
+    // Remove the rejection message after 5 seconds
+    setTimeout(() => {
+      setRejectedFiles(prev => prev.filter(f => f.name !== file.name));
+    }, 5000);
   }, []);
 
   const onSubmit = async (data: FormData) => {
@@ -187,14 +219,6 @@ export function UploadPage() {
     }
   };
 
-  const cancelUpload = () => {
-    if (cancelTokenSource.current) {
-      cancelTokenSource.current.cancel('Upload canceled by user');
-    }
-    setIsSubmitting(false);
-    setUploadProgress(0);
-  };
-
   return (
     <> 
     <Form {...form}>
@@ -212,14 +236,20 @@ export function UploadPage() {
                   className="w-full max-w-md animate-fade-in-01-text" 
                   value={field.value}
                   onValueChange={(files) => {
-                    field.onChange(files);
-                    const newTotalSize = files.reduce((acc, file) => acc + file.size, 0);
-                    setTotalSize(newTotalSize);
+                    if (!isSubmitting) {
+                      field.onChange(files);
+                      const newTotalSize = files.reduce((acc, file) => acc + file.size, 0);
+                      setTotalSize(newTotalSize);
+                    }
                   }}
+                  onFileValidate={onFileValidate}
                   onFileReject={onFileReject}
                   multiple
+                  disabled={isSubmitting}
                 >
-                  <FileUploadDropzone className="border-dashed border-zinc-800 hover:bg-zinc-950/30">
+                  <FileUploadDropzone className={`border-dashed border-zinc-800 hover:bg-zinc-950/30 ${
+                    isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}>
                     <div className="flex flex-col items-center gap-1 text-center">
                       <div className="flex items-center justify-center rounded-full border border-dashed border-zinc-800 p-2.5">
                         <Upload className="size-6 text-zinc-400" />
@@ -237,11 +267,22 @@ export function UploadPage() {
                   </FileUploadDropzone>
                   <FileUploadList >
                     {field.value.map((file, index) => (
-                      <FileUploadItem key={index} value={file} className="border-dashed border-zinc-800">
-                        <FileUploadItemPreview className="bg-zinc-800/50 rounded-md text-zinc-300 border-zinc-950 "/>
-                        <FileUploadItemMetadata  className="text-zinc-400"/>
+                      <FileUploadItem 
+                        key={index} 
+                        value={file} 
+                        className={`border-dashed border-zinc-800 ${
+                          isSubmitting ? 'opacity-50 pointer-events-none' : ''
+                        }`}
+                      >
+                        <FileUploadItemPreview className="bg-zinc-800/50 rounded-md text-zinc-300 border-zinc-950"/>
+                        <FileUploadItemMetadata className="text-zinc-400"/>
                         <FileUploadItemDelete asChild>
-                          <Button variant="ghost" size="icon" className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-700">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-700"
+                            disabled={isSubmitting}
+                          >
                             <X />
                           </Button>
                         </FileUploadItemDelete>
@@ -265,6 +306,25 @@ export function UploadPage() {
                       </div>
                     </div>
                   )}
+                  {rejectedFiles.length > 0 && (
+                    <div className="mt-2 animate-fade-in-01-text">
+                      {rejectedFiles.map((file, index) => (
+                        <TooltipProvider key={index}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-xs text-red-400 mb-1 cursor-pointer flex items-center gap-1">
+                                <span>⚠️</span>
+                                <span className="border-b border-dotted border-red-400/50">{file.name}</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="bg-zinc-900 border-zinc-800 text-zinc-200 text-xs">
+                              <p>{file.message}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ))}
+                    </div>
+                  )}
                 </FileUpload>
               </FormControl>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
@@ -277,17 +337,32 @@ export function UploadPage() {
           name="slug"
           render={({ field }) => (
             <FormItem>
-            <FormLabel className="text-zinc-400 animate-fade-in-01-text">Wprowadz nazwę linku</FormLabel>
+              <FormLabel className={`text-zinc-400 animate-fade-in-01-text ${
+                isSubmitting ? 'opacity-50' : ''
+              }`}>
+                Wprowadz nazwę linku
+              </FormLabel>
               <FormControl>
-                <div className="flex items-center gap-2">
-                  <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 border-zinc-800 rounded-md px-1 py-1">dajkodzik.pl/</span>
+                <div className={`flex items-center gap-2 ${
+                  isSubmitting ? 'opacity-50' : ''
+                }`}>
+                  <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 border-zinc-800 rounded-md px-1 py-1">
+                    dajkodzik.pl/
+                  </span>
                   <Input
                     {...field}
-                    className="w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text"
+                    disabled={isSubmitting}
+                    className={`w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text ${
+                      isSubmitting ? 'cursor-not-allowed' : ''
+                    }`}
                   />
                 </div>
               </FormControl>
-              <p className="text-xs text-zinc-400 mt-1">Wpisz własną nazwę lub zostaw puste dla auto-generacji.</p>
+              <p className={`text-xs text-zinc-400 mt-1 ${
+                isSubmitting ? 'opacity-50' : ''
+              }`}>
+                Wpisz własną nazwę lub zostaw puste dla auto-generacji.
+              </p>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
             </FormItem>
           )}

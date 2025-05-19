@@ -17,19 +17,19 @@ uploadRoute.post("/", async (c) => {
 
   const connInfo = getConnInfo(c);
 
-  // const limiter = await getRateLimiter({keyPrefix: "upload" });
+  const limiter = await getRateLimiter({keyPrefix: "upload" });
 
-  // let remaining_requests = 0;
+  let remaining_requests = 0;
 
-  // try {
-  //   const rlRes = await limiter.consume(connInfo.remote.address || "127.0.0.1");
-  //   remaining_requests = rlRes.remainingPoints;
-  //   if (rlRes.remainingPoints <= 0) {
-  //       return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
-  //   }
-  //   } catch (error) {
-  //       return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
-  //   }
+  try {
+    const rlRes = await limiter.consume(connInfo.remote.address || "127.0.0.1");
+    remaining_requests = rlRes.remainingPoints;
+    if (rlRes.remainingPoints <= 0) {
+        return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+    }
+    } catch (error) {
+        return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+    }
 
   
   const formData = await c.req.formData();
