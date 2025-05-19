@@ -4,14 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { useSession, authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
 
 export default function Navbar() {
     const pathname = usePathname();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { data: session, isPending } = useSession();
-    const router = useRouter();
+
 
     return (
         <nav className="flex flex-col p-2 rounded-md mx-auto w-full md:max-w-2xl max-w-sm border border-dashed border-zinc-800 mt-4 bg-zinc-950/20 backdrop-blur-sm animate-fade-in-01-text">

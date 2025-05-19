@@ -55,7 +55,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
     return (
         <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-lg max-w-md animate-fade-in-01-text mt-10">
             <div className="w-full space-y-4">
-                <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center">
                     <h2 className="text-xl text-zinc-200 font-medium">Panel użytkownika {user.name}</h2>
                     <Button 
                         onClick={handleLogout}
@@ -91,14 +91,12 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                             Kod: {share.slug}
                                         </span>
                                     </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-                                        onClick={() => router.push(`/${share.slug}`)}
-                                    >
-                                        <ExternalLink className="h-4 w-4" />
-                                    </Button>
+                                    <Link
+                                        href={`/${share.slug}`}
+                                        className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 p-2 rounded-md flex flex-row gap-1 items-center justify-center"
+                                    > 
+                                        <ExternalLink className="h-4 w-4" /> 
+                                    </Link>
                                 </div>
                                 <div className="flex justify-between items-center text-xs text-zinc-400">
                                     <span>Utworzono: {formatDate(share.createdAt)}</span>
