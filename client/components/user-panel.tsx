@@ -39,17 +39,23 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
 
     const handleLogout = async () => {
         setIsLoading(true);
-        await authClient.signOut({
-            fetchOptions: {
-                credentials: "include",
-            onSuccess: () => {
-                    refetch();
-                    router.push("/auth");
-                    setIsLoading(false);
-                },
-            
-            },
-        });
+        try {
+            await authClient.signOut({
+                fetchOptions: {
+                    credentials: "include",
+                    onSuccess: () => {
+                        refetch();
+                        router.refresh();
+                        router.push("/auth");
+                        setIsLoading(false);
+                    }
+                },  
+            });
+        } catch (error) {
+            console.error("Logout failed:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

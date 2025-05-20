@@ -101,15 +101,29 @@ export default function Navbar() {
                     >
                         FAQ
                     </Link>
-                    <Link 
-                        href="/panel" 
+                    {isPending ? (
+                        <div className="h-5 w-14 bg-zinc-800 animate-pulse rounded-full" />
+                    ) : session ? (
+                        <Link 
+                            href="/panel" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 ${
                             pathname === "/panel" ? "text-zinc-200" : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                     >
                         Panel
-                    </Link>
+                        </Link>
+                    ) : (
+                        <Link 
+                            href="/auth" 
+                            className={`text-sm font-medium transition-colors hover:text-zinc-200 ${
+                                pathname === "/auth" ? "text-zinc-200" : "text-zinc-400"
+                            }`}
+                            onClick={() => setIsMenuOpen(false)}
+                        >
+                            Zaloguj
+                        </Link>
+                    )}
                 </div>
             )}
         </nav>
