@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Clock, ExternalLink, Loader2 } from "lucide-react";
 import { authClient, User } from "@/lib/auth-client";
 import { useState } from "react";
-import { useSession } from "@/lib/auth-client";
 import Link from "next/link";
 type Share = {
     id: string;
@@ -35,36 +34,24 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
-    const { refetch } = useSession();
-
-    const handleLogout = async () => {
-        setIsLoading(true);
-        try {
-            await authClient.signOut({
-                fetchOptions: {
-                    credentials: "include",
-                    onSuccess: () => {
-                        refetch();
-                        router.refresh();
-                        router.push("/auth");
-                        setIsLoading(false);
-                    }
-                },  
-            });
-        } catch (error) {
-            console.error("Logout failed:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     return (
         <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-lg max-w-md animate-fade-in-01-text mt-10">
             <div className="w-full space-y-4">
             <div className="flex justify-between items-center">
                     <h2 className="text-xl text-zinc-200 font-medium">Panel użytkownika {user.name}</h2>
                     <Button 
-                        onClick={handleLogout}
+                        onClick={async () => {
+                            setIsLoading(true);
+                            await authClient.signOut({
+                              fetchOptions: {
+                                credentials: "include",
+                                onSuccess: () => {
+                                    setIsLoading(false);
+                                    router.push("/auth");
+                                },
+                              },
+                            });
+                          }}
                         variant="ghost" 
                         size="sm"
                         className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-dashed border-zinc-800"
