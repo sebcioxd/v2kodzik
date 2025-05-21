@@ -13,6 +13,18 @@ shareRoute.get("/:slug", async (c) => {
     return c.json({ message: "Nie znaleziono linku" }, 404);
   }
 
+  // For private shares, only return minimal information until authenticated
+  if (share[0].private) {
+    return c.json({
+      id: share[0].id,
+      slug: share[0].slug,
+      createdAt: share[0].createdAt,
+      private: true,
+      // Don't include file details or storage paths
+    });
+  }
+
+  // For public shares, return all information as before
   const files = await db
     .select()
     .from(uploadedFiles)
@@ -26,7 +38,7 @@ shareRoute.get("/:slug", async (c) => {
     storagePath: files[0].storagePath,
     files: files,
     totalSize: files.reduce((acc, file) => acc + (file.size || 0), 0),
-    private: share[0].private,
+    private: false,
   });
 });
 
@@ -71,7 +83,18 @@ shareRoute.post("/verify", async (c) => {
     );
   }
 
-  return c.json({ success: true }, 200);
+  // After successful verification, fetch and return the file details
+  const files = await db
+    .select()
+    .from(uploadedFiles)
+    .where(eq(uploadedFiles.shareId, share[0].id));
+
+  return c.json({ 
+    success: true,
+    files: files,
+    totalSize: files.reduce((acc, file) => acc + (file.size || 0), 0),
+    storagePath: files[0].storagePath
+  }, 200);
 });
 
 export default shareRoute;

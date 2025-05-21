@@ -40,6 +40,7 @@ import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
+  InputOTPSeparator
 } from "@/components/ui/input-otp";
 
 const formSchema = z
@@ -589,17 +590,13 @@ export function UploadPage() {
                           Każdy z linkiem będzie miał dostęp do twoich plików.
                         </p>
                       </TabsContent>
-                      <TabsContent value="private" className="pt-4">
+                      <TabsContent value="private" className="pt-2 flex justify-center items-center flex-col">
                         <div className="space-y-4 animate-fade-in-01-text">
-                          <p className="text-xs text-zinc-400">
-                            Tylko osoby z kodem dostępu będą mogły otworzyć
-                            link.
-                          </p>
                           <FormField
                             control={form.control}
                             name="accessCode"
                             render={({ field }) => (
-                              <FormItem className="flex flex-col">
+                              <FormItem className="flex flex-col justify-center items-center">
                                 <FormLabel className="text-zinc-400 mb-2">
                                   Kod dostępu (4 znaki)
                                 </FormLabel>
@@ -619,6 +616,9 @@ export function UploadPage() {
                                         className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
                                         index={1}
                                       />
+                                      </InputOTPGroup>
+                                      <InputOTPSeparator className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-400"/>
+                                      <InputOTPGroup>
                                       <InputOTPSlot
                                         className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
                                         index={2}
@@ -635,6 +635,9 @@ export function UploadPage() {
                             )}
                           />
                         </div>
+                        <p className="text-xs text-zinc-400 mt-2 animate-fade-in-01-text">
+                          Tylko osoby z kodem dostępu będą mogły otworzyć link.
+                        </p>
                       </TabsContent>
                     </Tabs>
                   </FormControl>

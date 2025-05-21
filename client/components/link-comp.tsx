@@ -30,23 +30,26 @@ function formatDate(dateString: string) {
 // Add skeleton component
 export function RecentSharesSkeleton() {
   return (
-    <div className="w-full space-y-3 animate-slide-in-bottom">
-      <div className="flex items-center gap-2 text-zinc-400 text-sm">
-      </div>
-      {[1, 2].map((i) => (
+    <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-4">
+      {[1, 2, 3].map((i) => (
         <div 
           key={i}
-          className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10"
+          className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 mt-5"
         >
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex  gap-2">
-              <Skeleton className="h-4 w-24 bg-zinc-800" />
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex">
+              <span className="flex items-center gap-2">
+                <Skeleton className="h-4 w-20 bg-zinc-800" /> {/* For "Kod: slug" */}
+                <Skeleton className="h-4 w-4 rounded-full bg-zinc-800" /> {/* For Lock icon */}
+              </span>
             </div>
-            <Skeleton className="h-8 w-8 bg-zinc-800" />
+            <div className="p-2 rounded-md">
+              <Skeleton className="h-4 w-4 bg-zinc-800" /> {/* For ExternalLink icon */}
+            </div>
           </div>
-          <div className="flex justify-between items-center">
-            <Skeleton className="h-3 w-32 bg-zinc-800" />
-            <Skeleton className="h-3 w-32 bg-zinc-800" />
+          <div className="flex flex-col items-start gap-2">
+            <Skeleton className="h-3 w-40 bg-zinc-800" /> {/* For "Utworzono: date" */}
+            <Skeleton className="h-3 w-40 bg-zinc-800" /> {/* For "Wygasa: date" */}
           </div>
         </div>
       ))}
@@ -99,13 +102,13 @@ export function RecentShares({ isLoading: initialLoading = false }) {
   useEffect(() => {
     const fetchShares = async () => {
       try {
-        setIsLoading(true);
+        // setIsLoading(true);
         const response = await axios.get<SharesResponse>(`${process.env.NEXT_PUBLIC_API_URL}/v1/last-posts`);
         setShares(response.data.posts);
       } catch (error) {
         console.error('Failed to fetch recent shares:', error);
       } finally {
-        setIsLoading(false);
+        // setIsLoading(false);
       }
     };
 

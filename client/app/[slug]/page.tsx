@@ -28,6 +28,9 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         return null;
       }
       const data = await res.json();
+      
+      // For private shares, we'll render the page but with minimal info
+      // The Files component will handle authentication and fetching full details
       return data;
     } catch (error) {
       console.error(error);
@@ -45,10 +48,10 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
   return (
     <div className="text-zinc-200">
       <Files 
-        files={share.files} 
-        totalSize={share.totalSize} 
+        files={share.files || []} // May be undefined for private shares
+        totalSize={share.totalSize || 0} // May be undefined for private shares
         createdAt={share.createdAt}
-        storagePath={share.storagePath}
+        storagePath={share.storagePath || ""} // May be undefined for private shares
         slug={slug}
       />
     </div>
