@@ -72,7 +72,7 @@ export default function SignIn() {
             setRateLimited(false);
             setIsSubmitting(false);
             startRouting(() => {
-              router.push("/");
+              router.push("/panel");
               refetch();
             });
           },

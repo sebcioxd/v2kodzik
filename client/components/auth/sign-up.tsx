@@ -80,7 +80,7 @@ export default function SignUp() {
                     setRateLimited(false);
                     setIsSubmitting(false);
                     startRouting(() => {
-                        router.push(`/auth/sent?email=${data.email}`);
+                        router.push(`/auth/otp?email=${data.email}`);
                     });
                 },
                 onError: () => {
