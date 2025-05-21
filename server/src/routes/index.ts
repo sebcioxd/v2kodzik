@@ -6,6 +6,7 @@ import statusRoute from './status.route'
 import cronRoute from './cron.route'
 import sessionRoute from './session.route'
 import usrHistoryRoute from './usr-history.route'
+import lastPostsRoute from './last-posts.route'
 const routes = new Hono()
 
 routes.route("/upload", uploadRoute)
@@ -15,4 +16,5 @@ routes.route("/status", statusRoute)
 routes.route("/cron", cronRoute)
 routes.route("/session", sessionRoute)
 routes.route("/history", usrHistoryRoute)
+routes.route("/last-posts", lastPostsRoute)
 export default routes;

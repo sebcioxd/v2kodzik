@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Link as LinkIcon } from "lucide-react";
+import { ArrowRight, Link as LinkIcon, History } from "lucide-react";
+import { RecentShares } from "./link-comp";
 
 export default function Hero() {
   return (
@@ -41,6 +42,14 @@ export default function Hero() {
                 </Link>
             </p>
         </div>
+
+        <div className="mt-8  animate-slide-in-bottom self-start">
+           <p className="text-zinc-400 text-sm flex items-center gap-2">
+            <History className="w-4 h-4" />
+            <span>Ostatnio wygenerowane linki</span>
+           </p>
+        </div>
+        <RecentShares />
     </main>
   )
 }
