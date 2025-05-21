@@ -74,7 +74,7 @@ export default function FAQ() {
               Czy ten serwis jest darmowy?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Tak, ten serwis jest darmowy, bezpieczny oraz bez reklam. Jest to dlatego, ponieważ stanowi on bardzo jako bardzo dobry projekt do Portfolio.
+              Tak, ten serwis jest darmowy, bezpieczny oraz bez reklam. Jest to dlatego, ponieważ stanowi on bardzo dobry projekt do Portfolio.
             </AccordionContent>
         </AccordionItem>
       </Accordion>

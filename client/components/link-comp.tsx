@@ -30,7 +30,7 @@ function formatDate(dateString: string) {
 // Add skeleton component
 export function RecentSharesSkeleton() {
   return (
-    <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-4">
+    <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-4 animate-slide-in-bottom">
       {[1, 2, 3].map((i) => (
         <div 
           key={i}
