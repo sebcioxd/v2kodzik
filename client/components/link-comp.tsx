@@ -102,13 +102,13 @@ export function RecentShares({ isLoading: initialLoading = false }) {
   useEffect(() => {
     const fetchShares = async () => {
       try {
-        // setIsLoading(true);
+        setIsLoading(true);
         const response = await axios.get<SharesResponse>(`${process.env.NEXT_PUBLIC_API_URL}/v1/last-posts`);
         setShares(response.data.posts);
       } catch (error) {
         console.error('Failed to fetch recent shares:', error);
       } finally {
-        // setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
