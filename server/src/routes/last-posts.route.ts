@@ -8,7 +8,13 @@ const lastPostsRoute = new Hono();
 lastPostsRoute.get("/", async (c) => {
 
   const posts = await db
-    .select()
+    .select({
+      id: shares.id,
+      slug: shares.slug,
+      createdAt: shares.createdAt,
+      expiresAt: shares.expiresAt,
+      private: shares.private,
+    })
     .from(shares)
     .orderBy(desc(shares.createdAt))
     .limit(3)
