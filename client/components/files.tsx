@@ -84,7 +84,7 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
-export default function Files({ files, totalSize, createdAt, slug }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, slug, storagePath }: FilesProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<Record<string, boolean>>({});
   const [downloadProgress, setDownloadProgress] = useState(0);
@@ -96,6 +96,9 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
   const [isVerifying, setIsVerifying] = useState(false);
   const [accessGranted, setAccessGranted] = useState(false);
   const [codeError, setCodeError] = useState("");
+  const [filesData, setFilesData] = useState<File[]>(files);
+  const [filesTotalSize, setFilesTotalSize] = useState<number>(totalSize);
+  const [fileStoragePath, setFileStoragePath] = useState<string>(storagePath);
   
   // Hide toast after timeout
   useEffect(() => {
@@ -192,8 +195,8 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
     setDownloadProgress(0);
     
     // Calculate expected preparation time based on both file size and count
-    const totalMB = totalSize / (1024 * 1024);
-    const fileCount = files.length;
+    const totalMB = filesTotalSize / (1024 * 1024);
+    const fileCount = filesData.length;
     
     // Base time for file processing overhead (ms)
     const baseTimePerFile = 170; // 170ms overhead per file
@@ -224,7 +227,7 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
     }, updateInterval);
     
     try {
-      const paths = files.map(file => file.storagePath);
+      const paths = filesData.map(file => file.storagePath);
       
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/bulk`, {
         method: 'POST',
@@ -306,6 +309,10 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
       const data = await response.json();
       
       if (response.ok && data.success) {
+        // Update the files data with what's returned from verification
+        if (data.files) setFilesData(data.files);
+        if (data.totalSize !== undefined) setFilesTotalSize(data.totalSize);
+        if (data.storagePath) setFileStoragePath(data.storagePath);
         setAccessGranted(true);
       } else {
         setCodeError(data.message || "Nieprawidłowy kod dostępu");
@@ -410,7 +417,7 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
             ) : (
               <>
                 <Archive className="h-4 w-4 mr-2" />
-                Pobierz wszystkie ({formatBytes(totalSize)})
+                Pobierz wszystkie ({formatBytes(filesTotalSize)})
               </>
             )}
           </Button>
@@ -439,11 +446,11 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
         )}
 
         <div className="flex justify-between items-center text-zinc-400 text-sm border-b border-dashed border-zinc-800 pb-2">
-          <span>Pliki ({files.length})</span>
-          <span>Łącznie: {formatBytes(totalSize)}</span>
+          <span>Pliki ({filesData.length})</span>
+          <span>Łącznie: {formatBytes(filesTotalSize)}</span>
         </div>
 
-        {files.map((file) => (
+        {filesData.map((file) => (
           <div 
             key={file.id}
             className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors"
