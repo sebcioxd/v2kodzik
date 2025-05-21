@@ -1,5 +1,5 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2 } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import {
@@ -22,6 +22,7 @@ interface FilesProps {
   createdAt: string;
   storagePath: string;
   slug: string;
+  fileId: string;
 }
 
 function getFileIcon(fileName: string, fileType?: string) {
@@ -84,7 +85,7 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
-export default function Files({ files, totalSize, createdAt, slug, storagePath }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, slug, storagePath, fileId }: FilesProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<Record<string, boolean>>({});
   const [downloadProgress, setDownloadProgress] = useState(0);
@@ -99,7 +100,8 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath }
   const [filesData, setFilesData] = useState<File[]>(files);
   const [filesTotalSize, setFilesTotalSize] = useState<number>(totalSize);
   const [fileStoragePath, setFileStoragePath] = useState<string>(storagePath);
-  
+  const [remainingRequests, setRemainingRequests] = useState<number>(0);
+
   // Hide toast after timeout
   useEffect(() => {
     if (showToast) {
@@ -316,6 +318,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath }
         setAccessGranted(true);
       } else {
         setCodeError(data.message || "Nieprawidłowy kod dostępu");
+        setRemainingRequests(data.remaining_requests);
       }
     } catch (error) {
       setCodeError("Wystąpił błąd podczas weryfikacji kodu");
@@ -330,12 +333,12 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath }
       <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10">
         <div className="w-full space-y-4">
           <div className="border border-dashed border-zinc-800 rounded-md p-6 bg-zinc-950/10 text-zinc-400">
-            <h2 className="text-lg font-medium text-zinc-200 mb-4">Dostęp chroniony</h2>
-            <p className="mb-4">Ten link jest prywatny. Wprowadź kod dostępu, a następnie kliknij "Potwierdź kod dostępu"</p>
+            <h2 className="text-lg font-medium text-zinc-200 mb-4">Dostęp do linku <span className="text-zinc-400">{slug}</span> jest chroniony</h2>
+            <p className="mb-4">Wprowadź kod dostępu, a następnie kliknij "Potwierdź kod dostępu"</p>
             
             <div className="space-y-4">
               <div className="flex flex-col">
-                <label className="text-zinc-400 mb-2">Kod dostępu (4 znaki)</label>
+                <label className="text-zinc-400 mb-2 flex items-center"> <Lock className="h-4 w-4 mr-2" /> Kod dostępu (4 znaki)</label>
                 <InputOTP
                   maxLength={4}
                   value={accessCode}
@@ -360,6 +363,14 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath }
                     />
                   </InputOTPGroup>
                 </InputOTP>
+
+                <div className="flex flex-col my-2 border-t border-dashed border-zinc-800 pt-2">
+                  <p className="text-zinc-600 mb-2 text-sm">Informacje o linku:</p>
+                  <p className="text-zinc-700 text-sm">Link wygaśnie za: {formatTimeRemaining(createdAt)}</p>
+                  <p className="text-zinc-700 text-sm">Slug (link): {slug}</p>
+                  <p className="text-zinc-700 text-sm">ID linku: {fileId}</p>
+                  {remainingRequests > 0 && <p className="text-zinc-700 text-sm">Pozostałe żądania: {remainingRequests}</p>}
+                </div>
                 {codeError && <p className="text-red-400 text-sm mt-2">{codeError}</p>}
               </div>
               
@@ -374,7 +385,10 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath }
                     <span>Weryfikacja...</span>
                   </div>
                 ) : (
-                  "Potwierdź kod dostępu"
+                  <div className="flex items-center">
+                    <Key className="h-4 w-4 mr-2" />
+                    Potwierdź kod dostępu
+                  </div>
                 )}
               </Button>
             </div>

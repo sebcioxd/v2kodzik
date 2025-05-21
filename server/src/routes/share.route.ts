@@ -78,7 +78,7 @@ shareRoute.post("/verify", async (c) => {
 
   if (share[0].code !== accessCode) {
     return c.json(
-      { success: false, message: "Nieprawidłowy kod dostępu" },
+      { success: false, message: "Nieprawidłowy kod dostępu", remaining_requests: remaining_requests },
       403
     );
   }

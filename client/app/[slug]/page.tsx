@@ -53,6 +53,7 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         createdAt={share.createdAt}
         storagePath={share.storagePath || ""} // May be undefined for private shares
         slug={slug}
+        fileId={share.id}
       />
     </div>
   );
