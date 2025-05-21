@@ -39,6 +39,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui/tabs"
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
 
 
 
@@ -61,6 +72,16 @@ const formSchema = z.object({
     }, { message: "Link nie może zawierać nawiasów, polskich znaków ani znaku procenta" })
     .optional()
     .or(z.literal('')),
+  isPrivate: z.boolean(),
+  accessCode: z.string()
+    .refine(val => !val || val.length === 4 || val.length === 0 || val.length === undefined, { message: "Kod dostępu musi zawierać 4 znaki" })
+    .optional()
+}).refine((data) => {
+  // If isPrivate is true, accessCode must be provided and have exactly 4 characters
+  return !data.isPrivate || (data.accessCode && data.accessCode.length === 4);
+}, {
+  message: "Kod dostępu jest wymagany dla plików prywatnych",
+  path: ["accessCode"]
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -86,6 +107,8 @@ export function UploadPage() {
     defaultValues: {
       files: [],
       slug: "",
+      isPrivate: false,
+      accessCode: "",
     },
   });
   const cancelTokenSource = React.useRef<any>(null);
@@ -135,6 +158,10 @@ export function UploadPage() {
         formData.append("files", file);
       });
       formData.append("slug", data.slug || "");
+      formData.append("isPrivate", data.isPrivate.toString());
+      if (data.isPrivate && data.accessCode) {
+        formData.append("accessCode", data.accessCode);
+      }
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/v1/upload`, 
@@ -409,6 +436,102 @@ export function UploadPage() {
             </span>
           )}
         </Button>
+
+        {/* Add Tabs for Public/Private selection */}
+        <div className="w-full animate-fade-in-01-text">
+          <h3 className="text-zinc-400 mb-2 text-sm">Typ dostępu</h3>
+          <FormField
+            control={form.control}
+            name="isPrivate"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <Tabs 
+                    defaultValue="public" 
+                    onValueChange={(value) => {
+                      field.onChange(value === "private");
+                      if (value === "public") {
+                        form.setValue("accessCode", "");
+                      }
+                    }}
+                    value={field.value ? "private" : "public"}
+                    className="w-full animate-slide-in-left"
+                  >
+                    <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
+                      <TabsTrigger 
+                        value="public" 
+                        className='w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                  hover:bg-zinc-800/50'
+                        disabled={isSubmitting}
+                      >
+                        Publiczny
+                      </TabsTrigger>
+                      <TabsTrigger 
+                        value="private" 
+                        className='w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                  hover:bg-zinc-800/50'
+                        disabled={isSubmitting}
+                      >
+                        Prywatny
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="public" className="pt-4">
+                      <p className="text-xs text-zinc-400 animate-fade-in-01-text">
+                        Każdy z linkiem będzie miał dostęp do twoich plików.
+                      </p>
+                    </TabsContent>
+                    <TabsContent value="private" className="pt-4">
+                      <div className="space-y-4 animate-fade-in-01-text">
+                        <p className="text-xs text-zinc-400">
+                          Tylko osoby z kodem dostępu będą mogły otworzyć link.
+                        </p>
+                        <FormField
+                          control={form.control}
+                          name="accessCode"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                              <FormLabel className="text-zinc-400 mb-2">Kod dostępu (4 znaki)</FormLabel>
+                              <FormControl>
+                                <InputOTP
+                                  maxLength={4}
+                                  value={field.value || ""}
+                                  onChange={field.onChange}
+                                  disabled={isSubmitting}
+                                >
+                                  <InputOTPGroup>
+                                    <InputOTPSlot 
+                                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                      index={0}
+                                    />
+                                    <InputOTPSlot 
+                                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                      index={1}
+                                    />
+                                    <InputOTPSlot 
+                                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                      index={2}
+                                    />
+                                    <InputOTPSlot 
+                                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                      index={3}
+                                    />
+                                  </InputOTPGroup>
+                                </InputOTP>
+                              </FormControl>
+                              <FormMessage className="text-red-400 animate-fade-in-01-text mt-2" />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
 
         {isSubmitting && uploadProgress > 0 && (
           <div className="w-full animate-fade-in-01-text">

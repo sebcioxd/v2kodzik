@@ -8,6 +8,8 @@ export const shares = pgTable('shares', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+  private: boolean('private').default(false),
+  code: text('code'),
 });
 
 export const uploadedFiles = pgTable('uploaded_files', {

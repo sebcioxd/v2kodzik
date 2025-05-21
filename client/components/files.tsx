@@ -2,6 +2,11 @@
 import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp"
 
 interface File {
   id: string;
@@ -86,6 +91,11 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
   const [isSharing, setIsSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [accessCode, setAccessCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [codeError, setCodeError] = useState("");
   
   // Hide toast after timeout
   useEffect(() => {
@@ -96,6 +106,28 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
       return () => clearTimeout(timer);
     }
   }, [showToast]);
+
+  // Check if share is private when component mounts
+  useEffect(() => {
+    const checkShareAccess = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/share/${slug}`);
+        if (!response.ok) return;
+        
+        const data = await response.json();
+        if (data.private) {
+          setIsPrivate(true);
+        } else {
+          // If not private, grant access immediately
+          setAccessGranted(true);
+        }
+      } catch (error) {
+        console.error("Error checking share access:", error);
+      }
+    };
+    
+    checkShareAccess();
+  }, [slug]);
 
   // Function to format bytes to human readable format
   const formatBytes = (bytes: number) => {
@@ -248,6 +280,102 @@ export default function Files({ files, totalSize, createdAt, slug }: FilesProps)
       setIsSharing(false);
     }
   };
+
+  // Function to verify access code
+  const verifyAccessCode = async () => {
+    if (accessCode.length !== 4) {
+      setCodeError("Kod dostępu musi zawierać 4 znaki");
+      return;
+    }
+    
+    setIsVerifying(true);
+    setCodeError("");
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/share/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          slug,
+          accessCode 
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setAccessGranted(true);
+      } else {
+        setCodeError(data.message || "Nieprawidłowy kod dostępu");
+      }
+    } catch (error) {
+      setCodeError("Wystąpił błąd podczas weryfikacji kodu");
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  // If private and access not granted, show access code input
+  if (isPrivate && !accessGranted) {
+    return (
+      <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10">
+        <div className="w-full space-y-4">
+          <div className="border border-dashed border-zinc-800 rounded-md p-6 bg-zinc-950/10 text-zinc-400">
+            <h2 className="text-lg font-medium text-zinc-200 mb-4">Dostęp chroniony</h2>
+            <p className="mb-4">Ten link jest prywatny. Wprowadź kod dostępu, a następnie kliknij "Potwierdź kod dostępu"</p>
+            
+            <div className="space-y-4">
+              <div className="flex flex-col">
+                <label className="text-zinc-400 mb-2">Kod dostępu (4 znaki)</label>
+                <InputOTP
+                  maxLength={4}
+                  value={accessCode}
+                  onChange={setAccessCode}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot 
+                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      index={0}
+                    />
+                    <InputOTPSlot 
+                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      index={1}
+                    />
+                    <InputOTPSlot 
+                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      index={2}
+                    />
+                    <InputOTPSlot 
+                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      index={3}
+                    />
+                  </InputOTPGroup>
+                </InputOTP>
+                {codeError && <p className="text-red-400 text-sm mt-2">{codeError}</p>}
+              </div>
+              
+              <Button
+                className="w-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
+                onClick={verifyAccessCode}
+                disabled={isVerifying || accessCode.length !== 4}
+              >
+                {isVerifying ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <span>Weryfikacja...</span>
+                  </div>
+                ) : (
+                  "Potwierdź kod dostępu"
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10 ">
