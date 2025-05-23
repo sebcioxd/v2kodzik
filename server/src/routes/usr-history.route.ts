@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { AuthSession } from "../lib/auth-types";
 import { uploadedFiles, shares } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { db } from "../db";
 
 const usrHistoryRoute = new Hono<AuthSession>();
@@ -19,6 +19,7 @@ usrHistoryRoute.get("/", async (c) => {
     .from(uploadedFiles)
     .fullJoin(shares, eq(uploadedFiles.shareId, shares.id))
     .where(eq(shares.userId, user.id))
+    .orderBy(desc(uploadedFiles.createdAt))
 
   return c.json({history, user}, 200)
 })

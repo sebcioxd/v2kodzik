@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, Clock, ExternalLink, Loader2 } from "lucide-react";
+import { LogOut, Clock, ExternalLink, Loader2, Lock, Link as LinkIcon } from "lucide-react";
 import { authClient, User } from "@/lib/auth-client";
 import { useState } from "react";
 import Link from "next/link";
@@ -13,6 +13,8 @@ type Share = {
     updatedAt: string;
     expiresAt: string;
     userId: string;
+    code: string;
+    private: boolean;
 }
 
 function formatDate(dateString: string) {
@@ -80,8 +82,8 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                             >
                                 <div className="flex justify-between items-start mb-2">
                                     <div className="flex flex-col">
-                                        <span className="text-zinc-200 text-sm font-medium">
-                                            Kod: {share.slug}
+                                        <span className="text-zinc-400 text-sm font-medium flex flex-row gap-2 items-center">
+                                            <LinkIcon className="h-4 w-4" /> Kod:<span className="text-zinc-200 ml-[-2px]">{share.slug}</span> {share.private ? <Lock className="h-4 w-4 text-zinc-400" /> : null}
                                         </span>
                                     </div>
                                     <Link
@@ -91,10 +93,20 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                         <ExternalLink className="h-4 w-4" /> 
                                     </Link>
                                 </div>
-                                <div className="flex justify-between items-center text-xs text-zinc-400">
+                                <div className="flex md:flex-row flex-col justify-between items-center text-xs text-zinc-400">
                                     <span>Utworzono: {formatDate(share.createdAt)}</span>
                                     <span>Wygasa: {formatDate(share.expiresAt)}</span>
                                 </div>
+                                {share.private && (
+                                <div className="flex flex-row gap-2">
+                                    <span className="text-zinc-400 text-sm">
+                                        Kod dostępu:
+                                    </span>
+                                    <span className="text-zinc-300 text-sm">
+                                        {share.code}
+                                    </span>
+                                </div>
+                                )}
                             </div>
                         ))}
                     </div>

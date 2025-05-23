@@ -16,7 +16,7 @@ export default function Navbar() {
         <nav className="flex flex-col p-2 rounded-md mx-auto w-full md:max-w-2xl max-w-sm border border-dashed border-zinc-800 mt-4 bg-zinc-950/20 backdrop-blur-sm animate-fade-in-01-text">
             <div className="flex justify-between items-center w-full">
                 <Link href="/" className="flex items-center gap-2 group">
-                    <h1 className="text-zinc-400 md:text-xl text-lg font-bold font-mono group-hover:text-zinc-200 transition-colors">.kodzik</h1>
+                    <h1 className="text-zinc-400 md:text-lg text-xl group-hover:text-zinc-200 transition-colors">dajkodzik.pl</h1>
                 </Link>
                 
                 <button 

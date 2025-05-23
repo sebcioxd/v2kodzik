@@ -12,6 +12,8 @@ type Share = {
     updatedAt: string;
     expiresAt: string;
     userId: string;
+    code: string;
+    private: boolean;
 }
 
 type HistoryItem = {

@@ -1,14 +1,14 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, Link as LinkIcon, History } from "lucide-react";
+import { ArrowRight, Link as LinkIcon, History, AlertCircle } from "lucide-react";
 import { RecentShares } from "./link-comp";
 
 export default function Hero() {
   return (
     <main className="flex flex-col items-center justify-center">
         <Image src="/logo-no-bg.png" alt="Hero" width={200} height={200} className="opacity-50 animate-fade-in-01-image opacity-0"/>
-        <h1 className="text-3xl text-zinc-100 tracking-tight mb-4 animate-fade-in-01-text opacity-0 text-center">Przesyłaj pliki w mgnieniu oka.</h1>
+        <h1 className="md:text-3xl text-2xl text-zinc-100 tracking-tight mb-4 animate-fade-in-01-text opacity-0 text-center">Przesyłaj pliki w mgnieniu oka.</h1>
         <p className="text-zinc-500 text-md text-wrap max-w-xl text-center animate-slide-in-left opacity-0">
             Dzięki wygodnemu interfejsowi, przesyłanie plików jest niezwykle proste. Użyj naszego serwisu do przesyłania plików i zyskaj wiele czasu. Możesz w łatwy sposób generować linki niestandardowe, skracając czas drugiej osoby.
         </p>
@@ -33,10 +33,10 @@ export default function Hero() {
 
         </section>
 
-        <div className="mt-8 p-3 border border-dashed border-zinc-800 rounded-lg bg-zinc-900/30 animate-slide-in-bottom">
+        <div className="mt-8 p-3 border-b border-dashed border-zinc-800 animate-slide-in-bottom">
             <p className="text-zinc-400 text-sm flex items-center gap-2">
-                <span>✨</span>
-                <span>Zaloguj się, aby zobaczyć historię przesyłanych plików</span>
+                <span><AlertCircle className="w-4 h-4" /></span>
+                <span>Zaloguj się, aby zobaczyć historię przesyłanych plików i kodów dostępu</span>
                 <Link href="/auth" className="text-zinc-300 hover:text-zinc-100 transition-colors underline underline-offset-4">
                     Zaloguj
                 </Link>

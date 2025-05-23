@@ -24,7 +24,7 @@ import {
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Upload, X, Terminal, AlertCircle, Loader2 } from "lucide-react";
+import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -327,8 +327,7 @@ export function UploadPage() {
                           Przeciągnij i upuść pliki tutaj
                         </p>
                         <p className="text-zinc-400 text-xs">
-                          Lub kliknij aby przeglądać (maksymalnie 20 plików,
-                          40MB maksymalnie)
+                          Lub kliknij aby przeglądać do 40 MB
                         </p>
                       </div>
                       <FileUploadTrigger asChild>
@@ -443,6 +442,7 @@ export function UploadPage() {
                     <Input
                       {...field}
                       disabled={isSubmitting}
+                      placeholder="np. moj-link"
                       className={`w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text ${
                         isSubmitting ? "cursor-not-allowed" : ""
                       }`}
@@ -547,7 +547,7 @@ export function UploadPage() {
 
           {/* Add Tabs for Public/Private selection */}
           <div className="w-full animate-fade-in-01-text">
-            <h3 className="text-zinc-400 mb-2 text-sm">Typ dostępu</h3>
+            <h3 className="text-zinc-400 mb-2 text-sm">Dodatkowa konfiguracja</h3>
             <FormField
               control={form.control}
               name="isPrivate"
@@ -573,6 +573,7 @@ export function UploadPage() {
                                   hover:bg-zinc-800/50"
                           disabled={isSubmitting}
                         >
+                          <Rss className="h-4 w-4" />
                           Publiczny
                         </TabsTrigger>
                         <TabsTrigger
@@ -582,6 +583,7 @@ export function UploadPage() {
                                   hover:bg-zinc-800/50"
                           disabled={isSubmitting}
                         >
+                          <Lock className="h-4 w-4" />
                           Prywatny
                         </TabsTrigger>
                       </TabsList>
@@ -659,16 +661,7 @@ export function UploadPage() {
           )}
         </form>
       </Form>
-      <section className="mt-4 flex justify-start items-start w-full max-w-md animate-slide-in-left">
-        <Alert className="bg-zinc-950/10 border-zinc-800 border-dashed text-zinc-400">
-          <Terminal className="h-4 w-4 " />
-          <AlertTitle className="text-sm">Wskazówka</AlertTitle>
-          <AlertDescription className="text-[0.7rem]">
-            Nie zgub swoich plików! Zarejestruj się i zobacz historię
-            przesyłanych plików.
-          </AlertDescription>
-        </Alert>
-      </section>
+      
     </>
   );
 }
