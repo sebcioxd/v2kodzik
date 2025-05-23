@@ -7,9 +7,15 @@ import { eq } from "drizzle-orm";
 import { getConnInfo } from "hono/bun";
 import { getRateLimiter } from "../lib/rate-limiter";
 import { Context } from "hono";
+import bcrypt from "bcryptjs";
+
 const uploadRoute = new Hono();
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+const hashCode = async (code: string) => {
+  return await bcrypt.hash(code, 10);
+};
 
 uploadRoute.post("/", async (c: Context) => {
   const connInfo = getConnInfo(c);
@@ -125,7 +131,7 @@ uploadRoute.post("/", async (c: Context) => {
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
         userId: user ? user.id : null,
         private: isPrivate === "true",
-        code: accessCode ? accessCode : null,
+        code: accessCode ? await hashCode(accessCode) : null,
       })
       .returning({ id: shares.id });
 

@@ -4,7 +4,12 @@ import { shares, uploadedFiles } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { getRateLimiter } from "../lib/rate-limiter";
 import { getConnInfo } from "hono/bun";
+import bcrypt from "bcryptjs";
 const shareRoute = new Hono();
+
+const verifyCode = async (code: string, shareCode: string) => {
+  return await bcrypt.compare(code, shareCode);
+};
 
 shareRoute.get("/:slug", async (c) => {
   const { slug } = c.req.param();
@@ -76,7 +81,7 @@ shareRoute.post("/verify", async (c) => {
     return c.json({ success: true }, 200);
   }
 
-  if (share[0].code !== accessCode) {
+  if (!(await verifyCode(accessCode, share[0].code || ""))) {
     return c.json(
       { success: false, message: "Nieprawidłowy kod dostępu", remaining_requests: remaining_requests },
       403

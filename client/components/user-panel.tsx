@@ -103,7 +103,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                         Kod dostępu:
                                     </span>
                                     <span className="text-zinc-300 text-sm">
-                                        {share.code}
+                                        Zaszyfrowany
                                     </span>
                                 </div>
                                 )}

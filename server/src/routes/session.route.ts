@@ -17,7 +17,7 @@ sessionRoute.get("/", async (c) => {
 
 sessionRoute.get("/version", async (c) => {
   return c.json({
-    bunVersion: Bun.version
+    bunVersion: Bun.version,
   })
 })
 

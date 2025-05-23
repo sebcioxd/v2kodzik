@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useFetch, LastPosts   } from "@/app/hooks/use-fetch";
 
 interface ShareCardProps {
   slug: string;
@@ -81,39 +82,19 @@ export default function RecentShareCard({ slug, createdAt, expiresAt, private: i
   );
 }
 
-// Add type definition for the API response
-interface Share {
-  id: string;
-  slug: string;
-  createdAt: string;
-  expiresAt: string;
-  private: boolean;
-}
-
-interface SharesResponse {
-  posts: Share[];
-}
 
 // Update RecentShares component
 export function RecentShares({ isLoading: initialLoading = false }) {
-  const [shares, setShares] = useState<Share[]>([]);
+  const { lastPosts, isLastPostsLoading } = useFetch();
+  const [shares, setShares] = useState<LastPosts[]>([]);
   const [isLoading, setIsLoading] = useState(initialLoading);
 
   useEffect(() => {
-    const fetchShares = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get<SharesResponse>(`${process.env.NEXT_PUBLIC_API_URL}/v1/last-posts`);
-        setShares(response.data.posts);
-      } catch (error) {
-        console.error('Failed to fetch recent shares:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (lastPosts) {
+      setShares(lastPosts.posts);
+    }
+  }, [lastPosts]);
 
-    fetchShares();
-  }, []);
 
   if (isLoading) {
     return <RecentSharesSkeleton />;

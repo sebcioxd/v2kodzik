@@ -65,7 +65,7 @@ export default function FAQ() {
               Czy prywatne linki są bezpieczne?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Tak, prywatne linki są bezpieczne. Jest to bardzo dopracowana funkcja, poza osobami z kodem dostępu, nikt nie jest w stanie otworzyć linku. (Wszystkie dane są po stronie serwera)
+              Tak, prywatne linki są bezpieczne. Jest to bardzo dopracowana funkcja, poza osobami z kodem dostępu, nikt nie jest w stanie otworzyć linku. Używamy hashowania kodu dostępu.
             </AccordionContent>
         </AccordionItem>
 

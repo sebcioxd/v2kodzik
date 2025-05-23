@@ -23,8 +23,7 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock } from "lucide-react";
+import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock, Hash } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -599,8 +598,9 @@ export function UploadPage() {
                             name="accessCode"
                             render={({ field }) => (
                               <FormItem className="flex flex-col justify-center items-center">
-                                <FormLabel className="text-zinc-400 mb-2">
-                                  Kod dostępu (4 znaki)
+                                <FormLabel className="text-zinc-400 mb-2 flex flex-col items-center gap-2">
+                                  Kod dostępu
+                                  
                                 </FormLabel>
                                 <FormControl>
                                   <InputOTP
@@ -632,6 +632,9 @@ export function UploadPage() {
                                     </InputOTPGroup>
                                   </InputOTP>
                                 </FormControl>
+                                <span className="text-zinc-200 text-xs animate-fade-in-01-text py-2 flex flex-row items-center gap-2">
+                                    <Hash className="h-4 w-4 text-zinc-400" /> Pełne szyfrowanie
+                                </span>
                                 <FormMessage className="text-red-400 animate-fade-in-01-text mt-2" />
                               </FormItem>
                             )}
