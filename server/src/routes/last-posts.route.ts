@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { uploadedFiles, shares } from "../db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "../db";
 
 const lastPostsRoute = new Hono();
@@ -16,6 +16,7 @@ lastPostsRoute.get("/", async (c) => {
       private: shares.private,
     })
     .from(shares)
+    .where(eq(shares.visibility, true))
     .orderBy(desc(shares.createdAt))
     .limit(3)
 

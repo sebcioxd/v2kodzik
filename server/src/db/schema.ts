@@ -10,6 +10,7 @@ export const shares = pgTable('shares', {
   userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   private: boolean('private').default(false),
   code: text('code'),
+  visibility: boolean('visibility').default(true),
 });
 
 export const uploadedFiles = pgTable('uploaded_files', {

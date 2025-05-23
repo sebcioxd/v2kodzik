@@ -40,6 +40,7 @@ uploadRoute.post("/", async (c: Context) => {
   let slug = formData.get("slug") as string;
   const isPrivate = formData.get("isPrivate") as string;
   const accessCode = formData.get("accessCode") as string;
+  const visibility = formData.get("visibility") as string;
   slug = slug.replace(/\s+/g, ""); // clean slug from any whitespaces
 
   // check for restricted paths
@@ -132,6 +133,7 @@ uploadRoute.post("/", async (c: Context) => {
         userId: user ? user.id : null,
         private: isPrivate === "true",
         code: accessCode ? await hashCode(accessCode) : null,
+        visibility: visibility === "true",
       })
       .returning({ id: shares.id });
 

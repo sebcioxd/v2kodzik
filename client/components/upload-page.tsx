@@ -23,7 +23,7 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
-import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock, Hash } from "lucide-react";
+import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -87,6 +87,7 @@ const formSchema = z
       .optional()
       .or(z.literal("")),
     isPrivate: z.boolean(),
+    visibility: z.boolean(),
     accessCode: z
       .string()
       .refine(
@@ -136,6 +137,7 @@ export function UploadPage() {
       files: [],
       slug: "",
       isPrivate: false,
+      visibility: true,
       accessCode: "",
     },
   });
@@ -192,6 +194,7 @@ export function UploadPage() {
       if (data.isPrivate && data.accessCode) {
         formData.append("accessCode", data.accessCode);
       }
+      formData.append("visibility", data.visibility.toString());
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/v1/upload`,
@@ -544,9 +547,8 @@ export function UploadPage() {
             </div>
           )}
 
-          {/* Add Tabs for Public/Private selection */}
           <div className="w-full animate-fade-in-01-text">
-            <h3 className="text-zinc-400 mb-2 text-sm">Dodatkowa konfiguracja</h3>
+            <h3 className="text-zinc-200 mb-2 text-sm font-medium">Dodatkowa konfiguracja</h3>
             <FormField
               control={form.control}
               name="isPrivate"
@@ -586,7 +588,7 @@ export function UploadPage() {
                           Prywatny
                         </TabsTrigger>
                       </TabsList>
-                      <TabsContent value="public" className="pt-4">
+                      <TabsContent value="public" className="py-2">
                         <p className="text-xs text-zinc-400 animate-fade-in-01-text">
                           Każdy z linkiem będzie miał dostęp do twoich plików.
                         </p>
@@ -598,8 +600,8 @@ export function UploadPage() {
                             name="accessCode"
                             render={({ field }) => (
                               <FormItem className="flex flex-col justify-center items-center">
-                                <FormLabel className="text-zinc-400 mb-2 flex flex-col items-center gap-2">
-                                  Kod dostępu
+                                <FormLabel className="text-zinc-400 mb-2 flex items-center gap-2">
+                                   Podaj kod dostępu
                                   
                                 </FormLabel>
                                 <FormControl>
@@ -632,16 +634,66 @@ export function UploadPage() {
                                     </InputOTPGroup>
                                   </InputOTP>
                                 </FormControl>
-                                <span className="text-zinc-200 text-xs animate-fade-in-01-text py-2 flex flex-row items-center gap-2">
-                                    <Hash className="h-4 w-4 text-zinc-400" /> Pełne szyfrowanie
-                                </span>
+                               
                                 <FormMessage className="text-red-400 animate-fade-in-01-text mt-2" />
                               </FormItem>
                             )}
                           />
                         </div>
-                        <p className="text-xs text-zinc-400 mt-2 animate-fade-in-01-text">
+                        <p className="text-xs text-zinc-400 my-1 mb-2 animate-fade-in-01-text">
                           Tylko osoby z kodem dostępu będą mogły otworzyć link.
+                        </p>
+                      </TabsContent>
+                    </Tabs>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+        <FormField
+              control={form.control}
+              name="visibility"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Tabs
+                      defaultValue="visible"
+                      onValueChange={(value) => {
+                        field.onChange(value === "visible");
+                      }}
+                      value={field.value ? "visible" : "hidden"}
+                      className="w-full animate-slide-in-left"
+                    >
+                      <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
+                        <TabsTrigger
+                          value="visible"
+                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                  hover:bg-zinc-800/50"
+                          disabled={isSubmitting}
+                        >
+                          <Megaphone className="h-4 w-4" />
+                          Widoczny
+                        </TabsTrigger>
+                        <TabsTrigger
+                          value="hidden"
+                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                  hover:bg-zinc-800/50"
+                          disabled={isSubmitting}
+                        >
+                          <EyeOff className="h-4 w-4" />
+                          Ukryty
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="visible" className="pt-1">
+                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
+                          Link będzie widoczny na stronie głównej.
+                        </p>
+                      </TabsContent>
+                      <TabsContent value="hidden" className="pt-1">
+                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
+                          Link będzie ukryty na stronie głównej.
                         </p>
                       </TabsContent>
                     </Tabs>
