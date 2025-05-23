@@ -84,10 +84,9 @@ export default function RecentShareCard({ slug, createdAt, expiresAt, private: i
 
 
 // Update RecentShares component
-export function RecentShares({ isLoading: initialLoading = false }) {
+export function RecentShares() {
   const { lastPosts, isLastPostsLoading } = useFetch();
   const [shares, setShares] = useState<LastPosts[]>([]);
-  const [isLoading, setIsLoading] = useState(initialLoading);
 
   useEffect(() => {
     if (lastPosts) {
@@ -96,7 +95,7 @@ export function RecentShares({ isLoading: initialLoading = false }) {
   }, [lastPosts]);
 
 
-  if (isLoading) {
+  if (isLastPostsLoading) {
     return <RecentSharesSkeleton />;
   }
 
