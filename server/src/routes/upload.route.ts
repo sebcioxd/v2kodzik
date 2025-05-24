@@ -41,6 +41,8 @@ uploadRoute.post("/", async (c: Context) => {
   const isPrivate = formData.get("isPrivate") as string;
   const accessCode = formData.get("accessCode") as string;
   const visibility = formData.get("visibility") as string;
+  const time = formData.get("time") as string;
+  console.log(time);
   slug = slug.replace(/\s+/g, ""); // clean slug from any whitespaces
 
   // check for restricted paths
@@ -63,6 +65,10 @@ uploadRoute.post("/", async (c: Context) => {
   if (!slug) {
     // if no slug generate a random slug to 6 characters
     slug = Math.random().toString(36).substring(2, 8);
+  }
+
+  if (time !== "24" && time !== "168") {
+    return c.json({ message: "nieprawidłowy czas" }, 400);
   }
 
   if (slug.length < 4) {
@@ -129,7 +135,7 @@ uploadRoute.post("/", async (c: Context) => {
         slug,
         createdAt: new Date(),
         updatedAt: new Date(),
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        expiresAt: new Date(Date.now() + (time === "24" ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000)), 
         userId: user ? user.id : null,
         private: isPrivate === "true",
         code: accessCode ? await hashCode(accessCode) : null,
@@ -148,7 +154,7 @@ uploadRoute.post("/", async (c: Context) => {
       })
     );
 
-    return c.json({ message: "Pliki wysłane pomyślnie", slug: slug }, 200);
+    return c.json({ message: "Pliki wysłane pomyślnie", slug: slug, time: time }, 200);
   } catch (error) {
     console.error("Upload error:", error);
     if (error instanceof Error) {

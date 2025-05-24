@@ -20,6 +20,7 @@ interface FilesProps {
   files: File[];
   totalSize: number;
   createdAt: string;
+  expiresAt: string;
   storagePath: string;
   slug: string;
   fileId: string;
@@ -85,7 +86,7 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
-export default function Files({ files, totalSize, createdAt, slug, storagePath, fileId }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, slug, storagePath, fileId, expiresAt }: FilesProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<Record<string, boolean>>({});
   const [downloadProgress, setDownloadProgress] = useState(0);
@@ -144,11 +145,15 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
   };
 
   // Updated time remaining calculation
-  const formatTimeRemaining = (createdAt: string) => {
+  const formatTimeRemaining = (createdAt: string, expiresAt: string) => {
+    if (!expiresAt) {
+      return "Czas nieznany";
+    }
+
     const created = new Date(createdAt);
-    const expiresAt = new Date(created.getTime() + 24 * 60 * 60 * 1000); // 24 hours after creation
+    const expires = new Date(expiresAt);
     const now = new Date();
-    const diff = expiresAt.getTime() - now.getTime();
+    const diff = expires.getTime() - now.getTime();
     
     if (diff <= 0) {
       return "Wygasło";
@@ -156,6 +161,10 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
     
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours === 0) {
+      return `${minutes}m`;
+    }
     
     return `${hours}h ${minutes}m`;
   };
@@ -366,7 +375,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
 
                 <div className="flex flex-col my-2 border-t border-dashed border-zinc-800 pt-2">
                   <p className="text-zinc-600 mb-2 text-sm">Informacje o linku:</p>
-                  <p className="text-zinc-700 text-sm">Link wygaśnie za: {formatTimeRemaining(createdAt)}</p>
+                  <p className="text-zinc-700 text-sm">Link wygaśnie za: {formatTimeRemaining(createdAt, expiresAt)}</p>
                   <p className="text-zinc-700 text-sm">Slug (link): {slug}</p>
                   <p className="text-zinc-700 text-sm">ID linku: {fileId}</p>
                   {remainingRequests > 0 && <p className="text-zinc-700 text-sm">Pozostałe żądania: {remainingRequests}</p>}
@@ -413,7 +422,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         
         <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
           <span>Link wygaśnie za:</span>
-          <span className="font-medium text-zinc-200">{formatTimeRemaining(createdAt)}</span>
+          <span className="font-medium text-zinc-200">{formatTimeRemaining(createdAt, expiresAt)}</span>
         </div>
 
         <div className="w-full flex gap-2">

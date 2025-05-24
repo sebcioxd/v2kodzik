@@ -20,7 +20,7 @@ export default function FAQ() {
               Ile trwa dostęp do linku?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Link jest dostępny przez 24 godziny.
+              Link jest dostępny przez 24 godziny. Możesz przedłużyć czas do 7 dni. Dostępne tylko dla zalogowanych użytkowników.
             </AccordionContent>
         </AccordionItem>
         

@@ -11,26 +11,27 @@ interface Share {
   createdAt: string;
   updatedAt: string;
   storagePath: string;
+  expiresAt: string;
   files: File[];
   totalSize: number;
+  private: boolean;
 }
 
 import Files from "@/components/files";
 import { notFound } from "next/navigation";
+
 export default async function ShareSlugPage({ params }: { params: Promise<{ slug: string }>}) {
 
   const { slug } = await params;
 
   const fetchShare = async () => {
     try {
-      const res = await fetch(`https://api.dajkodzik.pl/v1/share/${slug}`);
+      const res = await fetch(`${process.env.BETTER_AUTH_URL}/v1/share/${slug}`);
       if (!res.ok) {
         return null;
       }
       const data = await res.json();
-      
-      // For private shares, we'll render the page but with minimal info
-      // The Files component will handle authentication and fetching full details
+    
       return data;
     } catch (error) {
       console.error(error);
@@ -48,12 +49,13 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
   return (
     <div className="text-zinc-200">
       <Files 
-        files={share.files || []} // May be undefined for private shares
-        totalSize={share.totalSize || 0} // May be undefined for private shares
+        files={share.files || []}
+        totalSize={share.totalSize || 0}
         createdAt={share.createdAt}
-        storagePath={share.storagePath || ""} // May be undefined for private shares
+        storagePath={share.storagePath || ""}
         slug={slug}
         fileId={share.id}
+        expiresAt={share.expiresAt}
       />
     </div>
   );

@@ -24,8 +24,8 @@ shareRoute.get("/:slug", async (c) => {
       id: share[0].id,
       slug: share[0].slug,
       createdAt: share[0].createdAt,
+      expiresAt: share[0].expiresAt,
       private: true,
-      // Don't include file details or storage paths
     });
   }
 
@@ -40,10 +40,12 @@ shareRoute.get("/:slug", async (c) => {
     slug: share[0].slug,
     createdAt: share[0].createdAt,
     updatedAt: share[0].updatedAt,
+    expiresAt: share[0].expiresAt,
     storagePath: files[0].storagePath,
     files: files,
     totalSize: files.reduce((acc, file) => acc + (file.size || 0), 0),
     private: false,
+    
   });
 });
 

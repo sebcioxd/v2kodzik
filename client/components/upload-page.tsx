@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "@/lib/auth-client";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +24,7 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
-import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff } from "lucide-react";
+import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,7 @@ import {
   InputOTPSlot,
   InputOTPSeparator
 } from "@/components/ui/input-otp";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z
   .object({
@@ -88,6 +90,7 @@ const formSchema = z
       .or(z.literal("")),
     isPrivate: z.boolean(),
     visibility: z.boolean(),
+    time: z.string(),
     accessCode: z
       .string()
       .refine(
@@ -130,6 +133,7 @@ export function UploadPage() {
   const [totalSize, setTotalSize] = useState(0);
   const [uploadSpeed, setUploadSpeed] = useState<number | null>(null);
   const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
+  const { data: session, isPending } = useSession();
   const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -139,6 +143,7 @@ export function UploadPage() {
       isPrivate: false,
       visibility: true,
       accessCode: "",
+      time: "24",
     },
   });
   const cancelTokenSource = React.useRef<any>(null);
@@ -195,6 +200,7 @@ export function UploadPage() {
         formData.append("accessCode", data.accessCode);
       }
       formData.append("visibility", data.visibility.toString());
+      formData.append("time", data.time);
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/v1/upload`,
@@ -251,7 +257,7 @@ export function UploadPage() {
         setSuccess(true);
         setError(false);
         form.reset();
-        router.push(`/success?slug=${response.data.slug}`);
+        router.push(`/success?slug=${response.data.slug}&time=${response.data.time}`);
       } else {
         setError(true);
         setSuccess(false);
@@ -548,7 +554,7 @@ export function UploadPage() {
           )}
 
           <div className="w-full animate-fade-in-01-text">
-            <h3 className="text-zinc-200 mb-2 text-sm font-medium">Dodatkowa konfiguracja</h3>
+            <h3 className="text-zinc-200 mb-4 text-md font-medium">Dodatkowa konfiguracja:</h3>
             <FormField
               control={form.control}
               name="isPrivate"
@@ -686,12 +692,12 @@ export function UploadPage() {
                           Ukryty
                         </TabsTrigger>
                       </TabsList>
-                      <TabsContent value="visible" className="pt-1">
+                      <TabsContent value="visible" className="pt-1 pb-2">
                         <p className="text-xs text-zinc-400 animate-fade-in-01-text">
                           Link będzie widoczny na stronie głównej.
                         </p>
                       </TabsContent>
-                      <TabsContent value="hidden" className="pt-1">
+                      <TabsContent value="hidden" className="pt-1 pb-2">
                         <p className="text-xs text-zinc-400 animate-fade-in-01-text">
                           Link będzie ukryty na stronie głównej.
                         </p>
@@ -701,6 +707,82 @@ export function UploadPage() {
                 </FormItem>
               )}
             />
+
+          {isPending && (
+            <div className="space-y-2 animate-fade-in-01-text">
+              <div className="w-full flex space-x-2">
+                <Skeleton className="h-7 flex-1 bg-zinc-800/20 border border-dashed border-zinc-800" />
+                <Skeleton className="h-7 flex-1 bg-zinc-800/20 border border-dashed border-zinc-800" />
+              </div>
+            </div>
+          )}
+          {!isPending && (
+          <FormField
+              control={form.control}
+              name="time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Tabs
+                      defaultValue="24"
+                      onValueChange={(value) => {
+                        field.onChange(value === "24" ? "24" : "168");
+                      }}
+                      value={field.value}
+                      className="w-full animate-slide-in-left"
+                    >
+                      <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
+                        <TabsTrigger
+                          value="24"
+                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                  hover:bg-zinc-800/50"
+                          disabled={isSubmitting}
+                        >
+                          <Clock className="h-4 w-4" />
+                          24 godziny
+                        </TabsTrigger>
+                        
+                        <TabsTrigger
+                          value="168"
+                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                  hover:bg-zinc-800/50 relative group"
+                          disabled={isSubmitting || !session}
+                        >
+                          <Clock className="h-4 w-4" />
+                          7 dni
+                          {!session && (
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-zinc-900 text-zinc-200 text-xs py-1 px-2 rounded border border-zinc-800 whitespace-nowrap">
+                              Zaloguj się, aby uzyskać dostęp
+                            </div>
+                          )}
+                          {!session && (
+                            <Lock className="h-3 w-3 ml-1 inline-block text-zinc-500" />
+                          )}
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="24" className="pt-1">
+                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
+                          Link będzie dostępny przez 24 godziny. <br />
+                          {!session && (
+                            <span className="text-zinc-500">
+                              Zaloguj się, aby uzyskać dostęp do 7-dniowego linku
+                            </span>
+                          )}
+                        </p>
+                      </TabsContent>
+                      <TabsContent value="168" className="pt-1">
+                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
+                          Link będzie dostępny przez 7 dni.
+                        </p>
+                      </TabsContent>
+                    </Tabs>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          )}
           </div>
 
           {error && (

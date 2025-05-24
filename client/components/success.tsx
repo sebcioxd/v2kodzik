@@ -14,6 +14,7 @@ import {
 export default function Success() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
+  const time = searchParams.get("time");
   const [copied, setCopied] = useState(false);
   const fullUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${slug}`;
 
@@ -49,7 +50,7 @@ export default function Success() {
        
         <AlertTitle className="text-zinc-200">Link został wygenerowany!</AlertTitle>
         <AlertDescription className="text-zinc-400">
-          Twój link będzie aktywny przez następne 24 godziny.
+          Twój link będzie aktywny przez następne {time === "24" ? "24 godziny" : "7 dni"}
         </AlertDescription>
       </Alert>
 
