@@ -7,7 +7,7 @@ import { RecentShares } from "./link-comp";
 import { useSession } from "@/lib/auth-client";
 
 export default function Hero() {
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
     return (
     <main className="flex flex-col items-center justify-center">
         <Image src="/logo-no-bg.png" alt="Hero" width={200} height={200} className="opacity-50 animate-fade-in-01-image opacity-0"/>
@@ -36,7 +36,7 @@ export default function Hero() {
 
         </section>
 
-        {!session && (
+        {!session && !isPending && (
         <div className="mt-8 p-3 border-b border-dashed border-zinc-800 animate-slide-in-bottom">
             <p className="text-zinc-400 text-sm flex items-center gap-2">
                 <span><AlertCircle className="w-4 h-4" /></span>
