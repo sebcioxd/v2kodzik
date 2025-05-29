@@ -387,7 +387,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
 
   return (
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10 ">
-      <div className="w-full space-y-4">
+      <div className="w-full space-y-4 animate-fade-in-01-text">
         {/* Notification Toast */}
         {showToast && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
@@ -454,7 +454,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         {filesData.map((file) => (
           <div 
             key={file.id}
-            className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors"
+            className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors animate-slide-in-bottom"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
