@@ -3,11 +3,11 @@ import getServerSession from "@/lib/server-session";
 import { redirect } from "next/navigation";
 
 const AuthenticationPage = async () => {
-  const session = await getServerSession();
+  // const session = await getServerSession();
 
-  if (session) {
-    return redirect("/panel");
-  }
+  // if (session) {
+  //   return redirect("/panel");
+  // }
 
   return (
     <AuthTabs />

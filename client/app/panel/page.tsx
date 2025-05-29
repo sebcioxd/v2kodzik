@@ -38,11 +38,11 @@ type APIResponse = {
 type Params = Promise<{ page: string, search: string }> 
 
 export default async function UserPanelPage({ searchParams }: { searchParams: Params }) {
-    // const session = await getServerSession();
+    const session = await getServerSession();
 
-    // if (!session) {
-    //     return redirect("/auth");
-    // }
+    if (!session) {
+        return redirect("/auth");
+    }
 
     const { page, search } = await searchParams;
 

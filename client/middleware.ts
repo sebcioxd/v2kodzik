@@ -3,14 +3,20 @@ import { getSessionCookie } from "better-auth/cookies";
  
 export async function middleware(request: NextRequest) {
 	const sessionCookie = getSessionCookie(request);
- 
-	if (!sessionCookie) {
-		return NextResponse.redirect(new URL("/", request.url));
-	}
+
+    const pathname = request.nextUrl.pathname;
+
+    if (pathname.startsWith("/auth") && sessionCookie) {
+        return NextResponse.redirect(new URL("/panel", request.url));
+    }
+
+    if (pathname.startsWith("/panel") && !sessionCookie) {
+        return NextResponse.redirect(new URL("/auth", request.url));
+    }
  
 	return NextResponse.next();
 }
  
 export const config = {
-	matcher: ["/panel"], // Specify the routes the middleware applies to
+	matcher: ["/panel", "/auth"], // Specify the routes the middleware applies to
 };
