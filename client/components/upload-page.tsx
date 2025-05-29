@@ -24,7 +24,7 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
-import { Upload, X, ShieldPlus , AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock } from "lucide-react";
+import { Upload, X, ShieldPlus , AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock, Link as LinkIcon } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -301,6 +301,13 @@ export function UploadPage() {
             name="files"
             render={({ field }) => (
               <FormItem>
+                <FormLabel
+                  className={`text-zinc-200 animate-fade-in-01-text border-dashed border-zinc-700 border-b pb-3 mb-2 ${
+                    isSubmitting ? "opacity-50" : ""
+                  }`}
+                >
+                  <Upload className="w-4 h-4" /> Pliki do wysłania:
+                </FormLabel>
                 <FormControl>
                   <FileUpload
                     maxFiles={20}
@@ -433,15 +440,15 @@ export function UploadPage() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={`text-zinc-400 animate-fade-in-01-text ${
+                  className={`text-zinc-200 animate-fade-in-01-text border-dashed border-zinc-700 border-b pb-3 ${
                     isSubmitting ? "opacity-50" : ""
                   }`}
                 >
-                  Wprowadz nazwę linku
+                  <LinkIcon className="w-4 h-4" /> Niestandarowy link: (opcjonalnie)
                 </FormLabel>
                 <FormControl>
                   <div
-                    className={`flex items-center gap-2 ${
+                    className={`flex items-center gap-2 py-2 ${
                       isSubmitting ? "opacity-50" : ""
                     }`}
                   >
@@ -761,7 +768,11 @@ export function UploadPage() {
                           </TabsTrigger>
                         </TabsList>
                       </Tabs>
+                     
                     </FormControl>
+                    <p className="text-zinc-600 text-sm">
+                        {!session && "Aby generować linki na dłużej, zaloguj się."}
+                      </p>
                   </FormItem>
                 )}
               />
