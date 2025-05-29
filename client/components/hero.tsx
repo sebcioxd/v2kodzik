@@ -1,11 +1,14 @@
+"use client"
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Link as LinkIcon, History, AlertCircle } from "lucide-react";
 import { RecentShares } from "./link-comp";
+import { useSession } from "@/lib/auth-client";
 
 export default function Hero() {
-  return (
+  const { data: session } = useSession();
+    return (
     <main className="flex flex-col items-center justify-center">
         <Image src="/logo-no-bg.png" alt="Hero" width={200} height={200} className="opacity-50 animate-fade-in-01-image opacity-0"/>
         <h1 className="md:text-3xl text-2xl text-zinc-100 tracking-tight mb-4 animate-fade-in-01-text opacity-0 text-center">Przesyłaj pliki w mgnieniu oka.</h1>
@@ -33,15 +36,17 @@ export default function Hero() {
 
         </section>
 
+        {!session && (
         <div className="mt-8 p-3 border-b border-dashed border-zinc-800 animate-slide-in-bottom">
             <p className="text-zinc-400 text-sm flex items-center gap-2">
                 <span><AlertCircle className="w-4 h-4" /></span>
-                <span>Zaloguj się, aby zobaczyć historię przesyłanych plików i kodów dostępu</span>
+                <span>Zaloguj się, aby zobaczyć historię przesyłanych plików.</span>
                 <Link href="/auth" className="text-zinc-300 hover:text-zinc-100 transition-colors underline underline-offset-4">
                     Zaloguj
                 </Link>
             </p>
         </div>
+        )}
 
         <div className="mt-8  animate-slide-in-bottom self-start">
            <p className="text-zinc-400 text-sm flex items-center gap-2">

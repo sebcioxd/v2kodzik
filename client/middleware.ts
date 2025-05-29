@@ -18,5 +18,5 @@ export async function middleware(request: NextRequest) {
 }
  
 export const config = {
-	matcher: ["/panel", "/auth"], // Specify the routes the middleware applies to
+	matcher: ["/panel", "/auth/:path*"], // Specify the routes the middleware applies to
 };

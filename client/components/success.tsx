@@ -55,11 +55,11 @@ export default function Success() {
       </Alert>
 
       <div className="w-full p-4 bg-zinc-950/20 border border-dashed border-zinc-800 rounded-md">
-        <p className="text-zinc-400 text-sm mb-2">Twój link:</p>
+        <p className="text-zinc-400 text-sm mb-2">Twój link: (kliknij aby przejść)</p>
         <div className="flex items-center gap-2">
-          <code className="flex-1 p-2 bg-zinc-900/50  rounded text-blue-400 text-sm overflow-x-auto">
+          <span className="flex-1 p-2 bg-zinc-900/50 text-md font-medium rounded-full text-blue-400  overflow-x-auto">
             <Link href={fullUrl}>{fullUrl}</Link>
-          </code>
+          </span>
           <Button
             onClick={copyToClipboard}
             className="bg-zinc-900 hover:bg-zinc-800 text-zinc-400"

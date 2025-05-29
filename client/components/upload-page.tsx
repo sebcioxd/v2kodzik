@@ -64,6 +64,7 @@ const formSchema = z
             "/admin",
             "/auth",
             "/panel",
+            "/success",
           ];
           return !restrictedPaths.some(
             (path) =>
@@ -79,12 +80,12 @@ const formSchema = z
       .refine(
         (value) => {
           // Check for parentheses, Polish characters, and percentage signs
-          const invalidChars = /[\(\)ąćęłńóśźżĄĆĘŁŃÓŚŹŻ%]/;
+          const invalidChars = /[\(\)ąćęłńóśźżĄĆĘŁŃÓŚŹŻ%/]/;
           return !invalidChars.test(value);
         },
         {
           message:
-            "Link nie może zawierać nawiasów, polskich znaków ani znaku procenta",
+            "Link nie może zawierać niedozwolonych znaków",
         }
       )
       .optional()

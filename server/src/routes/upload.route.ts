@@ -54,6 +54,7 @@ uploadRoute.post("/", async (c: Context) => {
     "/admin",
     "/auth",
     "/panel",
+    "/success",
   ];
   if (restrictedPaths.some((path) => slug === path.replace("/", ""))) {
     return c.json(

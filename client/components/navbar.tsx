@@ -33,7 +33,7 @@ export default function Navbar() {
                             pathname === "/upload" ? "text-zinc-200" : "text-zinc-400"
                         }`}
                     >
-                        Prześlij plik
+                        Prześlij pliki
                     </Link>
                     <Link 
                         href="/search" 
