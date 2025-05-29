@@ -19,8 +19,6 @@ interface Share { // or api response
 }
 
 
-
-
 import Files from "@/components/files";
 import { notFound } from "next/navigation";
 

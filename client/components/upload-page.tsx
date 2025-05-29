@@ -53,6 +53,7 @@ const formSchema = z
       .string()
       .trim()
       .min(4, { message: "Nazwa linku musi mieć przynajmniej 4 znaki" })
+      .max(16, { message: "Nazwa linku może mieć maksymalnie 16 znaków" })
       .refine(
         (value) => {
           const restrictedPaths = [

@@ -71,9 +71,9 @@ uploadRoute.post("/", async (c: Context) => {
     return c.json({ message: "nieprawidłowy czas" }, 400);
   }
 
-  if (slug.length < 4) {
+  if (slug.length < 4 || slug.length > 16) {
     return c.json(
-      { message: "nazwa linku musi mieć przynajmniej 4 znaki" },
+      { message: "nazwa linku musi mieć przynajmniej 4 znaki i maksymalnie 16 znaków" },
       400
     );
   }
