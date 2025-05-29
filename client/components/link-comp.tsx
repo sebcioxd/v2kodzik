@@ -4,8 +4,7 @@ import { ExternalLink, Clock, Lock } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { useFetch, LastPosts   } from "@/app/hooks/use-fetch";
+import { useFetch, LastPosts } from "@/app/hooks/use-fetch";
 
 interface ShareCardProps {
   slug: string;
@@ -87,10 +86,12 @@ export default function RecentShareCard({ slug, createdAt, expiresAt, private: i
 export function RecentShares() {
   const { lastPosts, isLastPostsLoading } = useFetch();
   const [shares, setShares] = useState<LastPosts[]>([]);
+  const [count, setCount] = useState<number>(0);
 
   useEffect(() => {
     if (lastPosts) {
       setShares(lastPosts.posts);
+      setCount(lastPosts.count);
     }
   }, [lastPosts]);
 
@@ -108,7 +109,7 @@ export function RecentShares() {
   }
 
   return (
-    <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-4">
+    <div className={`w-full grid md:grid-cols-${count} grid-cols-1 gap-4`}>
       {shares.map((share) => (
         <RecentShareCard
           key={share.id}

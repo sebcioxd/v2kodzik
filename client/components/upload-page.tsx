@@ -24,7 +24,7 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
-import { Upload, X, Terminal, AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock } from "lucide-react";
+import { Upload, X, ShieldPlus , AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -332,17 +332,17 @@ export function UploadPage() {
                         <div className="flex items-center justify-center rounded-full border border-dashed border-zinc-800 p-2.5">
                           <Upload className="size-6 text-zinc-400" />
                         </div>
-                        <p className="font-medium text-sm text-zinc-200">
+                        <p className="font-medium text-md text-zinc-200">
                           Przeciągnij i upuść pliki tutaj
                         </p>
-                        <p className="text-zinc-400 text-xs">
-                          Lub kliknij aby przeglądać do 40 MB
+                        <p className="text-zinc-400 text-md">
+                          Lub kliknij aby przeglądać do 40 MB oraz 20 plików
                         </p>
                       </div>
                       <FileUploadTrigger asChild>
                         <Button
                           variant="outline"
-                          size="sm"
+                          size="lg"
                           className="mt-2 w-fit text-zinc-400 hover:text-zinc-200 hover:bg-zinc-950/30 border-zinc-800 bg-zinc-950/20"
                         >
                           Przeglądaj pliki
@@ -375,7 +375,7 @@ export function UploadPage() {
                     </FileUploadList>
                     {field.value.length > 0 && (
                       <div className="mt-4 space-y-1 animate-fade-in-01-text">
-                        <div className="flex justify-between items-center text-xs text-zinc-400">
+                        <div className="flex justify-between items-center text-md text-zinc-400">
                           <span>Całkowity rozmiar</span>
                           <span>{formatBytes(totalSize)} / 40 MB</span>
                         </div>
@@ -452,6 +452,7 @@ export function UploadPage() {
                       {...field}
                       disabled={isSubmitting}
                       placeholder="np. moj-link"
+                      
                       className={`w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text ${
                         isSubmitting ? "cursor-not-allowed" : ""
                       }`}
@@ -459,7 +460,7 @@ export function UploadPage() {
                   </div>
                 </FormControl>
                 <p
-                  className={`text-xs text-zinc-400 mt-1 ${
+                  className={`text-md text-zinc-400 mt-1 ${
                     isSubmitting ? "opacity-50" : ""
                   }`}
                 >
@@ -476,6 +477,7 @@ export function UploadPage() {
               isSubmitting ? "bg-zinc-900/20" : ""
             }`}
             disabled={isSubmitting}
+            size="sm"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center">
@@ -555,235 +557,215 @@ export function UploadPage() {
           )}
 
           <div className="w-full animate-fade-in-01-text">
-            <h3 className="text-zinc-200 mb-4 text-md font-medium">Dodatkowa konfiguracja:</h3>
-            <FormField
-              control={form.control}
-              name="isPrivate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Tabs
-                      defaultValue="public"
-                      onValueChange={(value) => {
-                        field.onChange(value === "private");
-                        if (value === "public") {
-                          form.setValue("accessCode", "");
-                        }
-                      }}
-                      value={field.value ? "private" : "public"}
-                      className="w-full animate-slide-in-left"
-                    >
-                      <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
-                        <TabsTrigger
-                          value="public"
-                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
-                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                                  hover:bg-zinc-800/50"
-                          disabled={isSubmitting}
-                        >
-                          <Rss className="h-4 w-4" />
-                          Publiczny
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="private"
-                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
-                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                                  hover:bg-zinc-800/50"
-                          disabled={isSubmitting}
-                        >
-                          <Lock className="h-4 w-4" />
-                          Prywatny
-                        </TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="public" className="py-2">
-                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
-                          Każdy z linkiem będzie miał dostęp do twoich plików.
-                        </p>
-                      </TabsContent>
-                      <TabsContent value="private" className="pt-2 flex justify-center items-center flex-col">
-                        <div className="space-y-4 animate-fade-in-01-text">
-                          <FormField
-                            control={form.control}
-                            name="accessCode"
-                            render={({ field }) => (
-                              <FormItem className="flex flex-col justify-center items-center">
-                                <FormLabel className="text-zinc-400 mb-2 flex items-center gap-2">
-                                   Podaj kod dostępu
-                                  
-                                </FormLabel>
-                                <FormControl>
-                                  <InputOTP
-                                    maxLength={4}
-                                    value={field.value || ""}
-                                    onChange={field.onChange}
-                                    disabled={isSubmitting}
-                                  >
-                                    <InputOTPGroup>
-                                      <InputOTPSlot
-                                        className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
-                                        index={0}
-                                      />
-                                      <InputOTPSlot
-                                        className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
-                                        index={1}
-                                      />
-                                      </InputOTPGroup>
-                                      <InputOTPSeparator className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-400"/>
+            <h3 className="text-zinc-200 mb-4 text-md border-b border-dashed border-zinc-800 pb-2 flex items-center gap-2">
+              <ShieldPlus className="w-4 h-4" /> 
+              Ustawienia dodatkowe:
+            </h3>
+
+            {/* Access Type Setting */}
+            <div className="mb-6 border-b border-dashed border-zinc-800">
+              <h4 className="text-zinc-300 mb-2 text-sm font-medium">Kto może otworzyć link?</h4>
+              <FormField
+                control={form.control}
+                name="isPrivate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Tabs
+                        defaultValue="public"
+                        onValueChange={(value) => {
+                          field.onChange(value === "private");
+                          if (value === "public") {
+                            form.setValue("accessCode", "");
+                          }
+                        }}
+                        value={field.value ? "private" : "public"}
+                        className="w-full animate-slide-in-left"
+                      >
+                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
+                          <TabsTrigger
+                            value="public"
+                            className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                    transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                    hover:bg-zinc-800/50"
+                            disabled={isSubmitting}
+                          >
+                            <Rss className="h-4 w-4 mr-2" />
+                            Każdy z linkiem
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="private"
+                            className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                    transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                    hover:bg-zinc-800/50"
+                            disabled={isSubmitting}
+                          >
+                            <Lock className="h-4 w-4 mr-2" />
+                            Tylko z hasłem
+                          </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="public" className="py-2">
+                          <p className="text-md text-zinc-400 animate-fade-in-01-text">
+                            Każdy z linkiem będzie miał dostęp do twoich plików.
+                          </p>
+                        </TabsContent>
+                        <TabsContent value="private" className="pt-2 flex justify-center items-center flex-col">
+                          <div className="space-y-4 animate-fade-in-01-text">
+                            <FormField
+                              control={form.control}
+                              name="accessCode"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col justify-center items-center">
+                                  <FormLabel className="text-zinc-400 mb-2 flex items-center gap-2 text-md">
+                                     Podaj kod dostępu
+                                    
+                                  </FormLabel>
+                                  <FormControl>
+                                    <InputOTP
+                                      maxLength={4}
+                                      value={field.value || ""}
+                                      onChange={field.onChange}
+                                      disabled={isSubmitting}
+                                    >
                                       <InputOTPGroup>
-                                      <InputOTPSlot
-                                        className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
-                                        index={2}
-                                      />
-                                      <InputOTPSlot
-                                        className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
-                                        index={3}
-                                      />
-                                    </InputOTPGroup>
-                                  </InputOTP>
-                                </FormControl>
-                               
-                                <FormMessage className="text-red-400 animate-fade-in-01-text mt-2" />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
-                        <p className="text-xs text-zinc-400 my-1 mb-2 animate-fade-in-01-text">
-                          Tylko osoby z kodem dostępu będą mogły otworzyć link.
-                        </p>
-                      </TabsContent>
-                    </Tabs>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-        <FormField
-              control={form.control}
-              name="visibility"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Tabs
-                      defaultValue="visible"
-                      onValueChange={(value) => {
-                        field.onChange(value === "visible");
-                      }}
-                      value={field.value ? "visible" : "hidden"}
-                      className="w-full animate-slide-in-left"
-                    >
-                      <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
-                        <TabsTrigger
-                          value="visible"
-                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
-                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                                  hover:bg-zinc-800/50"
-                          disabled={isSubmitting}
-                        >
-                          <Megaphone className="h-4 w-4" />
-                          Widoczny
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value="hidden"
-                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
-                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                                  hover:bg-zinc-800/50"
-                          disabled={isSubmitting}
-                        >
-                          <EyeOff className="h-4 w-4" />
-                          Ukryty
-                        </TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="visible" className="pt-1 pb-2">
-                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
-                          Link będzie widoczny na stronie głównej.
-                        </p>
-                      </TabsContent>
-                      <TabsContent value="hidden" className="pt-1 pb-2">
-                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
-                          Link będzie ukryty na stronie głównej.
-                        </p>
-                      </TabsContent>
-                    </Tabs>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-          {isPending && (
-            <div className="space-y-2 animate-fade-in-01-text">
-              <div className="w-full flex space-x-2">
-                <Skeleton className="h-7 flex-1 bg-zinc-800/20 border border-dashed border-zinc-800" />
-                <Skeleton className="h-7 flex-1 bg-zinc-800/20 border border-dashed border-zinc-800" />
-              </div>
+                                        <InputOTPSlot
+                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          index={0}
+                                        />
+                                        <InputOTPSlot
+                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          index={1}
+                                        />
+                                        </InputOTPGroup>
+                                        <InputOTPSeparator className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-400"/>
+                                        <InputOTPGroup>
+                                        <InputOTPSlot
+                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          index={2}
+                                        />
+                                        <InputOTPSlot
+                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          index={3}
+                                        />
+                                      </InputOTPGroup>
+                                    </InputOTP>
+                                  </FormControl>
+                                 
+                                  <FormMessage className="text-red-400 animate-fade-in-01-text mt-2" />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <p className="text-sm text-zinc-400 my-2 mb-2 animate-fade-in-01-text">
+                            Tylko osoby z kodem dostępu będą mogły otworzyć link.
+                          </p>
+                        </TabsContent>
+                      </Tabs>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
-          )}
-          {!isPending && (
-          <FormField
-              control={form.control}
-              name="time"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Tabs
-                      defaultValue="24"
-                      onValueChange={(value) => {
-                        field.onChange(value === "24" ? "24" : "168");
-                      }}
-                      value={field.value}
-                      className="w-full animate-slide-in-left"
-                    >
-                      <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
-                        <TabsTrigger
-                          value="24"
-                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
-                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                                  hover:bg-zinc-800/50"
-                          disabled={isSubmitting}
-                        >
-                          <Clock className="h-4 w-4" />
-                          24 godziny
-                        </TabsTrigger>
-                        
-                        <TabsTrigger
-                          value="168"
-                          className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
-                                  transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                                  hover:bg-zinc-800/50 relative group"
-                          disabled={isSubmitting || !session}
-                        >
-                          <Clock className="h-4 w-4" />
-                          7 dni
-                          {!session && (
-                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-zinc-900 text-zinc-200 text-xs py-1 px-2 rounded border border-zinc-800 whitespace-nowrap">
-                              Zaloguj się, aby uzyskać dostęp
-                            </div>
-                          )}
-                          {!session && (
-                            <Lock className="h-3 w-3 ml-1 inline-block text-zinc-500" />
-                          )}
-                        </TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="24" className="pt-1">
-                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
-                          Link będzie dostępny przez 24 godziny. <br />
-                          {!session && (
-                            <span className="text-zinc-500">
-                              Zaloguj się, aby uzyskać dostęp do 7-dniowego linku
-                            </span>
-                          )}
-                        </p>
-                      </TabsContent>
-                      <TabsContent value="168" className="pt-1">
-                        <p className="text-xs text-zinc-400 animate-fade-in-01-text">
-                          Link będzie dostępny przez 7 dni.
-                        </p>
-                      </TabsContent>
-                    </Tabs>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          )}
+
+            {/* Visibility Setting */}
+            <div className="mb-6 ">
+              <h4 className="text-zinc-300 mb-2 text-sm font-medium">Czy pokazać link na stronie głównej?</h4>
+              <FormField
+                control={form.control}
+                name="visibility"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Tabs
+                        defaultValue="visible"
+                        onValueChange={(value) => {
+                          field.onChange(value === "visible");
+                        }}
+                        value={field.value ? "visible" : "hidden"}
+                        className="w-full animate-slide-in-left"
+                      >
+                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
+                          <TabsTrigger
+                            value="visible"
+                            className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                    transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                    hover:bg-zinc-800/50"
+                            disabled={isSubmitting}
+                          >
+                            <Megaphone className="h-4 w-4 mr-2" />
+                            Tak, pokaż publicznie
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="hidden"
+                            className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                    transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                    hover:bg-zinc-800/50"
+                            disabled={isSubmitting}
+                          >
+                            <EyeOff className="h-4 w-4 mr-2" />
+                            Nie, ukryj link
+                          </TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Expiration Setting */}
+            <div className="mb-6">
+              <h4 className="text-zinc-300 mb-2 text-sm font-medium">Jak długo link ma być aktywny?</h4>
+              <FormField
+                control={form.control}
+                name="time"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Tabs
+                        defaultValue="24"
+                        onValueChange={(value) => {
+                          field.onChange(value === "24" ? "24" : "168");
+                        }}
+                        value={field.value}
+                        className="w-full animate-slide-in-left"
+                      >
+                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
+                          <TabsTrigger
+                            value="24"
+                            className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                    transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                    hover:bg-zinc-800/50"
+                            disabled={isSubmitting}
+                          >
+                            <Clock className="h-4 w-4 mr-2" />
+                            24 godziny
+                          </TabsTrigger>
+                          <TabsTrigger
+                            value="168"
+                            className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                    transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                    hover:bg-zinc-800/50 relative group"
+                            disabled={isSubmitting || !session}
+                          >
+                            <Clock className="h-4 w-4 mr-2" />
+                            7 dni
+                            {!session && (
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-zinc-900 text-zinc-200 text-xs py-1 px-2 rounded border border-zinc-800 whitespace-nowrap">
+                                Zaloguj się, aby wydłużyć czas
+                              </div>
+                            )}
+                            {!session && (
+                              <Lock className="h-3 w-3 ml-1 inline-block text-zinc-500" />
+                            )}
+                          </TabsTrigger>
+                        </TabsList>
+                      </Tabs>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           {error && (

@@ -20,7 +20,7 @@ lastPostsRoute.get("/", async (c) => {
     .orderBy(desc(shares.createdAt))
     .limit(3)
 
-  return c.json({posts}, 200)
+  return c.json({posts, count: posts.length}, 200)
 })
 
 
