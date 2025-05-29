@@ -1,11 +1,12 @@
 interface File {
   id: string;
-  name: string;
+  fileName: string;
   size: number;
   shareId: string;
+  storagePath: string;
 }
 
-interface Share {
+interface Share { // or api response
   id: string;
   slug: string;
   createdAt: string;
@@ -17,6 +18,9 @@ interface Share {
   private: boolean;
 }
 
+
+
+
 import Files from "@/components/files";
 import { notFound } from "next/navigation";
 
@@ -24,7 +28,7 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
 
   const { slug } = await params;
 
-  const fetchShare = async () => {
+  const fetchShare = async (): Promise<Share | null> => {
     try {
       const res = await fetch(`${process.env.BETTER_AUTH_URL}/v1/share/${slug}`);
       if (!res.ok) {
@@ -56,6 +60,7 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         slug={slug}
         fileId={share.id}
         expiresAt={share.expiresAt}
+        private={share.private}
       />
     </div>
   );

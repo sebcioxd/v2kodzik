@@ -24,6 +24,7 @@ interface FilesProps {
   storagePath: string;
   slug: string;
   fileId: string;
+  private: boolean;
 }
 
 function getFileIcon(fileName: string, fileType?: string) {
@@ -86,14 +87,14 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
-export default function Files({ files, totalSize, createdAt, slug, storagePath, fileId, expiresAt }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, slug, storagePath, fileId, expiresAt, private: isPrivateAccess }: FilesProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<Record<string, boolean>>({});
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [isSharing, setIsSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(isPrivateAccess);
   const [accessCode, setAccessCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [accessGranted, setAccessGranted] = useState(false);
@@ -112,29 +113,6 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
       return () => clearTimeout(timer);
     }
   }, [showToast]);
-
-  // Check if share is private when component mounts
-  useEffect(() => {
-    const checkShareAccess = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/share/${slug}`);
-        if (!response.ok) return;
-        
-        const data = await response.json();
-        if (data.private) {
-          setIsPrivate(true);
-        } else {
-          // If not private, grant access immediately
-          setAccessGranted(true);
-        }
-      } catch (error) {
-        console.error("Error checking share access:", error);
-      }
-    };
-    
-    checkShareAccess();
-  }, [slug]);
-
   // Function to format bytes to human readable format
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
