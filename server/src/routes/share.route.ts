@@ -104,6 +104,7 @@ shareRoute.post("/verify", async (c) => {
   setCookie(c, `share_${share[0].id}`, accessCode, {
     path: "/",
     httpOnly: true,
+    domain: process.env.NODE_ENV === "production" ? ".dajkodzik.pl" : undefined,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 30 // 30 minutes
