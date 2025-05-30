@@ -115,9 +115,9 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
   }, [showToast]);
   // Function to format bytes to human readable format
   const formatBytes = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return '0 Bajtów';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['Bajty', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
@@ -293,6 +293,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
           slug,
           accessCode 
         }),
+        credentials: 'include',
       });
       
       const data = await response.json();

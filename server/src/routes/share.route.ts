@@ -5,6 +5,14 @@ import { eq } from "drizzle-orm";
 import { getRateLimiter } from "../lib/rate-limiter";
 import { getConnInfo } from "hono/bun";
 import bcrypt from "bcryptjs";
+import {
+  getCookie,
+  getSignedCookie,
+  setCookie,
+  setSignedCookie,
+  deleteCookie,
+} from 'hono/cookie'
+
 const shareRoute = new Hono();
 
 const verifyCode = async (code: string, shareCode: string) => {
@@ -83,6 +91,7 @@ shareRoute.post("/verify", async (c) => {
     return c.json({ success: true }, 200);
   }
 
+
   if (!(await verifyCode(accessCode, share[0].code || ""))) {
     return c.json(
       { success: false, message: "Nieprawidłowy kod dostępu", remaining_requests: remaining_requests },
@@ -90,7 +99,16 @@ shareRoute.post("/verify", async (c) => {
     );
   }
 
-  // After successful verification, fetch and return the file details
+  // After successful verification, fetch and return the file details and set cookie
+
+  setCookie(c, `share_${share[0].id}`, accessCode, {
+    path: "/",
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 60 * 30 // 30 minutes
+  })
+
   const files = await db
     .select()
     .from(uploadedFiles)
@@ -103,5 +121,38 @@ shareRoute.post("/verify", async (c) => {
     storagePath: files[0].storagePath
   }, 200);
 });
+
+shareRoute.get("/verify-cookie/:slug", async (c) => {
+  const { slug } = c.req.param();
+
+  const idToSlug = await db.select().from(shares).where(eq(shares.slug, slug));
+
+  if (idToSlug.length === 0) {
+    return c.json({ success: false, message: "Nie znaleziono linku" }, 404);
+  }
+
+  const cookieValue = getCookie(c, `share_${idToSlug[0].id}`);
+
+  if (!cookieValue) {
+    return c.json({ success: false, message: "Brak ciasteczka" }, 401);
+  }
+
+  if (!(await verifyCode(cookieValue, idToSlug[0].code || ""))) {
+    deleteCookie(c, `share_${idToSlug[0].id}`);
+    return c.json({ success: false, message: "Nieprawidłowy kod dostępu" }, 403);
+  }
+
+  const files = await db
+  .select()
+  .from(uploadedFiles)
+  .where(eq(uploadedFiles.shareId, idToSlug[0].id));
+
+  return c.json({ 
+    success: true,
+    files: files,
+    totalSize: files.reduce((acc, file) => acc + (file.size || 0), 0),
+    storagePath: files[0].storagePath,
+  }, 200);
+})
 
 export default shareRoute;
