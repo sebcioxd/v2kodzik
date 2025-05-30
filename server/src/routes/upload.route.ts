@@ -27,11 +27,11 @@ uploadRoute.post("/", async (c: Context) => {
     const consume = await limiter.consume(ipAdress || "127.0.0.1");
 
     if (consume.remainingPoints <= 0) {
-      return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+      return c.json({ message: "Przekroczyłeś limit wysyłania plików" }, 429);
     }
 
   } catch (error) {
-    return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
+    return c.json({ message: "Przekroczyłeś limit wysyłania plików" }, 429);
   }
 
   const formData = await c.req.formData();

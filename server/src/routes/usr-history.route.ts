@@ -30,16 +30,15 @@ usrHistoryRoute.get("/", async (c) => {
 })
 
 usrHistoryRoute.get("/count", async (c) => {
-
   const user = c.get("user")
-
   if (!user) {
     return c.json(null, 401)
   }
 
   const history = await db
-    .select({ count: count() })
-    .from(shares)
+    .select({ count: count(shares.id) })
+    .from(uploadedFiles)
+    .fullJoin(shares, eq(uploadedFiles.shareId, shares.id))
     .where(eq(shares.userId, user.id))
 
   return c.json({count: history[0].count}, 200)

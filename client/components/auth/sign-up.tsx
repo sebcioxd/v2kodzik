@@ -78,7 +78,6 @@ export default function SignUp() {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/session/version`)
             const apiResponse: apiResponse = await res.json()
-
             
             await authClient.signUp.email({
                 email: data.email,

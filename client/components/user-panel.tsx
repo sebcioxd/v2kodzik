@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogOut, Clock, ExternalLink, Loader2, Lock, Link as LinkIcon } from "lucide-react";
 import { authClient, User } from "@/lib/auth-client";
+import { useTransition } from "react";
 import { useState } from "react";
 import Link from "next/link";
 type Share = {
@@ -35,12 +36,13 @@ function formatDate(dateString: string) {
 export default function UserPanel({ shares, user }: { shares: Share[], user: User }) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [isRouting, startTransition] = useTransition();
 
     return (
         <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-lg max-w-md animate-fade-in-01-text mt-10">
             <div className="w-full space-y-4">
             <div className="flex justify-between items-center">
-                    <h2 className="text-xl text-zinc-200 font-medium">Panel użytkownika {user.name}</h2>
+                    <h2 className="text-xl text-zinc-200 font-medium">Panel użytkownika <span className="text-zinc-400">{user.name}</span></h2>
                     <Button 
                         onClick={async () => {
                             setIsLoading(true);
@@ -49,7 +51,9 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                 credentials: "include",
                                 onSuccess: () => {
                                     setIsLoading(false);
-                                    router.push("/auth");
+                                    startTransition(() => {
+                                        router.push("/auth");
+                                    });
                                 },
                               },
                             });
@@ -59,14 +63,14 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                         className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-dashed border-zinc-800"
                     >
                         
-                        {isLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Wylogowywanie...</> :  <><LogOut className="h-4 w-4 mr-2" /> Wyloguj</>}
+                        {isLoading || isRouting ? <><Loader2 className="h-4 w-4 animate-spin" /> Wylogowywanie...</> :  <><LogOut className="h-4 w-4 mr-2" /> Wyloguj się</>}
                     </Button>
                 </div>
 
                 <div className="border-b border-dashed border-zinc-800 pb-4">
                     <h3 className="text-sm text-zinc-400 flex items-center gap-2 mb-4">
                         <Clock className="h-4 w-4" />
-                        Historia udostępnień
+                        Twoja historia udostępnień
                     </h3>
                     
                     <div className="space-y-3">
