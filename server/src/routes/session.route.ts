@@ -17,14 +17,12 @@ sessionRoute.get("/", async (c) => {
 })
 
 sessionRoute.get("/version", async (c) => {
-  const ipAdress = getConnInfo(c)
+  const ipAdress = c.req.header("x-forwarded-for")
   const userAgent = c.req.raw.headers.get("user-agent")
 
   return c.json({
     bunVersion: Bun.version,
-    ipAdress: ipAdress.remote.address,
-    ipPort: ipAdress.remote.port,
-    ipType: ipAdress.remote.addressType,
+    ipAdress: ipAdress,
     userAgent: userAgent,
   })
 })
