@@ -4,7 +4,6 @@ import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
 import { db } from "../db";
 import { shares, uploadedFiles } from "../db/schema";
 import { eq } from "drizzle-orm";
-import { getConnInfo } from "hono/bun";
 import { getRateLimiter } from "../lib/rate-limiter";
 import { Context } from "hono";
 import bcrypt from "bcryptjs";
@@ -18,7 +17,7 @@ const hashCode = async (code: string) => {
 };
 
 uploadRoute.post("/", async (c: Context) => {
-  const connInfo = getConnInfo(c);
+  const ipAdress = c.req.header("x-forwarded-for")
   const user = c.get("user");
 
   const limiter = await getRateLimiter({ keyPrefix: "upload" });
@@ -26,7 +25,7 @@ uploadRoute.post("/", async (c: Context) => {
   let remaining_requests = 0;
 
   try {
-    const rlRes = await limiter.consume(connInfo.remote.address || "127.0.0.1");
+    const rlRes = await limiter.consume(ipAdress || "127.0.0.1");
     remaining_requests = rlRes.remainingPoints;
     if (rlRes.remainingPoints <= 0) {
       return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
@@ -42,7 +41,6 @@ uploadRoute.post("/", async (c: Context) => {
   const accessCode = formData.get("accessCode") as string;
   const visibility = formData.get("visibility") as string;
   const time = formData.get("time") as string;
-  console.log(time);
   slug = slug.replace(/\s+/g, ""); // clean slug from any whitespaces
 
   // check for restricted paths
@@ -157,7 +155,6 @@ uploadRoute.post("/", async (c: Context) => {
 
     return c.json({ message: "Pliki wysłane pomyślnie", slug: slug, time: time }, 200);
   } catch (error) {
-    console.error("Upload error:", error);
     if (error instanceof Error) {
       return c.json({ message: error.message }, 500);
     }

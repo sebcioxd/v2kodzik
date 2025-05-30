@@ -18,7 +18,7 @@ sessionRoute.get("/", async (c) => {
 
 sessionRoute.get("/version", async (c) => {
   const ipAdress = c.req.header("x-forwarded-for")
-  const userAgent = c.req.raw.headers.get("user-agent")
+  const userAgent = c.req.header("user-agent")
 
   return c.json({
     bunVersion: Bun.version,
