@@ -15,6 +15,7 @@ usrHistoryRoute.get("/", async (c) => {
   const page = Number(c.req.query('page')) || 1
   const limit = Number(c.req.query('limit')) || 4
   const offset = (page - 1) * limit
+  
 
   const history = await db
     .select()
