@@ -20,12 +20,19 @@ import {
 } from "@/components/ui/form";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+
 type FormData = {
     username: string;
     email: string;
     password: string;
     confirmPassword: string;
 };
+
+type apiResponse = {
+    bunVersion: string;
+    ipAdress: string;
+    userAgent: string;
+}
 
 const formSchema = z.object({
     username: z
@@ -69,10 +76,16 @@ export default function SignUp() {
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
         try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/session/version`)
+            const apiResponse: apiResponse = await res.json()
+
+            
             await authClient.signUp.email({
                 email: data.email,
                 password: data.password,
                 name: data.username,
+                ipAddress: apiResponse.ipAdress,
+                userAgent: apiResponse.userAgent,
             },
             {
                 onSuccess: () => {

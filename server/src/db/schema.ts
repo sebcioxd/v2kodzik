@@ -40,6 +40,8 @@ export const user = pgTable("user", {
   updatedAt: timestamp("updated_at")
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
 });
 
 export const session = pgTable("session", {

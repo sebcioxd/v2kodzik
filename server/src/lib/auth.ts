@@ -12,6 +12,22 @@ export const auth = betterAuth({
         provider: "pg",
         schema: schema,
     }),
+    user: {
+        additionalFields: {
+            ipAddress: {
+                type: "string",
+                required: false,
+                defaultValue: null,
+                input: true,
+            },
+            userAgent: {
+                type: "string",
+                required: false,
+                defaultValue: null,
+                input: true,
+            }
+        }
+    },
     trustedOrigins: [SITE_URL],
     emailAndPassword: {
         enabled: true,
