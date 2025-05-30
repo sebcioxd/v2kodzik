@@ -13,14 +13,6 @@ export const auth = betterAuth({
         schema: schema,
     }),
     trustedOrigins: [SITE_URL],
-    // emailVerification: {
-    //     sendVerificationEmail: async ({ user, url, token }) => {
-    //         const callbackURL = `${BETTER_AUTH_URL}/api/auth/verify-email?token=${token}&callbackURL=${SITE_URL}/auth/verify?email=${user.email}`
-    //         await sendEmail(user.email, "Proszę zweryfikuj swój adres e-mail - dajkodzik.pl", callbackURL, "verify")
-    //     },
-    //     autoSignInAfterVerification: false,
-    //     sendOnSignUp: false,
-    // },
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true,
@@ -34,13 +26,15 @@ export const auth = betterAuth({
             enabled: process.env.NODE_ENV === "production",
             domain: DOMAIN_WILDCARD,
         },
+        cookiePrefix: "dajkodzik",
     },  
     plugins: [
         emailOTP({ 
-                async sendVerificationOTP({ email, otp}) { 
-                    await sendOTPEmail(email, otp)
-				}, 
-                sendVerificationOnSignUp: true,
+            async sendVerificationOTP({ email, otp}) { 
+                await sendOTPEmail(email, otp)
+            }, 
+            sendVerificationOnSignUp: true,
         }) 
     ]
+    
 });

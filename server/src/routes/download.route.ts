@@ -28,17 +28,19 @@ downloadRoute.post("/bulk", async (c) => {
   const zip = new JSZip();
   
   try {
-    for (const path of paths) {
+    const filePromises = paths.map(async (path: string) => {
       const { data, error } = await supabase.storage.from('sharebucket').download(path);
       if (error) throw error;
-      
+
       const arrayBuffer = await (data as Blob).arrayBuffer();
       const fileName = path.split('/').pop() || 'unknown';
       zip.file(fileName, arrayBuffer);
-    }
-    
-    const zipContent = await zip.generateAsync({ type: "blob" });
+    });
 
+    await Promise.all(filePromises);
+
+    const zipContent = await zip.generateAsync({ type: "blob" });
+    
     c.header("Content-Type", "application/zip");
     c.header("Content-Disposition", `attachment; filename=kodzik.zip`);
     
@@ -48,5 +50,6 @@ downloadRoute.post("/bulk", async (c) => {
     return c.json({ message: "Wystąpił błąd podczas tworzenia pliku zip" }, 500);
   }
 });
+
 
 export default downloadRoute;
