@@ -11,6 +11,8 @@ export const shares = pgTable('shares', {
   private: boolean('private').default(false),
   code: text('code'),
   visibility: boolean('visibility').default(true),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
 });
 
 export const uploadedFiles = pgTable('uploaded_files', {

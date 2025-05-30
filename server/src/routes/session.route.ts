@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { AuthSession } from "../lib/auth-types";
-import { getConnInfo } from "hono/bun";
 
 const sessionRoute = new Hono<AuthSession>();
 
@@ -17,7 +16,7 @@ sessionRoute.get("/", async (c) => {
 })
 
 sessionRoute.get("/version", async (c) => {
-  const ipAdress = c.req.header("x-forwarded-for")
+  const ipAdress = c.req.header("x-forwarded-for") || "127.0.0.1"
   const userAgent = c.req.header("user-agent")
 
   return c.json({

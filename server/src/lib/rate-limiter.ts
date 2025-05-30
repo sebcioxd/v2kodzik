@@ -7,8 +7,6 @@ const rateLimiters: Record<string, RateLimiterRedis> = {}; // prefix -> multiple
 
 type AuthPrefixes = "upload" | "default" | "check";
 
-const authPrefixes: AuthPrefixes[] = ["upload", "default", "check"];
-
 // Number of requests per time period (5 would equal 4 requests per the duration set below)
 const authPrefixesPoints: Record<AuthPrefixes, number> = {
     "upload": 4,

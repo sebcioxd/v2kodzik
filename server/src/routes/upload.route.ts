@@ -17,19 +17,19 @@ const hashCode = async (code: string) => {
 };
 
 uploadRoute.post("/", async (c: Context) => {
-  const ipAdress = c.req.header("x-forwarded-for")
+  const ipAdress = c.req.header("x-forwarded-for") || "127.0.0.1"
   const user = c.get("user");
+  const userAgent = c.req.header("user-agent")
 
   const limiter = await getRateLimiter({ keyPrefix: "upload" });
 
-  let remaining_requests = 0;
-
   try {
-    const rlRes = await limiter.consume(ipAdress || "127.0.0.1");
-    remaining_requests = rlRes.remainingPoints;
-    if (rlRes.remainingPoints <= 0) {
+    const consume = await limiter.consume(ipAdress || "127.0.0.1");
+
+    if (consume.remainingPoints <= 0) {
       return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
     }
+
   } catch (error) {
     return c.json({ message: "przekroczyłeś limit wysyłania plików" }, 429);
   }
@@ -139,6 +139,8 @@ uploadRoute.post("/", async (c: Context) => {
         private: isPrivate === "true",
         code: accessCode ? await hashCode(accessCode) : null,
         visibility: visibility === "true",
+        ipAddress: ipAdress,
+        userAgent: userAgent
       })
       .returning({ id: shares.id });
 
