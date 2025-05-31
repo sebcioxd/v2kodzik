@@ -29,7 +29,6 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
 
   const fetchShare = async (): Promise<Share | null> => {
     try {
-      // Get the cookies from the incoming request
       const cookieStore = await cookies()
       
       const res = await fetch(`${process.env.BETTER_AUTH_URL}/v1/share/${slug}`);
@@ -43,13 +42,13 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         const cookieRes = await fetch(`${process.env.BETTER_AUTH_URL}/v1/share/verify-cookie/${slug}`, {
           credentials: 'include',
           headers: {
-            Cookie: cookieStore.toString(), // Forward the cookies
+            Cookie: cookieStore.toString(), 
           },
         });
         const cookieData = await cookieRes.json();
         
         if (cookieData.success) {
-          // Return the full data from cookie verification instead of the minimal data
+          
           return {
             ...data,
             files: cookieData.files,
@@ -87,7 +86,6 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         fileId={share.id}
         expiresAt={share.expiresAt}
         private={share.private}
-        
       />
     </div>
   );
