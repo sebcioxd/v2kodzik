@@ -5,13 +5,14 @@ const rateLimiters: Record<string, RateLimiterRedis> = {}; // prefix -> multiple
 
 // add prefixes to the rate limiters. Note that the numbers are starting from 0, so 2 is 1 request, etc.
 
-type AuthPrefixes = "upload" | "default" | "check";
+type AuthPrefixes = "upload" | "default" | "check" | "auth";
 
 // Number of requests per time period (5 would equal 4 requests per the duration set below)
 const authPrefixesPoints: Record<AuthPrefixes, number> = {
     "upload": 4,
     "default": 4,
     "check": 6,
+    "auth": 3,
 }
 
 // Duration of the block (rate limiting)
@@ -19,6 +20,7 @@ const authPrefixesDuration: Record<AuthPrefixes, number> = {
     "upload": 1800,
     "default": 90,
     "check": 90,
+    "auth": 900,
 }
 
 export async function getRateLimiter({ keyPrefix }: {keyPrefix: AuthPrefixes}) {
