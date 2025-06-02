@@ -1,16 +1,24 @@
 import { Hono } from "hono";
-import { createClient } from "@supabase/supabase-js";
-import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "../lib/env";
 import { db } from "../db";
 import { shares, uploadedFiles } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { getRateLimiter } from "../lib/rate-limiter";
 import { Context } from "hono";
 import bcrypt from "bcryptjs";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_REGION } from "../lib/env";
 
 const uploadRoute = new Hono();
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const s3Client = new S3Client({
+  endpoint: MINIO_ENDPOINT,
+  region: MINIO_REGION,
+  credentials: {
+    accessKeyId: MINIO_ACCESS_KEY,
+    secretAccessKey: MINIO_SECRET_KEY
+  },
+  forcePathStyle: true 
+});
 
 const hashCode = async (code: string) => {
   return await bcrypt.hash(code, 10);
@@ -24,11 +32,7 @@ uploadRoute.post("/", async (c: Context) => {
   const limiter = await getRateLimiter({ keyPrefix: "upload" });
 
   try {
-    const consume = await limiter.consume(ipAdress || "127.0.0.1");
-
-    if (consume.remainingPoints <= 0) {
-      return c.json({ message: "Przekroczyłeś limit wysyłania plików" }, 429);
-    }
+    await limiter.consume(ipAdress || "127.0.0.1");
 
   } catch (error) {
     return c.json({ message: "Przekroczyłeś limit wysyłania plików" }, 429);
@@ -109,21 +113,20 @@ uploadRoute.post("/", async (c: Context) => {
     return c.json({ message: "nazwa linku jest już zajęta" }, 409);
   }
 
-  // upload files to supabase storage in chunks to improve performance
   try {
     const chunkSize = 3;
     for (let i = 0; i < files.length; i += chunkSize) {
       const chunk = files.slice(i, i + chunkSize);
       await Promise.all(
         chunk.map(async (file: File) => {
-          const { error } = await supabase.storage
-            .from("sharebucket")
-            .upload(file.name ? `${slug}/${file.name}` : "unknown", file, {
-              cacheControl: "3600",
-              upsert: true,
-              contentType: file.type || undefined,
-            });
-          if (error) throw error;
+          const buffer = await file.arrayBuffer();
+          await s3Client.send(new PutObjectCommand({
+            Bucket: 'sharesbucket',
+            Key: `${slug}/${file.name}`,
+            Body: Buffer.from(buffer),
+            ContentLength: file.size,
+            ContentType: file.type || 'application/octet-stream'
+          }));
         })
       );
     }

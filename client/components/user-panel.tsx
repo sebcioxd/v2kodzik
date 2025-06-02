@@ -97,17 +97,14 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                         <ExternalLink className="h-4 w-4" /> 
                                     </Link>
                                 </div>
-                                <div className="flex md:flex-row flex-col justify-between items-center text-xs text-zinc-400">
+                                <div className="flex  flex-col justify-between gap-1 border-b border-dashed border-zinc-700 pb-2 text-xs text-zinc-400">
                                     <span>Utworzono: {formatDate(share.createdAt)}</span>
                                     <span>Wygasa: {formatDate(share.expiresAt)}</span>
                                 </div>
                                 {share.private && (
-                                <div className="flex flex-row gap-2">
-                                    <span className="text-zinc-400 text-sm">
-                                        Kod dostępu:
-                                    </span>
+                                <div className="flex flex-row gap-2 mt-2">
                                     <span className="text-zinc-300 text-sm">
-                                        Zaszyfrowany
+                                        Plik prywatny. Szyfrowanie włączone.
                                     </span>
                                 </div>
                                 )}

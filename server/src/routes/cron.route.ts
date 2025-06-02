@@ -1,60 +1,102 @@
 import { Hono } from "hono";
 import { db } from "../db";
 import { shares } from "../db/schema";
-import { createClient } from "@supabase/supabase-js";
-import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, CRON_BODY_KEY } from "../lib/env";
+import { S3Client, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
+import { CRON_BODY_KEY, MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_REGION } from "../lib/env";
+import { sql } from "drizzle-orm";
+
 const cronRoute = new Hono();
 
-const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY
-);
+const s3Client = new S3Client({
+  endpoint: MINIO_ENDPOINT,
+  region: MINIO_REGION,
+  credentials: {
+    accessKeyId: MINIO_ACCESS_KEY,
+    secretAccessKey: MINIO_SECRET_KEY
+  },
+  forcePathStyle: true 
+});
 
 cronRoute.post("/", async (c) => {
     const body = await c.req.json();
     if (body.key !== CRON_BODY_KEY) {
         return c.json({ message: "Nieprawidłowy klucz" }, 401);
     }
-    const { data: folders, error: foldersError } = await supabase.storage
-    .from("sharebucket")
-    .list("", { limit: 100, offset: 0 });
 
-    if (foldersError) {
-        return c.json({ message: foldersError }, 404);
-    } 
-  const slugs = await db.select().from(shares); 
+    try {
+        // First delete all expired shares from the database
+        await db.delete(shares).where(sql`expires_at < NOW()`);
 
-  // remove the folders, which are not in the slugs
-  const foldersToDelete = folders.filter((folder) => !slugs.some((slug) => slug.slug === folder.name));
-
-  // loop through the files in the folder and delete them
-  const deletionResults = [];
-  for (const folder of foldersToDelete) {
-    const { data: files, error: filesError } = await supabase.storage.from("sharebucket").list(folder.name);
-    if (files) {
-      const { error } = await supabase.storage.from("sharebucket").remove(files.map((file) => `${folder.name}/${file.name}`));
-      
-      // Instead of returning immediately, track the result
-      if (error) {
-        deletionResults.push({ folder: folder.name, success: false, error });
-      } else {
-        // After deleting files, we also need to delete the empty folder
-        const { error: folderError } = await supabase.storage.from("sharebucket").remove([`${folder.name}/`]);
-        deletionResults.push({ 
-          folder: folder.name, 
-          success: !folderError, 
-          error: folderError 
+        // List all folders in the bucket
+        const listCommand = new ListObjectsV2Command({
+            Bucket: 'sharesbucket',
+            Delimiter: '/'
         });
-      }
-    }
-  }
+        
+        const foldersList = await s3Client.send(listCommand);
+        const folders = foldersList.CommonPrefixes?.map(prefix => ({
+            name: prefix.Prefix?.replace('/', '') || ''
+        })) || [];
 
-  return c.json({ 
-    message: "Operacja zakończona", 
-    deletedFolders: deletionResults,
-    totalProcessed: foldersToDelete.length
-  }, 200);
-  
+        const slugs = await db.select().from(shares);
+
+        // Find folders to delete
+        const foldersToDelete = folders.filter((folder) => 
+            !slugs.some((slug) => slug.slug === folder.name)
+        );
+
+        const deletionResults = [];
+
+        // Delete folders and their contents
+        for (const folder of foldersToDelete) {
+            try {
+                // List all objects in the folder
+                const listFolderCommand = new ListObjectsV2Command({
+                    Bucket: 'sharesbucket',
+                    Prefix: `${folder.name}/`
+                });
+                
+                const folderContents = await s3Client.send(listFolderCommand);
+                
+                if (folderContents.Contents && folderContents.Contents.length > 0) {
+                    // Delete all objects in the folder
+                    const deleteCommand = new DeleteObjectsCommand({
+                        Bucket: 'sharesbucket',
+                        Delete: {
+                            Objects: folderContents.Contents.map(object => ({
+                                Key: object.Key || ''
+                            }))
+                        }
+                    });
+                    
+                    await s3Client.send(deleteCommand);
+                    deletionResults.push({ 
+                        folder: folder.name, 
+                        success: true 
+                    });
+                }
+            } catch (error) {
+                deletionResults.push({ 
+                    folder: folder.name, 
+                    success: false, 
+                    error: error instanceof Error ? error.message : 'Unknown error' 
+                });
+            }
+        }
+
+        return c.json({ 
+            message: "Operacja zakończona", 
+            deletedFolders: deletionResults,
+            totalProcessed: foldersToDelete.length
+        }, 200);
+
+    } catch (error) {
+        console.error('Cron operation error:', error);
+        return c.json({ 
+            message: "Wystąpił błąd podczas operacji", 
+            error: error instanceof Error ? error.message : 'Unknown error' 
+        }, 500);
+    }
 });
 
 export default cronRoute;

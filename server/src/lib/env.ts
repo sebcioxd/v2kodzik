@@ -14,3 +14,7 @@ export const REDIS_PASSWORD = process.env.REDIS_PASSWORD!;
 export const BETTER_AUTH_SECRET = process.env.BETTER_AUTH_SECRET!;
 export const BETTER_AUTH_URL = process.env.BETTER_AUTH_URL!;
 export const DOMAIN_WILDCARD = process.env.DOMAIN_WILDCARD!;
+export const MINIO_ENDPOINT = process.env.MINIO_ENDPOINT!;
+export const MINIO_ACCESS_KEY = process.env.MINIO_ACCESS_KEY!;
+export const MINIO_SECRET_KEY = process.env.MINIO_SECRET_KEY!;
+export const MINIO_REGION = process.env.MINIO_REGION!;
