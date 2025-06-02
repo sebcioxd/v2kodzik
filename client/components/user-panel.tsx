@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, Clock, ExternalLink, Loader2, Lock, Link as LinkIcon } from "lucide-react";
+import { LogOut, Clock, ExternalLink, Loader2, Lock, Link as LinkIcon, CalendarArrowDown, CalendarArrowUp } from "lucide-react";
 import { authClient, User } from "@/lib/auth-client";
 import { useTransition } from "react";
 import { useState } from "react";
@@ -84,7 +84,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                 key={share.id}
                                 className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors animate-slide-in-bottom"
                             >
-                                <div className="flex justify-between items-start mb-2">
+                                <div className="flex justify-between items-center mb-2 border-b border-dashed border-zinc-700 pb-2">
                                     <div className="flex flex-col">
                                         <span className="text-zinc-400 text-sm font-medium flex flex-row gap-2 items-center">
                                             <LinkIcon className="h-4 w-4" /> Kod:<span className="text-zinc-200 ml-[-2px]">{share.slug}</span> {share.private ? <Lock className="h-4 w-4 text-zinc-400" /> : null}
@@ -92,18 +92,20 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                     </div>
                                     <Link
                                         href={`/${share.slug}`}
-                                        className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 p-2 rounded-md flex flex-row gap-1 items-center justify-center"
+                                        className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800  rounded-md flex flex-row gap-1 items-center justify-center"
                                     > 
-                                        <ExternalLink className="h-4 w-4" /> 
+                                    <span className="flex flex-row gap-1 p-1 items-center">
+                                        <ExternalLink className="h-4 w-4" /> Odwiedź
+                                    </span>
                                     </Link>
                                 </div>
-                                <div className="flex  flex-col justify-between gap-1 border-b border-dashed border-zinc-700 pb-2 text-xs text-zinc-400">
-                                    <span>Utworzono: {formatDate(share.createdAt)}</span>
-                                    <span>Wygasa: {formatDate(share.expiresAt)}</span>
+                                <div className="flex  flex-col justify-between gap-1  text-xs text-zinc-400">
+                                    <span className="flex flex-row gap-1 items-center"><CalendarArrowUp className="h-4 w-4 text-zinc-200" /> Utworzono: {formatDate(share.createdAt)}</span>
+                                    <span className="flex flex-row gap-1 items-center"><CalendarArrowDown className="h-4 w-4 text-zinc-200" /> Wygasa: {formatDate(share.expiresAt)}</span>
                                 </div>
                                 {share.private && (
-                                <div className="flex flex-row gap-2 mt-2">
-                                    <span className="text-zinc-300 text-sm">
+                                <div className="flex flex-row gap-2 mt-2 ">
+                                    <span className="text-zinc-300 text-sm mt-2">
                                         Plik prywatny. Szyfrowanie włączone.
                                     </span>
                                 </div>
