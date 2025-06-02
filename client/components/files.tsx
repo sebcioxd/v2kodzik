@@ -1,5 +1,5 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import {
@@ -134,7 +134,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
     const diff = expires.getTime() - now.getTime();
     
     if (diff <= 0) {
-      return "Wygasło";
+      return "Wygaśnie w ciągu kilku godz.";
     }
     
     const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -398,6 +398,13 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
             </div>
           </div>
         )}
+
+        <div className="flex flex-col gap-2">
+          <div className="border-b border-dashed border-zinc-800 p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
+          <span>Kod linku: <span className="font-medium text-zinc-200">{slug}</span></span>
+          <LinkIcon className="h-4 w-4" />
+          </div>
+        </div>
         
         <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
           <span>Link wygaśnie za:</span>

@@ -40,7 +40,7 @@ export default function CheckStatus() {
             </span>
             <span className="text-zinc-400">
                 {isStatusLoading ? 'Sprawdzanie...' :
-                 status.status === 200 ? 'Serwer działa poprawnie' :
+                 status.status === 200 ? 'API działa poprawnie. Zostanie wyłączone 1 lipca 2025' :
                  'Chwilowa przerwa techniczna'}
             </span>
         </div>
