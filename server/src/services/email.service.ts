@@ -1,7 +1,7 @@
-import type { EmailServiceProps } from '../lib/types.ts'
-import { emailVerifyTemplate } from "../templates/email-verify.ts"
-import { passwordForgetTemplate } from "../templates/password-forget.ts"
-import { SMTP_USER, SMTP_PASS } from '../lib/env.ts'
+import type { EmailServiceProps } from '../lib/types.js'
+import { emailVerifyTemplate } from "../templates/email-verify.js"
+import { passwordForgetTemplate } from "../templates/password-forget.js"
+import { SMTP_USER, SMTP_PASS } from '../lib/env.js'
 import nodemailer from 'nodemailer'
 
 

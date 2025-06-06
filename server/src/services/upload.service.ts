@@ -1,6 +1,6 @@
-import type { S3UploadServiceProps } from "../lib/types.ts";
+import type { S3UploadServiceProps } from "../lib/types.js";
 
-import getS3Client from "../lib/s3.ts";
+import getS3Client from "../lib/s3.js";
 
 export async function S3UploadService({ Key, Body }: S3UploadServiceProps) {
     const client = getS3Client({ bucket: "sharesbucket" });

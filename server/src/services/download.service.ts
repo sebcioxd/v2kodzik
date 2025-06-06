@@ -1,6 +1,6 @@
-import type { DownloadFileServiceProps, DownloadBulkFilesServiceProps } from "../lib/types.ts";
+import type { DownloadFileServiceProps, DownloadBulkFilesServiceProps } from "../lib/types.js";
 import { BlobWriter, ZipWriter } from "@zip.js/zip.js";
-import getS3Client from "../lib/s3.ts";
+import getS3Client from "../lib/s3.js";
 
 const s3Client = getS3Client({ bucket: "sharesbucket" });
 

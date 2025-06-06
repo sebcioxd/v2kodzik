@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getShareFileService, verifyCookieService, verifyShareCodeService } from "../services/share.service.ts";
+import { getShareFileService, verifyCookieService, verifyShareCodeService } from "../services/share.service.js";
 
 const shareRoute = new Hono();
 

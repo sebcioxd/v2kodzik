@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { deleteExpireFilesService } from "../services/cron.service.ts";
+import { deleteExpireFilesService } from "../services/cron.service.js";
 
 const cronRoute = new Hono();
 

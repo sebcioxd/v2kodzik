@@ -1,6 +1,6 @@
-import type { RateLimiterServiceResult } from "../lib/types.ts";
+import type { RateLimiterServiceResult } from "../lib/types.js";
 import { RateLimiterRedis } from "rate-limiter-flexible";
-import getRedisClient from "../lib/redis.ts";
+import getRedisClient from "../lib/redis.js";
 
 const rateLimiters: Record<string, RateLimiterRedis> = {}; // prefix -> multiple limiters.
 

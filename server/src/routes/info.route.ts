@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getInfoService } from "../services/info.service.ts";
+import { getInfoService } from "../services/info.service.js";
 
 const infoRoute = new Hono();
 

@@ -1,6 +1,6 @@
 import { S3Client } from "@bradenmacdonald/s3-lite-client";
 
-import { S3_ENDPOINT, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY } from "./env.ts";
+import { S3_ENDPOINT, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY } from "./env.js";
 
 export default function getS3Client({ bucket }: { bucket: string }) {
   

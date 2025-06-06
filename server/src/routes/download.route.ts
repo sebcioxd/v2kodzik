@@ -1,5 +1,5 @@
 import { Hono } from "hono"
-import { downloadBulkFilesService, downloadFileService } from "../services/download.service.ts"
+import { downloadBulkFilesService, downloadFileService } from "../services/download.service.js"
 
 
 const downloadRoute = new Hono()

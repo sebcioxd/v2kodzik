@@ -1,7 +1,7 @@
-import type { UploadRequestProps, User } from "../lib/types.ts";
+import type { UploadRequestProps, User } from "../lib/types.js";
 import type { Context } from "hono";
-import { db } from "../db/index.ts";
-import { shares } from "../db/schema.ts";
+import { db } from "../db/index.js";
+import { shares } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 
 

@@ -3,8 +3,8 @@
     "target": "ESNext",
     "module": "NodeNext",
     "strict": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "allowImportingTsExtensions": false,
+    "noEmit": false,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": [
@@ -14,5 +14,6 @@
     "jsxImportSource": "hono/jsx",
     "outDir": "./dist"
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "include": ["src/**/*"]
 }

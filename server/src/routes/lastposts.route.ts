@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { db } from "../db/index.ts";
-import { shares } from "../db/schema.ts";
+import { db } from "../db/index.js";
+import { shares } from "../db/schema.js";
 import { eq, desc } from "drizzle-orm";
 
 const lastpostsRoute = new Hono();

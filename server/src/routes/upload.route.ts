@@ -1,12 +1,12 @@
 import type { UploadRequestProps, AuthSession } from "../lib/types.ts";
 import type { Context } from "hono";
-import { shares, uploadedFiles } from "../db/schema.ts";
-import { rateLimiterService } from "../services/rate-limit.service.ts";
-import { S3UploadService } from "../services/upload.service.ts";
-import { fixRequestProps } from "../utils/req-fixer.ts";
-import { hashCode } from "../lib/hash.ts";
+import { shares, uploadedFiles } from "../db/schema.js";
+import { rateLimiterService } from "../services/rate-limit.service.js";
+import { S3UploadService } from "../services/upload.service.js";
+import { fixRequestProps } from "../utils/req-fixer.js";
+import { hashCode } from "../lib/hash.js";
 import { Hono } from "hono";
-import { db } from "../db/index.ts";
+import { db } from "../db/index.js";
 
 const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 
@@ -26,17 +26,17 @@ uploadRoute.post("/", async (c: Context) => {
 
     const req: UploadRequestProps = result;
 
-    // try {
-    //     await rateLimiterService({
-    //         keyPrefix: "upload",
-    //         identifier: c.req.header("x-forwarded-for") || "127.0.0.1",
-    //     });
-    // } catch (error) {
-    //     return c.json({
-    //         message: "Rate limit exceeded",
-    //         error: error
-    //     }, 429)
-    // }
+    try {
+        await rateLimiterService({
+            keyPrefix: "upload",
+            identifier: c.req.header("x-forwarded-for") || "127.0.0.1",
+        });
+    } catch (error) {
+        return c.json({
+            message: "Rate limit exceeded",
+            error: error
+        }, 429)
+    }
 
     const formData = await c.req.formData();
     const files = formData.getAll("files") as File[];

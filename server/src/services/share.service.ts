@@ -1,9 +1,9 @@
-import type { GetShareFileServiceProps, VerifyShareCodeServiceProps, VerifyCookieServiceProps } from "../lib/types.ts";
-import { db } from "../db/index.ts";
-import { shares, uploadedFiles } from "../db/schema.ts";
+import type { GetShareFileServiceProps, VerifyShareCodeServiceProps, VerifyCookieServiceProps } from "../lib/types.js";
+import { db } from "../db/index.js";
+import { shares, uploadedFiles } from "../db/schema.js";
 import { eq } from "drizzle-orm";
-import { verifyCode } from "../lib/hash.ts";
-import { ENVIRONMENT } from "../lib/env.ts";
+import { verifyCode } from "../lib/hash.js";
+import { ENVIRONMENT } from "../lib/env.js";
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 
 const getFiles = async (shareId: string) => {

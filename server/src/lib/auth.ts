@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "../db/index.ts"; 
-import { schema } from "../db/schema.ts";
-import { sendEmailService } from "../services/email.service.ts";
-import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT } from "../lib/env.ts";
+import { db } from "../db/index.js"; 
+import { schema } from "../db/schema.js";
+import { sendEmailService } from "../services/email.service.js";
+import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT } from "../lib/env.js";
 import { emailOTP } from "better-auth/plugins"
 
 export const auth = betterAuth({

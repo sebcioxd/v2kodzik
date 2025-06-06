@@ -1,12 +1,12 @@
 import type {
   DeleteExpireFilesServiceBody,
   DeleteExpireFilesServiceProps,
-} from "../lib/types.ts";
-import { shares } from "../db/schema.ts";
-import { CRON_BODY_KEY } from "../lib/env.ts";
+} from "../lib/types.js";
+import { shares } from "../db/schema.js";
+import { CRON_BODY_KEY } from "../lib/env.js";
 import { sql } from "drizzle-orm";
-import { db } from "../db/index.ts";
-import getS3Client from "../lib/s3.ts";
+import { db } from "../db/index.js";
+import getS3Client from "../lib/s3.js";
 
 const s3Client = getS3Client({ bucket: "sharesbucket" });
 

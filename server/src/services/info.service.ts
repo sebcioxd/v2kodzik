@@ -1,4 +1,4 @@
-import type { InfoServiceResponse } from "../lib/types.ts";
+import type { InfoServiceResponse } from "../lib/types.js";
 import type { Context } from "hono";
 import { getConnInfo } from "@hono/node-server/conninfo"
 

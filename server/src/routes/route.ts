@@ -1,14 +1,14 @@
 import { Hono } from "hono";
 
-import helloRoute from "./hello.route.ts";
-import infoRoute from "./info.route.ts";
-import uploadRoute from "./upload.route.ts";
-import lastpostsRoute from "./lastposts.route.ts";
-import statusRoute from "./status.route.ts";
-import historyRoute from "./history.route.ts";
-import downloadRoute from "./download.route.ts";
-import shareRoute from "./share.route.ts";
-import cronRoute from "./cron.route.ts";
+import helloRoute from "./hello.route.js";
+import infoRoute from "./info.route.js";
+import uploadRoute from "./upload.route.js";
+import lastpostsRoute from "./lastposts.route.js";
+import statusRoute from "./status.route.js";
+import historyRoute from "./history.route.js";
+import downloadRoute from "./download.route.js";
+import shareRoute from "./share.route.js";
+import cronRoute from "./cron.route.js";
 const routes = new Hono()
 
 routes.route("/", helloRoute)

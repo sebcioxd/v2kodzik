@@ -1,6 +1,6 @@
-import type { GetUserHistoryServiceProps, GetUserHistoryCountServiceProps } from "../lib/types.ts";
-import { uploadedFiles, shares } from "../db/schema.ts";
-import { db } from "../db/index.ts";
+import type { GetUserHistoryServiceProps, GetUserHistoryCountServiceProps } from "../lib/types.js";
+import { uploadedFiles, shares } from "../db/schema.js";
+import { db } from "../db/index.js";
 import { eq, desc, count } from "drizzle-orm";
 
 

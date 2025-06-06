@@ -1,6 +1,6 @@
-import type { AuthSession } from "../lib/types.ts";
+import type { AuthSession } from "../lib/types.js";
 import { Hono } from "hono";
-import { getUserHistoryService, getUserHistoryCountService } from "../services/user-info.service.ts";
+import { getUserHistoryService, getUserHistoryCountService } from "../services/user-info.service.js";
 
 const historyRoute = new Hono<AuthSession>();
 
