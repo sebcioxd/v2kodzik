@@ -161,6 +161,11 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         const errorData = await response.json();
         throw new Error(`Download failed: ${errorData.message}`);
       }
+
+      if (response.status === 429) {
+        alert("Zbyt wiele żądań. Spróbuj ponownie później.");
+        return;
+      }
       
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

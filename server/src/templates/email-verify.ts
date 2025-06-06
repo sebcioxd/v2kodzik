@@ -1,4 +1,4 @@
-export const emailVerifyTemplate = (text: string) => `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+export const emailVerifyTemplate = (text: string, email: string) => `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -35,13 +35,14 @@ export const emailVerifyTemplate = (text: string) => `<!DOCTYPE html PUBLIC "-//
               </table>
               
               <p style="margin-bottom: 20px; font-size: 14px; line-height: 1.5; color: #71717a;">Kod weryfikacyjny wygaśnie za 24 godziny.</p>
+              <p style="margin-bottom: 20px; font-size: 14px; line-height: 1.5; color: #71717a;">Zgubiłes link do weryfikacji? Skopiuj ten link i wklej do przeglądarki: <br> <a href="https://dajkodzik.pl/auth/otp?email=${email}"> https://dajkodzik.pl/auth/otp?email=${email}</a></p>
             </td>
           </tr>
           
           <!-- Footer -->
           <tr>
             <td style="padding: 20px; border-top: 1px solid #27272a; background-color: #09090b;">
-              <p style="margin: 0; font-size: 14px; color: #71717a; text-align: center;">© 2024 dajkodzik.pl - Wszystkie prawa zastrzeżone.</p>
+              <p style="margin: 0; font-size: 14px; color: #71717a; text-align: center;">© 2025 dajkodzik.pl - Wszystkie prawa zastrzeżone.</p>
             </td>
           </tr>
         </table>

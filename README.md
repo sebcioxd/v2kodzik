@@ -1,4 +1,4 @@
-![logo-small](https://github.com/user-attachments/assets/cbdea055-7bc0-4249-92ed-b9e404c1be88)
+![testloga](https://github.com/user-attachments/assets/722b7478-66d8-4988-a7c6-c9e917da11b6)
 
 # dajkodzik.pl — v2
 
@@ -11,6 +11,8 @@ Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S
 - Refactor z Node.js do Deno (Pełen support TypeScript'u)
 
 - Refactor niektórych plików Front-endu oraz dodanie więcej typów.
+
+- Możliwość dodawania również kodu, nie tylko załączania plików
 
 ---
 
@@ -113,17 +115,34 @@ NEXT_PUBLIC_BETTER_AUTH_URL=`
 
 ### Czyszczenie storage (API trigger):
 
+**javascript**
 ```js 
+ await fetch("https://api.domena.pl/v1/cron", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      key: "CRON_BODY_KEY",
+    }),
+  });
+```
+**bash**
+```bash
+curl -s -X POST https://api.domena.pl/v1/cron \
+  -H "Content-Type: application/json" \
+  -d '{"key": "CRON_BODY_KEY"}'
+```
 
+**pseudokod**
+```js
 POST /v1/cron
 Content-Type: application/json
 {
   "key": "CRON_BODY_KEY"
 }
-
 ```
-
 > Cron czyszczący wszystkie pliki w storage, które nie mają odpowiednika w bazie danych. 
-> Każdy cron da sobię radę. Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin.
+> Każdy cron da sobię radę. Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin. w POST BODY musicie dać poprawny klucz aby chronić się przed nadużyciem
 
 ### W razie wszelkich błędów, pomocy lub pytań, skontakuj się na [niarde.xyz](https://www.niarde.xyz/)

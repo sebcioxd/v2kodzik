@@ -5,6 +5,7 @@ import getS3Client from "../lib/s3.js";
 const s3Client = getS3Client({ bucket: "sharesbucket" });
 
 export async function downloadFileService({ path, c }: DownloadFileServiceProps) {
+
     try {
         const response = await s3Client.getObject(path);
 
@@ -27,8 +28,9 @@ export async function downloadFileService({ path, c }: DownloadFileServiceProps)
 }
 
 export async function downloadBulkFilesService({ paths, c }: DownloadBulkFilesServiceProps) {
-    const zipWriter = new ZipWriter(new BlobWriter("application/zip"));
     
+    const zipWriter = new ZipWriter(new BlobWriter("application/zip"));
+
     try {
         await Promise.all(paths.map(async (path: string) => {
             const response = await downloadFileService({ 

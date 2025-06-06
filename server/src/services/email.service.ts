@@ -7,7 +7,7 @@ import nodemailer from 'nodemailer'
 
 
 export async function sendEmailService({ to, subject, text, emailType }: EmailServiceProps) {
-    const emailTemplate = emailType === "verify" ? emailVerifyTemplate(text) : passwordForgetTemplate(text)
+    const emailTemplate = emailType === "verify" ? emailVerifyTemplate(text, to) : passwordForgetTemplate(text)
 
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
