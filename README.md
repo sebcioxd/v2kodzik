@@ -4,17 +4,20 @@
 
  Platforma do przesyłania kodu, oraz załączników z niestandardowymi linkami. 
 
-Zbudowana przy użyciu Next.js, Hono, Drizzle ORM, PostgreSQL oraz Supabase. 
+Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3
+
+**W planach**: Refactor z Node.js do Deno (Pełen support TypeScript'u)
 
 ---
 
 ## 🔧 Wymagania
 
 - [Node.js](https://nodejs.org)  
-- [Bun](https://bun.sh/)  
-- Dowolny package manager: `npm`, `pnpm`, `yarn`, `bun`  
-- Konto i baza danych w [Supabase](https://supabase.com/)  
-- Konto w [Railway](https://railway.app/) (lub opcjonalnie serwer VPS z Coolify / Dokploy)
+- [pnpm](https://pnpm.io/)  
+- Hosting S3 Object Storage (Amazon, MinIO)
+- Hosting bazy danych (PostgreSQL)
+- Hosting Redis (Do rate-limitowania)
+- Cron jobs (prace periodyczne)
 
 ---
 
@@ -22,18 +25,27 @@ Zbudowana przy użyciu Next.js, Hono, Drizzle ORM, PostgreSQL oraz Supabase.
 
 ### Serwer (`/server`)
 `DATABASE_URL=
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
+ENVIRONMENT
 SITE_URL=
 CRON_BODY_KEY=
 REDIS_HOST=
 REDIS_PORT=
 REDIS_USERNAME=
-REDIS_PASSWORD=`
+REDIS_PASSWORD=
+S3_REGION=
+S3_ENDPOINT=
+S3_ACCESS_KEY=
+S3_SECRET_KEY=
+DOMAIN_WILDCARD=
+SMTP_USER=
+SMTP_PASS=
+`
 ### Klient (`/client`)
 `API_URL=
 NEXT_PUBLIC_API_URL=
-NEXT_PUBLIC_SITE_URL=`
+NEXT_PUBLIC_SITE_URL=
+BETTER_AUTH_URL=
+NEXT_PUBLIC_BETTER_AUTH_URL=`
 
 ## ⚙️ Szybka instalacja (Quick Setup)
 
@@ -47,59 +59,55 @@ NEXT_PUBLIC_SITE_URL=`
 
     `cd server`
 
-    `npm install # lub bun install`
+    `pnpm install`
 
-3. **Zainicjalizuj bazę danych**
+3. **Zainicjalizuj schemat bazy danych**
 
     `npx drizzle-kit push`
 
 > Upewnij się, że wszystkie modele są prawidłowo podłączone.
 
-4. **Dodaj bucket do Supabase Storage**
+4. **Dodaj bucket do Amazon S3 lub MinIO**
 
 - Nazwa bucketu: `sharebucket`
-- Włącz **RLS** i nadaj każdemu użytkownikowi uprawnienia do `INSERT` i `SELECT`
+- Bukcet może być prywatny.
 
 5. **Zainstaluj zależności front-endu**
 
     `cd ../client`
 
-    `npm install # lub bun install`
+    `npm install`
 
 6. **Uruchom oba serwery developersko**
 
-    W /server i /client osobno:
+    W /server:
+
+    `pnpm dev`
+
+    W /client:
 
     `npm run dev # lub bun dev`
 
 ---
 
-## 🚀 Deploy
+## 🚀 Deploy (Hosting)
 
 ### Frontend (Next.js)
 
 - ✅ Rekomendowane: [Vercel](https://vercel.com/)
 - 💡 Alternatywa: VPS z [Coolify](https://coolify.io/) / [Dokploy](https://dokploy.com/)
 
-### Backend (Next.js API)
+### Backend (Hono + Node.js)
 
-- ✅ Railway (Serverless)
-- 💡 Alternatywa: VPS + Coolify/Dokploy
+- ✅ Serverless: Railway.app, fly.io
+- ✅ Server VPS: [Coolify](https://coolify.io/) / [Dokploy](https://dokploy.com/)
 - 🧰 Kompilacja: zalecane użycie buildera **Nixpacks**
 
 ---
 
 ## ⏰ Cron Jobs
 
-### 1. Usuwanie wygasłych rekordów:
-
-```sql
-DELETE FROM shares WHERE expires_at < NOW();
-```
-
-> Usuwa przeterminowane wpisy z bazy danych.
-
-### 2. Czyszczenie storage (API trigger):
+### Czyszczenie storage (API trigger):
 
 ```js 
 
@@ -108,8 +116,10 @@ Content-Type: application/json
 {
   "key": "CRON_BODY_KEY"
 }
+
 ```
 
-> Cron czyszczący wszystkie pliki w storage, które nie mają odpowiednika w bazie danych
+> Cron czyszczący wszystkie pliki w storage, które nie mają odpowiednika w bazie danych. 
+> Każdy cron da sobię radę. Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin.
 
 ### W razie wszelkich błędów, pomocy lub pytań, skontakuj się na [niarde.xyz](https://www.niarde.xyz/)
