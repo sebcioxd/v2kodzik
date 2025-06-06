@@ -6,7 +6,11 @@
 
 Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3
 
-**W planach**: Refactor z Node.js do Deno (Pełen support TypeScript'u)
+**W planach**: 
+
+- Refactor z Node.js do Deno (Pełen support TypeScript'u)
+
+- Refactor niektórych plików Front-endu oraz dodanie więcej typów.
 
 ---
 

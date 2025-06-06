@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { verifyCode } from "../lib/hash.js";
 import { ENVIRONMENT } from "../lib/env.js";
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
+import { DOMAIN_WILDCARD } from "../lib/env.js";
 
 const getFiles = async (shareId: string) => {
     const files = await db
@@ -82,7 +83,7 @@ export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeS
     setCookie(c, `share_${share.id}`, code || "", {
         path: "/",
         httpOnly: true,
-        domain: ENVIRONMENT === "production" ? ".dajkodzik.pl" : undefined,
+        domain: ENVIRONMENT === "production" ? DOMAIN_WILDCARD : undefined,
         secure: ENVIRONMENT === "production",
         sameSite: "lax",
         maxAge: 60 * 30 // 30 minutes
