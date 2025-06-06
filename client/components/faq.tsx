@@ -56,7 +56,7 @@ export default function FAQ() {
               Czy kod źródłowy jest dostępny?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Obecnie program nie jest open source. W przyszłości może się to zmienić.
+              Tak, kod źródłowy jest dostępny na <Link href="https://github.com/sebcioxd/v2kodzik" className="text-zinc-300 hover:text-zinc-100 transition-colors underline underline-offset-4">github</Link>
             </AccordionContent>
         </AccordionItem>
 

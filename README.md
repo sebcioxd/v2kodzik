@@ -69,7 +69,7 @@ NEXT_PUBLIC_BETTER_AUTH_URL=`
 
 3. **Zainicjalizuj schemat bazy danych**
 
-    `npx drizzle-kit push`
+    `pnpm exec drizzle-kit push`
 
 > Upewnij się, że wszystkie modele są prawidłowo podłączone.
 
