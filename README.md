@@ -73,9 +73,9 @@ NEXT_PUBLIC_BETTER_AUTH_URL=`
 
 > Upewnij się, że wszystkie modele są prawidłowo podłączone.
 
-4. **Dodaj bucket do Amazon S3 lub MinIO**
+4. **Stwórz bucket w kompatybilnym z S3 Object Storage, np. Amazon S3 lub MinIO**
 
-- Nazwa bucketu: `sharebucket`
+- Nazwa bucketu: `sharesbucket`
 - Bukcet może być prywatny.
 
 5. **Zainstaluj zależności front-endu**
