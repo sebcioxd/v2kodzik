@@ -29,9 +29,14 @@ type FormData = {
 };
 
 type apiResponse = {
-    bunVersion: string;
-    ipAdress: string;
+    remoteAdress: string;
+    remoteAdress_v6: string;
     userAgent: string;
+    referer: string;
+    nodeVersion: string;
+    port: number;
+    transport: string;
+    host: string;
 }
 
 const formSchema = z.object({
@@ -76,14 +81,14 @@ export default function SignUp() {
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/session/version`)
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/info`)
             const apiResponse: apiResponse = await res.json()
             
             await authClient.signUp.email({
                 email: data.email,
                 password: data.password,
                 name: data.username,
-                ipAddress: apiResponse.ipAdress,
+                ipAddress: apiResponse.remoteAdress,
                 userAgent: apiResponse.userAgent,
             },
             {

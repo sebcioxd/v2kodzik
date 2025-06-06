@@ -1,5 +1,6 @@
+import type { RateLimiterServiceResult } from "../lib/types.ts";
 import { RateLimiterRedis } from "rate-limiter-flexible";
-import getRedisClient from "./redis";
+import getRedisClient from "../lib/redis.ts";
 
 const rateLimiters: Record<string, RateLimiterRedis> = {}; // prefix -> multiple limiters.
 
@@ -9,7 +10,7 @@ type AuthPrefixes = "upload" | "default" | "check" | "auth";
 
 // Number of requests per time period (5 would equal 4 requests per the duration set below)
 const authPrefixesPoints: Record<AuthPrefixes, number> = {
-    "upload": 4,
+    "upload": 3,
     "default": 4,
     "check": 6,
     "auth": 3,
@@ -18,19 +19,19 @@ const authPrefixesPoints: Record<AuthPrefixes, number> = {
 // Duration of the block (rate limiting)
 const authPrefixesDuration: Record<AuthPrefixes, number> = {
     "upload": 1800,
-    "default": 90,
+    "default": 25,
     "check": 90,
     "auth": 900,
 }
 
-export async function getRateLimiter({ keyPrefix }: {keyPrefix: AuthPrefixes}) {
-    if (!rateLimiters[keyPrefix]) {
-        const redisClient = getRedisClient();
-        // ensure Redis is connected before instantiating the limiter
-        if (!redisClient.isOpen) {
-          await redisClient.connect();
-        }
+export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix: AuthPrefixes, identifier: string }) {
+    const redisClient = getRedisClient();
+    
+    if (!redisClient.isOpen) {
+        await redisClient.connect();
+    }
 
+    if (!rateLimiters[keyPrefix]) {
         rateLimiters[keyPrefix] = new RateLimiterRedis({
             storeClient: redisClient,
             useRedisPackage: true,
@@ -40,6 +41,11 @@ export async function getRateLimiter({ keyPrefix }: {keyPrefix: AuthPrefixes}) {
             keyPrefix: keyPrefix,
         });
     }
-    return rateLimiters[keyPrefix];
-}
 
+    try {
+        const result: RateLimiterServiceResult = await rateLimiters[keyPrefix].consume(identifier);
+        return result;
+    } finally {
+        await redisClient.quit();
+    }
+}

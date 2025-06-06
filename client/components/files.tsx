@@ -150,12 +150,11 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
   const handleDownload = async (path: string, fileId: string) => {
     setDownloadingFiles(prev => ({ ...prev, [fileId]: true }));
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download`, {
-        method: 'POST',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/${path}`, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ path }),
+        credentials: 'include',
       });
       
       if (!response.ok) {
@@ -284,15 +283,10 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
     setCodeError("");
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/share/verify`, {
-        method: 'POST',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/share/verify?slug=${slug}&accessCode=${accessCode}`, {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          slug,
-          accessCode 
-        }),
         credentials: 'include',
       });
       
@@ -426,7 +420,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
             ) : (
               <>
                 <Archive className="h-4 w-4 mr-2" />
-                Pobierz wszystkie ({formatBytes(filesTotalSize)})
+                Pobierz wszystkie i skompresuj (.ZIP)
               </>
             )}
           </Button>

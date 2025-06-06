@@ -1,10 +1,4 @@
-import nodemailer from "nodemailer";
-
-type EmailType = "verify" | "forget";
-
-export async function sendOTPEmail(to: string, otp: string) {
-
-    const emailTemplate = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+export const emailVerifyTemplate = (text: string) => `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -35,7 +29,7 @@ export async function sendOTPEmail(to: string, otp: string) {
               <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                 <tr>
                   <td align="center" style="padding: 20px 0;">
-                    <div style="display: inline-block; padding: 16px 32px; font-size: 24px; font-weight: bold; letter-spacing: 4px; color: #f8fafc; background-color: #18181b; border: 1px solid #27272a; border-radius: 4px;">${otp}</div>
+                    <div style="display: inline-block; padding: 16px 32px; font-size: 24px; font-weight: bold; letter-spacing: 4px; color: #f8fafc; background-color: #18181b; border: 1px solid #27272a; border-radius: 4px;">${text}</div>
                   </td>
                 </tr>
               </table>
@@ -56,28 +50,3 @@ export async function sendOTPEmail(to: string, otp: string) {
   </table>
 </body>
 </html>`
- 
-
-    const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false, 
-        auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
-        },
-    });
-
-    const mailOptions = {
-        from: process.env.SMTP_USER,
-        to,
-        subject: "Potwierdz swój adres e-mail - dajkodzik.pl",
-        html: emailTemplate,
-    }
-
-    try {
-        const info = await transporter.sendMail(mailOptions)
-    } catch (error) {
-        console.error("Error sending email:", error)
-    }
-}

@@ -1,35 +1,48 @@
-import { Hono } from 'hono'
-import routes from './routes'
-import { logger } from 'hono/logger'
-import addSession from './middlewares/session.middleware'
-import configCors from './middlewares/cors.middleware'
-import { getRateLimiter } from "./lib/rate-limiter";
-import { auth } from './lib/auth'
-const app = new Hono()
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { logger } from "hono/logger";
+import { auth } from "./lib/auth.ts";
+import { rateLimiterService } from "./services/rate-limit.service.ts";
 
-app.use('*', logger())
-app.use(configCors)
-app.use(addSession)
+import routes from "./routes/route.ts";
+import configCors from "./middleware/cors.middleware.ts";
+import addSession from "./middleware/session.middleware.ts";
 
-app.on(["POST", "GET"], "/api/auth/*", async (c) => {
+const app = new Hono();
 
-  if (c.req.path.includes("/api/auth/sign-up/email")) {
-    const limiter = await getRateLimiter({ keyPrefix: "auth" });
-    const ipAdress = c.req.header("x-forwarded-for") || "127.0.0.1"
+app.use(logger());
+app.use(configCors);
+app.use(addSession);
 
+app.on(["POST", "GET"], "/v1/auth/*", async (c) => {
+  if (c.req.path.includes("/v1/auth/sign-up/email")) {
     try {
-      await limiter.consume(ipAdress);
-    } catch (error) {
-      return c.json({ message: "Przekroczyłeś limit rejestracji" }, 429);
+      await rateLimiterService({
+        keyPrefix: "auth",
+        identifier: c.req.header("x-forwarded-for") || "127.0.0.1",
+      });
+    } catch (err) {
+      return c.json(
+        {
+          message: "Too many requests. Please try again later.",
+          error: err,
+        },
+        429
+      );
     }
   }
 
-	return auth.handler(c.req.raw);
+  return auth.handler(c.req.raw);
 });
 
-app.route('/v1', routes)
+app.route("/v1", routes);
 
-export default {
-  port: 8080,
-  fetch: app.fetch,
-}
+serve(
+  {
+    fetch: app.fetch,
+    port: 8080,
+  },
+  (info) => {
+    console.log(`Server is running on port ${info.port}`);
+  }
+);

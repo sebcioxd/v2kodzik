@@ -1,5 +1,6 @@
 import { createClient } from "redis";
-import { REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD } from "./env";
+import { REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD } from "./env.ts";
+
 let client: ReturnType<typeof createClient>;
 
 const getRedisClient = () => {

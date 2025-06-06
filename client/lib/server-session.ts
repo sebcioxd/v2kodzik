@@ -6,7 +6,7 @@ const getServerSession = async (): Promise<Session | null> => {
 
     const cookieHeader = (await cookies()).toString();
 
-    const res = await fetch(`${process.env.BETTER_AUTH_URL}/v1/session`, {
+    const res = await fetch(`${process.env.BETTER_AUTH_URL}/v1/auth/get-session`, {
       credentials: "include",
       headers: {
         Cookie: cookieHeader,

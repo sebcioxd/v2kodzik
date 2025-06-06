@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, pgTable, serial, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
 
 export const shares = pgTable('shares', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),

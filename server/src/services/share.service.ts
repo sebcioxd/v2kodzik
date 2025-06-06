@@ -1,0 +1,139 @@
+import type { GetShareFileServiceProps, VerifyShareCodeServiceProps, VerifyCookieServiceProps } from "../lib/types.ts";
+import { db } from "../db/index.ts";
+import { shares, uploadedFiles } from "../db/schema.ts";
+import { eq } from "drizzle-orm";
+import { verifyCode } from "../lib/hash.ts";
+import { ENVIRONMENT } from "../lib/env.ts";
+import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
+
+const getFiles = async (shareId: string) => {
+    const files = await db
+        .select()
+        .from(uploadedFiles)
+        .where(eq(uploadedFiles.shareId, shareId));
+    return files;
+}
+
+export async function getShareFileService({ slug, c }: GetShareFileServiceProps) {
+
+    const [share] = await db.select().from(shares).where(eq(shares.slug, slug));
+
+    if (!share) {
+        return c.json({
+            message: "Share not found",
+        }, 404)
+    }
+
+    if (share.private) {
+        return c.json({
+            id: share.id,
+            slug: share.slug,
+            createdAt: share.createdAt,
+            expiresAt: share.expiresAt,
+            private: true,
+        })
+    }
+
+    const files = await getFiles(share.id);
+
+    if (!files || files.length === 0) {
+        return c.json({
+            message: "No files found",
+        }, 404)
+    }
+
+    return c.json({
+        id: share.id,
+        slug: share.slug,
+        createdAt: share.createdAt,
+        updatedAt: share.updatedAt,
+        expiresAt: share.expiresAt,
+        storagePath: files[0].storagePath,
+        files: files,
+        totalSize: files.reduce((acc, file) => acc + file.size, 0),
+        private: false
+    })
+
+}
+
+export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeServiceProps) {
+    if (!code || !slug) {
+        return c.json({
+            message: "Invalid data provided",
+        }, 400)
+    }
+
+    const [share] = await db.select().from(shares).where(eq(shares.slug, slug));
+
+    if (!share) {
+        return c.json({
+            message: "Share not found",
+        }, 404)
+    }
+
+    const isCodeValid = await verifyCode(code, share.code || "");
+
+    if (!isCodeValid) {
+        return c.json({
+            message: "Invalid code",
+        }, 403)
+    }
+
+    setCookie(c, `share_${share.id}`, code || "", {
+        path: "/",
+        httpOnly: true,
+        domain: ENVIRONMENT === "production" ? ".dajkodzik.pl" : undefined,
+        secure: ENVIRONMENT === "production",
+        sameSite: "lax",
+        maxAge: 60 * 30 // 30 minutes
+      })
+
+    const files = await getFiles(share.id);
+
+    return c.json({
+        success: true,
+        files: files,
+        totalSize: files.reduce((acc, file) => acc + file.size, 0),
+        storagePath: files[0].storagePath,
+    }, 200)
+
+}
+
+export async function verifyCookieService({ slug, c }: VerifyCookieServiceProps) {
+    const [idToSlug] = await db.select().from(shares).where(eq(shares.slug, slug));
+
+    if (!idToSlug) {
+        return c.json({
+            message: "Share not found",
+            success: false,
+        }, 404)
+    }
+ 
+    const cookie = getCookie(c, `share_${idToSlug.id}`);
+
+    if (!cookie) {
+        return c.json({
+            message: "Invalid cookie",
+            success: false,
+        }, 403)
+    }
+
+    const isCodeValid = await verifyCode(cookie, idToSlug.code || "");  // Add 'await' here
+
+    if (!isCodeValid) {
+        deleteCookie(c, `share_${idToSlug.id}`);
+        return c.json({
+            message: "Invalid cookie",
+            success: false,
+        }, 403)
+    }
+
+    const files = await getFiles(idToSlug.id);
+
+    return c.json({ 
+        success: true,
+        files: files,
+        totalSize: files.reduce((acc, file) => acc + (file.size || 0), 0),
+        storagePath: files[0].storagePath,
+      }, 200);
+}

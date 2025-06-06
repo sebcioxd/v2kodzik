@@ -1,0 +1,24 @@
+import { Hono } from "hono";
+
+import helloRoute from "./hello.route.ts";
+import infoRoute from "./info.route.ts";
+import uploadRoute from "./upload.route.ts";
+import lastpostsRoute from "./lastposts.route.ts";
+import statusRoute from "./status.route.ts";
+import historyRoute from "./history.route.ts";
+import downloadRoute from "./download.route.ts";
+import shareRoute from "./share.route.ts";
+import cronRoute from "./cron.route.ts";
+const routes = new Hono()
+
+routes.route("/", helloRoute)
+routes.route("/info", infoRoute)
+routes.route("/upload", uploadRoute)
+routes.route("/last-posts", lastpostsRoute)
+routes.route("/status", statusRoute)
+routes.route("/history", historyRoute)
+routes.route("/download", downloadRoute)
+routes.route("/share", shareRoute)
+routes.route("/cron", cronRoute)
+
+export default routes

@@ -196,16 +196,8 @@ export function UploadPage() {
       data.files.forEach((file) => {
         formData.append("files", file);
       });
-      formData.append("slug", data.slug || "");
-      formData.append("isPrivate", data.isPrivate.toString());
-      if (data.isPrivate && data.accessCode) {
-        formData.append("accessCode", data.accessCode);
-      }
-      formData.append("visibility", data.visibility.toString());
-      formData.append("time", data.time);
-
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v1/upload`,
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/upload?slug=${data.slug}&isPrivate=${data.isPrivate}&accessCode=${data.accessCode}&visibility=${data.visibility}&time=${data.time}`,
         formData,
         {
           withCredentials: true,

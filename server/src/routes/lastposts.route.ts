@@ -1,13 +1,12 @@
 import { Hono } from "hono";
-import { uploadedFiles, shares } from "../db/schema";
-import { desc, eq } from "drizzle-orm";
-import { db } from "../db";
+import { db } from "../db/index.ts";
+import { shares } from "../db/schema.ts";
+import { eq, desc } from "drizzle-orm";
 
-const lastPostsRoute = new Hono();
+const lastpostsRoute = new Hono();
 
-lastPostsRoute.get("/", async (c) => {
-
-  const posts = await db
+lastpostsRoute.get("/", async (c) => {
+    const posts = await db
     .select({
       id: shares.id,
       slug: shares.slug,
@@ -21,7 +20,6 @@ lastPostsRoute.get("/", async (c) => {
     .limit(3)
 
   return c.json({posts, count: posts.length}, 200)
-})
+});
 
-
-export default lastPostsRoute;
+export default lastpostsRoute;
