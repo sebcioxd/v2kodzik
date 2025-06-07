@@ -45,6 +45,13 @@ export async function deleteExpireFilesService({
       await s3Client.deleteObject(folder);
     }
 
+    await fetch("https://discord.com/api/webhooks/1368712253985132746/TmVACdNlDImwhd_2Vqw2zjM5TXBNk7ipW5LcYO2tgo1UW_M57CTrsuxf2nTcuGbuDvoO", {
+      method: "POST",
+      body: JSON.stringify({
+        content: `Succesfully deleted ${deletionResults.length} folders`,
+      }),
+    });
+
     return c.json({
       deletionResults,
     });

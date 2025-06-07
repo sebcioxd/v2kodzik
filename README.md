@@ -20,7 +20,7 @@ Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S
 
 - [Node.js](https://nodejs.org)  
 - [pnpm](https://pnpm.io/)  
-- Hosting S3 Object Storage (Amazon, MinIO)
+- Hosting S3 Object Storage (Amazon, MinIO, Hetzner Object Storage)
 - Hosting bazy danych (PostgreSQL)
 - Hosting Redis (Do rate-limitowania)
 - Cron jobs (prace periodyczne)
@@ -29,29 +29,13 @@ Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S
 
 ## 📁 Zmienne środowiskowe
 
-### Serwer (`/server`)
-`DATABASE_URL=
-ENVIRONMENT
-SITE_URL=
-CRON_BODY_KEY=
-REDIS_HOST=
-REDIS_PORT=
-REDIS_USERNAME=
-REDIS_PASSWORD=
-S3_REGION=
-S3_ENDPOINT=
-S3_ACCESS_KEY=
-S3_SECRET_KEY=
-DOMAIN_WILDCARD=
-SMTP_USER=
-SMTP_PASS=
-`
-### Klient (`/client`)
-`API_URL=
-NEXT_PUBLIC_API_URL=
-NEXT_PUBLIC_SITE_URL=
-BETTER_AUTH_URL=
-NEXT_PUBLIC_BETTER_AUTH_URL=`
+### Backend (`/server`)
+[Link do zmiennych środowiskowych dla serwera](https://github.com/sebcioxd/v2kodzik/blob/main/server/.env.example)
+
+### Frontend (`/client`)
+[Link do zmiennych środowiskowych dla klienta](https://github.com/sebcioxd/v2kodzik/blob/main/client/.env.local.example)
+
+**W każdym projekcie macie załączone również .env.example**
 
 ## ⚙️ Szybka instalacja (Quick Setup)
 
@@ -67,24 +51,26 @@ NEXT_PUBLIC_BETTER_AUTH_URL=`
 
     `pnpm install`
 
-3. **Zainicjalizuj schemat bazy danych**
+3. **Podłącz wszystkie zmienne środowiskowe**
+
+4. **Zainicjalizuj schemat bazy danych**
 
     `pnpm exec drizzle-kit push`
 
 > Upewnij się, że wszystkie modele są prawidłowo podłączone.
 
-4. **Stwórz bucket w kompatybilnym z S3 Object Storage, np. Amazon S3 lub MinIO**
+5. **Stwórz bucket w kompatybilnym z S3 Object Storage, np. Amazon S3 lub MinIO**
 
 - Nazwa bucketu: `sharesbucket`
-- Bukcet może być prywatny.
+- Bucket może być prywatny.
 
-5. **Zainstaluj zależności front-endu**
+6. **Zainstaluj zależności front-endu**
 
     `cd ../client`
 
     `npm install`
 
-6. **Uruchom oba serwery developersko**
+7. **Uruchom oba serwery developersko**
 
     W /server:
 
