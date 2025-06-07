@@ -1,33 +1,29 @@
-![testloga](https://github.com/user-attachments/assets/722b7478-66d8-4988-a7c6-c9e917da11b6)
+![dajkodzik](https://github.com/user-attachments/assets/4e038145-6be0-4e23-99a9-74fe8c16d3d3)
 
 # dajkodzik.pl — v2
 
- Platforma do przesyłania kodu, oraz załączników z niestandardowymi linkami. 
+Platforma do przesyłania kodu, oraz załączników z niestandardowymi linkami.
 
 Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3
 
-**W planach**: 
+Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
+
+## W planach
 
 - Refactor z Node.js do Deno (Pełen support TypeScript'u)
-
-- Refactor niektórych plików Front-endu oraz dodanie więcej typów.
-
+- Refactor niektórych plików Front-endu oraz dodanie więcej typów
 - Możliwość dodawania również kodu, nie tylko załączania plików
 
----
-
-## 🔧 Wymagania
+## Wymagania
 
 - [Node.js](https://nodejs.org)  
 - [pnpm](https://pnpm.io/)  
-- Hosting S3 Object Storage (Amazon, MinIO, Hetzner Object Storage)
-- Hosting bazy danych (PostgreSQL)
-- Hosting Redis (Do rate-limitowania)
-- Cron jobs (prace periodyczne)
+- Hosting S3 Object Storage ([Amazon](https://aws.amazon.com/s3/), [MinIO](https://min.io/docs/minio/container/index.html), [Hetzner Object Storage](https://www.hetzner.com/storage/object-storage/))
+- Hosting PostgreSQL ([Docker](https://hub.docker.com/_/postgres), [Neon](https://neon.com/), [Supabase](https://supabase.com/))
+- Hosting Redis ([Redis.io](https://redis.io/), [Docker](https://hub.docker.com/_/redis))
+- Cron jobs
 
----
-
-## 📁 Zmienne środowiskowe
+## Zmienne środowiskowe
 
 ### Backend (`/server`)
 [Link do zmiennych środowiskowych dla serwera](https://github.com/sebcioxd/v2kodzik/blob/main/server/.env.example)
@@ -35,100 +31,75 @@ Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S
 ### Frontend (`/client`)
 [Link do zmiennych środowiskowych dla klienta](https://github.com/sebcioxd/v2kodzik/blob/main/client/.env.local.example)
 
-**W każdym projekcie macie załączone również .env.example**
+W każdym projekcie załączone są pliki .env.example
 
-## ⚙️ Szybka instalacja (Quick Setup)
+## Szybka instalacja
 
-1. **Sklonuj repozytorium**
+1. Sklonuj repozytorium
+```bash
+git clone https://github.com/sebcioxd/dajkodzik-v2.git
+cd dajkodzik-v2
+```
 
-    `git clone https://github.com/sebcioxd/dajkodzik-v2.git`
+2. Zainstaluj zależności back-endu
+```bash
+cd server
+pnpm install
+```
 
-    `cd dajkodzik-v2`
+3. Podłącz wszystkie zmienne środowiskowe
 
-2. **Zainstaluj zależności back-endu**
+4. Zainicjalizuj schemat bazy danych
+```bash
+pnpm exec drizzle-kit push
+```
 
-    `cd server`
-
-    `pnpm install`
-
-3. **Podłącz wszystkie zmienne środowiskowe**
-
-4. **Zainicjalizuj schemat bazy danych**
-
-    `pnpm exec drizzle-kit push`
-
-> Upewnij się, że wszystkie modele są prawidłowo podłączone.
-
-5. **Stwórz bucket w kompatybilnym z S3 Object Storage, np. Amazon S3 lub MinIO**
-
+5. Stwórz bucket w kompatybilnym z S3 Object Storage
 - Nazwa bucketu: `sharesbucket`
-- Bucket może być prywatny.
+- Bucket może być prywatny
 
-6. **Zainstaluj zależności front-endu**
+6. Zainstaluj zależności front-endu
+```bash
+cd ../client
+npm install
+```
 
-    `cd ../client`
+7. Uruchom serwery developerskie
+```bash
+# W /server
+pnpm dev
 
-    `npm install`
+# W /client
+npm run dev
+```
 
-7. **Uruchom oba serwery developersko**
-
-    W /server:
-
-    `pnpm dev`
-
-    W /client:
-
-    `npm run dev # lub bun dev`
-
----
-
-## 🚀 Deploy (Hosting)
+## Deploy
 
 ### Frontend (Next.js)
-
-- ✅ Rekomendowane: [Vercel](https://vercel.com/)
-- 💡 Alternatywa: VPS z [Coolify](https://coolify.io/) / [Dokploy](https://dokploy.com/)
+- Rekomendowane: Vercel
+- Alternatywa: VPS z Coolify/Dokploy
 
 ### Backend (Hono + Node.js)
+- Serverless: Railway.app, fly.io
+- Server VPS: Coolify/Dokploy
+- Kompilacja: zalecane użycie Nixpacks
 
-- ✅ Serverless: Railway.app, fly.io
-- ✅ Server VPS: [Coolify](https://coolify.io/) / [Dokploy](https://dokploy.com/)
-- 🧰 Kompilacja: zalecane użycie buildera **Nixpacks**
+## Czyszczenie storage (Cron)
 
----
+Endpoint API do uruchomienia czyszczenia:
 
-## ⏰ Cron Jobs
-
-### Czyszczenie storage (API trigger):
-
-**javascript**
-```js 
- await fetch("https://api.domena.pl/v1/cron", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      key: "CRON_BODY_KEY",
-    }),
-  });
-```
-**bash**
-```bash
-curl -s -X POST https://api.domena.pl/v1/cron \
-  -H "Content-Type: application/json" \
-  -d '{"key": "CRON_BODY_KEY"}'
+```javascript
+await fetch("https://api.domena.pl/v1/cron", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    key: "CRON_BODY_KEY",
+  }),
+});
 ```
 
-**pseudokod**
-```js
-POST /v1/cron
-Content-Type: application/json
-{
-  "key": "CRON_BODY_KEY"
-}
-```
-> Cron czyszczący wszystkie pliki w storage, które nie mają odpowiednika w bazie danych. 
-> Każdy cron da sobię radę. Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin. w POST BODY musicie dać poprawny klucz aby chronić się przed nadużyciem
+Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin z poprawnym kluczem autoryzacyjnym.
 
-### W razie wszelkich błędów, pomocy lub pytań, skontakuj się na [niarde.xyz](https://www.niarde.xyz/)
+W razie błędów lub pytań, skontaktuj się na [niarde.xyz](https://www.niarde.xyz/)
