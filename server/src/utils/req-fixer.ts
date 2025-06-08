@@ -52,7 +52,7 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
 
     if (req.time !== "24" && req.time !== "168") {
         return c.json({
-            message: "Nieprawidłowy czas. Musi być albo 24 godziny albo 7 dni (168 godzin).",
+            message: "Nieprawidłowy czas. Musi być albo 24 godziny (1 dzień) albo 7 dni (168 godzin).",
             receivedTime: req.time
         }, 400)
     }
