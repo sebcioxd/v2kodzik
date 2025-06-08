@@ -298,7 +298,7 @@ export function UploadPage() {
                     maxFiles={20}
                     maxSize={40 * 1024 * 1024}
                     maxTotalSize={40 * 1024 * 1024}
-                    className="w-full max-w-md animate-fade-in-01-text"
+                    className="w-full md:min-w-lg max-w-md animate-fade-in-01-text"
                     value={field.value}
                     onValueChange={(files) => {
                       if (!isSubmitting) {
