@@ -23,7 +23,7 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
 
     if (req.isPrivate === "true" && req.accessCode.length === 0) {
         return c.json({
-            message: "Access code is required when private is true.",
+            message: "Kod dostępu jest wymagany gdy piki są prywatne.",
             receivedFields: {
                 isPrivate: req.isPrivate,
                 accessCode: req.accessCode
