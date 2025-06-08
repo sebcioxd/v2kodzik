@@ -87,6 +87,10 @@ export type DeleteExpireFilesServiceBody = {
     key: string;
 }
 
+export type SendWebhookServiceProps = {
+    content: string;
+}
+
 export const Session = auth.$Infer.Session
 export const User = auth.$Infer.Session.user
 

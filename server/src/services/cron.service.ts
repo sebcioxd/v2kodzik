@@ -4,6 +4,7 @@ import type {
 } from "../lib/types.js";
 import { shares } from "../db/schema.js";
 import { CRON_BODY_KEY } from "../lib/env.js";
+import { sendWebhookService } from "./webhook.service.js";
 import { sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import getS3Client from "../lib/s3.js";
@@ -18,7 +19,7 @@ export async function deleteExpireFilesService({
   if (body.key !== CRON_BODY_KEY) {
     return c.json(
       {
-        message: "Invalid key",
+        message: "Nieprawidłowy klucz",
       },
       401
     );
@@ -41,15 +42,16 @@ export async function deleteExpireFilesService({
     const deletionResults: string[] = [];
 
     for (const folder of foldersToDelete) {
-      deletionResults.push(folder);
-      await s3Client.deleteObject(folder);
+      try {
+        await s3Client.deleteObject(folder);
+        deletionResults.push(folder);
+      } catch (error) {
+        console.error(`Nie udało się usunąć folderu ${folder}:`, error);
+      }
     }
 
-    await fetch("https://discord.com/api/webhooks/1368712253985132746/TmVACdNlDImwhd_2Vqw2zjM5TXBNk7ipW5LcYO2tgo1UW_M57CTrsuxf2nTcuGbuDvoO", {
-      method: "POST",
-      body: JSON.stringify({
-        content: `Succesfully deleted ${deletionResults.length} folders`,
-      }),
+    await sendWebhookService({
+      content: `Pomyślnie usunięto ${deletionResults.length} folderów.`,
     });
 
     return c.json({
@@ -59,7 +61,7 @@ export async function deleteExpireFilesService({
   } catch (error) {
     return c.json(
       {
-        message: "Internal server error",
+        message: "Wystąpił błąd wewnętrzny serwera",
       },
       500
     );

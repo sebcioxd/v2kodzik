@@ -24,7 +24,7 @@ app.on(["POST", "GET"], "/v1/auth/*", async (c) => {
     } catch (err) {
       return c.json(
         {
-          message: "Too many requests. Please try again later.",
+          message: "Za dużo żądań. Spróbuj ponownie później.",
           error: err,
         },
         429

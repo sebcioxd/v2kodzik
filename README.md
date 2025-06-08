@@ -100,6 +100,8 @@ await fetch("https://api.domena.pl/v1/cron", {
 });
 ```
 
+
+**bash**
 ```bash
 curl -s -X POST https://api.domena.pl/v1/cron \
   -H "Content-Type: application/json" \

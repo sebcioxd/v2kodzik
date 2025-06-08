@@ -33,7 +33,7 @@ uploadRoute.post("/", async (c: Context) => {
         });
     } catch (error) {
         return c.json({
-            message: "Rate limit exceeded",
+            message: "Przekroczono limit żądań. Spróbuj ponownie później.",
             error: error
         }, 429)
     }
@@ -43,13 +43,13 @@ uploadRoute.post("/", async (c: Context) => {
 
     if (!files || files.length === 0) {
         return c.json({
-            message: "No files uploaded",
+            message: "Nie przesłano żadnych plików.",
         }, 400)
     }
 
     if (files.some(file => disallowedCharacters.test(file.name))) {
         return c.json({
-            message: "File name contains disallowed characters",
+            message: "Nazwa pliku zawiera niedozwolone znaki.",
         }, 400)
     }
 
@@ -65,7 +65,7 @@ uploadRoute.post("/", async (c: Context) => {
 
             if (!uploadService) {
                 return c.json({
-                    message: "Error uploading files",
+                    message: "Błąd podczas przesyłania plików. Kod błędu: S3_UPLOAD_MISMATCH",
                 }, 500)
             }
 
@@ -73,7 +73,7 @@ uploadRoute.post("/", async (c: Context) => {
         }));
     } catch (error) {
         return c.json({
-            message: "Error uploading files",
+            message: "Błąd podczas przesyłania plików. Kod błędu: S3_UPLOAD_ERROR",
             error: error
         }, 500)
     }

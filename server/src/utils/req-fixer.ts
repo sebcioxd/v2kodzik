@@ -34,7 +34,7 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
 
     if (restrictedPaths.includes(req.slug)) {
         return c.json({
-            message: "Slug can't be used. It violates our routing rules.",
+            message: "Link nie może być użyty. Narusza on nasze zasady routingowe.",
             receivedSlug: req.slug
         }, 400)
     }
@@ -45,21 +45,21 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
 
     if (req.slug.length < 4 || req.slug.length > 16) {
         return c.json({
-            message: "Slug must be between 4 and 16 characters.",
+            message: "Link musi mieć długość między 4 a 16 znaków.",
             receivedSlug: req.slug
         }, 400)
     }
 
     if (req.time !== "24" && req.time !== "168") {
         return c.json({
-            message: "Invalid time. It must be either one day or one week.",
+            message: "Nieprawidłowy czas. Musi być albo 24 godziny albo 7 dni (168 godzin).",
             receivedTime: req.time
         }, 400)
     }
 
     if (req.time === "168" && !user) {
         return c.json({
-            message: "You must be logged in to create a one week share.",
+            message: "Musisz być zalogowany aby utworzyć udostępnienie na 7 dni.",
             receivedTime: req.time,
             receivedUser: user
         }, 400)
@@ -67,7 +67,7 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
 
     if (req.isPrivate === "true" && !req.accessCode) {
         return c.json({
-            message: "Access code is required when private is true.",
+            message: "Kod dostępu jest wymagany gdy piki są prywatne.",
             receivedFields: {
                 isPrivate: req.isPrivate,
                 accessCode: req.accessCode
@@ -79,7 +79,7 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
 
     if (checkForShare.length > 0) {
         return c.json({
-            message: "Slug already exists",
+            message: "Link już jest zajęty. Spróbuj inny.",
             receivedSlug: req.slug
         }, 400)
     }
