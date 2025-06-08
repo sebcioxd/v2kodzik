@@ -51,7 +51,7 @@ export async function deleteExpireFilesService({
     }
 
     await sendWebhookService({
-      content: `Pomyślnie usunięto ${deletionResults.length} folderów.`,
+      content: deletionResults.length > 0 ? `Pomyślnie usunięto ${deletionResults.length} ${deletionResults.length === 1 ? "folder" : "foldery"}.` : "Sprawdzono foldery, nie ma żadnych do usunięcia.",
     });
 
     return c.json({

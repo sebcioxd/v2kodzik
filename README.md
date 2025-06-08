@@ -2,17 +2,24 @@
 
 # dajkodzik.pl — v2
 
-Platforma do przesyłania kodu, oraz załączników z niestandardowymi linkami.
+Platforma open-source do przesyłania kodu (wkrótce), oraz załączników z niestandardowymi linkami.
 
-Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3
+Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3 i Redis
 
 Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
 ## W planach
 
 - Refactor z Node.js do Deno (Pełen support TypeScript'u)
-- Refactor niektórych plików Front-endu oraz dodanie więcej typów
+- Refactor Front-endu, dodanie lepszego supportu TS.
+- Zamienienie npm na pnpm w front-endzie.
 - Możliwość dodawania również kodu, nie tylko załączania plików
+
+## Contribute (Wesprzyj)
+
+- Projekt jest w pełni open source. Doceniam wszelkie PR.
+- Szukam pomocy przy refactorze front-endu
+- Back-end jest dobrze wykonany, lecz mogą się pojawiś jakieś małe "przecieki".
 
 ## Wymagania
 
@@ -47,7 +54,8 @@ cd server
 pnpm install
 ```
 
-3. Podłącz wszystkie zmienne środowiskowe
+3. Podłącz wszystkie zmienne środowiskowe (dla serwera i dla klienta)
+- Przykłady znajdziecie w `.env.local.example` i `.env.example`
 
 4. Zainicjalizuj schemat bazy danych
 ```bash
@@ -82,7 +90,7 @@ npm run dev
 ### Backend (Hono + Node.js)
 - Serverless: Railway.app, fly.io
 - Server VPS: Coolify/Dokploy
-- Kompilacja: zalecane użycie Nixpacks
+- Kompilacja: zalecane użycie Railpack lub Nixpacks
 
 ## Czyszczenie storage (Cron)
 

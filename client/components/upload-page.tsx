@@ -42,7 +42,6 @@ import {
   InputOTPSlot,
   InputOTPSeparator
 } from "@/components/ui/input-otp";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z
   .object({
@@ -201,25 +200,20 @@ export function UploadPage() {
         formData,
         {
           withCredentials: true,
-          cancelToken: cancelTokenSource.current.token,
           onUploadProgress: (progressEvent) => {
             if (progressEvent.total) {
-              // Throttle UI updates to every 100ms
               if (progressUpdateThrottle.current) {
                 clearTimeout(progressUpdateThrottle.current);
               }
-
               progressUpdateThrottle.current = setTimeout(() => {
                 const now = Date.now();
                 const loaded = progressEvent.loaded;
                 const total = progressEvent.total;
 
-                // Calculate percentage
                 const percentCompleted = Math.round(
                   (loaded * 100) / (total || 1)
                 );
 
-                // Calculate upload speed (bytes per second)
                 if (lastTime.current && lastLoaded.current) {
                   const timeDiff = now - lastTime.current;
                   if (timeDiff > 0) {
@@ -228,15 +222,13 @@ export function UploadPage() {
                       ((byteDiff / timeDiff) * 1000) / (1024 * 1024);
                     setUploadSpeed(speedMBps);
 
-                    // Calculate ETA in seconds
                     const remainingBytes = (total || 1) - loaded;
                     const etaSeconds =
                       remainingBytes / ((byteDiff / timeDiff) * 1000);
                     setEstimatedTime(etaSeconds);
                   }
                 }
-
-                // Update references for next calculation
+                
                 lastLoaded.current = loaded;
                 lastTime.current = now;
 
