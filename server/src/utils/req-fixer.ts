@@ -11,7 +11,7 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
 
     if (req.isPrivate.length === 0 || req.visibility.length === 0 || req.time.length === 0) {
         return c.json({
-            message: "Missing required fields",
+            message: "Brakuje wymaganych pól",
             receivedFields: {
                 isPrivate: req.isPrivate,
                 accessCode: req.accessCode,
