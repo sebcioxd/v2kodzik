@@ -100,6 +100,12 @@ await fetch("https://api.domena.pl/v1/cron", {
 });
 ```
 
+```bash
+curl -s -X POST https://api.domena.pl/v1/cron \
+  -H "Content-Type: application/json" \
+  -d '{"key": "CRON_BODY_KEY"}'
+```
+
 Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin z poprawnym kluczem autoryzacyjnym.
 
 W razie błędów lub pytań, skontaktuj się na [niarde.xyz](https://www.niarde.xyz/)
