@@ -21,7 +21,7 @@ export async function getShareFileService({ slug, c }: GetShareFileServiceProps)
 
     if (!share) {
         return c.json({
-            message: "Share not found",
+            message: "Nie znaleziono udostępnienia",
         }, 404)
     }
 
@@ -39,7 +39,7 @@ export async function getShareFileService({ slug, c }: GetShareFileServiceProps)
 
     if (!files || files.length === 0) {
         return c.json({
-            message: "No files found",
+            message: "Nie znaleziono plików",
         }, 404)
     }
 
@@ -60,7 +60,7 @@ export async function getShareFileService({ slug, c }: GetShareFileServiceProps)
 export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeServiceProps) {
     if (!code || !slug) {
         return c.json({
-            message: "Invalid data provided",
+            message: "Nieprawidłowe dane. Brakuje kodu lub linku.",
         }, 400)
     }
 
@@ -68,7 +68,7 @@ export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeS
 
     if (!share) {
         return c.json({
-            message: "Share not found",
+            message: "Nie znaleziono udostępnienia",
         }, 404)
     }
 
@@ -76,7 +76,7 @@ export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeS
 
     if (!isCodeValid) {
         return c.json({
-            message: "Invalid code",
+            message: "Kodj jest nieprawidłowy",
         }, 403)
     }
 
@@ -105,7 +105,7 @@ export async function verifyCookieService({ slug, c }: VerifyCookieServiceProps)
 
     if (!idToSlug) {
         return c.json({
-            message: "Share not found",
+            message: "Nie znaleziono udostępnienia",
             success: false,
         }, 404)
     }
@@ -114,7 +114,7 @@ export async function verifyCookieService({ slug, c }: VerifyCookieServiceProps)
 
     if (!cookie) {
         return c.json({
-            message: "Invalid cookie",
+            message: "Nieprawidłowy cookie",
             success: false,
         }, 403)
     }
@@ -124,7 +124,7 @@ export async function verifyCookieService({ slug, c }: VerifyCookieServiceProps)
     if (!isCodeValid) {
         deleteCookie(c, `share_${idToSlug.id}`);
         return c.json({
-            message: "Invalid cookie",
+            message: "Nieprawidłowy cookie",
             success: false,
         }, 403)
     }
