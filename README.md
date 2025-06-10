@@ -59,7 +59,7 @@ pnpm install
 
 4. Zainicjalizuj schemat bazy danych
 ```bash
-pnpm exec drizzle-kit push
+pnpm exec drizzle-kit push # pnpm dlx drizzle-kit push
 ```
 
 5. Stwórz bucket w kompatybilnym z S3 Object Storage
