@@ -39,17 +39,17 @@ export function RecentSharesSkeleton() {
           <div className="flex justify-between items-center mb-2">
             <div className="flex">
               <span className="flex items-center gap-2">
-                <Skeleton className="h-4 w-20 bg-zinc-800" /> {/* For "Kod: slug" */}
-                <Skeleton className="h-4 w-4 rounded-full bg-zinc-800" /> {/* For Lock icon */}
+                <Skeleton className="h-4 w-20 bg-zinc-800" /> 
+                <Skeleton className="h-4 w-4 rounded-full bg-zinc-800" />
               </span>
             </div>
             <div className="p-2 rounded-md">
-              <Skeleton className="h-4 w-4 bg-zinc-800" /> {/* For ExternalLink icon */}
+              <Skeleton className="h-4 w-4 bg-zinc-800" />
             </div>
           </div>
           <div className="flex flex-col items-start gap-2">
-            <Skeleton className="h-3 w-40 bg-zinc-800" /> {/* For "Utworzono: date" */}
-            <Skeleton className="h-3 w-40 bg-zinc-800" /> {/* For "Wygasa: date" */}
+            <Skeleton className="h-3 w-40 bg-zinc-800" /> 
+            <Skeleton className="h-3 w-40 bg-zinc-800" /> 
           </div>
         </div>
       ))}
@@ -59,7 +59,7 @@ export function RecentSharesSkeleton() {
 
 export default function RecentShareCard({ slug, createdAt, expiresAt, private: isPrivate }: ShareCardProps) {
   return (
-    <div className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-5">
+    <div className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-2">
       <div className="flex justify-between items-center mb-2">
         <div className="flex ">
           <span className="text-zinc-200 text-sm font-medium flex items-center gap-2">
@@ -102,7 +102,7 @@ export function RecentShares() {
 
   if (shares.length === 0) {
     return (
-      <div className="w-full flex flex-col items-center justify-center gap-4 mt-5">
+      <div className="w-full flex flex-col items-center justify-center gap-4">
         <div className="text-zinc-400 text-sm animate-slide-in-bottom font-medium self-start">Brak linków w ostatnich 24 godzinach. <Link href="/upload" className="text-zinc-300 hover:text-zinc-100 transition-colors underline underline-offset-4">Dodaj teraz</Link></div>
       </div>
     );

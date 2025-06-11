@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 
 const restrictedPaths = ["/upload", "/search", "/faq", "/api", "/admin", "/auth", "/panel", "/success"];
 
-export async function fixRequestProps(req: UploadRequestProps, c: Context, user?: typeof User): Promise<UploadRequestProps | Response> {
+export async function fixRequestProps(req: UploadRequestProps, c: Context, user?: typeof User): Promise<UploadRequestProps | Response> {    
 
     if (req.isPrivate.length === 0 || req.visibility.length === 0 || req.time.length === 0) {
         return c.json({

@@ -8,6 +8,7 @@ import { useSession } from "@/lib/auth-client";
 
 export default function Hero() {
   const { data: session, isPending } = useSession();
+
   return (
     <main className="flex flex-col items-center justify-center md:max-w-4xl max-w-sm  mx-auto px-4">
       {/* Hero Section with Gradient Background */}
