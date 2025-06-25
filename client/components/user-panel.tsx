@@ -99,7 +99,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                     </span>
                                     </Link>
                                 </div>
-                                <div className="flex  flex-col justify-between gap-1  text-xs text-zinc-400">
+                                <div className="flex  flex-col justify-between gap-1  text-sm text-zinc-400">
                                     <span className="flex flex-row gap-1 items-center"><CalendarArrowUp className="h-4 w-4 text-zinc-200" /> Utworzono: {formatDate(share.createdAt)}</span>
                                     <span className="flex flex-row gap-1 items-center"><CalendarArrowDown className="h-4 w-4 text-zinc-200" /> Wygasa: {formatDate(share.expiresAt)}</span>
                                 </div>

@@ -60,7 +60,7 @@ export default function SearchPage() {
       <div className="w-full space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl text-zinc-100 tracking-tight animate-fade-in-01-text opacity-0">Dostałeś kod od znajomego?</h1>
-          <p className="text-zinc-500 text-sm text-wrap max-w-xl animate-slide-in-left opacity-0">
+          <p className="text-zinc-500 text-md text-wrap max-w-xl animate-slide-in-left opacity-0">
             Wprowadź kod udostępniony przez znajomego, aby uzyskać dostęp do plików.
           </p>
         </div>
@@ -72,14 +72,14 @@ export default function SearchPage() {
               name="searchQuery"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-zinc-400 animate-fade-in-01-text">Podaj kod od znajomego</FormLabel>
+                  <FormLabel className="text-zinc-400 animate-fade-in-01-text text-md">Podaj kod od znajomego</FormLabel>
                   <FormControl>
-                    <div className="flex items-center gap-2">
-                      <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 border border-dashed border-zinc-800 rounded-md px-3 py-2">dajkodzik.pl/</span>
+                    <div className="flex items-center">
+                      <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 px-3 py-1">dajkodzik.pl/</span>
                       <Input
                         {...field}
                         placeholder="Wpisz kod..."
-                        className="w-full max-w-md bg-zinc-950/20 border-dashed border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text"
+                        className="w-full max-w-md bg-zinc-950/20 border border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text"
                       />
                     </div>
                   </FormControl>
@@ -114,11 +114,11 @@ export default function SearchPage() {
           </form>
         </Form>
         
-        <section className="mt-4 flex justify-start items-start w-full max-w-md animate-slide-in-left">
+        <section className="mt-4 flex justify-start items-start w-full animate-slide-in-left">
           <Alert className="bg-zinc-950/10 border-zinc-800 border-dashed text-zinc-400">
             <Terminal className="h-4 w-4" />
-            <AlertTitle className="text-sm">Jak to działa?</AlertTitle>
-            <AlertDescription className="text-[0.7rem]">
+            <AlertTitle className="text-md">Jak to działa?</AlertTitle>
+            <AlertDescription className="text-md">
               Każdy udostępniony plik ma unikalny kod. Wpisz kod, który otrzymałeś, aby uzyskać dostęp do plików. 
               Jeśli plik jest chroniony hasłem, zostaniesz poproszony o podanie kodu dostępu.
             </AlertDescription>
