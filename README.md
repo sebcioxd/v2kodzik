@@ -119,3 +119,58 @@ curl -s -X POST https://api.domena.pl/v1/cron \
 Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin z poprawnym kluczem autoryzacyjnym.
 
 W razie błędów lub pytań, skontaktuj się na [niarde.xyz](https://www.niarde.xyz/)
+
+## Bezpieczeństwo
+
+### Podstawowa konfiguracja (self-hosting)
+
+- Zablokuj wszystkie nieużywane porty na serwerze
+- Pozostaw otwarte tylko niezbędne porty:
+  - 22 (SSH)
+  - 80 (HTTP)
+  - 443 (HTTPS)
+  - 8080 (API)
+
+### Zalecane praktyki
+
+1. **Ochrona baz danych**
+   - Używaj silnych haseł dla PostgreSQL i Redis
+   - Skonfiguruj uwierzytelnianie dla Redis
+   - Ogranicz dostęp do baz danych tylko z określonych adresów IP (opcjonalne)
+
+2. **Cloudflare**
+   - Używaj Cloudflare Proxy do ukrycia rzeczywistego IP serwera
+   - Włącz ochronę DDoS/DoS
+   - Skonfiguruj Web Application Firewall (WAF)
+
+3. **Środowisko produkcyjne**
+   - Używaj wyłącznie połączeń SSL/TLS
+   - Łącz się wyłacznie za pomocą połączeń wewnętrznych
+   Czyli, np:
+      - `External Host` - ❌
+      - `Internal Host` - ✔️
+   - Dajkodzik za ciebie już implementuje rate-limiting dla ważynch rout'ów, lecz jeśli to potrzebne,
+   użyj gotowego rozwiązania też gdzie indziej
+
+### Development lokalny
+
+Dla bezpiecznego połączenia z bazami danych w środowisku developerskim, używaj tunelu SSH:
+
+```bash
+ssh -L 5433:localhost:54463 -L 6380:localhost:9443 root@ip-serwera
+```
+
+Gdzie:
+- `5433` - lokalny port dla PostgreSQL
+- `54463` - zdalny port PostgreSQL
+- `6380` - lokalny port dla Redis
+- `9443` - zdalny port Redis
+
+### Dodatkowe zalecenia
+
+- Regularnie wykonuj kopie zapasowe danych
+- Używaj uwierzytelniania dwuskładnikowego (2FA) dla wszystkich kont administracyjnych
+- Implementuj system logowania zdarzeń bezpieczeństwa
+- Przeprowadzaj regularne audyty bezpieczeństwa
+
+

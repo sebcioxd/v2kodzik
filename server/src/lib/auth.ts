@@ -28,6 +28,7 @@ export const auth = betterAuth({
             }
         }
     },
+    
     trustedOrigins: [SITE_URL],
     emailAndPassword: {
         enabled: true,
@@ -44,7 +45,7 @@ export const auth = betterAuth({
     },
     advanced: {
         crossSubDomainCookies: {
-            enabled: ENVIRONMENT === "production" ? true : false,
+            enabled: ENVIRONMENT === "production",
             domain: DOMAIN_WILDCARD,
         },
         cookiePrefix: "dajkodzik",

@@ -76,7 +76,7 @@ export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeS
 
     if (!isCodeValid) {
         return c.json({
-            message: "Kodj jest nieprawidłowy",
+            message: "Kod jest nieprawidłowy",
         }, 403)
     }
 
