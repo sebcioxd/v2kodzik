@@ -513,9 +513,11 @@ export function UploadPage() {
             {isSubmitting ? (
               <span className="flex items-center justify-center">
                 <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                {uploadProgress === 100
-                  ? "Przetwarzanie plików..."
-                  : `Wysyłanie... ${uploadProgress}%`}
+                {uploadProgress === 0 ? (
+                  `Przygotowywanie ${form.getValues("files").length} ${form.getValues("files").length === 1 ? 'pliku' : 'plików'}...`
+                ) : (
+                  `Wysyłanie... ${uploadProgress}%`
+                )}
               </span>
             ) : (
               <span className="flex items-center justify-center">
@@ -525,7 +527,7 @@ export function UploadPage() {
             )}
           </Button>
 
-          {isSubmitting && uploadProgress > 0 && (
+          {isSubmitting && (
             <div className="w-full animate-fade-in-01-text">
               <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
                 <div
@@ -563,14 +565,16 @@ export function UploadPage() {
                       </svg>
                       Przetwarzanie plików...
                     </>
+                  ) : uploadProgress === 0 ? (
+                    `Przygotowywanie ${form.getValues("files").length} ${form.getValues("files").length === 1 ? 'pliku' : 'plików'}...`
                   ) : (
                     `${uploadProgress}% ukończono`
                   )}
                 </p>
-                {uploadSpeed !== null && uploadProgress < 100 && (
+                {uploadSpeed !== null && uploadProgress > 0 && uploadProgress < 100 && (
                   <p>{uploadSpeed.toFixed(1)} MB/s</p>
                 )}
-                {estimatedTime !== null && uploadProgress < 100 && (
+                {estimatedTime !== null && uploadProgress > 0 && uploadProgress < 100 && (
                   <p>
                     {estimatedTime > 60
                       ? `~ ${Math.floor(estimatedTime / 60)}m ${Math.round(

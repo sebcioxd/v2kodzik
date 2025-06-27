@@ -52,44 +52,44 @@ uploadRoute.post("/", async (c: Context) => {
     }
 
     try {
-        const presignedData = await Promise.all(files.map(async (file) => {
-            const uploadService = await S3UploadService({
-                Key: `${req.slug}/${file.name}`,
-            });
-
-            return {
-                fileName: file.name,
-                ...uploadService
-            };
+        const [presignedData, shareResult] = await Promise.all([
+            Promise.all(files.map(file => 
+                S3UploadService({
+                    Key: `${req.slug}/${file.name}`,
+                })
+            )),
+            db.insert(shares).values({
+                slug: req.slug,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : req.time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
+                userId: user ? user.id : null,
+                private: req.isPrivate === "true",
+                code: req.accessCode ? await hashCode(req.accessCode) : null,
+                visibility: visibility === "true",
+                ipAddress: c.req.header("x-forwarded-for") || null,
+                userAgent: c.req.header("user-agent") || null,
+            }).returning({ id: shares.id })
+        ]);
+        const formattedPresignedData = presignedData.map((data, index) => ({
+            fileName: files[index].name,
+            ...data
         }));
 
-        const shareResult = await db.insert(shares).values({
-            slug: req.slug,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : req.time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
-            userId: user ? user.id : null,
-            private: req.isPrivate === "true",
-            code: req.accessCode ? await hashCode(req.accessCode) : null,
-            visibility: visibility === "true",
-            ipAddress: c.req.header("x-forwarded-for") || null,
-            userAgent: c.req.header("user-agent") || null,
-        }).returning({ id: shares.id });
-
-        await Promise.all(files.map(async (file) => {
-            await db.insert(uploadedFiles).values({
+        await db.insert(uploadedFiles).values(
+            files.map(file => ({
                 shareId: shareResult[0].id,
                 fileName: file.name,
                 size: file.size,
                 storagePath: `${req.slug}/${file.name}`,
-            })
-        }));
+            }))
+        );
 
         return c.json({
             message: "Pliki zostały przesłane pomyślnie",
             slug: req.slug,
             time: req.time,
-            presignedData
+            presignedData: formattedPresignedData
         }, 200);
 
     } catch (error) {
