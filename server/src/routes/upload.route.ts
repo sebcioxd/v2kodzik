@@ -12,7 +12,7 @@ uploadRoute.post("/presign", async (c: Context) => {
     try {
         await rateLimiterService({
             keyPrefix: "upload",
-            identifier: c.req.header("x-forwarded-for") || ".0.0",
+            identifier: c.req.header("x-forwarded-for") || "127.0.0.1",
         });
         
         return await S3UploadService({ c, user });

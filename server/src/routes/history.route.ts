@@ -17,8 +17,8 @@ historyRoute.get("/", async (c) => {
 
     const history = await getUserHistoryService({ offset, limit, userId: user.id });
 
-    return c.json({ history, user }, 200)
 
+    return c.json({ history, user }, 200)
 });
 
 historyRoute.get("/count", async (c) => {
@@ -29,10 +29,8 @@ historyRoute.get("/count", async (c) => {
     }
   
     const count = await getUserHistoryCountService({ userId: user.id });
-  
+
     return c.json({count}, 200)
-  })
-
-
+});
 
 export default historyRoute;

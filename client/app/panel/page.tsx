@@ -17,21 +17,8 @@ export type Share = {
     private: boolean;
 }
 
-type HistoryItem = {
-    uploaded_files: {
-        id: string;
-        shareId: string;
-        fileName: string;
-        size: number;
-        storagePath: string;
-        createdAt: string;
-        updatedAt: string;
-    };
-    shares: Share;
-}
-
 type APIResponse = {
-    history: HistoryItem[];
+    history: Share[];
     user: User;
 }
 
@@ -45,9 +32,7 @@ export default async function UserPanelPage({ searchParams }: { searchParams: Pa
     }
 
     const { page, search } = await searchParams;
-
     const currentPage = page ? Number.parseInt(page) : 1
-    const currentSearch = search ? search : ""
     const sharesPerPage = 4 
 
     const countResponse = await axios.get(`${process.env.BETTER_AUTH_URL}/v1/history/count`, {
@@ -58,7 +43,6 @@ export default async function UserPanelPage({ searchParams }: { searchParams: Pa
     })
 
     const totalPages = Math.ceil(countResponse.data.count / sharesPerPage)
-
 
     const response = await axios.get<APIResponse>(`${process.env.BETTER_AUTH_URL}/v1/history`, {
         params: {
@@ -71,19 +55,11 @@ export default async function UserPanelPage({ searchParams }: { searchParams: Pa
         withCredentials: true,
     });
 
-    // Get unique shares by using the share ID as a key
-    const uniqueShares = Object.values(
-        response.data.history.reduce((acc, item) => {
-            if (!acc[item.shares.id]) {
-                acc[item.shares.id] = item.shares;
-            }
-            return acc;
-        }, {} as Record<string, Share>)
-    );
+    const shares = response.data.history;
 
     return (
         <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-xl max-w-sm pt-10">
-            <UserPanel shares={uniqueShares} user={response.data.user} />
+            <UserPanel shares={shares} user={response.data.user} />
             {totalPages > 1 && (
                 <Pagination 
                     currentPage={currentPage} 
