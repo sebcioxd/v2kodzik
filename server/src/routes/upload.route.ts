@@ -26,7 +26,8 @@ uploadRoute.post("/presign", async (c: Context) => {
 
 
 uploadRoute.post("/finalize", async (c: Context) => {
-    return await finalizeUploadService({ c });
+    const user = c.get("user");
+    return await finalizeUploadService({ c, user });
 });
 
 export default uploadRoute;

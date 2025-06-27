@@ -25,8 +25,6 @@ export async function generatePresignedUrl({ Key }: generatePresignedUrlProps) {
 // Nie jest to ostateczna funkcja, która tworzy udostępniony link, ale tylko generuje presigned URL dla plików do wysyłki.
    
 export async function S3UploadService({ c, user }: S3UploadServiceProps) {
-    let shareResult = null;
-
     try {
         const { slug, isPrivate, accessCode, visibility, time } = c.req.query();
         const fileNames = c.req.query("fileNames")?.split(",");
@@ -50,35 +48,14 @@ export async function S3UploadService({ c, user }: S3UploadServiceProps) {
             };
         }));
 
-        shareResult = await db.insert(shares).values({
-            slug: req.slug,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : req.time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
-            userId: user ? user.id : null,
-            private: req.isPrivate === "true",
-            code: req.accessCode ? await hashCode(req.accessCode) : null,
-            visibility: req.visibility === "true",
-            ipAddress: c.req.header("x-forwarded-for") || null,
-            userAgent: c.req.header("user-agent") || null,
-        }).returning({ id: shares.id });
-
+        // Zwracamy tylko presigned URLs bez tworzenia wpisu w bazie
         return c.json({
             presignedData,
             slug: req.slug,
-            time: req.time,
-            shareId: shareResult[0].id
+            time: req.time
         });
 
     } catch (error) {
-        if (shareResult) {
-            try {
-                await db.delete(shares).where(eq(shares.id, shareResult[0].id));
-            } catch (deleteError) {
-                console.error('Nie udało się usunąć udostępnionego linku:', deleteError);
-            }
-        }
-
         return c.json({
             message: "Błąd podczas generowania presigned URL",
             error
@@ -89,17 +66,35 @@ export async function S3UploadService({ c, user }: S3UploadServiceProps) {
 // Funkcja, która finalizuje wysyłanie plików do udostępnionego linku.
 // Wszystkie dane są pobierane z requestu, oraz są zapisywane do bazy danych. (Takie jak informacje o plikach, oraz informacje o udostępnionym linku)
 
-export async function finalizeUploadService({ c }: FinalizeUploadServiceProps) {
+export async function finalizeUploadService({ c, user }: FinalizeUploadServiceProps) {
     const { 
-        shareId,
-        slug,  
-        files 
+        slug,
+        files,
+        isPrivate,
+        accessCode,
+        visibility,
+        time 
     } = await c.req.json();
 
     try {
+        // Najpierw tworzymy wpis w shares
+        const shareResult = await db.insert(shares).values({
+            slug: slug,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            expiresAt: new Date(Date.now() + (time === "24" ? 24 * 60 * 60 * 1000 : time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
+            userId: user ? user.id : null,
+            private: isPrivate === "true",
+            code: accessCode ? await hashCode(accessCode) : null,
+            visibility: visibility === "true",
+            ipAddress: c.req.header("x-forwarded-for") || null,
+            userAgent: c.req.header("user-agent") || null,
+        }).returning({ id: shares.id });
+
+        // Następnie dodajemy informacje o plikach
         await Promise.all(files.map(async (file: { fileName: string; size: number }) => {
             await db.insert(uploadedFiles).values({
-                shareId: shareId,
+                shareId: shareResult[0].id,
                 fileName: file.fileName,
                 size: file.size,
                 storagePath: `${slug}/${file.fileName}`, 
@@ -107,16 +102,14 @@ export async function finalizeUploadService({ c }: FinalizeUploadServiceProps) {
         }));
 
         return c.json({
-            message: "Pliki zostały wysłane pomyślnie"
+            message: "Pliki zostały wysłane pomyślnie",
+            shareId: shareResult[0].id
         });
 
     } catch (error) {
-        await db.delete(shares).where(eq(shares.id, shareId));
-        
         return c.json({
             message: "Wystąpił błąd podczas wysyłania plików",
             error
         }, 500);
     }
-
 }

@@ -50,6 +50,7 @@ export type UploadRequestProps = {
 
 export type FinalizeUploadServiceProps = {
     c: Context;
+    user: typeof User;
 }
 
 export type GetUserHistoryServiceProps = {
