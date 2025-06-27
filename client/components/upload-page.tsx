@@ -182,6 +182,16 @@ export function UploadPage() {
   }, []);
 
   const handleUpload = async (data: FormData) => {
+    // Add validation check at the start of upload
+    const MAX_SIZE = data.time === "0.5" ? 100 * 1024 * 1024 : 40 * 1024 * 1024;
+    const totalSize = data.files.reduce((acc, file) => acc + file.size, 0);
+    
+    if (totalSize > MAX_SIZE) {
+      setError(true);
+      setErrorMessage(`Całkowity rozmiar plików (${formatBytes(totalSize)}) przekracza limit ${formatBytes(MAX_SIZE)} dla wybranego czasu.`);
+      return;
+    }
+
     setIsSubmitting(true);
     setUploadProgress(0);
     setUploadSpeed(null);
@@ -782,7 +792,21 @@ export function UploadPage() {
                       <Tabs
                         defaultValue="24"
                         onValueChange={(value) => {
-                          field.onChange(value === "24" ? "24" : value === "0.5" ? "0.5" : "168");
+                          const newTime = value === "24" ? "24" : value === "0.5" ? "0.5" : "168";
+                          const MAX_SIZE = newTime === "0.5" ? 100 * 1024 * 1024 : 40 * 1024 * 1024;
+                          const currentFiles = form.getValues("files");
+                          const totalSize = currentFiles.reduce((acc, file) => acc + file.size, 0);
+                          
+                          if (totalSize > MAX_SIZE) {
+                            // Reset to previous time value if files exceed new limit
+                            form.setValue("time", field.value);
+                            setError(true);
+                            setErrorMessage(`Nie można zmienić czasu - całkowity rozmiar plików (${formatBytes(totalSize)}) przekracza limit ${formatBytes(MAX_SIZE)} dla wybranego czasu.`);
+                            return;
+                          }
+                          
+                          setError(false);
+                          field.onChange(newTime);
                         }}
                         value={field.value}
                         className="w-full animate-slide-in-left"
