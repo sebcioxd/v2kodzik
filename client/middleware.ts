@@ -9,8 +9,12 @@ export async function middleware(request: NextRequest) {
 
     const pathname = request.nextUrl.pathname;
 
-    if (pathname.startsWith("/auth") && sessionCookie) {
+    if (pathname.startsWith("/auth") && !pathname.startsWith("/auth/oauth") && sessionCookie) {
         return NextResponse.redirect(new URL("/panel", request.url));
+    }
+
+    if (pathname.startsWith("/auth/oauth") && !sessionCookie) {
+        return NextResponse.redirect(new URL("/auth", request.url));
     }
 
     if (pathname.startsWith("/panel") && !sessionCookie) {

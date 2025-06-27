@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/form";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import Google from "./google";
 
 type FormData = {
     username: string;
@@ -122,14 +123,30 @@ export default function SignUp() {
     };
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto max-w-md">
-            <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 rounded-lg">
-                <div className="flex flex-col items-start justify-start pb-10 animate-fade-in-01-text opacity-0">
-                    <h1 className="text-xl text-zinc-100">Rejestracja</h1>
-                    <p className="text-zinc-500 text-xs">
+        <main className="flex flex-col items-center justify-center container mx-auto max-w-md animate-slide-in-bottom">
+            <div className="w-full max-w-2xl p-8 relative border border-zinc-800 rounded-lg">
+                <div className="flex flex-col items-center justify-center pb-10 animate-fade-in-01-text opacity-0">
+                    <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+                        Rejestracja
+                    </h1>
+                    <p className="text-zinc-500 text-md">
                         Utwórz konto, aby rozpocząć
                     </p>
                 </div>
+
+                <div className="space-y-6 mb-6 animate-slide-in-left">
+                    <Google />
+                </div>
+
+                <div className="relative my-6">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-dashed border-zinc-800"></span>
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="px-2 text-zinc-400 z-10">lub kontynuuj z emailem</span>
+                    </div>
+                </div>
+
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative w-full">
                         <FormField
@@ -141,7 +158,7 @@ export default function SignUp() {
                                     <FormControl>
                                         <Input 
                                             {...field}
-                                            className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
+                                            className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
                                             placeholder="Wprowadź swoją nazwę użytkownika"
                                         />
                                     </FormControl>
@@ -160,7 +177,7 @@ export default function SignUp() {
                                         <Input 
                                             {...field}
                                             type="email"
-                                            className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
+                                            className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
                                             placeholder="twój.email@przykład.com"
                                         />
                                     </FormControl>
@@ -180,7 +197,7 @@ export default function SignUp() {
                                             <Input 
                                                 {...field}
                                                 type={showPassword ? "text" : "password"}
-                                                className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
+                                                className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
                                                 placeholder="Wprowadź swoje hasło"
                                             />
                                             <button
@@ -212,7 +229,7 @@ export default function SignUp() {
                                             <Input 
                                                 {...field}
                                                 type={showConfirmPassword ? "text" : "password"}
-                                                className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
+                                                className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
                                                 placeholder="Potwierdź swoje hasło"
                                             />
                                             <button
@@ -239,7 +256,7 @@ export default function SignUp() {
 
                         <Button
                             type="submit"
-                            className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+                            className="w-full bg-zinc-900/20 border border-zinc-900 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
                             disabled={isSubmitting || isRouting}
                         >
                             {isSubmitting || isRouting ? (
@@ -267,6 +284,8 @@ export default function SignUp() {
                         )}
                     </form>
                 </Form>
+
+                
             </div>
         </main>
     );

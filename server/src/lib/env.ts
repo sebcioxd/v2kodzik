@@ -20,3 +20,5 @@ export const S3_ACCESS_KEY = process.env.S3_ACCESS_KEY!
 export const S3_SECRET_KEY = process.env.S3_SECRET_KEY!
 export const CRON_BODY_KEY = process.env.CRON_BODY_KEY!
 export const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL!
+export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!
+export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!

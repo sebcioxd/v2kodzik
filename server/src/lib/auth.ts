@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/index.js"; 
 import { schema } from "../db/schema.js";
 import { sendEmailService } from "../services/email.service.js";
-import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT } from "../lib/env.js";
+import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from "../lib/env.js";
 import { emailOTP } from "better-auth/plugins"
 
 export const auth = betterAuth({
@@ -41,6 +41,13 @@ export const auth = betterAuth({
                 text: callbackURL,
                 emailType: "forget"
             })
+        }
+    },
+    socialProviders: {
+        google: {
+            prompt: "select_account",
+            clientId : GOOGLE_CLIENT_ID,
+            clientSecret: GOOGLE_CLIENT_SECRET,
         }
     },
     advanced: {
