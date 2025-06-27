@@ -82,7 +82,7 @@ uploadRoute.post("/", async (c: Context) => {
         slug: req.slug,
         createdAt: new Date(),
         updatedAt: new Date(),
-        expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000)), 
+        expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : req.time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
         userId: user ? user.id : null,
         private: req.isPrivate === "true",
         code: req.accessCode ? await hashCode(req.accessCode) : null,

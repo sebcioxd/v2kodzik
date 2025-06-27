@@ -80,7 +80,7 @@ export default function Success() {
       <Alert className="bg-zinc-950/10 border-zinc-800 border-dashed">
         <AlertTitle className="text-zinc-200">Link został wygenerowany!</AlertTitle>
         <AlertDescription className="text-zinc-400">
-          Twój link będzie aktywny przez następne {time === "24" ? "24 godziny" : "7 dni"}
+          Twój link będzie aktywny przez następne {time === "24" ? "24 godziny" : time === "168" ? "7 dni" : "30 minut"}
         </AlertDescription>
       </Alert>
 

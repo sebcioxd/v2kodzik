@@ -155,6 +155,8 @@ export function UploadPage() {
     { name: string; message: string }[]
   >([]);
 
+  const selectedTime = form.watch("time");
+
   const onFileValidate = React.useCallback((file: File): string | null => {
     // Check for invalid characters in filename (including spaces)
     const invalidChars = /[\(\)ąćęłńóśźżĄĆĘŁŃÓŚŹŻ%\s]/;
@@ -162,14 +164,14 @@ export function UploadPage() {
       return "Nazwa pliku nie może zawierać spacji, nawiasów, polskich znaków ani znaku procenta";
     }
 
-    // Validate file size (max 40MB)
-    const MAX_SIZE = 40 * 1024 * 1024; // 40MB
+    const MAX_SIZE = selectedTime === "0.5" ? 100 * 1024 * 1024 : 40 * 1024 * 1024;
+    
     if (file.size > MAX_SIZE) {
       return `Plik musi być mniejszy niż ${MAX_SIZE / (1024 * 1024)}MB`;
     }
 
     return null;
-  }, []);
+  }, [selectedTime]);
 
   const onFileReject = React.useCallback((file: File, message: string) => {
     setRejectedFiles((prev) => [...prev, { name: file.name, message }]);
@@ -277,6 +279,35 @@ export function UploadPage() {
     }
   };
 
+  const getMaxSizeText = () => {
+    return selectedTime === "0.5" ? "100 MB" : "40 MB";
+  };
+
+  const getMaxSize = () => {
+    return selectedTime === "0.5" ? 100 * 1024 * 1024 : 40 * 1024 * 1024;
+  };
+
+  React.useEffect(() => {
+    const currentFiles = form.getValues("files");
+    if (currentFiles.length > 0) {
+      const validFiles = currentFiles.filter(file => {
+        const validationResult = onFileValidate(file);
+        if (validationResult) {
+          onFileReject(file, validationResult);
+          return false;
+        }
+        return true;
+      });
+      
+      form.setValue("files", validFiles);
+      const newTotalSize = validFiles.reduce(
+        (acc, file) => acc + file.size,
+        0
+      );
+      setTotalSize(newTotalSize);
+    }
+  }, [selectedTime, onFileValidate, onFileReject, form]);
+
   return (
     <>
       <Form {...form}>
@@ -296,14 +327,23 @@ export function UploadPage() {
                 <FormControl>
                   <FileUpload
                     maxFiles={20}
-                    maxSize={40 * 1024 * 1024}
-                    maxTotalSize={40 * 1024 * 1024}
+                    maxSize={getMaxSize()}
+                    maxTotalSize={getMaxSize()}
                     className="w-full md:min-w-md max-w-md animate-fade-in-01-text"
                     value={field.value}
                     onValueChange={(files) => {
                       if (!isSubmitting) {
-                        field.onChange(files);
-                        const newTotalSize = files.reduce(
+                        const validFiles = files.filter(file => {
+                          const validationResult = onFileValidate(file);
+                          if (validationResult) {
+                            onFileReject(file, validationResult);
+                            return false;
+                          }
+                          return true;
+                        });
+                        
+                        field.onChange(validFiles);
+                        const newTotalSize = validFiles.reduce(
                           (acc, file) => acc + file.size,
                           0
                         );
@@ -328,7 +368,7 @@ export function UploadPage() {
                           Przeciągnij i upuść pliki tutaj
                         </p>
                         <p className="text-zinc-400 text-md">
-                          Lub kliknij aby przeglądać do 40 MB oraz 20 plików
+                          Lub kliknij aby przeglądać do {getMaxSizeText()} oraz 20 plików
                         </p>
                       </div>
                       <FileUploadTrigger asChild>
@@ -369,18 +409,18 @@ export function UploadPage() {
                       <div className="mt-4 space-y-1 animate-fade-in-01-text">
                         <div className="flex justify-between items-center text-md text-zinc-400">
                           <span>Całkowity rozmiar</span>
-                          <span>{formatBytes(totalSize)} / 40 MB</span>
+                          <span>{formatBytes(totalSize)} / {getMaxSizeText()}</span>
                         </div>
                         <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
                             style={{
                               width: `${Math.min(
-                                (totalSize / (40 * 1024 * 1024)) * 100,
+                                (totalSize / getMaxSize()) * 100,
                                 100
                               )}%`,
                               backgroundColor:
-                                totalSize > 40 * 1024 * 1024
+                                totalSize > getMaxSize()
                                   ? "#ef4444"
                                   : undefined,
                             }}
@@ -717,12 +757,25 @@ export function UploadPage() {
                       <Tabs
                         defaultValue="24"
                         onValueChange={(value) => {
-                          field.onChange(value === "24" ? "24" : "168");
+                          field.onChange(value === "24" ? "24" : value === "0.5" ? "0.5" : "168");
                         }}
                         value={field.value}
                         className="w-full animate-slide-in-left"
                       >
                         <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 relative">
+                          <TabsTrigger
+                            value="0.5"
+                            className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
+                                    transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
+                                    hover:bg-zinc-800/50 relative group"
+                            disabled={isSubmitting}
+                          >
+                            <Clock className="h-4 w-4 mr-2" />
+                            30 minut
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-zinc-900 text-zinc-200 text-xs py-1 px-2 rounded border border-zinc-800 whitespace-nowrap">
+                              Limit plików: 100MB
+                            </div>
+                          </TabsTrigger>
                           <TabsTrigger
                             value="24"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
@@ -753,11 +806,11 @@ export function UploadPage() {
                           </TabsTrigger>
                         </TabsList>
                       </Tabs>
-                     
+                      
                     </FormControl>
-                    <p className="text-zinc-600 text-sm">
-                        {!session && "Aby generować linki na dłużej, zaloguj się."}
-                      </p>
+                    <p className="text-zinc-400 text-sm mt-2 animate-fade-in-01-text">
+                      {field.value === "0.5" ? "Limit plików dla 30 minut: 100MB" : !session ? "Aby generować linki na dłużej, zaloguj się." : ""}
+                    </p>
                   </FormItem>
                 )}
               />

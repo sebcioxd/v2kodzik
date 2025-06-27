@@ -52,7 +52,7 @@ export async function deleteExpireFilesService({
 
     await sendWebhookService({
       content: deletionResults.length > 0 ? 
-      `Pomyślnie usunięto ${deletionResults.length} ${deletionResults.length === 1 ? "plik" : "plików"}. Usunięte pliki: ${deletionResults.join(", ").split("/").slice(0, -1).join("/")}` : 
+      `Pomyślnie usunięto ${deletionResults.length} ${deletionResults.length === 1 ? "plik" : "plików"}. Usunięte pliki: ${deletionResults.map(path => path.split("/").pop()).join(", ")}` : 
       `Sprawdzono pliki, nie ma żadnych do usunięcia.`,
     });
 
