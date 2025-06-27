@@ -191,57 +191,47 @@ export function UploadPage() {
     const startTime = Date.now();
 
     try {
-        // Calculate total size of all files
-        const totalBytes = data.files.reduce((acc, file) => acc + file.size, 0);
-        let uploadedBytes = 0;
-
-        // First get presigned URLs for all files
-        const formData = new FormData();
-        data.files.forEach(file => {
-            formData.append("files", file);
-        });
-
-        const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/v1/upload?slug=${data.slug}&isPrivate=${data.isPrivate}&accessCode=${data.accessCode}&visibility=${data.visibility}&time=${data.time}`,
-            formData,
+        // Step 1: Get presigned URLs and create share record
+        const fileNames = data.files.map(file => file.name).join(',');
+        const presignResponse = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign?slug=${data.slug}&fileNames=${fileNames}&isPrivate=${data.isPrivate}&accessCode=${data.accessCode}&visibility=${data.visibility}&time=${data.time}`,
+            null,
             {
                 withCredentials: true,
             }
         );
 
-        if (response.data.presignedData) {
-            // Upload each file directly to S3
-            await Promise.all(data.files.map(async (file, index) => {
-                const presignedInfo = response.data.presignedData[index];
+        if (presignResponse.data.presignedData) {
+            const { presignedData, slug, time, shareId } = presignResponse.data;
+
+            // Step 2: Upload files to S3
+            const uploadPromises = data.files.map(async (file, index) => {
+                const presignedInfo = presignedData[index];
                 const formData = new FormData();
 
-                // Add all required fields from the presigned POST
                 Object.entries(presignedInfo.fields).forEach(([key, value]) => {
                     formData.append(key, value as string);
                 });
 
-                // Add the file content
                 formData.append('file', file);
 
-                // Upload to S3 with progress tracking using axios
-                await axios.post(presignedInfo.url, formData, {
+                return axios.post(presignedInfo.url, formData, {
                     onUploadProgress: (progressEvent) => {
                         if (progressEvent.total) {
                             const fileProgress = progressEvent.loaded;
-                            uploadedBytes = lastLoaded.current + fileProgress;
-                            const totalProgress = Math.round((uploadedBytes / totalBytes) * 100);
+                            const totalProgress = Math.round((fileProgress / progressEvent.total) * 100);
                             
                             // Update speed calculation
                             const now = Date.now();
                             const timeDiff = now - startTime; // Use total elapsed time
                             if (timeDiff > 100) { // Throttle updates to every 100ms
                                 // Calculate speed based on total uploaded bytes
-                                const averageSpeed = (uploadedBytes / timeDiff) * 1000; // bytes per second
+                                const averageSpeed = (fileProgress / timeDiff) * 1000; // bytes per second
                                 const speedMBps = Math.round((averageSpeed / (1024 * 1024)) * 10) / 10;
                                 setUploadSpeed(speedMBps);
 
                                 // Calculate estimated time remaining based on average speed
-                                const remainingBytes = totalBytes - uploadedBytes;
+                                const remainingBytes = progressEvent.total - fileProgress;
                                 if (averageSpeed > 0) {
                                     const etaSeconds = Math.ceil(remainingBytes / averageSpeed);
                                     setEstimatedTime(etaSeconds);
@@ -252,14 +242,31 @@ export function UploadPage() {
                         }
                     },
                 });
+            });
 
-                lastLoaded.current += file.size;
-            }));
+            // Wait for all uploads to complete
+            await Promise.all(uploadPromises);
+
+            // Step 3: Finalize the upload by updating the database
+            await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/finalize`,
+                {
+                    shareId,
+                    slug,
+                    files: data.files.map(file => ({
+                        fileName: file.name,
+                        size: file.size
+                    }))
+                },
+                {
+                    withCredentials: true,
+                }
+            );
 
             setSuccess(true);
             setError(false);
             form.reset();
-            router.push(`/success?slug=${response.data.slug}&time=${response.data.time}`);
+            router.push(`/success?slug=${slug}&time=${time}`);
         }
     } catch (error) {
         console.error("Error uploading files:", error);

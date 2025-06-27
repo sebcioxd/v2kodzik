@@ -7,14 +7,15 @@ import { fixRequestProps } from "../utils/req-fixer.js";
 import { hashCode } from "../lib/hash.js";
 import { Hono } from "hono";
 import { db } from "../db/index.js";
-
+import { eq } from "drizzle-orm";
 const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 
 const uploadRoute = new Hono<AuthSession>();
 
-uploadRoute.post("/", async (c: Context) => {
+uploadRoute.post("/presign", async (c: Context) => {
     const user = c.get("user");
     const { slug, isPrivate, accessCode, visibility, time } = c.req.query() as unknown as UploadRequestProps;
+    const fileNames = c.req.query("fileNames")?.split(",");
 
     const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time }, c, user);
 
@@ -23,6 +24,12 @@ uploadRoute.post("/", async (c: Context) => {
     }
 
     const req: UploadRequestProps = result;
+
+    if (!fileNames || fileNames.length === 0) {
+        return c.json({
+            message: "Nie podano nazw plików",
+        }, 400);
+    }
 
     try {
         await rateLimiterService({
@@ -36,29 +43,20 @@ uploadRoute.post("/", async (c: Context) => {
         }, 429)
     }
 
-    const formData = await c.req.formData();
-    const files = formData.getAll("files") as File[];
-
-    if (!files || files.length === 0) {
-        return c.json({
-            message: "Nie przesłano żadnych plików.",
-        }, 400)
-    }
-
-    if (files.some(file => disallowedCharacters.test(file.name))) {
+    if (fileNames.some(name => disallowedCharacters.test(name))) {
         return c.json({
             message: "Nazwa pliku zawiera niedozwolone znaki.",
-        }, 400)
+        }, 400);
     }
 
     try {
-        const presignedData = await Promise.all(files.map(async (file) => {
+        const presignedData = await Promise.all(fileNames.map(async (fileName) => {
             const uploadService = await S3UploadService({
-                Key: `${req.slug}/${file.name}`,
+                Key: `${req.slug}/${fileName}`,
             });
 
             return {
-                fileName: file.name,
+                fileName,
                 ...uploadService
             };
         }));
@@ -71,31 +69,54 @@ uploadRoute.post("/", async (c: Context) => {
             userId: user ? user.id : null,
             private: req.isPrivate === "true",
             code: req.accessCode ? await hashCode(req.accessCode) : null,
-            visibility: visibility === "true",
+            visibility: req.visibility === "true",
             ipAddress: c.req.header("x-forwarded-for") || null,
             userAgent: c.req.header("user-agent") || null,
         }).returning({ id: shares.id });
 
-        await Promise.all(files.map(async (file) => {
+        return c.json({
+            presignedData,
+            slug: req.slug,
+            time: req.time,
+            shareId: shareResult[0].id
+        });
+
+    } catch (error) {
+        return c.json({
+            message: "Error generating presigned URLs",
+            error
+        }, 500);
+    }
+});
+
+
+uploadRoute.post("/finalize", async (c: Context) => {
+    const { 
+        shareId,
+        slug,  
+        files 
+    } = await c.req.json();
+
+    try {
+        await Promise.all(files.map(async (file: { fileName: string; size: number }) => {
             await db.insert(uploadedFiles).values({
-                shareId: shareResult[0].id,
-                fileName: file.name,
+                shareId: shareId,
+                fileName: file.fileName,
                 size: file.size,
-                storagePath: `${req.slug}/${file.name}`,
+                storagePath: `${slug}/${file.fileName}`, 
             })
         }));
 
         return c.json({
-            message: "Pliki zostały przesłane pomyślnie",
-            slug: req.slug,
-            time: req.time,
-            presignedData
-        }, 200);
+            message: "Pliki zostały wysłane pomyślnie"
+        });
 
     } catch (error) {
+        await db.delete(shares).where(eq(shares.id, shareId));
+        
         return c.json({
-            message: "Wystąpił błąd podczas przesyłania plików",
-            error: error
+            message: "Wystąpił błąd podczas wysyłania plików",
+            error
         }, 500);
     }
 });
