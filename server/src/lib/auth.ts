@@ -34,7 +34,7 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: true,
         sendResetPassword: async ({ user, token }) => {
-            const callbackURL = `${BETTER_AUTH_URL}/api/auth/reset-password/${token}?callbackURL=${SITE_URL}/auth/forget/password`
+            const callbackURL = `${BETTER_AUTH_URL}/v1/auth/reset-password/${token}?callbackURL=${SITE_URL}/auth/forget/password`
             await sendEmailService({
                 to: user.email,
                 subject: "Zresetuj swoje hasło - dajkodzik.pl",

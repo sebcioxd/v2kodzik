@@ -46,14 +46,14 @@ export async function deleteExpireFilesService({
         await s3Client.deleteObject(folder);
         deletionResults.push(folder);
       } catch (error) {
-        console.error(`Nie udało się usunąć folderu ${folder}:`, error);
+        console.error(`Nie udało się usunąć pliku ${folder}:`, error);
       }
     }
 
     await sendWebhookService({
       content: deletionResults.length > 0 ? 
-      `Pomyślnie usunięto ${deletionResults.length} ${deletionResults.length === 1 ? "plik" : "plików"}. Usunięte foldery: ${deletionResults.join(", ")}` : 
-      `Sprawdzono foldery, nie ma żadnych do usunięcia.`,
+      `Pomyślnie usunięto ${deletionResults.length} ${deletionResults.length === 1 ? "plik" : "plików"}. Usunięte pliki: ${deletionResults.join(", ").split("/").slice(0, -1).join("/")}` : 
+      `Sprawdzono pliki, nie ma żadnych do usunięcia.`,
     });
 
     return c.json({
