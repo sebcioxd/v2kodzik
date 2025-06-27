@@ -1,11 +1,10 @@
 import { Hono } from "hono"
-import { downloadBulkFilesService, downloadFileService } from "../services/download.service.js"
+import { downloadFileService, downloadBulkFilesService } from "../services/download.service.js"
 import { rateLimiterService } from "../services/rate-limit.service.js"
 
 const downloadRoute = new Hono()
 
 downloadRoute.get("/:folder/:file", async (c) => {
-
     try {
         await rateLimiterService({
             keyPrefix: "download",
@@ -19,24 +18,15 @@ downloadRoute.get("/:folder/:file", async (c) => {
 
     const folder = c.req.param("folder")
     const fileName = c.req.param("file")
-
     const path = `${folder}/${fileName}`
 
-    const file = await downloadFileService({
+    return await downloadFileService({
         path,
         c
     })
-
-    c.header('Content-Type', 'application/octet-stream')
-    c.header('Content-Disposition', `attachment; filename="${path}"`)
-
-    return file
-    
-   
 })
 
 downloadRoute.post("/bulk", async (c) => {
-    
     try {
         await rateLimiterService({
             keyPrefix: "download",
@@ -50,19 +40,10 @@ downloadRoute.post("/bulk", async (c) => {
 
     try {
         const { paths } = await c.req.json()
-        
-        c.header('Content-Type', 'application/zip');
-        c.header('Content-Disposition', `attachment; filename="bulk.zip"`)
-
-        const zipBlob = await downloadBulkFilesService({
-            paths,
-            c
-        })
-
-        return c.body(zipBlob as unknown as ReadableStream<Uint8Array>)
+        return await downloadBulkFilesService({ paths, c })
     } catch (err) {
         return c.json({
-            message: "Server error has occured",
+            message: "Server error has occurred",
             error: err,
         }, 500)
     }

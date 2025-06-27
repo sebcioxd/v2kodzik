@@ -7,6 +7,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp"
+import JSZip from "jszip";
 
 interface File {
   id: string;
@@ -150,36 +151,37 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
   const handleDownload = async (path: string, fileId: string) => {
     setDownloadingFiles(prev => ({ ...prev, [fileId]: true }));
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/${path}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Download failed: ${errorData.message}`);
-      }
-
-      if (response.status === 429) {
-        alert("Zbyt wiele żądań. Spróbuj ponownie później.");
-        return;
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = path.split('/').pop() || 'download';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
+        // Get presigned URL from server
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/${path}`, {
+            credentials: 'include',
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to get download URL');
+        }
+        
+        const { url } = await response.json();
+        
+        // Download file using presigned URL
+        const fileResponse = await fetch(url);
+        if (!fileResponse.ok) {
+            throw new Error('Failed to download file');
+        }
+        
+        const blob = await fileResponse.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = path.split('/').pop() || 'download';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
     } catch (error) {
-      alert('nie udało się pobrać pliku');
+        console.error('Download failed:', error);
+        alert('nie udało się pobrać pliku');
     } finally {
-      setDownloadingFiles(prev => ({ ...prev, [fileId]: false }));
+        setDownloadingFiles(prev => ({ ...prev, [fileId]: false }));
     }
   };
 
@@ -187,71 +189,95 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
     setIsDownloading(true);
     setDownloadProgress(0);
     
-    // Calculate expected preparation time based on both file size and count
+    // Calculate expected preparation time based on file count and total size
     const totalMB = filesTotalSize / (1024 * 1024);
     const fileCount = filesData.length;
     
     // Base time for file processing overhead (ms)
-    const baseTimePerFile = 170; // 170ms overhead per file
-    const sizeBasedTime = totalMB * 100; // 100ms per MB
+    const baseTimePerFile = 170;
+    const sizeBasedTime = totalMB * 100;
     const estimatedTimeMs = Math.max(
-      500,
-      Math.min(15000, sizeBasedTime + (fileCount * baseTimePerFile))
+        500,
+        Math.min(15000, sizeBasedTime + (fileCount * baseTimePerFile))
     );
     
-    const updateInterval = Math.max(50, estimatedTimeMs / 120); // More frequent updates
+    const updateInterval = Math.max(50, estimatedTimeMs / 120);
     let startTime = Date.now();
     
     // Progressive progress simulation
     const progressInterval = setInterval(() => {
-      const elapsedTime = Date.now() - startTime;
-      const progressRatio = elapsedTime / estimatedTimeMs;
-      
-      // Non-linear progress curve that slows down as it approaches 95%
-      // This better reflects the actual behavior of file processing
-      const progress = Math.min(
-        95,
-        progressRatio < 0.7
-          ? progressRatio * 85 // Faster progress initially
-          : 85 + Math.pow(progressRatio - 0.7, 0.5) * 10 // Slower progress near the end
-      );
-      
-      setDownloadProgress(progress);
+        const elapsedTime = Date.now() - startTime;
+        const progressRatio = elapsedTime / estimatedTimeMs;
+        
+        const progress = Math.min(
+            95,
+            progressRatio < 0.7
+                ? progressRatio * 85
+                : 85 + Math.pow(progressRatio - 0.7, 0.5) * 10
+        );
+        
+        setDownloadProgress(progress);
     }, updateInterval);
     
     try {
-      const paths = filesData.map(file => file.storagePath);
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/bulk`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ paths }),
-      });
-      
-      clearInterval(progressInterval);
-      setDownloadProgress(100);
-      
-      if (!response.ok) throw new Error('Bulk download failed');
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `kodzik-${Math.random().toString(36).substring(2, 4)}.zip`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      a.remove();
+        // Get presigned URLs from server
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/bulk`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                paths: filesData.map(file => file.storagePath)
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to get download URLs');
+        }
+
+        const { urls } = await response.json();
+        const zip = new JSZip();
+
+        // Download each file using its presigned URL and add to zip
+        await Promise.all(urls.map(async ({ url, fileName }: { url: string, fileName: string }) => {
+            const fileResponse = await fetch(url);
+            if (!fileResponse.ok) {
+                throw new Error(`Failed to download ${fileName}`);
+            }
+            
+            const blob = await fileResponse.blob();
+            zip.file(fileName, blob);
+        }));
+
+        // Generate zip file
+        const zipBlob = await zip.generateAsync({
+            type: "blob",
+            compression: "DEFLATE",
+            compressionOptions: { level: 5 }
+        });
+
+        clearInterval(progressInterval);
+        setDownloadProgress(100);
+
+        // Trigger download
+        const downloadUrl = window.URL.createObjectURL(zipBlob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `kodzik-${Math.random().toString(36).substring(2, 4)}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
     } catch (error) {
-      clearInterval(progressInterval);
-      alert('nie udało się pobrać plików');
+        clearInterval(progressInterval);
+        console.error('Download failed:', error);
+        alert('nie udało się pobrać plików');
     } finally {
-      setTimeout(() => {
-        setIsDownloading(false);
-        setDownloadProgress(0);
-      }, 1000); // Keep 100% progress visible briefly
+        setTimeout(() => {
+            setIsDownloading(false);
+            setDownloadProgress(0);
+        }, 1000);
     }
   };
 
