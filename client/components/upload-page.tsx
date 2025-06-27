@@ -191,6 +191,10 @@ export function UploadPage() {
     const startTime = Date.now();
 
     try {
+        // Calculate total size of all files
+        const totalBytes = data.files.reduce((acc, file) => acc + file.size, 0);
+        let uploadedBytes = 0;
+
         // Step 1: Get presigned URLs and create share record
         const fileNames = data.files.map(file => file.name).join(',');
         const presignResponse = await axios.post(
@@ -215,23 +219,34 @@ export function UploadPage() {
 
                 formData.append('file', file);
 
+                let lastFileProgress = 0;
+
                 return axios.post(presignedInfo.url, formData, {
                     onUploadProgress: (progressEvent) => {
                         if (progressEvent.total) {
+                            // Calculate the new progress for this file
                             const fileProgress = progressEvent.loaded;
-                            const totalProgress = Math.round((fileProgress / progressEvent.total) * 100);
+                            // Calculate the difference in progress since last update
+                            const fileDelta = fileProgress - lastFileProgress;
+                            lastFileProgress = fileProgress;
+                            
+                            // Add the progress delta to the total uploaded bytes
+                            uploadedBytes += fileDelta;
+                            
+                            // Calculate total progress percentage across all files
+                            const totalProgress = Math.round((uploadedBytes / totalBytes) * 100);
                             
                             // Update speed calculation
                             const now = Date.now();
-                            const timeDiff = now - startTime; // Use total elapsed time
+                            const timeDiff = now - startTime;
                             if (timeDiff > 100) { // Throttle updates to every 100ms
                                 // Calculate speed based on total uploaded bytes
-                                const averageSpeed = (fileProgress / timeDiff) * 1000; // bytes per second
+                                const averageSpeed = (uploadedBytes / timeDiff) * 1000; // bytes per second
                                 const speedMBps = Math.round((averageSpeed / (1024 * 1024)) * 10) / 10;
                                 setUploadSpeed(speedMBps);
 
                                 // Calculate estimated time remaining based on average speed
-                                const remainingBytes = progressEvent.total - fileProgress;
+                                const remainingBytes = totalBytes - uploadedBytes;
                                 if (averageSpeed > 0) {
                                     const etaSeconds = Math.ceil(remainingBytes / averageSpeed);
                                     setEstimatedTime(etaSeconds);
