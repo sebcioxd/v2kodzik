@@ -5,6 +5,7 @@ import type {
 import { shares } from "../db/schema.js";
 import { CRON_BODY_KEY } from "../lib/env.js";
 import { sendWebhookService } from "./webhook.service.js";
+import { deleteGhostFilesService } from "./ghost.service.js";
 import { sql } from "drizzle-orm";
 import { db } from "../db/index.js";
 import getS3Client from "../lib/s3.js";
@@ -55,6 +56,9 @@ export async function deleteExpireFilesService({
       `Pomyślnie usunięto ${deletionResults.length} ${deletionResults.length === 1 ? "plik" : "plików"}. Usunięte pliki: ${deletionResults.map(path => path.split("/").pop()).join(", ")}` : 
       `Sprawdzono pliki, nie ma żadnych do usunięcia.`,
     });
+
+    // Delete files that do not have uploaded files
+    await deleteGhostFilesService({ c });
 
     return c.json({
       deletionResults,

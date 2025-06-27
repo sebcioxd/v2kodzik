@@ -25,19 +25,20 @@ export async function generatePresignedUrl({ Key }: generatePresignedUrlProps) {
 // Nie jest to ostateczna funkcja, która tworzy udostępniony link, ale tylko generuje presigned URL dla plików do wysyłki.
    
 export async function S3UploadService({ c, user }: S3UploadServiceProps) {
-
-    const { slug, isPrivate, accessCode, visibility, time } = c.req.query();
-    const fileNames = c.req.query("fileNames")?.split(",");
-
-    const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time, fileNames: fileNames || [] }, c, user);
-
-    if (result instanceof Response) {
-        return result;
-    }
-
-    const req: UploadRequestProps = result;
+    let shareResult = null;
 
     try {
+        const { slug, isPrivate, accessCode, visibility, time } = c.req.query();
+        const fileNames = c.req.query("fileNames")?.split(",");
+
+        const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time, fileNames: fileNames || [] }, c, user);
+
+        if (result instanceof Response) {
+            return result;
+        }
+
+        const req: UploadRequestProps = result;
+
         const presignedData = await Promise.all(req.fileNames.map(async (fileName) => {
             const uploadService = await generatePresignedUrl({
                 Key: `${req.slug}/${fileName}`,
@@ -49,7 +50,7 @@ export async function S3UploadService({ c, user }: S3UploadServiceProps) {
             };
         }));
 
-        const shareResult = await db.insert(shares).values({
+        shareResult = await db.insert(shares).values({
             slug: req.slug,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -70,12 +71,19 @@ export async function S3UploadService({ c, user }: S3UploadServiceProps) {
         });
 
     } catch (error) {
+        if (shareResult) {
+            try {
+                await db.delete(shares).where(eq(shares.id, shareResult[0].id));
+            } catch (deleteError) {
+                console.error('Nie udało się usunąć udostępnionego linku:', deleteError);
+            }
+        }
+
         return c.json({
             message: "Błąd podczas generowania presigned URL",
             error
         }, 500);
     }   
-
 }
 
 // Funkcja, która finalizuje wysyłanie plików do udostępnionego linku.
