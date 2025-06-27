@@ -30,8 +30,13 @@ export type RateLimiterServiceResult = {
     isFirstInDuration: boolean;
 }
 
-export type S3UploadServiceProps = {
+export type generatePresignedUrlProps = {
     Key: string;
+}
+
+export type S3UploadServiceProps = {
+    c: Context;
+    user: typeof User;
 }
 
 export type UploadRequestProps = {
@@ -40,6 +45,11 @@ export type UploadRequestProps = {
     accessCode: string;
     visibility: string;
     time: string;
+    fileNames: string[];
+}
+
+export type FinalizeUploadServiceProps = {
+    c: Context;
 }
 
 export type GetUserHistoryServiceProps = {

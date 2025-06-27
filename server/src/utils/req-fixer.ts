@@ -6,6 +6,9 @@ import { eq } from "drizzle-orm";
 
 
 const restrictedPaths = ["/upload", "/search", "/faq", "/api", "/admin", "/auth", "/panel", "/success"];
+const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
+
+
 
 export async function fixRequestProps(req: UploadRequestProps, c: Context, user?: typeof User): Promise<UploadRequestProps | Response> {    
 
@@ -16,7 +19,8 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
                 isPrivate: req.isPrivate,
                 accessCode: req.accessCode,
                 visibility: req.visibility,
-                time: req.time
+                time: req.time,
+                fileNames: req.fileNames
             }
         }, 400)
     }
@@ -30,7 +34,18 @@ export async function fixRequestProps(req: UploadRequestProps, c: Context, user?
             }
         }, 400)
     }
-    
+
+    if (!req.fileNames || req.fileNames.length === 0) {
+        return c.json({
+            message: "Nie podano nazw plików",
+        }, 400);
+    }
+
+    if (req.fileNames.some(name => disallowedCharacters.test(name))) {
+        return c.json({
+            message: "Nazwa pliku zawiera niedozwolone znaki.",
+        }, 400);
+    }
 
     if (restrictedPaths.includes(req.slug)) {
         return c.json({
