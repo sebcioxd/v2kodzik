@@ -13,9 +13,7 @@ const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 const uploadRoute = new Hono<AuthSession>();
 
 uploadRoute.post("/", async (c: Context) => {
-    
     const user = c.get("user");
-
     const { slug, isPrivate, accessCode, visibility, time } = c.req.query() as unknown as UploadRequestProps;
 
     const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time }, c, user);
@@ -54,58 +52,52 @@ uploadRoute.post("/", async (c: Context) => {
     }
 
     try {
-        await Promise.all(files.map(async (file) => {
-
-            const buffer = await file.arrayBuffer();
-
+        const presignedData = await Promise.all(files.map(async (file) => {
             const uploadService = await S3UploadService({
                 Key: `${req.slug}/${file.name}`,
-                Body: new Uint8Array(buffer),
             });
 
-            if (!uploadService) {
-                return c.json({
-                    message: "Błąd podczas przesyłania plików. Kod błędu: S3_UPLOAD_MISMATCH",
-                }, 500)
-            }
-
-            return uploadService;
+            return {
+                fileName: file.name,
+                ...uploadService
+            };
         }));
+
+        const shareResult = await db.insert(shares).values({
+            slug: req.slug,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : req.time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
+            userId: user ? user.id : null,
+            private: req.isPrivate === "true",
+            code: req.accessCode ? await hashCode(req.accessCode) : null,
+            visibility: visibility === "true",
+            ipAddress: c.req.header("x-forwarded-for") || null,
+            userAgent: c.req.header("user-agent") || null,
+        }).returning({ id: shares.id });
+
+        await Promise.all(files.map(async (file) => {
+            await db.insert(uploadedFiles).values({
+                shareId: shareResult[0].id,
+                fileName: file.name,
+                size: file.size,
+                storagePath: `${req.slug}/${file.name}`,
+            })
+        }));
+
+        return c.json({
+            message: "Pliki zostały przesłane pomyślnie",
+            slug: req.slug,
+            time: req.time,
+            presignedData
+        }, 200);
+
     } catch (error) {
         return c.json({
-            message: "Błąd podczas przesyłania plików. Kod błędu: S3_UPLOAD_ERROR",
+            message: "Wystąpił błąd podczas przesyłania plików",
             error: error
-        }, 500)
+        }, 500);
     }
-
-    const shareResult = await db.insert(shares).values({
-        slug: req.slug,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : req.time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
-        userId: user ? user.id : null,
-        private: req.isPrivate === "true",
-        code: req.accessCode ? await hashCode(req.accessCode) : null,
-        visibility: visibility === "true",
-        ipAddress: c.req.header("x-forwarded-for") || null,
-        userAgent: c.req.header("user-agent") || null,
-    }).returning({ id: shares.id });
-
-    await Promise.all(files.map(async (file) => {
-        await db.insert(uploadedFiles).values({
-            shareId: shareResult[0].id,
-            fileName: file.name,
-            size: file.size,
-            storagePath: `${req.slug}/${file.name}`,
-        })
-    }))
-
-    return c.json({
-        message: "Files uploaded successfully",
-        slug: req.slug,
-        time: req.time,
-    }, 200)
-       
 });
 
 export default uploadRoute;

@@ -181,101 +181,100 @@ export function UploadPage() {
     }, 5000);
   }, []);
 
-  const onSubmit = async (data: FormData) => {
+  const handleUpload = async (data: FormData) => {
     setIsSubmitting(true);
     setUploadProgress(0);
     setUploadSpeed(null);
     setEstimatedTime(null);
     lastLoaded.current = 0;
     lastTime.current = Date.now();
-
-    // Create a new cancel token source
-    cancelTokenSource.current = axios.CancelToken.source();
+    const startTime = Date.now();
 
     try {
-      const formData = new FormData();
-      data.files.forEach((file) => {
-        formData.append("files", file);
-      });
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v1/upload?slug=${data.slug}&isPrivate=${data.isPrivate}&accessCode=${data.accessCode}&visibility=${data.visibility}&time=${data.time}`,
-        formData,
-        {
-          withCredentials: true,
-          onUploadProgress: (progressEvent) => {
-            if (progressEvent.total) {
-              if (progressUpdateThrottle.current) {
-                clearTimeout(progressUpdateThrottle.current);
-              }
-              progressUpdateThrottle.current = setTimeout(() => {
-                const now = Date.now();
-                const loaded = progressEvent.loaded;
-                const total = progressEvent.total;
+        // Calculate total size of all files
+        const totalBytes = data.files.reduce((acc, file) => acc + file.size, 0);
+        let uploadedBytes = 0;
 
-                const percentCompleted = Math.round(
-                  (loaded * 100) / (total || 1)
-                );
+        // First get presigned URLs for all files
+        const formData = new FormData();
+        data.files.forEach(file => {
+            formData.append("files", file);
+        });
 
-                if (lastTime.current && lastLoaded.current) {
-                  const timeDiff = now - lastTime.current;
-                  if (timeDiff > 0) {
-                    const byteDiff = loaded - lastLoaded.current;
-                    const speedMBps =
-                      ((byteDiff / timeDiff) * 1000) / (1024 * 1024);
-                    setUploadSpeed(speedMBps);
-
-                    const remainingBytes = (total || 1) - loaded;
-                    const etaSeconds =
-                      remainingBytes / ((byteDiff / timeDiff) * 1000);
-                    setEstimatedTime(etaSeconds);
-                  }
-                }
-                
-                lastLoaded.current = loaded;
-                lastTime.current = now;
-
-                setUploadProgress(percentCompleted);
-              }, 20);
+        const response = await axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/v1/upload?slug=${data.slug}&isPrivate=${data.isPrivate}&accessCode=${data.accessCode}&visibility=${data.visibility}&time=${data.time}`,
+            formData,
+            {
+                withCredentials: true,
             }
-          },
-        }
-      );
+        );
 
-      if (response.status === 200) {
-        setSuccess(true);
-        setError(false);
-        form.reset();
-        router.push(`/success?slug=${response.data.slug}&time=${response.data.time}`);
-      } else {
-        setError(true);
-        setSuccess(false);
-        setErrorMessage(response.data.message);
-      }
+        if (response.data.presignedData) {
+            // Upload each file directly to S3
+            await Promise.all(data.files.map(async (file, index) => {
+                const presignedInfo = response.data.presignedData[index];
+                const formData = new FormData();
+
+                // Add all required fields from the presigned POST
+                Object.entries(presignedInfo.fields).forEach(([key, value]) => {
+                    formData.append(key, value as string);
+                });
+
+                // Add the file content
+                formData.append('file', file);
+
+                // Upload to S3 with progress tracking using axios
+                await axios.post(presignedInfo.url, formData, {
+                    onUploadProgress: (progressEvent) => {
+                        if (progressEvent.total) {
+                            const fileProgress = progressEvent.loaded;
+                            uploadedBytes = lastLoaded.current + fileProgress;
+                            const totalProgress = Math.round((uploadedBytes / totalBytes) * 100);
+                            
+                            // Update speed calculation
+                            const now = Date.now();
+                            const timeDiff = now - startTime; // Use total elapsed time
+                            if (timeDiff > 100) { // Throttle updates to every 100ms
+                                // Calculate speed based on total uploaded bytes
+                                const averageSpeed = (uploadedBytes / timeDiff) * 1000; // bytes per second
+                                const speedMBps = Math.round((averageSpeed / (1024 * 1024)) * 10) / 10;
+                                setUploadSpeed(speedMBps);
+
+                                // Calculate estimated time remaining based on average speed
+                                const remainingBytes = totalBytes - uploadedBytes;
+                                if (averageSpeed > 0) {
+                                    const etaSeconds = Math.ceil(remainingBytes / averageSpeed);
+                                    setEstimatedTime(etaSeconds);
+                                }
+                            }
+
+                            setUploadProgress(Math.min(totalProgress, 100));
+                        }
+                    },
+                });
+
+                lastLoaded.current += file.size;
+            }));
+
+            setSuccess(true);
+            setError(false);
+            form.reset();
+            router.push(`/success?slug=${response.data.slug}&time=${response.data.time}`);
+        }
     } catch (error) {
-      // Check if error is from a cancelled request
-      if (axios.isCancel(error)) {
-        setErrorMessage("Upload was canceled");
-      } else {
         console.error("Error uploading files:", error);
         setError(true);
         setSuccess(false);
         if (axios.isAxiosError(error) && error.response) {
-          setErrorMessage(
-            error.response.data.message || "Failed to upload files"
-          );
+            setErrorMessage(error.response.data.message || "Failed to upload files");
         } else {
-          setErrorMessage("An unexpected error occurred");
+            setErrorMessage("An unexpected error occurred");
         }
-      }
     } finally {
-      if (progressUpdateThrottle.current) {
-        clearTimeout(progressUpdateThrottle.current);
-      }
-      setIsSubmitting(false);
-      setUploadProgress(0);
-      setUploadSpeed(null);
-      setEstimatedTime(null);
-      cancelTokenSource.current = null;
+        setIsSubmitting(false);
+        setUploadProgress(0);
+        setUploadSpeed(null);
+        setEstimatedTime(null);
     }
   };
 
@@ -311,7 +310,7 @@ export function UploadPage() {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleUpload)} className="space-y-6">
           <FormField
             control={form.control}
             name="files"

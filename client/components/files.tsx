@@ -8,6 +8,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp"
 import JSZip from "jszip";
+import axios, { AxiosProgressEvent } from "axios";
 
 interface File {
   id: string;
@@ -26,6 +27,31 @@ interface FilesProps {
   slug: string;
   fileId: string;
   private: boolean;
+}
+
+interface DownloadingFiles {
+    [key: string]: boolean;
+}
+
+interface DownloadProgress {
+    [key: string]: number;
+}
+
+interface FileProgress {
+    progress: number;
+    fileName: string;
+    status: 'pending' | 'downloading' | 'complete' | 'error';
+}
+
+interface FileDownloadProgress {
+    [key: string]: FileProgress;
+}
+
+interface BulkDownloadState {
+    totalProgress: number;
+    currentFile: string;
+    filesProgress: FileDownloadProgress;
+    status: 'preparing' | 'downloading' | 'compressing' | 'complete' | 'error';
 }
 
 function getFileIcon(fileName: string, fileType?: string) {
@@ -90,8 +116,8 @@ function getFileIcon(fileName: string, fileType?: string) {
 
 export default function Files({ files, totalSize, createdAt, slug, storagePath, fileId, expiresAt, private: isPrivateAccess }: FilesProps) {
   const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadingFiles, setDownloadingFiles] = useState<Record<string, boolean>>({});
-  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadingFiles, setDownloadingFiles] = useState<DownloadingFiles>({});
+  const [downloadProgress, setDownloadProgress] = useState<DownloadProgress>({});
   const [isSharing, setIsSharing] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -104,6 +130,12 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
   const [filesTotalSize, setFilesTotalSize] = useState<number>(totalSize);
   const [fileStoragePath, setFileStoragePath] = useState<string>(storagePath);
   const [remainingRequests, setRemainingRequests] = useState<number>(0);
+  const [bulkDownloadState, setBulkDownloadState] = useState<BulkDownloadState>({
+    totalProgress: 0,
+    currentFile: '',
+    filesProgress: {},
+    status: 'preparing'
+  });
 
   // Hide toast after timeout
   useEffect(() => {
@@ -148,78 +180,87 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
     return `${hours}h ${minutes}m`;
   };
 
-  const handleDownload = async (path: string, fileId: string) => {
-    setDownloadingFiles(prev => ({ ...prev, [fileId]: true }));
+  const handleDownload = async (path: string, fileId: string): Promise<void> => {
+    setDownloadingFiles((prev) => ({ ...prev, [fileId]: true }));
+    setDownloadProgress((prev) => ({ ...prev, [fileId]: 0 }));
+    
     try {
-        // Get presigned URL from server
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/${path}`, {
-            credentials: 'include',
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to get download URL');
-        }
-        
-        const { url } = await response.json();
-        
-        // Download file using presigned URL
-        const fileResponse = await fetch(url);
-        if (!fileResponse.ok) {
-            throw new Error('Failed to download file');
-        }
-        
-        const blob = await fileResponse.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.download = path.split('/').pop() || 'download';
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(downloadUrl);
-        a.remove();
+      // Get presigned URL from server
+      const presignedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/${path}`, {
+        credentials: 'include',
+      });
+      
+      if (!presignedResponse.ok) {
+        throw new Error('Failed to get download URL');
+      }
+      
+      const { url } = await presignedResponse.json();
+      
+      // Download file using axios for progress tracking
+      const response = await axios({
+        url,
+        method: 'GET',
+        responseType: 'blob',
+        onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
+          if (progressEvent.total) {
+            const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+            setDownloadProgress((prev) => ({ ...prev, [fileId]: progress }));
+          }
+        },
+      });
+      
+      // Create and trigger download
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = path.split('/').pop() || 'download';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      a.remove();
     } catch (error) {
-        console.error('Download failed:', error);
-        alert('nie udało się pobrać pliku');
+      console.error('Download failed:', error);
+      alert('nie udało się pobrać pliku');
     } finally {
-        setDownloadingFiles(prev => ({ ...prev, [fileId]: false }));
+      setDownloadingFiles((prev) => ({ ...prev, [fileId]: false }));
+      // Clear progress after a short delay to show completion
+      setTimeout(() => {
+        setDownloadProgress((prev) => {
+          const newProgress = { ...prev };
+          delete newProgress[fileId];
+          return newProgress;
+        });
+      }, 1000);
     }
   };
 
   const handleBulkDownload = async () => {
     setIsDownloading(true);
-    setDownloadProgress(0);
-    
-    // Calculate expected preparation time based on file count and total size
-    const totalMB = filesTotalSize / (1024 * 1024);
-    const fileCount = filesData.length;
-    
-    // Base time for file processing overhead (ms)
-    const baseTimePerFile = 170;
-    const sizeBasedTime = totalMB * 100;
-    const estimatedTimeMs = Math.max(
-        500,
-        Math.min(15000, sizeBasedTime + (fileCount * baseTimePerFile))
-    );
-    
-    const updateInterval = Math.max(50, estimatedTimeMs / 120);
-    let startTime = Date.now();
-    
-    // Progressive progress simulation
-    const progressInterval = setInterval(() => {
-        const elapsedTime = Date.now() - startTime;
-        const progressRatio = elapsedTime / estimatedTimeMs;
-        
-        const progress = Math.min(
-            95,
-            progressRatio < 0.7
-                ? progressRatio * 85
-                : 85 + Math.pow(progressRatio - 0.7, 0.5) * 10
-        );
-        
-        setDownloadProgress(progress);
-    }, updateInterval);
-    
+    setBulkDownloadState({
+        totalProgress: 0,
+        currentFile: '',
+        filesProgress: {},
+        status: 'preparing'
+    });
+
     try {
+        // Initialize progress for all files
+        const initialProgress: FileDownloadProgress = {};
+        filesData.forEach(file => {
+            initialProgress[file.id] = {
+                progress: 0,
+                fileName: file.fileName,
+                status: 'pending'
+            };
+        });
+
+        setBulkDownloadState(prev => ({
+            ...prev,
+            filesProgress: initialProgress,
+            status: 'downloading'
+        }));
+
         // Get presigned URLs from server
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/bulk`, {
             method: 'POST',
@@ -238,16 +279,87 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
 
         const { urls } = await response.json();
         const zip = new JSZip();
+        const totalFiles = urls.length;
+        let completedFiles = 0;
 
-        // Download each file using its presigned URL and add to zip
+        // Download each file
         await Promise.all(urls.map(async ({ url, fileName }: { url: string, fileName: string }) => {
-            const fileResponse = await fetch(url);
-            if (!fileResponse.ok) {
-                throw new Error(`Failed to download ${fileName}`);
+            try {
+                setBulkDownloadState(prev => ({
+                    ...prev,
+                    currentFile: fileName
+                }));
+
+                const fileId = filesData.find(f => f.fileName === fileName)?.id || fileName;
+
+                const response = await axios({
+                    url,
+                    method: 'GET',
+                    responseType: 'blob',
+                    onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
+                        if (progressEvent.total) {
+                            const fileProgress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+                            
+                            setBulkDownloadState(prev => {
+                                const updatedFileProgress: FileDownloadProgress = {
+                                    ...prev.filesProgress,
+                                    [fileId]: {
+                                        fileName,
+                                        progress: fileProgress,
+                                        status: 'downloading'
+                                    }
+                                };
+
+                                const totalProgress = Math.round(
+                                    (Object.values(updatedFileProgress).reduce((acc, curr) => acc + curr.progress, 0) / (totalFiles * 100)) * 100
+                                );
+
+                                return {
+                                    ...prev,
+                                    filesProgress: updatedFileProgress,
+                                    totalProgress
+                                };
+                            });
+                        }
+                    }
+                });
+
+                // Add to zip
+                zip.file(fileName, response.data);
+                completedFiles++;
+
+                // Update file status to complete
+                setBulkDownloadState(prev => ({
+                    ...prev,
+                    filesProgress: {
+                        ...prev.filesProgress,
+                        [fileId]: {
+                            ...prev.filesProgress[fileId],
+                            status: 'complete',
+                            progress: 100
+                        }
+                    }
+                }));
+
+            } catch (error) {
+                console.error(`Failed to download ${fileName}:`, error);
+                setBulkDownloadState(prev => ({
+                    ...prev,
+                    filesProgress: {
+                        ...prev.filesProgress,
+                        [fileId]: {
+                            ...prev.filesProgress[fileId],
+                            status: 'error'
+                        }
+                    }
+                }));
             }
-            
-            const blob = await fileResponse.blob();
-            zip.file(fileName, blob);
+        }));
+
+        // Update status to compressing
+        setBulkDownloadState(prev => ({
+            ...prev,
+            status: 'compressing'
         }));
 
         // Generate zip file
@@ -255,10 +367,12 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
             type: "blob",
             compression: "DEFLATE",
             compressionOptions: { level: 5 }
+        }, (metadata) => {
+            setBulkDownloadState(prev => ({
+                ...prev,
+                totalProgress: Math.round(metadata.percent)
+            }));
         });
-
-        clearInterval(progressInterval);
-        setDownloadProgress(100);
 
         // Trigger download
         const downloadUrl = window.URL.createObjectURL(zipBlob);
@@ -269,14 +383,29 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         a.click();
         window.URL.revokeObjectURL(downloadUrl);
         a.remove();
+
+        setBulkDownloadState(prev => ({
+            ...prev,
+            status: 'complete',
+            totalProgress: 100
+        }));
+
     } catch (error) {
-        clearInterval(progressInterval);
-        console.error('Download failed:', error);
+        console.error('Bulk download failed:', error);
+        setBulkDownloadState(prev => ({
+            ...prev,
+            status: 'error'
+        }));
         alert('nie udało się pobrać plików');
     } finally {
         setTimeout(() => {
             setIsDownloading(false);
-            setDownloadProgress(0);
+            setBulkDownloadState({
+                totalProgress: 0,
+                currentFile: '',
+                filesProgress: {},
+                status: 'preparing'
+            });
         }, 1000);
     }
   };
@@ -444,15 +573,20 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
             disabled={isDownloading}
           >
             {isDownloading ? (
-              <div className="flex items-center">
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                <span>Przygotowywanie... {downloadProgress.toFixed(0)}%</span>
-              </div>
+                <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <span>
+                        {bulkDownloadState.status === 'preparing' && 'Przygotowywanie...'}
+                        {bulkDownloadState.status === 'downloading' && `Pobieranie... ${bulkDownloadState.totalProgress}%`}
+                        {bulkDownloadState.status === 'compressing' && `Kompresowanie... ${bulkDownloadState.totalProgress}%`}
+                        {bulkDownloadState.status === 'complete' && 'Zakończono!'}
+                    </span>
+                </div>
             ) : (
-              <>
-                <Archive className="h-4 w-4 mr-2" />
-                Pobierz wszystkie i skompresuj (.ZIP)
-              </>
+                <>
+                    <Archive className="h-4 w-4 mr-2" />
+                    Pobierz wszystkie i skompresuj (.ZIP)
+                </>
             )}
           </Button>
           
@@ -471,11 +605,36 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         </div>
           
         {isDownloading && (
-          <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
-            <div 
-              className="bg-zinc-400 h-1.5 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${downloadProgress}%` }}
-            ></div>
+          <div className="w-full space-y-2 animate-fade-in-01-text">
+            <div className="w-full bg-zinc-800 rounded-full h-1.5">
+                <div 
+                    className="bg-zinc-400 h-1.5 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${bulkDownloadState.totalProgress}%` }}
+                ></div>
+            </div>
+            
+            {bulkDownloadState.currentFile && (
+                <div className="text-xs text-zinc-400">
+                    Aktualny plik: {bulkDownloadState.currentFile}
+                </div>
+            )}
+            
+            <div className="grid gap-1">
+                {Object.entries(bulkDownloadState.filesProgress).map(([fileId, file]) => (
+                    <div key={fileId} className="flex items-center justify-between text-xs">
+                        <span className="text-zinc-400 truncate">{file.fileName}</span>
+                        <span className={`
+                            ${file.status === 'complete' ? 'text-green-400' : ''}
+                            ${file.status === 'error' ? 'text-red-400' : ''}
+                            ${file.status === 'downloading' ? 'text-zinc-400' : ''}
+                        `}>
+                            {file.status === 'complete' ? '100%' : 
+                             file.status === 'error' ? 'Błąd' : 
+                             `${file.progress}%`}
+                        </span>
+                    </div>
+                ))}
+            </div>
           </div>
         )}
 
@@ -502,11 +661,30 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
                 size="sm"
                 className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
                 onClick={() => handleDownload(file.storagePath, file.id)}
-                disabled={downloadingFiles[file.id]}
+                disabled={!!downloadingFiles[file.id]}
               >
-                {downloadingFiles[file.id] ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                {downloadingFiles[file.id] ? (
+                  <div className="flex items-center">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span>{downloadProgress[file.id] ?? 0}%</span>
+                  </div>
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
               </Button>
             </div>
+            
+            {/* Progress bar */}
+            {downloadProgress[file.id] !== undefined && (
+              <div className="mt-2 w-full">
+                <div className="w-full bg-zinc-800 rounded-full h-1">
+                  <div 
+                    className="bg-zinc-400 h-1 rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${downloadProgress[file.id]}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>

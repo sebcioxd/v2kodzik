@@ -32,7 +32,6 @@ export type RateLimiterServiceResult = {
 
 export type S3UploadServiceProps = {
     Key: string;
-    Body: string | Uint8Array<ArrayBufferLike> | ReadableStream<Uint8Array<ArrayBufferLike>>;
 }
 
 export type UploadRequestProps = {
