@@ -2,7 +2,7 @@ import type {
   DeleteExpireFilesServiceBody,
   DeleteExpireFilesServiceProps,
 } from "../lib/types.js";
-import { shares } from "../db/schema.js";
+import { shares, snippets } from "../db/schema.js";
 import { CRON_BODY_KEY } from "../lib/env.js";
 import { sendWebhookService } from "./webhook.service.js";
 import { deleteGhostFilesService } from "./ghost.service.js";
@@ -28,6 +28,25 @@ export async function deleteExpireFilesService({
 
   try {
     await db.delete(shares).where(sql`expires_at < NOW()`);
+
+    const snippetsToDelete = await db.select().from(snippets).where(sql`expires_at < NOW()`);
+
+    const snippetsToDeleteSlugs: string[] = [];
+    for (const snippet of snippetsToDelete) {
+      snippetsToDeleteSlugs.push(snippet.slug);
+    }
+    await db.delete(snippets).where(sql`expires_at < NOW()`);
+
+    if (snippetsToDeleteSlugs.length > 0) {
+      await sendWebhookService({
+        content: `Pomyślnie usunięto ${snippetsToDeleteSlugs.length} ${snippetsToDeleteSlugs.length === 1 ? "snippet" : "snippetów"}. Usunięte snippety: ${snippetsToDeleteSlugs.join(", ")}`,
+      });
+    } else {
+      await sendWebhookService({
+        content: `Sprawdzono snippety, nie ma żadnych do usunięcia.`,
+      });
+    }
+    
 
     const folders: string[] = [];
     for await (const obj of s3Client.listObjects()) {
