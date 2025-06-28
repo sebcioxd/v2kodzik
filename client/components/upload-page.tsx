@@ -42,6 +42,7 @@ import {
   InputOTPSlot,
   InputOTPSeparator
 } from "@/components/ui/input-otp";
+import Link from "next/link";
 
 const formSchema = z
   .object({
@@ -64,6 +65,7 @@ const formSchema = z
             "/auth",
             "/panel",
             "/success",
+            "/schowek",
           ];
           return !restrictedPaths.some(
             (path) =>
@@ -291,7 +293,7 @@ export function UploadPage() {
             setSuccess(true);
             setError(false);
             form.reset();
-            router.push(`/success?slug=${slug}&time=${time}`);
+            router.push(`/success?slug=${slug}&time=${time}&type=upload`);
         }
     } catch (error) {
         console.error("Error uploading files:", error);
@@ -341,7 +343,9 @@ export function UploadPage() {
 
   return (
     <>
+    
       <Form {...form}>
+        
         <form onSubmit={form.handleSubmit(handleUpload)} className="space-y-6">
           <FormField
             control={form.control}
@@ -485,6 +489,16 @@ export function UploadPage() {
                     )}
                   </FileUpload>
                 </FormControl>
+                <div className="flex items-center justify-center gap-2 mt-4 text-sm text-zinc-400 animate-fade-in-01-text">
+                  <span>Chcesz przesłać kod?</span>
+                  <Link 
+                    href="/schowek" 
+                    className="text-zinc-200 hover:text-zinc-300 flex items-center gap-1"
+                  >
+                    Przejdź do schowka
+                    <LinkIcon className="w-3 h-3" />
+                  </Link>
+                </div>
                 <FormMessage className="text-red-400 animate-fade-in-01-text" />
               </FormItem>
             )}

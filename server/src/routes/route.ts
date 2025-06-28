@@ -10,6 +10,8 @@ import downloadRoute from "./download.route.js";
 import shareRoute from "./share.route.js";
 import cronRoute from "./cron.route.js";
 import updateRoute from "./update.route.js";
+import snippetRoute from "./snippets.route.js";
+
 const routes = new Hono()
 
 routes.route("/", helloRoute)
@@ -22,5 +24,5 @@ routes.route("/download", downloadRoute)
 routes.route("/share", shareRoute)
 routes.route("/cron", cronRoute)
 routes.route("/update", updateRoute)
-
+routes.route("/snippet", snippetRoute)
 export default routes

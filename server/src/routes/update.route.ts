@@ -16,12 +16,14 @@ updateRoute.post("/", async (c) => {
     }
 
     try {
-        const updatedUser = await db.update(user).set({
-            ipAddress: remoteAdress,
-            userAgent: userAgent,
-        }).where(eq(user.id, userInfo.id));
+        if (user.ipAddress !== remoteAdress) {
+            await db.update(user).set({
+                ipAddress: remoteAdress,
+                userAgent: userAgent,
+            }).where(eq(user.id, userInfo.id));
+        }
 
-        return c.json({ updatedUser }, 200);
+        return c.json({ message: "User updated" }, 200);
     } catch (error) {
         return c.json({ error: "Failed to update user" }, 500);
     }

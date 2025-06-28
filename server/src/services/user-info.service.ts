@@ -1,5 +1,5 @@
 import type { GetUserHistoryServiceProps, GetUserHistoryCountServiceProps } from "../lib/types.js";
-import { shares } from "../db/schema.js";
+import { shares, snippets } from "../db/schema.js";
 import { db } from "../db/index.js";
 import { eq, desc } from "drizzle-orm";
 

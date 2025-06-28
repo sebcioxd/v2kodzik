@@ -187,4 +187,23 @@
     animation-delay: 0.2s;
     opacity: 0; /* Start invisible */
   }
+
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    @apply w-[6px] h-[6px];
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-zinc-950/5;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-800/80 rounded-full hover:bg-zinc-700/90 transition-colors duration-200;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(39 39 42 / 0.8) transparent;
+  }
 }

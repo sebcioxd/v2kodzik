@@ -25,6 +25,19 @@ export const uploadedFiles = pgTable('uploaded_files', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const snippets = pgTable('snippets', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  slug: text('slug').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+  code: text('code'),
+  language: text('language'),
+});
+
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),

@@ -16,8 +16,9 @@ export default function Success() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
   const time = searchParams.get("time");
+  const type = searchParams.get("type");
   const [copied, setCopied] = useState(false);
-  const fullUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${slug}`;
+  const fullUrl = type === "upload" ? `${process.env.NEXT_PUBLIC_SITE_URL}/${slug}` : `${process.env.NEXT_PUBLIC_SITE_URL}/s/${slug}`;
 
   useEffect(() => {
     const end = Date.now() + 3 * 1000; // 3 seconds

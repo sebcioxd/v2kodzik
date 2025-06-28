@@ -101,6 +101,16 @@ export type SendWebhookServiceProps = {
     content: string;
 }
 
+export type CreateSnippetServiceProps = {
+    c: Context;
+    user: typeof User;
+}
+
+export type GetSnippetServiceProps = {
+    c: Context;
+    slug: string;
+}
+
 export const Session = auth.$Infer.Session
 export const User = auth.$Infer.Session.user
 

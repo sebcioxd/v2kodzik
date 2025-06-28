@@ -12,7 +12,7 @@ export default function Google() {
             setIsLoading(true);
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/panel`, 
+                callbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/oauth?redirect=panel`, 
                 newUserCallbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/oauth?redirect=panel`,
             });
         } catch (error) {

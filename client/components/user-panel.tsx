@@ -72,6 +72,9 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                         <Clock className="h-4 w-4" />
                         Twoja historia udostępnień
                     </h3>
+                    <span className="text-zinc-600 text-sm mb-1">
+                        Historia schowka jak narazie nie jest dostępna.
+                    </span>
                     
                     <div className="space-y-3">
                         {shares.length === 0 && (
