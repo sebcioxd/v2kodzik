@@ -84,9 +84,9 @@ export async function finalizeUploadService({ c, user }: FinalizeUploadServicePr
             updatedAt: new Date(),
             expiresAt: new Date(Date.now() + (time === "24" ? 24 * 60 * 60 * 1000 : time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
             userId: user ? user.id : null,
-            private: isPrivate === "true",
+            private: isPrivate,
             code: accessCode ? await hashCode(accessCode) : null,
-            visibility: visibility === "true",
+            visibility: visibility,
             ipAddress: c.req.header("x-forwarded-for") || null,
             userAgent: c.req.header("user-agent") || null,
         }).returning({ id: shares.id });

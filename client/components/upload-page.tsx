@@ -280,6 +280,10 @@ export function UploadPage() {
                 {
                     shareId,
                     slug,
+                    isPrivate: data.isPrivate,
+                    visibility: data.visibility,
+                    accessCode: data.accessCode,
+                    time,
                     files: data.files.map(file => ({
                         fileName: file.name,
                         size: file.size
