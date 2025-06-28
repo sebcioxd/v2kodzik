@@ -205,6 +205,11 @@ export function UploadPage() {
     try {
         const totalBytes = data.files.reduce((acc, file) => acc + file.size, 0);
         let uploadedBytes = 0;
+        // Create a map to track progress for each file
+        const fileProgress = new Map<number, number>();
+        
+        // Initialize progress for each file
+        data.files.forEach((_, index) => fileProgress.set(index, 0));
 
         // Step 1: Get presigned URLs and create share record
         const fileNames = data.files.map(file => file.name).join(',');
@@ -233,16 +238,20 @@ export function UploadPage() {
                 const presignedInfo = presignedData[index];
                 
                 return axios.put(presignedInfo.url, file, {
-                    withCredentials: false, // Important for R2 requests
+                    withCredentials: false,
                     maxBodyLength: Infinity,
                     maxContentLength: Infinity,
                     onUploadProgress: (progressEvent) => {
                         if (progressEvent.total) {
-                            // Calculate the new progress for this file
-                            const fileProgress = progressEvent.loaded;
-                            // Calculate the difference in progress since last update
-                            const fileDelta = fileProgress - lastLoaded.current;
-                            lastLoaded.current = fileProgress;
+                            // Get the previous progress for this specific file
+                            const previousProgress = fileProgress.get(index) || 0;
+                            // Calculate new progress for this file
+                            const currentProgress = progressEvent.loaded;
+                            // Update progress for this file
+                            fileProgress.set(index, currentProgress);
+                            
+                            // Calculate the progress delta for this file
+                            const fileDelta = currentProgress - previousProgress;
                             
                             // Add the progress delta to the total uploaded bytes
                             uploadedBytes += fileDelta;
@@ -253,12 +262,11 @@ export function UploadPage() {
                             // Update speed calculation
                             const now = Date.now();
                             const timeDiff = now - startTime;
-                            if (timeDiff > 100) { // Throttle updates to every 100ms
+                            if (timeDiff > 100) {
                                 const averageSpeed = (uploadedBytes / timeDiff) * 1000;
                                 const speedMBps = Math.round((averageSpeed / (1024 * 1024)) * 10) / 10;
                                 setUploadSpeed(speedMBps);
 
-                                // Calculate estimated time remaining
                                 const remainingBytes = totalBytes - uploadedBytes;
                                 if (averageSpeed > 0) {
                                     const etaSeconds = Math.ceil(remainingBytes / averageSpeed);
