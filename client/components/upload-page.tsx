@@ -203,14 +203,22 @@ export function UploadPage() {
     const startTime = Date.now();
 
     try {
-        // Calculate total size of all files
         const totalBytes = data.files.reduce((acc, file) => acc + file.size, 0);
         let uploadedBytes = 0;
 
         // Step 1: Get presigned URLs and create share record
         const fileNames = data.files.map(file => file.name).join(',');
+        const contentTypes = data.files.map(file => file.type).join(',');
+        
         const presignResponse = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign?slug=${data.slug}&fileNames=${fileNames}&isPrivate=${data.isPrivate}&accessCode=${data.accessCode}&visibility=${data.visibility}&time=${data.time}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign?` + 
+            `slug=${data.slug}&` +
+            `fileNames=${fileNames}&` +
+            `contentTypes=${contentTypes}&` +
+            `isPrivate=${data.isPrivate}&` +
+            `accessCode=${data.accessCode}&` +
+            `visibility=${data.visibility}&` +
+            `time=${data.time}`,
             null,
             {
                 withCredentials: true,
@@ -218,29 +226,23 @@ export function UploadPage() {
         );
 
         if (presignResponse.data.presignedData) {
-            const { presignedData, slug, time, shareId } = presignResponse.data;
+            const { presignedData, slug, time } = presignResponse.data;
 
             // Step 2: Upload files to S3
             const uploadPromises = data.files.map(async (file, index) => {
                 const presignedInfo = presignedData[index];
-                const formData = new FormData();
-
-                Object.entries(presignedInfo.fields).forEach(([key, value]) => {
-                    formData.append(key, value as string);
-                });
-
-                formData.append('file', file);
-
-                let lastFileProgress = 0;
-
-                return axios.post(presignedInfo.url, formData, {
+                
+                return axios.put(presignedInfo.url, file, {
+                    withCredentials: false, // Important for R2 requests
+                    maxBodyLength: Infinity,
+                    maxContentLength: Infinity,
                     onUploadProgress: (progressEvent) => {
                         if (progressEvent.total) {
                             // Calculate the new progress for this file
                             const fileProgress = progressEvent.loaded;
                             // Calculate the difference in progress since last update
-                            const fileDelta = fileProgress - lastFileProgress;
-                            lastFileProgress = fileProgress;
+                            const fileDelta = fileProgress - lastLoaded.current;
+                            lastLoaded.current = fileProgress;
                             
                             // Add the progress delta to the total uploaded bytes
                             uploadedBytes += fileDelta;
@@ -252,12 +254,11 @@ export function UploadPage() {
                             const now = Date.now();
                             const timeDiff = now - startTime;
                             if (timeDiff > 100) { // Throttle updates to every 100ms
-                                // Calculate speed based on total uploaded bytes
-                                const averageSpeed = (uploadedBytes / timeDiff) * 1000; // bytes per second
+                                const averageSpeed = (uploadedBytes / timeDiff) * 1000;
                                 const speedMBps = Math.round((averageSpeed / (1024 * 1024)) * 10) / 10;
                                 setUploadSpeed(speedMBps);
 
-                                // Calculate estimated time remaining based on average speed
+                                // Calculate estimated time remaining
                                 const remainingBytes = totalBytes - uploadedBytes;
                                 if (averageSpeed > 0) {
                                     const etaSeconds = Math.ceil(remainingBytes / averageSpeed);
@@ -274,20 +275,19 @@ export function UploadPage() {
             // Wait for all uploads to complete
             await Promise.all(uploadPromises);
 
-            // Step 3: Finalize the upload by updating the database
+            // Step 3: Finalize the upload
             await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/finalize`,
                 {
-                    shareId,
                     slug,
-                    isPrivate: data.isPrivate,
-                    visibility: data.visibility,
-                    accessCode: data.accessCode,
-                    time,
                     files: data.files.map(file => ({
                         fileName: file.name,
                         size: file.size
-                    }))
+                    })),
+                    isPrivate: data.isPrivate,
+                    visibility: data.visibility,
+                    accessCode: data.accessCode,
+                    time
                 },
                 {
                     withCredentials: true,

@@ -10,7 +10,7 @@ type AuthPrefixes = "upload" | "default" | "check" | "auth" | "download" | "snip
 
 // Number of requests per time period (5 would equal 4 requests per the duration set below)
 const authPrefixesPoints: Record<AuthPrefixes, number> = {
-    "upload": 3,
+    "upload": 2,
     "default": 4,
     "check": 6,
     "auth": 3,
