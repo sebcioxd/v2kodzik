@@ -45,7 +45,7 @@ export function createRateLimiter(key: RateLimitKey) {
     return rateLimiter({
         windowMs: config.windowMs,
         limit: config.limit,
-        keyGenerator: (c) => c.req.header("x-forwarded-for") ?? "127.0.0.1",
+        keyGenerator: (c) => c.req.header("CF-Connecting-IP") ?? "127.0.0.1", // lub x-forwarded-for
         store: new RedisStore({
             sendCommand: (...args: string[]) => redisClient.sendCommand(args),
         }) as unknown as Store,

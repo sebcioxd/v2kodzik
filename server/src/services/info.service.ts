@@ -9,7 +9,7 @@ export function getInfoService(c: Context): InfoServiceResponse {
     const info = getConnInfo(c)
 
     const response: InfoServiceResponse = {
-        remoteAdress: c.req.header("CF-Connecting-IP") || "127.0.0.1",
+        remoteAdress: c.req.header("CF-Connecting-IP") || "127.0.0.1", // lub x-forwarded-for
         host: c.req.header("host") || "",
         remoteAdress_v6: info.remote.address || "",
         port: info.remote.port || 0,
