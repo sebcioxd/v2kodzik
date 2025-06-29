@@ -83,9 +83,14 @@ function ForgetPasswordEmailPageConfirm() {
                         router.push("/auth");
                     });
                 },
-                onError: () => {
-                    setError(true);
-                    setRateLimited(false);
+                onError: (ctx) => {
+                    if (ctx.response.status !== 429) {
+                        setError(true);
+                        setRateLimited(false);
+                        setIsSubmitting(false);
+                    }
+                    setError(false);
+                    setRateLimited(true);
                     setIsSubmitting(false);
                 }
               }

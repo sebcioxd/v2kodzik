@@ -272,9 +272,9 @@ export function UploadPage() {
       setError(true);
       setSuccess(false);
       if (axios.isAxiosError(error) && error.response) {
-        setErrorMessage(error.response.data.message || "Failed to upload files");
+        setErrorMessage(error.response.data.message || "Wystąpił błąd podczas przesyłania plików" || error.code === "429" ? "Za dużo żądań. Spróbuj ponownie później." : "Wystąpił błąd podczas przesyłania plików");
       } else {
-        setErrorMessage("An unexpected error occurred");
+        setErrorMessage("Wystąpił błąd podczas przesyłania plików");
       }
     } finally {
       setIsSubmitting(false);

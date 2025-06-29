@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { z } from "zod";
+import { set, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -101,9 +101,14 @@ export default function SignUp() {
                         router.push(`/auth/otp?email=${data.email}`);
                     });
                 },
-                onError: () => {
-                    setError(true);
-                    setRateLimited(false);
+                onError: (ctx) => {
+                    if (ctx.response.status !== 429) {
+                        setError(true);
+                        setRateLimited(false);
+                        setIsSubmitting(false);
+                    }
+                    setRateLimited(true);
+                    setError(false)
                     setIsSubmitting(false);
                 },
                 onRequest: () => {
@@ -112,6 +117,7 @@ export default function SignUp() {
                 onResponse: () => {
                     setIsSubmitting(false);
                 },
+                
             });
         } catch (error) {
             console.error("Error signing up:", error);
@@ -279,7 +285,7 @@ export default function SignUp() {
                         )}
                         {rateLimited && (
                             <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text">
-                                Wykryto podejrzane działania na Twoim koncie. Proszę spróbować ponownie później (429 - Za dużo żądań).
+                                Wykryto podejrzane działania na Twoim koncie. Proszę spróbować ponownie później.
                             </div>
                         )}
                     </form>

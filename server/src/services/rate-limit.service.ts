@@ -1,50 +1,55 @@
-import type { RateLimiterServiceResult } from "../lib/types.js";
-import { RateLimiterRedis } from "rate-limiter-flexible";
+import type { Store } from "hono-rate-limiter";
+import { rateLimiter } from "hono-rate-limiter";
+import { RedisStore } from "rate-limit-redis";
 import getRedisClient from "../lib/redis.js";
 
-const rateLimiters: Record<string, RateLimiterRedis> = {}; // prefix -> multiple limiters.
 
-// add prefixes to the rate limiters. Note that the numbers are starting from 0, so 2 is 1 request, etc.
+const rateLimitConfigs = {
+    upload: {
+        windowMs: 30 * 60 * 1000,  // 30 minut
+        limit: 2,
+    },
+    default: {
+        windowMs: 25 * 1000,     
+        limit: 3,
+    },
+    check: {
+        windowMs: 60000,      
+        limit: 5,
+    },
+    auth: {
+        windowMs: 15 * 60 * 1000, 
+        limit: 2,
+    },
+    download: {
+        windowMs: 60000,  
+        limit: 6,
+    },
+    snippet: {
+        windowMs: 250 * 1000,     
+        limit: 4,
+    },
+    forget: {
+        windowMs: 15 * 60 * 1000,
+        limit: 3,
+    }
+} as const;
 
-type AuthPrefixes = "upload" | "default" | "check" | "auth" | "download" | "snippet";
+type RateLimitKey = keyof typeof rateLimitConfigs;
 
-// Number of requests per time period (5 would equal 4 requests per the duration set below)
-const authPrefixesPoints: Record<AuthPrefixes, number> = {
-    "upload": 2,
-    "default": 4,
-    "check": 6,
-    "auth": 3,
-    "download": 6,
-    "snippet": 5,
-}
+const redisClient = getRedisClient();
 
-// Duration of the block (rate limiting)
-const authPrefixesDuration: Record<AuthPrefixes, number> = {
-    "upload": 1800,
-    "default": 25,
-    "check": 90,
-    "auth": 900,
-    "download": 180,
-    "snippet": 250,
-}
-
-export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix: AuthPrefixes, identifier: string }) {
-    const redisClient = getRedisClient();
+export function createRateLimiter(key: RateLimitKey) {
+    const config = rateLimitConfigs[key];
     
-    if (!redisClient.isOpen) {
-        await redisClient.connect();
-    }
-
-    if (!rateLimiters[keyPrefix]) {
-        rateLimiters[keyPrefix] = new RateLimiterRedis({
-            storeClient: redisClient,
-            useRedisPackage: true,
-            points: authPrefixesPoints[keyPrefix],
-            duration: authPrefixesDuration[keyPrefix],
-            blockDuration: 0,
-            keyPrefix: keyPrefix,
-        });
-    }
-
-    return await rateLimiters[keyPrefix].consume(identifier);
+    return rateLimiter({
+        windowMs: config.windowMs,
+        limit: config.limit,
+        keyGenerator: (c) => c.req.header("x-forwarded-for") ?? "127.0.0.1",
+        store: new RedisStore({
+            sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+            prefix: `rl:${key}:`,
+            resetExpiryOnChange: true, 
+        }) as unknown as Store,
+    });
 }

@@ -65,9 +65,14 @@ export default function ForgetEmail() {
                         refetch()
                     });
                 },
-                onError: () => {
-                    setError(true);
-                    setRateLimited(false);
+                onError: (ctx) => {
+                    if (ctx.response.status !== 429) {
+                        setError(true);
+                        setRateLimited(false);
+                        setIsSubmitting(false);
+                    }
+                    setError(false);
+                    setRateLimited(true);
                     setIsSubmitting(false);
                 }
             }

@@ -55,6 +55,12 @@ interface BulkDownloadState {
     status: 'preparing' | 'downloading' | 'compressing' | 'complete' | 'error';
 }
 
+interface RateLimitError {
+    message: string;
+    remaining_requests: number;
+    retry_after: number;
+}
+
 function getFileIcon(fileName: string, fileType?: string) {
   const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
 
@@ -186,53 +192,65 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
     setDownloadProgress((prev) => ({ ...prev, [fileId]: 0 }));
     
     try {
-      // Get presigned URL from server
-      const presignedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/${path}`, {
-        credentials: 'include',
-      });
-      
-      if (!presignedResponse.ok) {
-        throw new Error('Failed to get download URL');
-      }
-      
-      const { url } = await presignedResponse.json();
-      
-      // Download file using axios for progress tracking
-      const response = await axios({
-        url,
-        method: 'GET',
-        responseType: 'blob',
-        onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
-          if (progressEvent.total) {
-            const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-            setDownloadProgress((prev) => ({ ...prev, [fileId]: progress }));
-          }
-        },
-      });
-      
-      // Create and trigger download
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = path.split('/').pop() || 'download';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(downloadUrl);
-      a.remove();
-    } catch (error) {
-      console.error('Download failed:', error);
-      alert('nie udało się pobrać pliku');
-    } finally {
-      setDownloadingFiles((prev) => ({ ...prev, [fileId]: false }));
-      // Clear progress after a short delay to show completion
-      setTimeout(() => {
-        setDownloadProgress((prev) => {
-          const newProgress = { ...prev };
-          delete newProgress[fileId];
-          return newProgress;
+        // Get presigned URL from server
+        const presignedResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/download/${path}`, {
+            credentials: 'include',
         });
-      }, 1000);
+        
+        if (presignedResponse.status === 429) {
+            const rateLimitData = await presignedResponse.json() as RateLimitError;
+            setToastMessage(`Przekroczono limit żądań. Spróbuj ponownie za ${rateLimitData.retry_after} sekund. Pozostałe próby: ${rateLimitData.remaining_requests}`);
+            setShowToast(true);
+            return;
+        }
+        
+        if (!presignedResponse.ok) {
+            throw new Error('Failed to get download URL');
+        }
+        
+        const { url } = await presignedResponse.json();
+        
+        // Download file using axios for progress tracking
+        const response = await axios({
+            url,
+            method: 'GET',
+            responseType: 'blob',
+            onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
+                if (progressEvent.total) {
+                    const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+                    setDownloadProgress((prev) => ({ ...prev, [fileId]: progress }));
+                }
+            },
+        });
+        
+        // Create and trigger download
+        const blob = new Blob([response.data], { type: response.headers['content-type'] });
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = path.split('/').pop() || 'download';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 429) {
+            setToastMessage(`Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.`);
+            setShowToast(true);
+        } else {
+            setToastMessage('Nie udało się pobrać pliku. Spróbuj ponownie później.');
+            setShowToast(true);
+        }
+    } finally {
+        setDownloadingFiles((prev) => ({ ...prev, [fileId]: false }));
+        // Clear progress after a short delay to show completion
+        setTimeout(() => {
+            setDownloadProgress((prev) => {
+                const newProgress = { ...prev };
+                delete newProgress[fileId];
+                return newProgress;
+            });
+        }, 1000);
     }
   };
 
@@ -424,11 +442,35 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
 
     } catch (error) {
         console.error('Bulk download failed:', error);
-        setBulkDownloadState(prev => ({
-            ...prev,
-            status: 'error'
-        }));
-        alert('nie udało się pobrać plików');
+        
+        // Handle rate limit error (429)
+        if (axios.isAxiosError(error) && error.response?.status === 429) {
+            const rateLimitData = error.response.data as RateLimitError;
+            setBulkDownloadState(prev => ({
+                ...prev,
+                status: 'error',
+                filesProgress: {
+                    ...prev.filesProgress,
+                    error: {
+                        downloadProgress: 0,
+                        compressionProgress: 0,
+                        fileName: '',
+                        status: 'error'
+                    }
+                }
+            }));
+            
+            // Add rate limit error display in the UI
+            setToastMessage(`Przekroczono limit żądań. Spróbuj ponownie za ${rateLimitData.retry_after} sekund. Pozostałe próby: ${rateLimitData.remaining_requests}`);
+            setShowToast(true);
+        } else {
+            setBulkDownloadState(prev => ({
+                ...prev,
+                status: 'error'
+            }));
+            setToastMessage('Nie udało się pobrać plików. Spróbuj ponownie później.');
+            setShowToast(true);
+        }
     } finally {
         setTimeout(() => {
             setIsDownloading(false);
@@ -495,7 +537,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         setRemainingRequests(data.remaining_requests);
       }
     } catch (error) {
-      setCodeError("Wystąpił błąd podczas weryfikacji kodu");
+      setCodeError("Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.");
     } finally {
       setIsVerifying(false);
     }
@@ -577,10 +619,14 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
       <div className="w-full space-y-4 animate-fade-in-01-text">
         {/* Notification Toast */}
         {showToast && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
-            <div className="bg-zinc-800 text-zinc-200 px-4 py-2 rounded-md border border-zinc-700 shadow-lg flex items-center space-x-2">
-              <Share2 className="h-4 w-4" />
-              <span>{toastMessage}</span>
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 mt-10 z-50 animate-fade-in">
+            <div className="bg-zinc-800 text-zinc-200 px-6 py-3 rounded-md border border-zinc-700 shadow-lg flex items-center space-x-3 max-w-md">
+                {bulkDownloadState.status === 'error' ? (
+                    <div className="text-red-400 h-4 w-4 flex-shrink-0">×</div>
+                ) : (
+                    <Share2 className="h-4 w-4 flex-shrink-0" />
+                )}
+                <span className="text-sm">{toastMessage}</span>
             </div>
           </div>
         )}

@@ -1,9 +1,10 @@
-import { Hono } from "hono";
 import { getShareFileService, verifyCookieService, verifyShareCodeService } from "../services/share.service.js";
+import { createRateLimiter } from "../services/rate-limit.service.js";
+import { Hono } from "hono";
 
 const shareRoute = new Hono();
 
-shareRoute.get("/verify", async (c) => {
+shareRoute.get("/verify", createRateLimiter("check"), async (c) => {
     const slug = c.req.query("slug");
     const code = c.req.query("accessCode");
 
