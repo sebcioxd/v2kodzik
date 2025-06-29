@@ -48,8 +48,6 @@ export function createRateLimiter(key: RateLimitKey) {
         keyGenerator: (c) => c.req.header("x-forwarded-for") ?? "127.0.0.1",
         store: new RedisStore({
             sendCommand: (...args: string[]) => redisClient.sendCommand(args),
-            prefix: `rl:${key}:`,
-            resetExpiryOnChange: true, 
         }) as unknown as Store,
     });
 }

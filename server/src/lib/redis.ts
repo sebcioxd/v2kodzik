@@ -14,13 +14,9 @@ const getRedisClient = () => {
             }
         })
         client.on("error", (err) => {
-            console.error("Redis client error", err);
-            console.log("Please check your Redis configuration.");
             process.exit(1);
         });
         client.connect().catch((err) => {
-            console.error("Redis client connection error", err);
-            console.log("Please check your Redis configuration.");
             process.exit(1);
         });
     }
