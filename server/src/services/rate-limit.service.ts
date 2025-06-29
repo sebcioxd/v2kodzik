@@ -36,15 +36,25 @@ export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix:
     }
 
     if (!rateLimiters[keyPrefix]) {
+        console.log(`Creating new rate limiter for ${keyPrefix}`);
+        console.log(`Points: ${authPrefixesPoints[keyPrefix]}, Duration: ${authPrefixesDuration[keyPrefix]} seconds`);
+        
         rateLimiters[keyPrefix] = new RateLimiterRedis({
             storeClient: redisClient,
             useRedisPackage: true,
             points: authPrefixesPoints[keyPrefix],
             duration: authPrefixesDuration[keyPrefix],
-            blockDuration: 0,
+            blockDuration: authPrefixesDuration[keyPrefix],
             keyPrefix: keyPrefix,
         });
     }
 
-    return await rateLimiters[keyPrefix].consume(identifier);
+    try {
+        const result = await rateLimiters[keyPrefix].consume(identifier);
+        return result;
+    } catch (error) {
+        throw error;
+    } finally {
+        await redisClient.quit();
+    }
 }
