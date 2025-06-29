@@ -38,9 +38,10 @@ interface DownloadProgress {
 }
 
 interface FileProgress {
-    progress: number;
+    downloadProgress: number;
+    compressionProgress: number;
     fileName: string;
-    status: 'pending' | 'downloading' | 'complete' | 'error';
+    status: 'pending' | 'downloading' | 'compressing' | 'complete' | 'error';
 }
 
 interface FileDownloadProgress {
@@ -249,7 +250,8 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         const initialProgress: FileDownloadProgress = {};
         filesData.forEach(file => {
             initialProgress[file.id] = {
-                progress: 0,
+                downloadProgress: 0,
+                compressionProgress: 0,
                 fileName: file.fileName,
                 status: 'pending'
             };
@@ -306,34 +308,44 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
                                 const updatedFileProgress: FileDownloadProgress = {
                                     ...prev.filesProgress,
                                     [fileId]: {
-                                        fileName,
-                                        progress: fileProgress,
+                                        ...prev.filesProgress[fileId],
+                                        downloadProgress: fileProgress,
                                         status: 'downloading'
                                     }
                                 };
 
-                                // Calculate weighted progress based on file sizes
+                                // Calculate total progress based on download phase only
                                 const totalBytes = filesData.reduce((acc, file) => acc + file.size, 0);
                                 let weightedProgress = 0;
                                 
                                 filesData.forEach(file => {
-                                    const fileProgress = updatedFileProgress[file.id]?.progress || 0;
+                                    const fileProgress = updatedFileProgress[file.id]?.downloadProgress || 0;
                                     const weight = file.size / totalBytes;
                                     weightedProgress += fileProgress * weight;
                                 });
 
-                                // Round to avoid decimal places
-                                const totalProgress = Math.round(weightedProgress);
-
                                 return {
                                     ...prev,
                                     filesProgress: updatedFileProgress,
-                                    totalProgress
+                                    totalProgress: Math.round(weightedProgress)
                                 };
                             });
                         }
                     }
                 });
+
+                // Update status to show file is ready for compression
+                setBulkDownloadState(prev => ({
+                    ...prev,
+                    filesProgress: {
+                        ...prev.filesProgress,
+                        [fileId]: {
+                            ...prev.filesProgress[fileId],
+                            downloadProgress: 100,
+                            status: 'compressing'
+                        }
+                    }
+                }));
 
                 // Add to zip using zip.js
                 await zipWriter.add(fileName, new BlobReader(response.data), {
@@ -345,15 +357,14 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
                                 ...prev.filesProgress,
                                 [fileId]: {
                                     ...prev.filesProgress[fileId],
-                                    progress: percent,
-                                    status: 'downloading'
+                                    compressionProgress: percent,
+                                    status: 'compressing'
                                 }
-                            }
+                            },
+                            totalProgress: prev.totalProgress
                         }));
                     }
                 });
-
-                completedFiles++;
 
                 // Update file status to complete
                 setBulkDownloadState(prev => ({
@@ -362,11 +373,14 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
                         ...prev.filesProgress,
                         [fileId]: {
                             ...prev.filesProgress[fileId],
-                            status: 'complete',
-                            progress: 100
+                            downloadProgress: 100,
+                            compressionProgress: 100,
+                            status: 'complete'
                         }
                     }
                 }));
+
+                completedFiles++;
 
             } catch (error) {
                 console.error(`Failed to download ${fileName}:`, error);
@@ -640,16 +654,27 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
             <div className="grid gap-1">
                 {Object.entries(bulkDownloadState.filesProgress).map(([fileId, file]) => (
                     <div key={fileId} className="flex items-center justify-between text-xs">
-                        <span className="text-zinc-400 truncate">{file.fileName}</span>
-                        <span className={`
-                            ${file.status === 'complete' ? 'text-green-400' : ''}
-                            ${file.status === 'error' ? 'text-red-400' : ''}
-                            ${file.status === 'downloading' ? 'text-zinc-400' : ''}
-                        `}>
-                            {file.status === 'complete' ? '100%' : 
-                             file.status === 'error' ? 'Błąd' : 
-                             `${file.progress}%`}
-                        </span>
+                        <span className="text-zinc-400 truncate max-w-[60%]">{file.fileName}</span>
+                        <div className="flex items-center gap-2">
+                            {file.status === 'downloading' && (
+                                <div className="flex items-center">
+                                    <span className="text-zinc-500">↓</span>
+                                    <span className="text-zinc-400 ml-1">{file.downloadProgress}%</span>
+                                </div>
+                            )}
+                            {file.status === 'compressing' && (
+                                <div className="flex items-center">
+                                    <span className="text-zinc-500">📦</span>
+                                    <span className="text-zinc-400 ml-1">{file.compressionProgress}%</span>
+                                </div>
+                            )}
+                            {file.status === 'complete' && (
+                                <span className="text-green-400">✓</span>
+                            )}
+                            {file.status === 'error' && (
+                                <span className="text-red-400">×</span>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
