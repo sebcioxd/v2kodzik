@@ -7,8 +7,8 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp"
-import JSZip from "jszip";
 import axios, { AxiosProgressEvent } from "axios";
+import { BlobWriter, ZipWriter, BlobReader } from "@zip.js/zip.js";
 
 interface File {
   id: string;
@@ -278,9 +278,11 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         }
 
         const { urls } = await response.json();
-        const zip = new JSZip();
         const totalFiles = urls.length;
         let completedFiles = 0;
+
+        // Create zip writer
+        const zipWriter = new ZipWriter(new BlobWriter("application/zip"));
 
         // Download each file
         await Promise.all(urls.map(async ({ url, fileName }: { url: string, fileName: string }) => {
@@ -310,9 +312,18 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
                                     }
                                 };
 
-                                const totalProgress = Math.round(
-                                    (Object.values(updatedFileProgress).reduce((acc, curr) => acc + curr.progress, 0) / (totalFiles * 100)) * 100
-                                );
+                                // Calculate weighted progress based on file sizes
+                                const totalBytes = filesData.reduce((acc, file) => acc + file.size, 0);
+                                let weightedProgress = 0;
+                                
+                                filesData.forEach(file => {
+                                    const fileProgress = updatedFileProgress[file.id]?.progress || 0;
+                                    const weight = file.size / totalBytes;
+                                    weightedProgress += fileProgress * weight;
+                                });
+
+                                // Round to avoid decimal places
+                                const totalProgress = Math.round(weightedProgress);
 
                                 return {
                                     ...prev,
@@ -324,8 +335,24 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
                     }
                 });
 
-                // Add to zip
-                zip.file(fileName, response.data);
+                // Add to zip using zip.js
+                await zipWriter.add(fileName, new BlobReader(response.data), {
+                    onprogress: async (progress: number, total: number) => {
+                        const percent = Math.round((progress / total) * 100);
+                        setBulkDownloadState(prev => ({
+                            ...prev,
+                            filesProgress: {
+                                ...prev.filesProgress,
+                                [fileId]: {
+                                    ...prev.filesProgress[fileId],
+                                    progress: percent,
+                                    status: 'downloading'
+                                }
+                            }
+                        }));
+                    }
+                });
+
                 completedFiles++;
 
                 // Update file status to complete
@@ -362,17 +389,8 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
             status: 'compressing'
         }));
 
-        // Generate zip file
-        const zipBlob = await zip.generateAsync({
-            type: "blob",
-            compression: "DEFLATE",
-            compressionOptions: { level: 5 }
-        }, (metadata) => {
-            setBulkDownloadState(prev => ({
-                ...prev,
-                totalProgress: Math.round(metadata.percent)
-            }));
-        });
+        // Close the zip writer and get the final blob
+        const zipBlob = await zipWriter.close();
 
         // Trigger download
         const downloadUrl = window.URL.createObjectURL(zipBlob);
