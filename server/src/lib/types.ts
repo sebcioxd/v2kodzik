@@ -117,19 +117,6 @@ export type CancelUploadServiceProps = {
 }
 
 
-export type RateLimiterError = {
-    remainingPoints: number;
-    msBeforeNext: number;
-    consumedPoints: number;
-    isFirstInDuration: boolean;
-}
-
-export type RateLimitResponse = {
-    message: string;
-    error: RateLimiterError;
-}
-
-
 export const Session = auth.$Infer.Session
 export const User = auth.$Infer.Session.user
 

@@ -10,11 +10,11 @@ type AuthPrefixes = "upload" | "default" | "check" | "auth" | "download" | "snip
 
 // Number of requests per time period (5 would equal 4 requests per the duration set below)
 const authPrefixesPoints: Record<AuthPrefixes, number> = {
-    "upload": 3,
+    "upload": 2,
     "default": 4,
     "check": 6,
     "auth": 3,
-    "download": 4,
+    "download": 6,
     "snippet": 5,
 }
 
@@ -30,7 +30,7 @@ const authPrefixesDuration: Record<AuthPrefixes, number> = {
 
 export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix: AuthPrefixes, identifier: string }) {
     const redisClient = getRedisClient();
-
+    
     if (!redisClient.isOpen) {
         await redisClient.connect();
     }
@@ -41,25 +41,10 @@ export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix:
             useRedisPackage: true,
             points: authPrefixesPoints[keyPrefix],
             duration: authPrefixesDuration[keyPrefix],
-            blockDuration: authPrefixesDuration[keyPrefix],
+            blockDuration: 0,
             keyPrefix: keyPrefix,
-            execEvenly: true,
-            execEvenlyMinDelayMs: 1000,
         });
     }
 
-    try {
-        const res = await rateLimiters[keyPrefix].get(identifier);
-        if (res !== null && res.consumedPoints >= authPrefixesPoints[keyPrefix]) {
-            throw new Error('Rate limit exceeded');
-        }
-
-        const result = await rateLimiters[keyPrefix].consume(identifier);
-        return result;
-    } catch (error) {
-        await rateLimiters[keyPrefix].block(identifier, authPrefixesDuration[keyPrefix]);
-        throw error;
-    } finally {
-        await redisClient.quit();
-    }
+    return await rateLimiters[keyPrefix].consume(identifier);
 }
