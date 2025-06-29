@@ -287,7 +287,7 @@ export function UploadPage() {
         setError(true);
         setSuccess(false);
         if (axios.isAxiosError(error) && error.response) {
-          setErrorMessage(error.response.data.message || "Wystąpił błąd podczas przesyłania plików");
+          setErrorMessage(error.response?.status === 429 ? "Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie." : error.response.data.message || "Wystąpił błąd podczas przesyłania plików");
         } else {
           setErrorMessage("Wystąpił błąd podczas przesyłania plików");
         }
