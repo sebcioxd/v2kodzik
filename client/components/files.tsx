@@ -655,8 +655,12 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     <span>
                         {bulkDownloadState.status === 'preparing' && 'Przygotowywanie...'}
-                        {bulkDownloadState.status === 'downloading' && `Pobieranie... ${bulkDownloadState.totalProgress}%`}
-                        {bulkDownloadState.status === 'compressing' && `Kompresowanie... ${bulkDownloadState.totalProgress}%`}
+                        {bulkDownloadState.status === 'downloading' && (
+                          bulkDownloadState.totalProgress === 100 
+                            ? 'Kompresowanie...' 
+                            : `Pobieranie... ${bulkDownloadState.totalProgress}%`
+                        )}
+                        {bulkDownloadState.status === 'compressing' && 'Kompresowanie...'}
                         {bulkDownloadState.status === 'complete' && 'Zakończono!'}
                     </span>
                 </div>
@@ -686,7 +690,11 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
           <div className="w-full space-y-2 animate-fade-in-01-text">
             <div className="w-full bg-zinc-800 rounded-full h-1.5">
                 <div 
-                    className="bg-zinc-400 h-1.5 rounded-full transition-all duration-300 ease-out"
+                    className={`h-1.5 rounded-full transition-all duration-300 ease-out ${
+                      bulkDownloadState.totalProgress === 100 || bulkDownloadState.status === 'compressing' 
+                        ? 'bg-green-300' 
+                        : 'bg-zinc-400'
+                    }`}
                     style={{ width: `${bulkDownloadState.totalProgress}%` }}
                 ></div>
             </div>
