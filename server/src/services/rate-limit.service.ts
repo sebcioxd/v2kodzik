@@ -10,7 +10,7 @@ type AuthPrefixes = "upload" | "default" | "check" | "auth" | "download" | "snip
 
 // Number of requests per time period (5 would equal 4 requests per the duration set below)
 const authPrefixesPoints: Record<AuthPrefixes, number> = {
-    "upload": 2,
+    "upload": 3,
     "default": 4,
     "check": 6,
     "auth": 3,
@@ -30,15 +30,12 @@ const authPrefixesDuration: Record<AuthPrefixes, number> = {
 
 export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix: AuthPrefixes, identifier: string }) {
     const redisClient = getRedisClient();
-    
+
     if (!redisClient.isOpen) {
         await redisClient.connect();
     }
 
     if (!rateLimiters[keyPrefix]) {
-        console.log(`Creating new rate limiter for ${keyPrefix}`);
-        console.log(`Points: ${authPrefixesPoints[keyPrefix]}, Duration: ${authPrefixesDuration[keyPrefix]} seconds`);
-        
         rateLimiters[keyPrefix] = new RateLimiterRedis({
             storeClient: redisClient,
             useRedisPackage: true,
