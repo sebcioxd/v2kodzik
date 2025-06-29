@@ -46,13 +46,21 @@ export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix:
             duration: authPrefixesDuration[keyPrefix],
             blockDuration: authPrefixesDuration[keyPrefix],
             keyPrefix: keyPrefix,
+            execEvenly: true,
+            execEvenlyMinDelayMs: 1000,
         });
     }
 
     try {
+        const res = await rateLimiters[keyPrefix].get(identifier);
+        if (res !== null && res.consumedPoints >= authPrefixesPoints[keyPrefix]) {
+            throw new Error('Rate limit exceeded');
+        }
+
         const result = await rateLimiters[keyPrefix].consume(identifier);
         return result;
     } catch (error) {
+        await rateLimiters[keyPrefix].block(identifier, authPrefixesDuration[keyPrefix]);
         throw error;
     } finally {
         await redisClient.quit();
