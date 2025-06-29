@@ -111,6 +111,12 @@ export type GetSnippetServiceProps = {
     slug: string;
 }
 
+export type CancelUploadServiceProps = {
+    c: Context;
+    slug: string;
+
+}
+
 export const Session = auth.$Infer.Session
 export const User = auth.$Infer.Session.user
 

@@ -1,9 +1,9 @@
-import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps } from "../lib/types.js";
+import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps, CancelUploadServiceProps } from "../lib/types.js";
 import { fixRequestProps } from "../utils/req-fixer.js";
 import { shares, uploadedFiles, user } from "../db/schema.js";
 import { hashCode } from "../lib/hash.js";
 import { db } from "../db/index.js";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import getS3Client from "../lib/s3.js";
 
 // Funkcja, która generuje presigned URL dla plików do wysyłki.
@@ -57,6 +57,25 @@ export async function S3UploadService({ c, user }: S3UploadServiceProps) {
             error
         }, 500);
     }   
+}
+
+
+export async function cancelUploadService({ c }: CancelUploadServiceProps) {
+    const { slug } = c.req.query();
+
+    const checkForUploadedFiles = await db
+        .select()
+        .from(uploadedFiles)
+        .where(sql`${uploadedFiles.storagePath} LIKE ${slug + '/%'}`);
+
+    // If length > 0, files exist for this slug
+    const hasFiles = checkForUploadedFiles.length > 0;
+
+    if (hasFiles) {
+        return c.json({
+            message: "Pliki zostały już wysłane",
+        }, 400);
+    }
 }
 
 // Funkcja, która finalizuje wysyłanie plików do udostępnionego linku.

@@ -134,8 +134,7 @@ export function UploadPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
-  const [uploadSpeed, setUploadSpeed] = useState<number | null>(null);
-  const [estimatedTime, setEstimatedTime] = useState<number | null>(null);
+  const [rejectedFiles, setRejectedFiles] = useState<{ name: string; message: string }[]>([]);
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const form = useForm<FormData>({
@@ -149,13 +148,6 @@ export function UploadPage() {
       time: "24",
     },
   });
-  const cancelTokenSource = React.useRef<any>(null);
-  const lastLoaded = React.useRef<number>(0);
-  const lastTime = React.useRef<number>(0);
-  const progressUpdateThrottle = React.useRef<NodeJS.Timeout | null>(null);
-  const [rejectedFiles, setRejectedFiles] = useState<
-    { name: string; message: string }[]
-  >([]);
 
   const selectedTime = form.watch("time");
 
@@ -196,131 +188,97 @@ export function UploadPage() {
 
     setIsSubmitting(true);
     setUploadProgress(0);
-    setUploadSpeed(null);
-    setEstimatedTime(null);
-    lastLoaded.current = 0;
-    lastTime.current = Date.now();
-    const startTime = Date.now();
 
     try {
-        const totalBytes = data.files.reduce((acc, file) => acc + file.size, 0);
-        let uploadedBytes = 0;
-        // Create a map to track progress for each file
-        const fileProgress = new Map<number, number>();
-        
-        // Initialize progress for each file
-        data.files.forEach((_, index) => fileProgress.set(index, 0));
+      const totalBytes = data.files.reduce((acc, file) => acc + file.size, 0);
+      // Create a map to track progress for each file
+      const fileProgress = new Map();
+      data.files.forEach((_, index) => fileProgress.set(index, 0));
 
-        // Step 1: Get presigned URLs and create share record
-        const fileNames = data.files.map(file => file.name).join(',');
-        const contentTypes = data.files.map(file => file.type).join(',');
-        
-        const presignResponse = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign?` + 
-            `slug=${data.slug}&` +
-            `fileNames=${fileNames}&` +
-            `contentTypes=${contentTypes}&` +
-            `isPrivate=${data.isPrivate}&` +
-            `accessCode=${data.accessCode}&` +
-            `visibility=${data.visibility}&` +
-            `time=${data.time}`,
-            null,
-            {
-                withCredentials: true,
-            }
+      // Step 1: Get presigned URLs and create share record
+      const fileNames = data.files.map(file => file.name).join(',');
+      const contentTypes = data.files.map(file => file.type).join(',');
+      
+      const presignResponse = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign?` + 
+        `slug=${data.slug}&` +
+        `fileNames=${fileNames}&` +
+        `contentTypes=${contentTypes}&` +
+        `isPrivate=${data.isPrivate}&` +
+        `accessCode=${data.accessCode}&` +
+        `visibility=${data.visibility}&` +
+        `time=${data.time}`,
+        null,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (presignResponse.data.presignedData) {
+        const { presignedData, slug, time } = presignResponse.data;
+
+        // Step 2: Upload files to S3
+        const uploadPromises = data.files.map(async (file, index) => {
+          const presignedInfo = presignedData[index];
+          
+          return axios.put(presignedInfo.url, file, {
+            withCredentials: false,
+            maxBodyLength: Infinity,
+            maxContentLength: Infinity,
+            onUploadProgress: (progressEvent) => {
+              if (progressEvent.total) {
+                // Update progress for this specific file
+                fileProgress.set(index, progressEvent.loaded);
+                
+                // Calculate total progress across all files
+                const totalUploaded = Array.from(fileProgress.values()).reduce((sum, value) => sum + value, 0);
+                const totalProgress = Math.min(Math.round((totalUploaded / totalBytes) * 100), 100);
+                
+                setUploadProgress(totalProgress);
+              }
+            },
+          });
+        });
+
+        // Wait for all uploads to complete
+        await Promise.all(uploadPromises);
+
+        // Step 3: Finalize the upload
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/finalize`,
+          {
+            slug,
+            files: data.files.map(file => ({
+              fileName: file.name,
+              size: file.size
+            })),
+            isPrivate: data.isPrivate,
+            visibility: data.visibility,
+            accessCode: data.accessCode,
+            time
+          },
+          {
+            withCredentials: true,
+          }
         );
 
-        if (presignResponse.data.presignedData) {
-            const { presignedData, slug, time } = presignResponse.data;
-
-            // Step 2: Upload files to S3
-            const uploadPromises = data.files.map(async (file, index) => {
-                const presignedInfo = presignedData[index];
-                
-                return axios.put(presignedInfo.url, file, {
-                    withCredentials: false,
-                    maxBodyLength: Infinity,
-                    maxContentLength: Infinity,
-                    onUploadProgress: (progressEvent) => {
-                        if (progressEvent.total) {
-                            // Get the previous progress for this specific file
-                            const previousProgress = fileProgress.get(index) || 0;
-                            // Calculate new progress for this file
-                            const currentProgress = progressEvent.loaded;
-                            // Update progress for this file
-                            fileProgress.set(index, currentProgress);
-                            
-                            // Calculate the progress delta for this file
-                            const fileDelta = currentProgress - previousProgress;
-                            
-                            // Add the progress delta to the total uploaded bytes
-                            uploadedBytes += fileDelta;
-                            
-                            // Calculate total progress percentage across all files
-                            const totalProgress = Math.round((uploadedBytes / totalBytes) * 100);
-                            
-                            // Update speed calculation
-                            const now = Date.now();
-                            const timeDiff = now - startTime;
-                            if (timeDiff > 100) {
-                                const averageSpeed = (uploadedBytes / timeDiff) * 1000;
-                                const speedMBps = Math.round((averageSpeed / (1024 * 1024)) * 10) / 10;
-                                setUploadSpeed(speedMBps);
-
-                                const remainingBytes = totalBytes - uploadedBytes;
-                                if (averageSpeed > 0) {
-                                    const etaSeconds = Math.ceil(remainingBytes / averageSpeed);
-                                    setEstimatedTime(etaSeconds);
-                                }
-                            }
-
-                            setUploadProgress(Math.min(totalProgress, 100));
-                        }
-                    },
-                });
-            });
-
-            // Wait for all uploads to complete
-            await Promise.all(uploadPromises);
-
-            // Step 3: Finalize the upload
-            await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/finalize`,
-                {
-                    slug,
-                    files: data.files.map(file => ({
-                        fileName: file.name,
-                        size: file.size
-                    })),
-                    isPrivate: data.isPrivate,
-                    visibility: data.visibility,
-                    accessCode: data.accessCode,
-                    time
-                },
-                {
-                    withCredentials: true,
-                }
-            );
-
-            setSuccess(true);
-            setError(false);
-            form.reset();
-            router.push(`/success?slug=${slug}&time=${time}&type=upload`);
-        }
+        setSuccess(true);
+        setError(false);
+        form.reset();
+        router.push(`/success?slug=${slug}&time=${time}&type=upload`);
+      }
     } catch (error) {
-        console.error("Error uploading files:", error);
-        setError(true);
-        setSuccess(false);
-        if (axios.isAxiosError(error) && error.response) {
-            setErrorMessage(error.response.data.message || "Failed to upload files");
-        } else {
-            setErrorMessage("An unexpected error occurred");
-        }
+      console.error("Error uploading files:", error);
+      setError(true);
+      setSuccess(false);
+      if (axios.isAxiosError(error) && error.response) {
+        setErrorMessage(error.response.data.message || "Failed to upload files");
+      } else {
+        setErrorMessage("An unexpected error occurred");
+      }
     } finally {
-        setIsSubmitting(false);
-        setUploadProgress(0);
-        setUploadSpeed(null);
-        setEstimatedTime(null);
+      setIsSubmitting(false);
+      setUploadProgress(0);
     }
   };
 
@@ -573,6 +531,8 @@ export function UploadPage() {
                 <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
                 {uploadProgress === 0 ? (
                   `Przygotowywanie ${form.getValues("files").length} ${form.getValues("files").length === 1 ? 'pliku' : 'plików'}...`
+                ) : uploadProgress === 100 ? (
+                  "Przetwarzanie plików..."
                 ) : (
                   `Wysyłanie... ${uploadProgress}%`
                 )}
@@ -589,62 +549,12 @@ export function UploadPage() {
             <div className="w-full animate-fade-in-01-text">
               <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-zinc-400 transition-all duration-500 ease-out transform origin-left rounded-full"
+                  className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
                   style={{
                     width: `${uploadProgress}%`,
-                    backgroundColor:
-                      uploadProgress === 100 ? "#10B981" : undefined,
+                    backgroundColor: uploadProgress === 100 ? "#10B981" : undefined,
                   }}
                 />
-              </div>
-              <div className="flex justify-between text-xs text-zinc-400 mt-1">
-                <p className="flex items-center">
-                  {uploadProgress === 100 ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-3 w-3 text-zinc-400"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Przetwarzanie plików...
-                    </>
-                  ) : uploadProgress === 0 ? (
-                    `Przygotowywanie ${form.getValues("files").length} ${form.getValues("files").length === 1 ? 'pliku' : 'plików'}...`
-                  ) : (
-                    `${uploadProgress}% ukończono`
-                  )}
-                </p>
-                {uploadSpeed !== null && uploadProgress > 0 && uploadProgress < 100 && (
-                  <p>{uploadSpeed.toFixed(1)} MB/s</p>
-                )}
-                {estimatedTime !== null && uploadProgress > 0 && uploadProgress < 100 && (
-                  <p>
-                    {estimatedTime > 60
-                      ? `~ ${Math.floor(estimatedTime / 60)}m ${Math.round(
-                          estimatedTime % 60
-                        )}s pozostało`
-                      : `~ ${
-                          estimatedTime < 1
-                            ? `${estimatedTime.toFixed(1)}s pozostało`
-                            : `${Math.round(estimatedTime)}s pozostało`
-                        }`}
-                  </p>
-                )}
               </div>
             </div>
           )}

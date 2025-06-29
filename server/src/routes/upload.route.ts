@@ -1,6 +1,6 @@
 import type { AuthSession } from "../lib/types.ts";
 import type { Context } from "hono";
-import { finalizeUploadService, S3UploadService } from "../services/upload.service.js";
+import { finalizeUploadService, S3UploadService, cancelUploadService } from "../services/upload.service.js";
 import { rateLimiterService } from "../services/rate-limit.service.js";
 import { Hono } from "hono";
 
@@ -28,6 +28,12 @@ uploadRoute.post("/presign", async (c: Context) => {
 uploadRoute.post("/finalize", async (c: Context) => {
     const user = c.get("user");
     return await finalizeUploadService({ c, user });
+});
+
+uploadRoute.get("/cancel/:slug", async (c: Context) => {
+    const { slug } = c.req.param();
+
+    return await cancelUploadService({ c, slug });
 });
 
 export default uploadRoute;
