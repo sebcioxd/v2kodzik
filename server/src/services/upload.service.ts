@@ -10,8 +10,19 @@ import getS3Client from "../lib/s3.js";
 export async function generatePresignedUrl({ Key }: generatePresignedUrlProps) {
     const client = getS3Client({ bucket: "sharesbucket" });
 
+    // Zabezpieczenia generowania url:
+    if (!Key || typeof Key !== 'string') {
+        throw new Error('Invalid Key provided');
+    }
+
+    if (Key.includes('..') || Key.startsWith('/')) {
+        throw new Error('Invalid file path');
+    }
+
     const url = await client.getPresignedUrl("PUT", Key, {
         expirySeconds: 200,
+        bucketName: "sharesbucket",
+        requestDate: new Date(),
     });
 
     return { url }

@@ -8,7 +8,9 @@ const s3Client = getS3Client({
 export async function downloadFileService({ path, c }: DownloadFileServiceProps) {
     try {
         const presignedUrl = await s3Client.presignedGetObject(path, {
-            expirySeconds: 3600,
+            expirySeconds: 200,
+            requestDate: new Date(),
+            bucketName: "sharesbucket",
         });
 
         return c.json({ url: presignedUrl });
@@ -24,7 +26,9 @@ export async function downloadBulkFilesService({ paths, c }: DownloadBulkFilesSe
     try {
         const presignedUrls = await Promise.all(paths.map(async (path) => {
             const url = await s3Client.presignedGetObject(path, {
-                expirySeconds: 3600,
+                expirySeconds: 200,
+                requestDate: new Date(),
+                bucketName: "sharesbucket",
             });
             const fileName = path.split("/").pop() || "unknown";
             return { url, fileName };

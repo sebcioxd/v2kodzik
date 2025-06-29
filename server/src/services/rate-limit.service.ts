@@ -14,7 +14,7 @@ const authPrefixesPoints: Record<AuthPrefixes, number> = {
     "default": 4,
     "check": 6,
     "auth": 3,
-    "download": 6,
+    "download": 4,
     "snippet": 5,
 }
 
