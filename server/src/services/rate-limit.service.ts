@@ -46,10 +46,5 @@ export async function rateLimiterService({ keyPrefix, identifier }: { keyPrefix:
         });
     }
 
-    try {
-        const result: RateLimiterServiceResult = await rateLimiters[keyPrefix].consume(identifier);
-        return result;
-    } finally {
-        await redisClient.quit();
-    }
+    return await rateLimiters[keyPrefix].consume(identifier);
 }
