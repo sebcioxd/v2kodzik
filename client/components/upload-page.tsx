@@ -24,7 +24,7 @@ import {
   FileUploadList,
   FileUploadTrigger,
 } from "@/components/ui/file-upload";
-import { Upload, X, ShieldPlus , AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock, Link as LinkIcon } from "lucide-react";
+import { Upload, X, ShieldPlus , AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock, Link as LinkIcon, XCircle } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
@@ -137,6 +137,7 @@ export function UploadPage() {
   const [rejectedFiles, setRejectedFiles] = useState<{ name: string; message: string }[]>([]);
   const { data: session, isPending } = useSession();
   const router = useRouter();
+  const [cancelTokenSource, setCancelTokenSource] = useState<any>(null);
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -175,7 +176,21 @@ export function UploadPage() {
     }, 5000);
   }, []);
 
+  const handleCancel = async () => {
+    if (cancelTokenSource) {
+      cancelTokenSource.cancel('Upload cancelled by user');
+      setIsSubmitting(false);
+      setUploadProgress(0);
+      setError(true);
+      setErrorMessage('Wysyłanie zostało przerwane');
+    }
+  };
+
   const handleUpload = async (data: FormData) => {
+    // Create a new cancel token source
+    const source = axios.CancelToken.source();
+    setCancelTokenSource(source);
+
     // Add validation check at the start of upload
     const MAX_SIZE = data.time === "0.5" ? 100 * 1024 * 1024 : 40 * 1024 * 1024;
     const totalSize = data.files.reduce((acc, file) => acc + file.size, 0);
@@ -217,7 +232,7 @@ export function UploadPage() {
       if (presignResponse.data.presignedData) {
         const { presignedData, slug, time } = presignResponse.data;
 
-        // Step 2: Upload files to S3
+        // Step 2: Upload files to S3 with cancel token
         const uploadPromises = data.files.map(async (file, index) => {
           const presignedInfo = presignedData[index];
           
@@ -225,15 +240,12 @@ export function UploadPage() {
             withCredentials: false,
             maxBodyLength: Infinity,
             maxContentLength: Infinity,
+            cancelToken: source.token,
             onUploadProgress: (progressEvent) => {
               if (progressEvent.total) {
-                // Update progress for this specific file
                 fileProgress.set(index, progressEvent.loaded);
-                
-                // Calculate total progress across all files
                 const totalUploaded = Array.from(fileProgress.values()).reduce((sum, value) => sum + value, 0);
                 const totalProgress = Math.min(Math.round((totalUploaded / totalBytes) * 100), 100);
-                
                 setUploadProgress(totalProgress);
               }
             },
@@ -268,15 +280,20 @@ export function UploadPage() {
         router.push(`/success?slug=${slug}&time=${time}&type=upload`);
       }
     } catch (error) {
-      console.error("Error uploading files:", error);
-      setError(true);
-      setSuccess(false);
-      if (axios.isAxiosError(error) && error.response) {
-        setErrorMessage(error.response.data.message || "Wystąpił błąd podczas przesyłania plików" || error.code === "429" ? "Za dużo żądań. Spróbuj ponownie później." : "Wystąpił błąd podczas przesyłania plików");
+      if (axios.isCancel(error)) {
+        console.log('Upload cancelled:', error.message);
       } else {
-        setErrorMessage("Wystąpił błąd podczas przesyłania plików");
+        console.error("Error uploading files:", error);
+        setError(true);
+        setSuccess(false);
+        if (axios.isAxiosError(error) && error.response) {
+          setErrorMessage(error.response.data.message || "Wystąpił błąd podczas przesyłania plików");
+        } else {
+          setErrorMessage("Wystąpił błąd podczas przesyłania plików");
+        }
       }
     } finally {
+      setCancelTokenSource(null);
       setIsSubmitting(false);
       setUploadProgress(0);
     }
@@ -546,7 +563,7 @@ export function UploadPage() {
           </Button>
 
           {isSubmitting && (
-            <div className="w-full animate-fade-in-01-text">
+            <div className="w-full space-y-2 animate-fade-in-01-text flex items-center justify-center flex-col">
               <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
@@ -556,6 +573,16 @@ export function UploadPage() {
                   }}
                 />
               </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleCancel}
+                className=" text-zinc-400 hover:text-red-400 hover:bg-red-400/10 flex items-center justify-center gap-2"
+              >
+                <XCircle className="h-4 w-4" />
+                Anuluj wysyłanie
+              </Button>
             </div>
           )}
 
