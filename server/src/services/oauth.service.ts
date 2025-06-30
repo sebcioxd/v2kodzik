@@ -10,18 +10,14 @@ export async function setOAuthStatusService({ c, user }: SetOAuthStatusServicePr
         const userId = user.id;
         const [accountInfo] = await db.select().from(account).where(eq(account.userId, userId));
         
-        if (accountInfo.providerId === "credential") {
-            return c.json({ message: "Konto nie jest powiązane z OAuth" }, 400);
-        }
-
-        if (accountInfo.password) {
+        if (accountInfo.password || accountInfo.providerId === "credential") {
             await auth.api.updateUser({
                 body: {
                     oauth: false,
                 },
                 headers: c.req.raw.headers
             })
-            return c.json({ message: "Konto ma już ustawione hasło" }, 400);
+            return c.json({ message: "Konto ma już ustawione hasło lub jest powiązane z OAuth" }, 400);
         }
 
         await auth.api.updateUser({
