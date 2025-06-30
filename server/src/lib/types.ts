@@ -66,6 +66,7 @@ export type GetUserHistoryCountServiceProps = {
 export type GetShareFileServiceProps = {
     slug: string;
     c: Context;
+    user: typeof User | null;
 }
 
 export type VerifyShareCodeServiceProps = {

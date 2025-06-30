@@ -15,7 +15,7 @@ const getFiles = async (shareId: string) => {
     return files;
 }
 
-export async function getShareFileService({ slug, c }: GetShareFileServiceProps) {
+export async function getShareFileService({ slug, c, user }: GetShareFileServiceProps) {
 
     const [share] = await db.select().from(shares).where(eq(shares.slug, slug));
 
@@ -25,7 +25,7 @@ export async function getShareFileService({ slug, c }: GetShareFileServiceProps)
         }, 404)
     }
 
-    if (share.private) {
+    if (share.private && share.userId !== user?.id) {
         return c.json({
             id: share.id,
             slug: share.slug,

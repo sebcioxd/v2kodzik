@@ -1,8 +1,9 @@
 import { getShareFileService, verifyCookieService, verifyShareCodeService } from "../services/share.service.js";
 import { createRateLimiter } from "../services/rate-limit.service.js";
+import type { AuthSession } from "../lib/types.js";
 import { Hono } from "hono";
 
-const shareRoute = new Hono();
+const shareRoute = new Hono<AuthSession>();
 
 shareRoute.get("/verify", createRateLimiter("check"), async (c) => {
     const slug = c.req.query("slug");
@@ -35,10 +36,12 @@ shareRoute.get("/verify-cookie/:slug", async (c) => {
 
 shareRoute.get("/:slug", async (c) => {
     const slug = c.req.param("slug");
+    const user = c.get("user");
 
     const share = await getShareFileService({ 
         slug, 
-        c 
+        c,
+        user
     });
 
     return share;
