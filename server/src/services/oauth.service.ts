@@ -17,14 +17,17 @@ export async function setOAuthStatusService({ c, user }: SetOAuthStatusServicePr
         return c.json({ message: "Konto ma już ustawione hasło" }, 400);
     }
 
-    await auth.api.updateUser({
-        body: {
-            oauth: true,
-        },
-        headers: c.req.raw.headers
-    })
-
-    return c.json({ message: "Status zaktualizowany" }, 200);
+    try {
+        await auth.api.updateUser({
+            body: {
+                oauth: true,
+            },
+            headers: c.req.raw.headers
+        })
+        return c.json({ message: "Status zaktualizowany" }, 200);
+    } catch (error) {
+        return c.json({ message: "Błąd podczas aktualizacji statusu" }, 500);
+    }
 }
 
 export async function addOAuthAccountPasswordService({ c, user }: SetOAuthStatusServiceProps) {

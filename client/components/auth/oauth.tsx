@@ -40,7 +40,7 @@ export default function OAuth() {
 
                 if (oauth) { 
                     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/oauth/set`, {
-                        method: 'POST',
+                    method: 'POST',
                         credentials: 'include',
                     });
                 }
