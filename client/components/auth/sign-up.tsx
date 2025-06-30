@@ -91,6 +91,7 @@ export default function SignUp() {
                 name: data.username,
                 ipAddress: apiResponse.remoteAdress,
                 userAgent: apiResponse.userAgent,
+                oauth: false,
             },
             {
                 onSuccess: () => {
