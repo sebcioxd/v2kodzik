@@ -6,25 +6,24 @@ import { eq } from "drizzle-orm";
 
 
 export async function setOAuthStatusService({ c, user }: SetOAuthStatusServiceProps) {
-    const userId = user.id;
-    const [accountInfo] = await db.select().from(account).where(eq(account.userId, userId));
-    
-    if (accountInfo.providerId === "credential") {
-        return c.json({ message: "Konto nie jest powiązane z OAuth" }, 400);
-    }
-
-    if (accountInfo.password) {
-        await auth.api.updateUser({
-            body: {
-                oauth: false,
-            },
-            headers: c.req.raw.headers
-        })
-
-        return c.json({ message: "Konto ma już ustawione hasło" }, 400);
-    }
-
     try {
+        const userId = user.id;
+        const [accountInfo] = await db.select().from(account).where(eq(account.userId, userId));
+        
+        if (accountInfo.providerId === "credential") {
+            return c.json({ message: "Konto nie jest powiązane z OAuth" }, 400);
+        }
+
+        if (accountInfo.password) {
+            await auth.api.updateUser({
+                body: {
+                    oauth: false,
+                },
+                headers: c.req.raw.headers
+            })
+            return c.json({ message: "Konto ma już ustawione hasło" }, 400);
+        }
+
         await auth.api.updateUser({
             body: {
                 oauth: true,
@@ -33,8 +32,12 @@ export async function setOAuthStatusService({ c, user }: SetOAuthStatusServicePr
         })
 
         return c.json({ message: "Status zaktualizowany" }, 200);
+
     } catch (error) {
-        return c.json({ message: "Błąd podczas aktualizacji statusu", error: error }, 500);
+        return c.json({ 
+            message: "Wystąpił błąd podczas ustawiania statusu OAuth", 
+            error: error instanceof Error ? error.message : String(error) 
+        }, 500);
     }
 }
 
