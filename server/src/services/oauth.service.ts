@@ -3,7 +3,7 @@ import { auth } from "../lib/auth.js";
 import { db } from "../db/index.js";
 import { account } from "../db/schema.js";
 import { eq } from "drizzle-orm";
-
+import type { Context } from "hono";
 
 export async function setOAuthStatusService({ c, user }: SetOAuthStatusServiceProps) {
     try {
@@ -64,5 +64,38 @@ export async function addOAuthAccountPasswordService({ c, user }: SetOAuthStatus
     })
 
     return c.json({ message: "Hasło zaktualizowane" }, 200);
+}
+
+
+// To jest przykłądowa funkcja do pobierania guildów z Discorda
+// Nie jest ona w jakikolwiek sposób używana w projekcie (oprócz testów)
+export async function getDiscordGuildsService({ c }: { c: Context }) {
+    try {
+        const accounts = await auth.api.listUserAccounts({
+            headers: c.req.raw.headers
+        })
+
+        const acc = accounts.find((account) => account.provider === "discord");
+
+       const accessToken = await auth.api.getAccessToken({
+        body: {
+            providerId: "discord",
+            accountId: acc?.id,
+        },
+        headers: c.req.raw.headers
+       })
+
+       const guilds = await fetch("https://discord.com/api/users/@me/guilds", {
+        headers: {
+            Authorization: `Bearer ${accessToken.accessToken}`
+        }
+       })
+
+       const guildsData = await guilds.json();
+
+       return c.json({ guilds: guildsData }, 200);
+    } catch (error) {
+        return c.json({ message: "Wystąpił błąd podczas pobierania guildów", error: error instanceof Error ? error.message : String(error) }, 500);
+    }
 }
 

@@ -11,6 +11,11 @@ export const auth = betterAuth({
         provider: "pg",
         schema: schema,
     }),
+    account: {
+        accountLinking: {
+            enabled: true,
+        },
+    },
     basePath: "/v1/auth",
     user: {
         additionalFields: {
@@ -31,7 +36,7 @@ export const auth = betterAuth({
                 required: false,
                 defaultValue: false,
                 input: true,
-            }
+            },
         }
     },
     
@@ -56,8 +61,10 @@ export const auth = betterAuth({
             clientSecret: GOOGLE_CLIENT_SECRET,
         },
         discord: {
+            prompt: "consent",
             clientId: DISCORD_CLIENT_ID,
             clientSecret: DISCORD_CLIENT_SECRET,
+            scope: ["identify", "email", "guilds"],
         }
     },
     advanced: {
