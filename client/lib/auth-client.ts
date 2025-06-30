@@ -14,6 +14,9 @@ export const authClient = createAuthClient({
             },
             userAgent: {
                 type: "string",
+            },
+            oauth: {
+                type: "boolean",
             }
         }
     })],

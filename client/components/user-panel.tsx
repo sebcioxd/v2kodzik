@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { LogOut, Clock, ExternalLink, Loader2, Lock, Link as LinkIcon, CalendarArrowDown, CalendarArrowUp } from "lucide-react";
+import { LogOut, Clock, ExternalLink, Loader2, Lock, Link as LinkIcon, CalendarArrowDown, CalendarArrowUp, KeyRound } from "lucide-react";
 import { authClient, User } from "@/lib/auth-client";
 import { useTransition } from "react";
 import { useState } from "react";
@@ -35,83 +35,122 @@ function formatDate(dateString: string) {
 
 export default function UserPanel({ shares, user }: { shares: Share[], user: User }) {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLogoutLoading, setIsLogoutLoading] = useState(false);
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
     const [isRouting, startTransition] = useTransition();
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-lg max-w-md animate-fade-in-01-text mt-10">
-            <div className="w-full space-y-4">
-            <div className="flex justify-between items-center">
-                    <h2 className="text-xl text-zinc-200 font-medium">Panel użytkownika <span className="text-zinc-400">{user.name}</span></h2>
-                    <Button 
-                        onClick={async () => {
-                            setIsLoading(true);
-                            await authClient.signOut({
-                              fetchOptions: {
-                                credentials: "include",
-                                onSuccess: () => {
-                                    setIsLoading(false);
-                                    startTransition(() => {
-                                        router.push("/auth");
-                                    });
-                                },
-                              },
-                            });
-                          }}
-                        variant="ghost" 
-                        size="sm"
-                        className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-dashed border-zinc-800"
-                    >
+        <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-4xl max-w-md animate-fade-in-01-text mt-10">
+            <div className="w-full space-y-6">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                    <h2 className="text-xl text-zinc-200 font-medium">
+                        Panel użytkownika <span className="text-zinc-400">{user.name}</span>
+                    </h2>
+                    
+                    <div className="flex flex-row gap-3 items-center">
+                        <Button 
+                            onClick={async () => {
+                                setIsLogoutLoading(true);
+                                await authClient.signOut({
+                                    fetchOptions: {
+                                        credentials: "include",
+                                        onSuccess: () => {
+                                            setIsLogoutLoading(false);
+                                            startTransition(() => {
+                                                router.push("/auth");
+                                            });
+                                        },
+                                    },
+                                });
+                            }}
+                            variant="ghost" 
+                            size="sm"
+                            className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-dashed border-zinc-800 px-4"
+                        >
+                            {isLogoutLoading || isRouting ? 
+                                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Wylogowywanie...</> : 
+                                <><LogOut className="h-4 w-4 mr-2" /> Wyloguj się</>
+                            }
+                        </Button>
                         
-                        {isLoading || isRouting ? <><Loader2 className="h-4 w-4 animate-spin" /> Wylogowywanie...</> :  <><LogOut className="h-4 w-4 mr-2" /> Wyloguj się</>}
-                    </Button>
+                        {user.oauth && (
+                            <Button
+                                asChild
+                                variant="ghost"
+                                size="sm"
+                                className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 border border-dashed border-zinc-800 px-4"
+                            >
+                                <Link href="/oauth-password">
+                                    {isPasswordLoading ? 
+                                        <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Przekierowywanie...</> :
+                                        <><KeyRound className="h-4 w-4 mr-2" /> Ustaw hasło</>
+                                    }
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
-                <div className="border-b border-dashed border-zinc-800 pb-4">
-                    <h3 className="text-sm text-zinc-400 flex items-center gap-2 mb-4">
+                <div className="border-b border-zinc-800 pb-6">
+                    <h3 className="text-sm text-zinc-400 flex items-center gap-2 mb-6">
                         <Clock className="h-4 w-4" />
                         Twoja historia udostępnień
                     </h3>
-                    <span className="text-zinc-600 text-sm mb-1">
+                    
+                    <span className="text-zinc-600 text-sm block mb-4">
                         Historia schowka jak narazie nie jest dostępna.
                     </span>
                     
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {shares.length === 0 && (
-                            <div className="text-zinc-400 text-sm">
-                                Brak udostępnień. <Link href="/upload" className="text-zinc-200 hover:text-zinc-200 hover:bg-zinc-800 rounded-md p-1">Dodaj nowe piki</Link>
+                            <div className="text-zinc-400 text-sm ">
+                                Brak udostępnień. {" "}
+                                <Link 
+                                    href="/upload" 
+                                    className="text-zinc-200 hover:bg-zinc-800 rounded-md px-2 py-1 transition-colors inline-flex items-center gap-1"
+                                >
+                                    <ExternalLink className="h-4 w-4" />
+                                    Dodaj nowe pliki
+                                </Link>
                             </div>
                         )}
+                        
                         {shares?.map((share) => (
                             <div 
                                 key={share.id}
-                                className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors animate-slide-in-bottom"
+                                className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-6 hover:bg-zinc-900/70 transition-colors animate-slide-in-bottom"
                             >
-                                <div className="flex justify-between items-center mb-2 border-b border-dashed border-zinc-700 pb-2">
+                                <div className="flex justify-between items-center mb-4 border-b border-zinc-800 pb-4">
                                     <div className="flex flex-col">
                                         <span className="text-zinc-400 text-sm font-medium flex flex-row gap-2 items-center">
-                                            <LinkIcon className="h-4 w-4" /> Kod:<span className="text-zinc-200 ml-[-2px]">{share.slug}</span> {share.private ? <Lock className="h-4 w-4 text-zinc-400" /> : null}
+                                            <LinkIcon className="h-4 w-4" /> 
+                                            Kod: <span className="text-zinc-200">{share.slug}</span> 
+                                            {share.private && <Lock className="h-4 w-4 text-zinc-400" />}
                                         </span>
                                     </div>
                                     <Link
                                         href={`/${share.slug}`}
-                                        className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800  rounded-md flex flex-row gap-1 items-center justify-center"
+                                        className="text-zinc-400 hover:text-zinc-200 bg-zinc-800/50 hover:bg-zinc-800 rounded-md px-3 py-1 flex items-center gap-2 transition-colors"
                                     > 
-                                    <span className="flex flex-row gap-1 p-1 items-center">
-                                        <ExternalLink className="h-4 w-4" /> Odwiedź
-                                    </span>
+                                        <ExternalLink className="h-4 w-4" /> 
+                                        Odwiedź
                                     </Link>
                                 </div>
-                                <div className="flex  flex-col justify-between gap-1  text-sm text-zinc-400">
-                                    <span className="flex flex-row gap-1 items-center"><CalendarArrowUp className="h-4 w-4 text-zinc-200" /> Utworzono: {formatDate(share.createdAt)}</span>
-                                    <span className="flex flex-row gap-1 items-center"><CalendarArrowDown className="h-4 w-4 text-zinc-200" /> Wygasa: {formatDate(share.expiresAt)}</span>
-                                </div>
-                                {share.private && (
-                                <div className="flex flex-row gap-2 mt-2 ">
-                                    <span className="text-zinc-300 text-sm mt-2">
-                                        Plik prywatny. Szyfrowanie włączone.
+                                <div className="flex flex-col gap-2 text-sm text-zinc-400">
+                                    <span className="flex items-center gap-2">
+                                        <CalendarArrowUp className="h-4 w-4 text-zinc-200" /> 
+                                        Utworzono: {formatDate(share.createdAt)}
+                                    </span>
+                                    <span className="flex items-center gap-2">
+                                        <CalendarArrowDown className="h-4 w-4 text-zinc-200" /> 
+                                        Wygasa: {formatDate(share.expiresAt)}
                                     </span>
                                 </div>
+                                {share.private && (
+                                    <div className="mt-3 flex items-center gap-2 text-zinc-300 text-sm bg-zinc-800/30 rounded-md px-3 py-2">
+                                        <Lock className="h-4 w-4" />
+                                        Plik prywatny. Szyfrowanie włączone.
+                                    </div>
                                 )}
                             </div>
                         ))}

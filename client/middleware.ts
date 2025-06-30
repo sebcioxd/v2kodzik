@@ -20,10 +20,14 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/panel") && !sessionCookie) {
         return NextResponse.redirect(new URL("/auth", request.url));
     }
+
+    if (pathname.startsWith("/oauth-password") && !sessionCookie) {
+        return NextResponse.redirect(new URL("/auth", request.url));
+    }   
  
 	return NextResponse.next();
 }
  
 export const config = {
-	matcher: ["/panel", "/auth/:path*"], // Specify the routes the middleware applies to
+	matcher: ["/panel", "/auth/:path*", "/oauth-password"], // Specify the routes the middleware applies to
 };

@@ -20,6 +20,7 @@ export default function OAuth() {
     const router = useRouter();
     const [isVerifying, setIsVerifying] = useState(true);
     const redirect = searchParams.get('redirect') || '/';
+    const oauth = searchParams.get('oauth') || false;
 
     useEffect(() => {
         const verifyUser = async () => {
@@ -36,6 +37,13 @@ export default function OAuth() {
                         userAgent: visitorInfo.userAgent,
                     }),
                 });
+
+                if (oauth) { 
+                    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/oauth/set`, {
+                        method: 'POST',
+                        credentials: 'include',
+                    });
+                }
 
                 router.push(`${process.env.NEXT_PUBLIC_SITE_URL}/${redirect}`);
             } catch (error) {

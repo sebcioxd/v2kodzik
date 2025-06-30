@@ -11,7 +11,7 @@ import shareRoute from "./share.route.js";
 import cronRoute from "./cron.route.js";
 import updateRoute from "./update.route.js";
 import snippetRoute from "./snippets.route.js";
-
+import oauthRoute from "./oauth.route.js";
 const routes = new Hono()
 
 routes.route("/", helloRoute)
@@ -25,4 +25,5 @@ routes.route("/share", shareRoute)
 routes.route("/cron", cronRoute)
 routes.route("/update", updateRoute)
 routes.route("/snippet", snippetRoute)
+routes.route("/oauth", oauthRoute)
 export default routes

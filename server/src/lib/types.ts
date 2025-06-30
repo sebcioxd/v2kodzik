@@ -116,6 +116,10 @@ export type CancelUploadServiceProps = {
     slug: string;
 }
 
+export type SetOAuthStatusServiceProps = {
+    c: Context;
+    user: typeof User;
+}
 
 export const Session = auth.$Infer.Session
 export const User = auth.$Infer.Session.user

@@ -55,6 +55,7 @@ export const user = pgTable("user", {
     .notNull(),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
+  oauth: boolean("oauth"),
 });
 
 export const session = pgTable("session", {
