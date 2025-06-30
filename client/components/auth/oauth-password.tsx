@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2, KeyRound } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { authClient, User } from "@/lib/auth-client";
 import {
   Form,
   FormControl,
@@ -67,18 +68,27 @@ export default function OAuthPasswordSetup() {
       });
 
       const responseData = await response.json() as ApiErrorResponse;
-
+      
       if (!response.ok) {
         setError(true);
         setErrorMessage(responseData.message);
         return;
       }
-
       setSuccess(true);
       setError(false);
-      startRouting(() => {
-        router.push('/panel');
-      });
+
+      await authClient.signOut({
+        fetchOptions: {
+            credentials: "include",
+            onSuccess: () => {
+                setIsSkipping(false);
+                startRouting(() => {
+                    router.push("/auth");
+                });
+            },
+        },
+    });
+
     } catch (error) {
       console.error("Error updating password:", error);
       setError(true);
