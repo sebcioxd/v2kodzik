@@ -22,3 +22,5 @@ export const CRON_BODY_KEY = process.env.CRON_BODY_KEY!
 export const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL!
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!
 export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!
+export const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!
+export const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!

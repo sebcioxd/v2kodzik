@@ -22,6 +22,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import Google from "./google";
+import Discord from "./discord";
 
 type FormData = {
   email: string;
@@ -116,8 +117,9 @@ export default function SignIn() {
           </p>
         </div>
 
-        <div className="space-y-6 mb-6 animate-slide-in-left">
+        <div className="space-y-4 mb-6 animate-slide-in-left">
           <Google />
+          <Discord />
         </div>
 
         <div className="relative my-6">

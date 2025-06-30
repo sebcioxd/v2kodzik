@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import Google from "./google";
+import Discord from "./discord";
 
 type FormData = {
     username: string;
@@ -141,8 +142,9 @@ export default function SignUp() {
                     </p>
                 </div>
 
-                <div className="space-y-6 mb-6 animate-slide-in-left">
+                <div className="space-y-4 mb-6 animate-slide-in-left">
                     <Google />
+                    <Discord />
                 </div>
 
                 <div className="relative my-6">
