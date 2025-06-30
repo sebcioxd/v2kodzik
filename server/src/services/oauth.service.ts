@@ -14,6 +14,13 @@ export async function setOAuthStatusService({ c, user }: SetOAuthStatusServicePr
     }
 
     if (accountInfo.password) {
+        await auth.api.updateUser({
+            body: {
+                oauth: false,
+            },
+            headers: c.req.raw.headers
+        })
+
         return c.json({ message: "Konto ma już ustawione hasło" }, 400);
     }
 
@@ -24,9 +31,10 @@ export async function setOAuthStatusService({ c, user }: SetOAuthStatusServicePr
             },
             headers: c.req.raw.headers
         })
+
         return c.json({ message: "Status zaktualizowany" }, 200);
     } catch (error) {
-        return c.json({ message: "Błąd podczas aktualizacji statusu" }, 500);
+        return c.json({ message: "Błąd podczas aktualizacji statusu", error: error }, 500);
     }
 }
 
