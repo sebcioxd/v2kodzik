@@ -3,8 +3,8 @@ import { snippets } from "../db/schema.js";
 import { db } from "../db/index.js";
 import { eq, desc } from "drizzle-orm";
 import type { Context } from "hono";
+import { restrictedPaths } from "../utils/req-fixer.js";
 
-const restrictedPaths = ["/upload", "/search", "/faq", "/api", "/admin", "/auth", "/panel", "/success", "/schowek"];
 const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 
 const reqFixer = ({ slug, time, code, language, c }: { slug: string, time: string, code: string, language: string, c: Context }) => {
