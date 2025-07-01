@@ -5,7 +5,7 @@ import { shares } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 
 
-export const restrictedPaths = ["/upload", "/search", "/faq", "/api", "/admin", "/auth", "/panel", "/success", "/schowek", "/terms", "/oauth-password"];
+export const restrictedPaths = ["upload", "search", "faq", "api", "admin", "auth", "panel", "success", "schowek", "terms", "oauth-password"];
 const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 
 
