@@ -7,14 +7,14 @@ import getRedisClient from "../lib/redis.js";
 const rateLimitConfigs = {
     upload: {
         windowMs: 30 * 60 * 1000,  // 30 minut
-        limit: 4,
+        limit: 3,
     },
     default: {
         windowMs: 25 * 1000,     
         limit: 3,
     },
     check: {
-        windowMs: 30000,      
+        windowMs: 60000,      
         limit: 5,
     },
     auth: {
@@ -22,7 +22,7 @@ const rateLimitConfigs = {
         limit: 2,
     },
     download: {
-        windowMs: 20000,  
+        windowMs: 90000,  
         limit: 8,
     },
     snippet: {
