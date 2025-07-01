@@ -6,11 +6,11 @@ import { shares, snippets } from "../db/schema.js";
 import { CRON_BODY_KEY } from "../lib/env.js";
 import { sendWebhookService } from "./webhook.service.js";
 import { deleteGhostFilesService } from "./ghost.service.js";
-import { sql } from "drizzle-orm";
+import { sql, lt } from "drizzle-orm";
 import { db } from "../db/index.js";
-import getS3Client from "../lib/s3.js";
+import getS3AdminClient from "../lib/s3-admin.js";
 
-const s3Client = getS3Client({ bucket: "sharesbucket" });
+const s3Client = getS3AdminClient({ bucket: "sharesbucket" });
 
 export async function deleteExpireFilesService({
   c,
@@ -27,15 +27,15 @@ export async function deleteExpireFilesService({
   }
 
   try {
-    await db.delete(shares).where(sql`expires_at < NOW()`);
+    await db.delete(shares).where(lt(shares.expiresAt, sql`NOW()`));
 
-    const snippetsToDelete = await db.select().from(snippets).where(sql`expires_at < NOW()`);
+    const snippetsToDelete = await db.select().from(snippets).where(lt(snippets.expiresAt, sql`NOW()`));
 
     const snippetsToDeleteSlugs: string[] = [];
     for (const snippet of snippetsToDelete) {
       snippetsToDeleteSlugs.push(snippet.slug);
     }
-    await db.delete(snippets).where(sql`expires_at < NOW()`);
+    await db.delete(snippets).where(lt(snippets.expiresAt, sql`NOW()`));
 
     if (snippetsToDeleteSlugs.length > 0) {
       await sendWebhookService({
