@@ -122,9 +122,9 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                             >
                                 <div className="flex justify-between items-center mb-2 border-b border-zinc-800 pb-2">
                                     <div className="flex flex-col">
-                                        <span className="text-zinc-400 text-sm font-medium flex flex-row gap-2 items-center">
+                                        <span className="text-zinc-400 text-sm font-medium flex flex-row gap-1 items-center">
                                             <LinkIcon className="h-4 w-4" /> 
-                                            Kod: <span className="text-zinc-200">{share.slug}</span> 
+                                            Kod linku: <span className="text-zinc-200">{share.slug}</span> 
                                             {share.private && <Lock className="h-4 w-4 text-zinc-400" />}
                                         </span>
                                     </div>
@@ -147,7 +147,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                     </span>
                                 </div>
                                 {share.private && (
-                                    <div className="mt-3 flex items-center gap-2 text-zinc-300 text-sm bg-zinc-800/30 rounded-md px-3 py-2">
+                                    <div className="mt-3 flex items-center gap-2 text-zinc-300 text-sm rounded-md py-1">
                                         <Lock className="h-4 w-4" />
                                         Plik prywatny. Szyfrowanie włączone.
                                     </div>

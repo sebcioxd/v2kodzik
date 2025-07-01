@@ -46,10 +46,14 @@ export default function OAuth() {
 
                     if (res.status === 200) {
                         router.push(`${process.env.NEXT_PUBLIC_SITE_URL}/oauth-password`);
+                    } else {
+                        router.push(`${process.env.NEXT_PUBLIC_SITE_URL}/${redirect}`);
                     }
+                    
+                } else {
+                    router.push(`${process.env.NEXT_PUBLIC_SITE_URL}/${redirect}`);
                 }
 
-                router.push(`${process.env.NEXT_PUBLIC_SITE_URL}/${redirect}`);
             } catch (error) {
                 console.error('Verification error:', error);
                 setIsVerifying(false);

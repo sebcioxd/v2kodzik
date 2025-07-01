@@ -9,6 +9,14 @@ export async function setOAuthStatusService({ c, user }: SetOAuthStatusServicePr
     try {
         const userId = user.id;
         const [accountInfo] = await db.select().from(account).where(eq(account.userId, userId));
+
+        // Alternatywa kodu 
+
+        // const accounts = await auth.api.listUserAccounts({
+        //     headers: c.req.raw.headers
+        // })
+
+        // const hasPassword = accounts.find((account) => account.provider === "credential");
         
         if (accountInfo.password || accountInfo.providerId === "credential") {
             await auth.api.updateUser({
