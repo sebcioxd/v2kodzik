@@ -13,7 +13,7 @@ export default function Discord() {
             setIsLoading(true);
             await authClient.signIn.social({
                 provider: "discord",
-                callbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/oauth?redirect=panel`,
+                callbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/oauth?redirect=panel&oauth=true`,
                 newUserCallbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/oauth?redirect=oauth-password&oauth=true`,
             });
         } catch (error) {

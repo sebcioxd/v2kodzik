@@ -39,10 +39,14 @@ export default function OAuth() {
                 });
 
                 if (oauth) { 
-                    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/oauth/set`, {
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/oauth/set`, {
                     method: 'POST',
                         credentials: 'include',
                     });
+
+                    if (res.status === 200) {
+                        router.push(`${process.env.NEXT_PUBLIC_SITE_URL}/oauth-password`);
+                    }
                 }
 
                 router.push(`${process.env.NEXT_PUBLIC_SITE_URL}/${redirect}`);

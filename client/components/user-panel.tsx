@@ -118,9 +118,9 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                         {shares?.map((share) => (
                             <div 
                                 key={share.id}
-                                className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-6 hover:bg-zinc-900/70 transition-colors animate-slide-in-bottom"
+                                className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-4 hover:bg-zinc-900/70 transition-colors animate-slide-in-bottom"
                             >
-                                <div className="flex justify-between items-center mb-4 border-b border-zinc-800 pb-4">
+                                <div className="flex justify-between items-center mb-2 border-b border-zinc-800 pb-2">
                                     <div className="flex flex-col">
                                         <span className="text-zinc-400 text-sm font-medium flex flex-row gap-2 items-center">
                                             <LinkIcon className="h-4 w-4" /> 

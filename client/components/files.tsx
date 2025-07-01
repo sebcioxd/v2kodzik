@@ -428,7 +428,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         const downloadUrl = window.URL.createObjectURL(zipBlob);
         const a = document.createElement('a');
         a.href = downloadUrl;
-        a.download = `kodzik-${Math.random().toString(36).substring(2, 4)}.zip`;
+        a.download = `${slug}.zip`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(downloadUrl);
