@@ -60,10 +60,10 @@ export function RecentSharesSkeleton() {
 export default function RecentShareCard({ slug, createdAt, expiresAt, private: isPrivate }: ShareCardProps) {
   return (
     <div className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-2">
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex ">
-          <span className="text-zinc-200 text-sm font-medium flex items-center gap-2">
-            Kod: {slug} {isPrivate ? <Lock className="h-4 w-4 text-zinc-400" /> : null}
+      <div className="flex justify-between items-center">
+        <div className="flex">
+          <span className="text-zinc-400 text-md font-medium flex items-center gap-2">
+            Kod linku: <span className="text-zinc-200 ml-[-1px] break-all whitespace-pre-wrap">{slug}</span> {isPrivate ? <Lock className="h-4 w-4 text-zinc-400" /> : null}
           </span> 
         </div>
         <Link
@@ -73,7 +73,7 @@ export default function RecentShareCard({ slug, createdAt, expiresAt, private: i
           <ExternalLink className="h-4 w-4" /> 
         </Link>
       </div>
-      <div className="flex justify-between flex-col items-start gap-2 text-xs text-zinc-400">
+      <div className="flex justify-between flex-col items-start gap-2 mt-2 text-sm text-zinc-400">
         <span>Utworzono: {formatDate(createdAt)}</span>
         <span>Wygasa: {formatDate(expiresAt)}</span>
       </div>
@@ -107,9 +107,10 @@ export function RecentShares() {
       </div>
     );
   }
+  
 
   return (
-    <div className={`w-full grid md:grid-cols-${count} grid-cols-1 gap-4`}>
+    <div className={`w-full grid ${count === 1 ? "md:grid-cols-1" : count === 2 ? "md:grid-cols-2" : "md:grid-cols-3"} grid-cols-1 gap-4`}>
       {shares.map((share) => (
         <RecentShareCard
           key={share.id}

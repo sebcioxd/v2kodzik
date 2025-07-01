@@ -14,7 +14,7 @@ const rateLimitConfigs = {
         limit: 3,
     },
     check: {
-        windowMs: 60000,      
+        windowMs: 30000,      
         limit: 5,
     },
     auth: {
@@ -22,7 +22,7 @@ const rateLimitConfigs = {
         limit: 2,
     },
     download: {
-        windowMs: 60000,  
+        windowMs: 20000,  
         limit: 8,
     },
     snippet: {

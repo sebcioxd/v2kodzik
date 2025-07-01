@@ -2,9 +2,16 @@
 
 # dajkodzik.pl — v2
 
-Platforma open-source do przesyłania kodu (wkrótce), oraz załączników z niestandardowymi linkami.
+Platforma open-source do przesyłania kodu, oraz załączników z **niestandardowymi** linkami.
 
-Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3 i Redis
+Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3 i Redis.
+
+Zero vendor lock-inu - Wszystkie technologie jak najbardziej self-hostable.
+
+Backend używa najnowszych funkcji S3 takich jak **presigned URLs**. Przez co, serwer może wytrzymać naprawdę duże obciążenie 
+transferu plików.
+
+Ważniejsze endpointy zabezpieczone **rate-limitem**.
 
 Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
@@ -13,7 +20,7 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 - Refactor z Node.js do Deno (Pełen support TypeScript'u)
 - Refactor Front-endu, dodanie lepszego supportu TS.
 - Zamienienie npm na pnpm w front-endzie.
-- Możliwość dodawania również kodu, nie tylko załączania plików
+- Możliwość dodawania również kodu, nie tylko załączania plików 🟢
 
 ## Contribute (Wesprzyj)
 
@@ -23,9 +30,12 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
 ## Wymagania
 
-- [Node.js](https://nodejs.org)  
+- [Node.js 22+](https://nodejs.org)  
 - [pnpm](https://pnpm.io/)  
-- Hosting S3 Object Storage ([Amazon](https://aws.amazon.com/s3/), [MinIO](https://min.io/docs/minio/container/index.html), [Hetzner Object Storage](https://www.hetzner.com/storage/object-storage/))
+- Hosting S3 Object Storage,
+**Testowane:**
+[MinIO](https://min.io/docs/minio/container/index.html),
+[Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/)
 - Hosting PostgreSQL ([Docker](https://hub.docker.com/_/postgres), [Neon](https://neon.com/), [Supabase](https://supabase.com/))
 - Hosting Redis ([Redis.io](https://redis.io/), [Docker](https://hub.docker.com/_/redis))
 - Cron jobs
@@ -64,7 +74,7 @@ pnpm exec drizzle-kit push # pnpm dlx drizzle-kit push
 
 5. Stwórz bucket w kompatybilnym z S3 Object Storage
 - Nazwa bucketu: `sharesbucket`
-- Bucket może być prywatny
+- Bucket powinień być prywatny
 
 6. Zainstaluj zależności front-endu
 ```bash
@@ -85,17 +95,19 @@ npm run dev
 
 ### Frontend (Next.js)
 - Rekomendowane: Vercel
-- Alternatywa: VPS z Coolify/Dokploy
+- Alternatywa: VPS z Dokploy
 
 ### Backend (Hono + Node.js)
 - Serverless: Railway.app, fly.io
-- Server VPS: Coolify/Dokploy
+- Server VPS: Dokploy
 - Kompilacja: zalecane użycie Railpack lub Nixpacks
 
-## Czyszczenie storage (Cron)
+## Czyszczenie miejsca (Cron)
 
 Endpoint API do uruchomienia czyszczenia:
 
+
+**javascript**
 ```javascript
 await fetch("https://api.domena.pl/v1/cron", {
   method: "POST",
@@ -117,12 +129,19 @@ curl -s -X POST https://api.domena.pl/v1/cron \
 ```
 
 Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin z poprawnym kluczem autoryzacyjnym.
+Nie jest to wymagane, lecz po jakimś czasie aplikacja może być przeciążona ilością danych.
+Czyszczyenie może być wykonane nawet manualnie co jakiś czas bo cała logika znajduję się w tym Endpoincie.
+
+Czyści:
+- Rekordy w bazie danych (Udostępnienia oraz snippety),
+- Miejsce na dysku czyli poprostu udostępnione objekty/pliki
+- Wszelkie pliki oraz rekordy "duchy", czyli udostępnienia które zostały w jakikolwiek sposób uszkodzone.
 
 W razie błędów lub pytań, skontaktuj się na [niarde.xyz](https://www.niarde.xyz/)
 
-## Bezpieczeństwo
+## Bezpieczeństwo (przy self-hostingu)
 
-### Podstawowa konfiguracja (self-hosting)
+### Podstawowa konfiguracja 
 
 - Zablokuj wszystkie nieużywane porty na serwerze
 - Pozostaw otwarte tylko niezbędne porty:
@@ -130,6 +149,8 @@ W razie błędów lub pytań, skontaktuj się na [niarde.xyz](https://www.niarde
   - 80 (HTTP)
   - 443 (HTTPS)
   - 8080 (API)
+
+Jeśli używasz self-hosted MinIO, dodaj też 9000 oraz 9001.
 
 ### Zalecane praktyki
 
