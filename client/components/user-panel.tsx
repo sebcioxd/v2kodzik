@@ -92,7 +92,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                 </div>
 
                 <div className="border-b border-zinc-800 pb-6">
-                    <h3 className="text-sm text-zinc-400 flex items-center gap-2 mb-6">
+                    <h3 className="text-sm text-zinc-400 flex items-center gap-2 mb-1">
                         <Clock className="h-4 w-4" />
                         Twoja historia udostępnień
                     </h3>

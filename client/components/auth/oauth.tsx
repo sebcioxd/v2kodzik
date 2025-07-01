@@ -27,7 +27,6 @@ export default function OAuth() {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/info`)
                 const visitorInfo: apiResponse = await response.json();
-                console.log(visitorInfo)
 
                 await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/update`, {
                     method: 'POST',

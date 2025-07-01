@@ -1,26 +1,27 @@
 import type { AuthSession } from "../lib/types.js";
+import { auth } from "../lib/auth.js";
 import { Hono } from "hono";
-import { user } from "../db/schema.js";
-import { db } from "../db/index.js";
-import { eq } from "drizzle-orm";
 
 const updateRoute = new Hono<AuthSession>();
 
 updateRoute.post("/", async (c) => {
-    const userInfo = c.get("user");
+    const user = c.get("user");
+
+    if (!user) {
+        return c.json({ error: "Unauthorized" }, 401);
+    }
     
     const { remoteAdress, userAgent } = await c.req.json();
 
-    if (!userInfo) {
-        return c.json({ error: "Unauthorized" }, 401);
-    }
-
     try {
         if (user.ipAddress !== remoteAdress) {
-            await db.update(user).set({
-                ipAddress: remoteAdress,
-                userAgent: userAgent,
-            }).where(eq(user.id, userInfo.id));
+            await auth.api.updateUser({
+                body: {
+                    ipAddress: remoteAdress,
+                    userAgent: userAgent
+                },
+                headers: c.req.raw.headers
+            })
         }
 
         return c.json({ message: "User updated" }, 200);
