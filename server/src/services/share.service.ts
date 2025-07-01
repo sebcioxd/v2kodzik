@@ -86,7 +86,7 @@ export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeS
         domain: ENVIRONMENT === "production" ? DOMAIN_WILDCARD : undefined,
         secure: ENVIRONMENT === "production",
         sameSite: "lax",
-        maxAge: 60 * 30 // 30 minutes
+        maxAge: 60 * 60 * 3 // 3 godziny
       })
 
     const files = await getFiles(share.id);
@@ -119,10 +119,14 @@ export async function verifyCookieService({ slug, c }: VerifyCookieServiceProps)
         }, 403)
     }
 
-    const isCodeValid = await verifyCode(cookie, idToSlug.code || "");  // Add 'await' here
+    const isCodeValid = await verifyCode(cookie, idToSlug.code || ""); 
 
     if (!isCodeValid) {
-        deleteCookie(c, `share_${idToSlug.id}`);
+        deleteCookie(c, `share_${idToSlug.id}`, {
+            path: "/",
+            domain: ENVIRONMENT === "production" ? DOMAIN_WILDCARD : undefined,
+            secure: ENVIRONMENT === "production",
+        });
         return c.json({
             message: "Nieprawidłowy cookie",
             success: false,
