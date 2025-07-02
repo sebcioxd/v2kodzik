@@ -54,6 +54,7 @@ export async function getShareFileService({ slug, c, user }: GetShareFileService
         totalSize: files.reduce((acc, file) => acc + file.size, 0),
         private: false,
         autoVerified: share.userId === user?.id,
+        autoVerifiedPrivateStatus: share.private
     })
 
 }

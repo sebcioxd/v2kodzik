@@ -31,6 +31,7 @@ interface FilesProps {
   private: boolean;
   autoVerified?: boolean;
   verifiedByCookie?: boolean;
+  autoVerifiedPrivateStatus?: boolean;
 }
 
 interface DownloadingFiles {
@@ -125,7 +126,7 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
-export default function Files({ files, totalSize, createdAt, expiresAt, storagePath, slug, fileId, private: isPrivateAccess, autoVerified, verifiedByCookie }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, expiresAt, storagePath, slug, fileId, private: isPrivateAccess, autoVerified, verifiedByCookie, autoVerifiedPrivateStatus }: FilesProps) {
   const searchParams = useSearchParams();
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<DownloadingFiles>({});
@@ -148,7 +149,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
   });
 
   useEffect(() => {
-    if (autoVerified && isPrivate) {
+    if (autoVerified && autoVerifiedPrivateStatus) {
       toast.success('Automatycznie zweryfikowano dostęp', {
         description: 'Dostęp przyznany - jesteś właścicielem tego linku',
       });
