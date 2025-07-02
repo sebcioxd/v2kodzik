@@ -148,7 +148,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
   });
 
   useEffect(() => {
-    if (autoVerified) {
+    if (autoVerified && isPrivate) {
       toast.success('Automatycznie zweryfikowano dostęp', {
         description: 'Dostęp przyznany - jesteś właścicielem tego linku',
       });
