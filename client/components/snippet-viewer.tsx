@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Highlight, themes } from "prism-react-renderer";
 import { Button } from "@/components/ui/button";
 import { Copy, Check, Share2, Clock, LinkIcon } from "lucide-react";
+import { toast } from "sonner";
 
 interface SnippetViewerProps {
   code: string;
@@ -16,8 +17,6 @@ interface SnippetViewerProps {
 export default function SnippetViewer({ code, language, slug, createdAt, expiresAt }: SnippetViewerProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
 
   // Reset copy button after 2 seconds
   useEffect(() => {
@@ -27,26 +26,14 @@ export default function SnippetViewer({ code, language, slug, createdAt, expires
     }
   }, [isCopied]);
 
-  // Hide toast after timeout
-  useEffect(() => {
-    if (showToast) {
-      const timer = setTimeout(() => {
-        setShowToast(false);
-      }, 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [showToast]);
-
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(code);
       setIsCopied(true);
-      setToastMessage('Kod skopiowany do schowka!');
-      setShowToast(true);
+      toast.success('Kod skopiowany do schowka!');
     } catch (error) {
       console.error("Failed to copy:", error);
-      setToastMessage('Nie udało się skopiować kodu');
-      setShowToast(true);
+      toast.error('Nie udało się skopiować kodu');
     }
   };
 
@@ -60,13 +47,11 @@ export default function SnippetViewer({ code, language, slug, createdAt, expires
         });
       } else {
         await navigator.clipboard.writeText(`https://www.dajkodzik.pl/s/${slug}`);
-        setToastMessage('Link skopiowany do schowka!');
-        setShowToast(true);
+        toast.success('Link skopiowany do schowka!');
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      setToastMessage('Nie udało się udostępnić linku');
-      setShowToast(true);
+      toast.error('Nie udało się udostępnić linku');
     } finally {
       setIsSharing(false);
     }
@@ -106,16 +91,6 @@ export default function SnippetViewer({ code, language, slug, createdAt, expires
   return (
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-3xl max-w-xl animate-fade-in-01-text mt-10">
       <div className="w-full space-y-4">
-        {/* Notification Toast */}
-        {showToast && (
-          <div className="fixed mt-20 top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-1/2 duration-200">
-            <div className="bg-zinc-900 text-zinc-200 px-4 py-2 rounded-md border border-zinc-700 shadow-lg flex items-center gap-2">
-              {isCopied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-              <span>{toastMessage}</span>
-            </div>
-          </div>
-        )}
-
         {/* Header Info */}
         <div className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="border-b border-dashed border-zinc-800 p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">

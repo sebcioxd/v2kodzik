@@ -4,6 +4,7 @@ import Navbar from "@/components/navbar";
 import "./globals.css";
 import Footer from "@/components/footer";
 import { QueryProvider } from "./hooks/query-provider";
+import { Toaster } from "@/components/ui/sonner"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,8 +34,23 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
-          <Footer />
-        </body>
+        <Toaster 
+          position="top-center" 
+          style={{ 
+            fontFamily: 'inherit',
+          }}
+          toastOptions={{
+            style: {
+              background: 'rgb(9, 9, 11, 0.6)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: 'none',
+            },
+            duration: 2100,
+          }}
+        />
+        <Footer />
+      </body>
       </QueryProvider>
     </html>
   );

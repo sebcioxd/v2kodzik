@@ -44,7 +44,7 @@ export async function deleteExpireFilesService({
     } else {
       await sendWebhookService({
         content: `Sprawdzono snippety, nie ma żadnych do usunięcia.`,
-      });
+    });
     }
     
 

@@ -7,18 +7,13 @@ import type { Context } from "hono";
 
 export async function setOAuthStatusService({ c, user }: SetOAuthStatusServiceProps) {
     try {
-        const userId = user.id;
-        const [accountInfo] = await db.select().from(account).where(eq(account.userId, userId));
+        const accounts = await auth.api.listUserAccounts({
+            headers: c.req.raw.headers
+        })
 
-        // Alternatywa kodu 
-
-        // const accounts = await auth.api.listUserAccounts({
-        //     headers: c.req.raw.headers
-        // })
-
-        // const hasPassword = accounts.find((account) => account.provider === "credential");
+        const hasPassword = accounts.find((account) => account.provider === "credential");
         
-        if (accountInfo.password || accountInfo.providerId === "credential") {
+        if (hasPassword) {
             await auth.api.updateUser({
                 body: {
                     oauth: false,

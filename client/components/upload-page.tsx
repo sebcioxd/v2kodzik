@@ -29,12 +29,6 @@ import * as React from "react";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   InputOTP,
@@ -43,6 +37,7 @@ import {
   InputOTPSeparator
 } from "@/components/ui/input-otp";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -131,7 +126,6 @@ export function UploadPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
   const [rejectedFiles, setRejectedFiles] = useState<{ name: string; message: string }[]>([]);
@@ -169,11 +163,7 @@ export function UploadPage() {
   }, [selectedTime]);
 
   const onFileReject = React.useCallback((file: File, message: string) => {
-    setRejectedFiles((prev) => [...prev, { name: file.name, message }]);
-    // Remove the rejection message after 5 seconds
-    setTimeout(() => {
-      setRejectedFiles((prev) => prev.filter((f) => f.name !== file.name));
-    }, 5000);
+    toast.error(`${file.name}: ${message}`);
   }, []);
 
   const handleCancel = async () => {
@@ -182,7 +172,6 @@ export function UploadPage() {
       setIsSubmitting(false);
       setUploadProgress(0);
       setError(true);
-      setErrorMessage('Wysyłanie zostało przerwane');
     }
   };
 
@@ -197,7 +186,7 @@ export function UploadPage() {
     
     if (totalSize > MAX_SIZE) {
       setError(true);
-      setErrorMessage(`Całkowity rozmiar plików (${formatBytes(totalSize)}) przekracza limit ${formatBytes(MAX_SIZE)} dla wybranego czasu.`);
+      toast.error(`Całkowity rozmiar plików (${formatBytes(totalSize)}) przekracza limit ${formatBytes(MAX_SIZE)} dla wybranego czasu.`);
       return;
     }
 
@@ -287,9 +276,12 @@ export function UploadPage() {
         setError(true);
         setSuccess(false);
         if (axios.isAxiosError(error) && error.response) {
-          setErrorMessage(error.response?.status === 429 ? "Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie." : error.response.data.message || "Wystąpił błąd podczas przesyłania plików");
+          toast.error(error.response?.status === 429 
+            ? "Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie." 
+            : error.response.data.message || "Wystąpił błąd podczas przesyłania plików"
+          );
         } else {
-          setErrorMessage("Wystąpił błąd podczas przesyłania plików");
+          toast.error("Wystąpił błąd podczas przesyłania plików");
         }
       }
     } finally {
@@ -448,30 +440,6 @@ export function UploadPage() {
                             }}
                           />
                         </div>
-                      </div>
-                    )}
-                    {rejectedFiles.length > 0 && (
-                      <div className="mt-2 animate-fade-in-01-text ">
-                        {rejectedFiles.map((file, index) => (
-                          <TooltipProvider key={index}>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="text-xs text-red-400 mb-1 cursor-pointer flex items-center gap-1">
-                                  <AlertCircle className="size-4" />
-                                  <span className="border-b border-dotted border-red-400/50">
-                                    {file.name}
-                                  </span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="top"
-                                className="bg-zinc-900 border-zinc-800 text-zinc-200 text-xs"
-                              >
-                                <p>{file.message}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        ))}
                       </div>
                     )}
                   </FileUpload>
@@ -761,10 +729,8 @@ export function UploadPage() {
                           const totalSize = currentFiles.reduce((acc, file) => acc + file.size, 0);
                           
                           if (totalSize > MAX_SIZE) {
-                            // Reset to previous time value if files exceed new limit
                             form.setValue("time", field.value);
-                            setError(true);
-                            setErrorMessage(`Nie można zmienić czasu - całkowity rozmiar plików (${formatBytes(totalSize)}) przekracza limit ${formatBytes(MAX_SIZE)} dla wybranego czasu.`);
+                            toast.error(`Nie można zmienić czasu - całkowity rozmiar plików (${formatBytes(totalSize)}) przekracza limit ${formatBytes(MAX_SIZE)} dla wybranego czasu.`);
                             return;
                           }
                           
@@ -828,18 +794,6 @@ export function UploadPage() {
               />
             </div>
           </div>
-
-          {error && (
-            <div className="p-2  border border-dashed border-red-800 text-red-300 text-center rounded-md text-sm animate-fade-in-01-text max-w-md">
-              {errorMessage}
-            </div>
-          )}
-
-          {success && (
-            <div className="p-2  border border-dashed border-green-800 text-green-300 text-center rounded-md text-sm animate-fade-in-01-text max-w-md">
-              pliki wysłane pomyślnie.
-            </div>
-          )}
         </form>
       </Form>
       

@@ -4,33 +4,35 @@ import { RedisStore } from "rate-limit-redis";
 import getRedisClient from "../lib/redis.js";
 
 
-const rateLimitConfigs = {
+const minutes = (ms: number) => Math.floor(ms / 1000 / 60);
+
+export const rateLimitConfigs = {
     upload: {
-        windowMs: 30 * 60 * 1000,  // 30 minut
+        windowMs: minutes(20), 
         limit: 3,
     },
     default: {
-        windowMs: 25 * 1000,     
+        windowMs: minutes(25),     
         limit: 3,
     },
     check: {
-        windowMs: 60000,      
+        windowMs: minutes(1),      
         limit: 5,
     },
-    auth: {
-        windowMs: 15 * 60 * 1000, 
+    auth: { // rejestracja
+        windowMs: minutes(10), 
         limit: 2,
     },
     download: {
-        windowMs: 90000,  
+        windowMs: minutes(3),  
         limit: 8,
     },
     snippet: {
-        windowMs: 250 * 1000,     
+        windowMs: minutes(5),     
         limit: 5,
     },
     forget: {
-        windowMs: 15 * 60 * 1000,
+        windowMs: minutes(10),
         limit: 3,
     }
 } as const;

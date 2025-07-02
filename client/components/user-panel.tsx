@@ -40,7 +40,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
     const [isRouting, startTransition] = useTransition();
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-4xl max-w-md animate-fade-in-01-text mt-10">
+        <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-5xl max-w-md animate-fade-in-01-text mt-10">
             <div className="w-full space-y-6">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                     <h2 className="text-xl text-zinc-200 font-medium">
@@ -118,11 +118,11 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                         {shares?.map((share) => (
                             <div 
                                 key={share.id}
-                                className="bg-zinc-900/30 border border-zinc-800 rounded-lg p-4 hover:bg-zinc-900/70 transition-colors animate-slide-in-bottom"
+                                className="bg-zinc-900/30 border border-zinc-900 rounded-md p-4 hover:bg-zinc-900/20 transition-colors animate-slide-in-bottom"
                             >
-                                <div className="flex justify-between items-center mb-2 border-b border-zinc-800 pb-2">
+                                <div className="flex justify-between items-center mb-2 border-b border-zinc-900 pb-2">
                                     <div className="flex flex-col">
-                                        <span className="text-zinc-400 text-sm font-medium flex flex-row gap-1 items-center">
+                                        <span className="text-zinc-400 text-sm font-medium flex flex-row gap-2 items-center">
                                             <LinkIcon className="h-4 w-4" /> 
                                             Kod linku: <span className="text-zinc-200">{share.slug}</span> 
                                             {share.private && <Lock className="h-4 w-4 text-zinc-400" />}
@@ -130,13 +130,13 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                     </div>
                                     <Link
                                         href={`/${share.slug}`}
-                                        className="text-zinc-400 hover:text-zinc-200 bg-zinc-800/50 hover:bg-zinc-800 rounded-md px-3 py-1 flex items-center gap-2 transition-colors"
+                                        className="text-zinc-400 hover:text-zinc-200 bg-zinc-900/60 hover:bg-zinc-900/80 rounded-md px-3 py-1 flex items-center gap-2 transition-colors"
                                     > 
                                         <ExternalLink className="h-4 w-4" /> 
                                         Odwiedź
                                     </Link>
                                 </div>
-                                <div className="flex flex-col gap-2 text-sm text-zinc-400">
+                                <div className="flex flex-col gap-2 text-sm text-zinc-400 pt-2">
                                     <span className="flex items-center gap-2">
                                         <CalendarArrowUp className="h-4 w-4 text-zinc-200" /> 
                                         Utworzono: {formatDate(share.createdAt)}
@@ -146,12 +146,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
                                         Wygasa: {formatDate(share.expiresAt)}
                                     </span>
                                 </div>
-                                {share.private && (
-                                    <div className="mt-3 flex items-center gap-2 text-zinc-300 text-sm rounded-md py-1">
-                                        <Lock className="h-4 w-4" />
-                                        Plik prywatny. Szyfrowanie włączone.
-                                    </div>
-                                )}
+                                
                             </div>
                         ))}
                     </div>

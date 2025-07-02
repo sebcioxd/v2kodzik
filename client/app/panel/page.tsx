@@ -58,7 +58,7 @@ export default async function UserPanelPage({ searchParams }: { searchParams: Pa
     const shares = response.data.history;
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-xl max-w-sm pt-10">
+        <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-2xl max-w-sm pt-10">
             <UserPanel shares={shares} user={response.data.user} />
             {totalPages > 1 && (
                 <Pagination 

@@ -6,7 +6,7 @@ interface File {
   storagePath: string;
 }
 
-interface Share { // or api response
+interface Share {
   id: string;
   slug: string;
   createdAt: string;
@@ -16,11 +16,12 @@ interface Share { // or api response
   files: File[];
   totalSize: number;
   private: boolean;
+  autoVerified?: boolean;
+  verifiedByCookie?: boolean;
 }
 
-
 import Files from "@/components/files";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cookies } from 'next/headers'
 
 export default async function ShareSlugPage({ params }: { params: Promise<{ slug: string }>}) {
@@ -53,13 +54,13 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         const cookieData = await cookieRes.json();
         
         if (cookieData.success) {
-          
           return {
             ...data,
             files: cookieData.files,
             totalSize: cookieData.totalSize,
             storagePath: cookieData.storagePath,
             private: false,
+            verifiedByCookie: true,
           };
         }
         
@@ -91,6 +92,8 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         fileId={share.id}
         expiresAt={share.expiresAt}
         private={share.private}
+        autoVerified={share.autoVerified}
+        verifiedByCookie={share.verifiedByCookie}
       />
     </div>
   );

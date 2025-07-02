@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/input-otp"
 import axios, { AxiosProgressEvent } from "axios";
 import { BlobWriter, ZipWriter, BlobReader } from "@zip.js/zip.js";
+import { toast } from "sonner";
+import { useSearchParams } from 'next/navigation';
 
 interface File {
   id: string;
@@ -27,6 +29,8 @@ interface FilesProps {
   slug: string;
   fileId: string;
   private: boolean;
+  autoVerified?: boolean;
+  verifiedByCookie?: boolean;
 }
 
 interface DownloadingFiles {
@@ -121,13 +125,12 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
-export default function Files({ files, totalSize, createdAt, slug, storagePath, fileId, expiresAt, private: isPrivateAccess }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, expiresAt, storagePath, slug, fileId, private: isPrivateAccess, autoVerified, verifiedByCookie }: FilesProps) {
+  const searchParams = useSearchParams();
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<DownloadingFiles>({});
   const [downloadProgress, setDownloadProgress] = useState<DownloadProgress>({});
   const [isSharing, setIsSharing] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const [isPrivate, setIsPrivate] = useState(isPrivateAccess);
   const [accessCode, setAccessCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -144,15 +147,18 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
     status: 'preparing'
   });
 
-  // Hide toast after timeout
   useEffect(() => {
-    if (showToast) {
-      const timer = setTimeout(() => {
-        setShowToast(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+    if (autoVerified) {
+      toast.success('Automatycznie zweryfikowano dostęp', {
+        description: 'Dostęp przyznany - jesteś właścicielem tego linku',
+      });
+    } else if (verifiedByCookie) {
+      toast.success('Automatycznie zweryfikowano dostęp', {
+        description: 'Poprzednia weryfikacja przebiegła pomyślnie',
+      });
     }
-  }, [showToast]);
+  }, [autoVerified, verifiedByCookie]);
+
   // Function to format bytes to human readable format
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 Bajtów';
@@ -199,8 +205,7 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         
         if (presignedResponse.status === 429) {
             const rateLimitData = await presignedResponse.json() as RateLimitError;
-            setToastMessage(`Przekroczono limit żądań. Spróbuj ponownie za ${rateLimitData.retry_after} sekund. Pozostałe próby: ${rateLimitData.remaining_requests}`);
-            setShowToast(true);
+            toast.error(`Przekroczono limit żądań. Spróbuj ponownie za ${rateLimitData.retry_after} sekund. Pozostałe próby: ${rateLimitData.remaining_requests}`);
             return;
         }
         
@@ -235,11 +240,9 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         a.remove();
     } catch (error) {
         if (axios.isAxiosError(error) && error.response?.status === 429) {
-            setToastMessage(`Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.`);
-            setShowToast(true);
+            toast.error(`Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.`);
         } else {
-            setToastMessage('Nie udało się pobrać pliku. Spróbuj ponownie później.');
-            setShowToast(true);
+            toast.error('Nie udało się pobrać pliku. Spróbuj ponownie później.');
         }
     } finally {
         setDownloadingFiles((prev) => ({ ...prev, [fileId]: false }));
@@ -461,15 +464,13 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
             }));
             
             // Add rate limit error display in the UI
-            setToastMessage(`Przekroczono limit żądań. Spróbuj ponownie za ${rateLimitData.retry_after} sekund. Pozostałe próby: ${rateLimitData.remaining_requests}`);
-            setShowToast(true);
+            toast.error(`Przekroczono limit żądań. Spróbuj ponownie za ${rateLimitData.retry_after} sekund. Pozostałe próby: ${rateLimitData.remaining_requests}`);
         } else {
             setBulkDownloadState(prev => ({
                 ...prev,
                 status: 'error'
             }));
-            setToastMessage('Nie udało się pobrać plików. Spróbuj ponownie później.');
-            setShowToast(true);
+            toast.error('Nie udało się pobrać plików. Spróbuj ponownie później.');
         }
     } finally {
         setTimeout(() => {
@@ -494,13 +495,11 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
         });
       } else {
         await navigator.clipboard.writeText(`https://www.dajkodzik.pl/${slug}`);
-        setToastMessage('Link skopiowany do schowka!');
-        setShowToast(true);
+        toast.success('Link skopiowany do schowka!');
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      setToastMessage('Nie udało się udostępnić linku');
-      setShowToast(true);
+      toast.error('Nie udało się udostępnić linku');
     } finally {
       setIsSharing(false);
     }
@@ -617,20 +616,6 @@ export default function Files({ files, totalSize, createdAt, slug, storagePath, 
   return (
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10 ">
       <div className="w-full space-y-4 animate-fade-in-01-text">
-        {/* Notification Toast */}
-        {showToast && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 mt-10 z-50 animate-fade-in">
-            <div className="bg-zinc-800 text-zinc-200 px-6 py-3 rounded-md border border-zinc-700 shadow-lg flex items-center space-x-3 max-w-md">
-                {bulkDownloadState.status === 'error' ? (
-                    <div className="text-red-400 h-4 w-4 flex-shrink-0">×</div>
-                ) : (
-                    <Share2 className="h-4 w-4 flex-shrink-0" />
-                )}
-                <span className="text-sm">{toastMessage}</span>
-            </div>
-          </div>
-        )}
-
         <div className="flex flex-col gap-2">
           <div className="border-b border-dashed border-zinc-800 p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
           <span>Kod linku: <span className="font-medium text-zinc-200">{slug}</span></span>
