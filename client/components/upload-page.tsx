@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "@/lib/auth-client";
@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/input-otp";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Turnstile } from '@marsidev/react-turnstile'
+import { Turnstile, TurnstileRef } from "@/components/turnstile";
 
 const formSchema = z
   .object({
@@ -133,6 +133,7 @@ export function UploadPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [cancelTokenSource, setCancelTokenSource] = useState<any>(null);
+  const turnstileRef = useRef<TurnstileRef>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -175,20 +176,6 @@ export function UploadPage() {
       setUploadProgress(0);
       setError(true);
     }
-  };
-
-  const handleTurnstileSuccess = (token: string) => {
-    setTurnstileToken(token);
-  };
-
-  const handleTurnstileError = () => {
-    setTurnstileToken(null);
-    toast.error("Nie udało się zweryfikować captchy.");
-  };
-
-  const handleTurnstileExpire = () => {
-    setTurnstileToken(null);
-    toast.error("Captcha wygasła, spróbuj ponownie.");
   };
 
   const handleUpload = async (data: FormData) => {
@@ -288,6 +275,10 @@ export function UploadPage() {
         setError(false);
         form.reset();
         router.push(`/success?slug=${slug}&time=${time}&type=upload`);
+        if (turnstileRef.current) {
+          turnstileRef.current.reset();
+        }
+        setTurnstileToken(null);
       }
     } catch (error) {
       if (axios.isCancel(error)) {
@@ -305,6 +296,10 @@ export function UploadPage() {
           toast.error("Wystąpił błąd podczas przesyłania plików");
         }
       }
+      if (turnstileRef.current) {
+        turnstileRef.current.reset();
+      }
+      setTurnstileToken(null);
     } finally {
       setCancelTokenSource(null);
       setIsSubmitting(false);
@@ -524,18 +519,10 @@ export function UploadPage() {
             )}
           />
 
-          <div className="w-full flex justify-center mb-4">
-            <Turnstile
-              siteKey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY!}
-              onSuccess={handleTurnstileSuccess}
-              onError={handleTurnstileError}
-              onExpire={handleTurnstileExpire}
-              options={{
-                theme: 'dark',
-                language: 'pl',
-              }}
-            />
-          </div>
+          <Turnstile 
+            ref={turnstileRef}
+            onTokenChange={setTurnstileToken} 
+          />
 
           <Button
             type="submit"

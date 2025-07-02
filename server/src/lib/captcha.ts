@@ -30,7 +30,7 @@ function getErrorMessage(errorCodes: string[]): string {
         'missing-input-response': 'Brak tokenu odpowiedzi.',
         'invalid-input-response': 'Nieprawidłowy token odpowiedzi.',
         'bad-request': 'Nieprawidłowe żądanie.',
-        'timeout-or-duplicate': 'Token wygasł lub został już użyty.',
+        'timeout-or-duplicate': 'Token wygasł lub został już użyty. Odśwież stronę.',
         'internal-error': 'Błąd wewnętrzny serwera Turnstile.'
     };
 
