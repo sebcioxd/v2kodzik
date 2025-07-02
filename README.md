@@ -21,7 +21,7 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
 - Refactor z Node.js do Deno (Pełen support TypeScript'u)
 - Refactor Front-endu, dodanie lepszego supportu TS.
-- Zamienienie npm na pnpm w front-endzie.
+- Zamienienie npm na pnpm w front-endzie. 🟢
 - Możliwość dodawania również kodu, nie tylko załączania plików 🟢
 
 ## Contribute (Wesprzyj)
