@@ -1,8 +1,6 @@
 import type { Context, Next } from "hono";
 import { auth } from "../lib/auth.js";
 
-// watch route test
-
 const addSession = async (c: Context, next: Next) => {
     const session = await auth.api.getSession({ headers: c.req.raw.headers });
     

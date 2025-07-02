@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/input-otp";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Turnstile } from '@marsidev/react-turnstile'
 
 const formSchema = z
   .object({
@@ -132,6 +133,7 @@ export function UploadPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [cancelTokenSource, setCancelTokenSource] = useState<any>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -175,7 +177,26 @@ export function UploadPage() {
     }
   };
 
+  const handleTurnstileSuccess = (token: string) => {
+    setTurnstileToken(token);
+  };
+
+  const handleTurnstileError = () => {
+    setTurnstileToken(null);
+    toast.error("Nie udało się zweryfikować captchy.");
+  };
+
+  const handleTurnstileExpire = () => {
+    setTurnstileToken(null);
+    toast.error("Captcha wygasła, spróbuj ponownie.");
+  };
+
   const handleUpload = async (data: FormData) => {
+    if (!turnstileToken) {
+      toast.error("Proszę ukończyć captche.");
+      return;
+    }
+
     // Create a new cancel token source
     const source = axios.CancelToken.source();
     setCancelTokenSource(source);
@@ -212,7 +233,7 @@ export function UploadPage() {
         `accessCode=${data.accessCode}&` +
         `visibility=${data.visibility}&` +
         `time=${data.time}`,
-        null,
+        { token: turnstileToken },
         {
           withCredentials: true,
         }
@@ -503,12 +524,25 @@ export function UploadPage() {
             )}
           />
 
+          <div className="w-full flex justify-center mb-4">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY!}
+              onSuccess={handleTurnstileSuccess}
+              onError={handleTurnstileError}
+              onExpire={handleTurnstileExpire}
+              options={{
+                theme: 'dark',
+                language: 'pl',
+              }}
+            />
+          </div>
+
           <Button
             type="submit"
             className={`w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400 animate-slide-in-left ${
               isSubmitting ? "bg-zinc-900/20" : ""
             }`}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !turnstileToken}
             size="sm"
           >
             {isSubmitting ? (

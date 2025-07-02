@@ -38,7 +38,7 @@ export default function FAQ() {
               Jakie są limity dotyczące linków?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Nasze API ogranicza do 3 linków co 10-20 minut na jeden adres IP.
+              Nasze API ogranicza do 3 linków co 20 minut na jeden adres IP.
             </AccordionContent>
         </AccordionItem>
 

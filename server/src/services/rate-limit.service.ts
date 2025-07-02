@@ -3,7 +3,6 @@ import { rateLimiter } from "hono-rate-limiter";
 import { RedisStore } from "rate-limit-redis";
 import getRedisClient from "../lib/redis.js";
 
-
 const minutes = (ms: number) => Math.floor(ms / 1000 / 60);
 
 export const rateLimitConfigs = {
@@ -19,7 +18,7 @@ export const rateLimitConfigs = {
         windowMs: minutes(1),      
         limit: 5,
     },
-    auth: { // rejestracja
+    auth: {
         windowMs: minutes(10), 
         limit: 2,
     },
@@ -37,7 +36,7 @@ export const rateLimitConfigs = {
     }
 } as const;
 
-type RateLimitKey = keyof typeof rateLimitConfigs;
+export type RateLimitKey = keyof typeof rateLimitConfigs;
 
 const redisClient = getRedisClient();
 

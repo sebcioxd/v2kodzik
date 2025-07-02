@@ -1,10 +1,11 @@
 import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps, CancelUploadServiceProps } from "../lib/types.js";
 import { fixRequestProps } from "../utils/req-fixer.js";
-import { shares, uploadedFiles, user } from "../db/schema.js";
+import { shares, uploadedFiles } from "../db/schema.js";
 import { hashCode } from "../lib/hash.js";
 import { db } from "../db/index.js";
 import { eq, sql } from "drizzle-orm";
 import getS3Client from "../lib/s3.js";
+import { verifyCaptcha } from "../lib/captcha.js";
 
 // Funkcja, która generuje presigned URL dla plików do wysyłki.
 export async function generatePresignedUrl({ Key }: generatePresignedUrlProps) {
@@ -36,6 +37,16 @@ export async function S3UploadService({ c, user }: S3UploadServiceProps) {
     try {
         const { slug, isPrivate, accessCode, visibility, time } = c.req.query();
         const fileNames = c.req.query("fileNames")?.split(",");
+
+        // Walidacja czy człowiek nie jest robotem
+        try {
+            await verifyCaptcha({ c });
+        } catch (error) {
+            return c.json({
+                message: `Nie udało się zweryfikować captchy. ${error}`,
+            }, 400);
+        }
+
 
         const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time, fileNames: fileNames || [] }, c, user);
 
