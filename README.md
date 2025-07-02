@@ -11,6 +11,8 @@ Zero vendor lock-inu - Wszystkie technologie jak najbardziej self-hostable.
 Backend używa najnowszych funkcji S3 takich jak **presigned URLs**. Przez co, serwer może wytrzymać naprawdę duże obciążenie 
 transferu plików.
 
+Zabezpieczona technologią CAPTCHA **Cloudflare Turnstile**.
+
 Ważniejsze endpointy zabezpieczone **rate-limitem**.
 
 Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
@@ -38,6 +40,8 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 [Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/)
 - Hosting PostgreSQL ([Docker](https://hub.docker.com/_/postgres), [Neon](https://neon.com/), [Supabase](https://supabase.com/))
 - Hosting Redis ([Redis.io](https://redis.io/), [Docker](https://hub.docker.com/_/redis))
+- Konta Google i Discord do skonfigurowania OAuth (Darmowe)
+- Konto w Cloudflare do skonfigurowania Cloudflare Turnstile (Darmowe)
 - Cron jobs
 
 ## Zmienne środowiskowe
@@ -48,7 +52,7 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 ### Frontend (`/client`)
 [Link do zmiennych środowiskowych dla klienta](https://github.com/sebcioxd/v2kodzik/blob/main/client/.env.local.example)
 
-W każdym projekcie załączone są pliki .env.example
+W każdym projekcie załączone są pliki **.env.example**
 
 ## Szybka instalacja
 
