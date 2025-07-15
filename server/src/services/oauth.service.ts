@@ -1,7 +1,7 @@
-import type { SetOAuthStatusServiceProps } from "../lib/types.js";
-import { auth } from "../lib/auth.js";
-import { db } from "../db/index.js";
-import { account } from "../db/schema.js";
+import type { SetOAuthStatusServiceProps } from "../lib/types";
+import { auth } from "../lib/auth";
+import { db } from "../db/index";
+import { account } from "../db/schema";
 import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 

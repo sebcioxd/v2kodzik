@@ -1,33 +1,32 @@
-import type { EmailServiceProps } from '../lib/types.js'
-import { emailVerifyTemplate } from "../templates/email-verify.js"
-import { passwordForgetTemplate } from "../templates/password-forget.js"
-import { SMTP_USER, SMTP_PASS } from '../lib/env.js'
-import nodemailer from 'nodemailer'
-
-
+import type { EmailServiceProps } from '../lib/types'
+import { emailVerifyTemplate } from "../templates/email-verify"
+import { passwordForgetTemplate } from "../templates/password-forget"
+import { SMTP_USER, SMTP_PASS } from '../lib/env'
+import { createMessage } from "@upyo/core";
+import { SmtpTransport } from "@upyo/smtp";
 
 export async function sendEmailService({ to, subject, text, emailType }: EmailServiceProps) {
     const emailTemplate = emailType === "verify" ? emailVerifyTemplate(text, to) : passwordForgetTemplate(text)
 
-    const transporter = nodemailer.createTransport({
+    const transporter = new SmtpTransport({
         host: "smtp.gmail.com",
-        port: 587,
-        secure: false, 
+        port: 465,
+        secure: true, 
         auth: {
             user: SMTP_USER,
             pass: SMTP_PASS
         }
     })
 
-    const mailOptions = {
+    const message = createMessage({
         from: SMTP_USER,
         to: to,
         subject: subject,
-        html: emailTemplate
-    }
+        content: { html: emailTemplate || "" }
+    })
 
     try {
-        await transporter.sendMail(mailOptions)
+        await transporter.send(message)
     } catch (err) {
         console.log(err)
     }

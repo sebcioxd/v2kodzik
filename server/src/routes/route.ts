@@ -1,17 +1,18 @@
 import { Hono } from "hono";
 
-import helloRoute from "./hello.route.js";
-import infoRoute from "./info.route.js";
-import uploadRoute from "./upload.route.js";
-import lastpostsRoute from "./lastposts.route.js";
-import statusRoute from "./status.route.js";
-import historyRoute from "./history.route.js";
-import downloadRoute from "./download.route.js";
-import shareRoute from "./share.route.js";
-import cronRoute from "./cron.route.js";
-import updateRoute from "./update.route.js";
-import snippetRoute from "./snippets.route.js";
-import oauthRoute from "./oauth.route.js";
+import helloRoute from "./hello.route";
+import infoRoute from "./info.route";
+import uploadRoute from "./upload.route";
+import lastpostsRoute from "./lastposts.route";
+import statusRoute from "./status.route";
+import historyRoute from "./history.route";
+import downloadRoute from "./download.route";
+import shareRoute from "./share.route";
+import cronRoute from "./cron.route";
+import updateRoute from "./update.route";
+import snippetRoute from "./snippets.route";
+import oauthRoute from "./oauth.route";
+
 const routes = new Hono()
 
 routes.route("/", helloRoute)
@@ -26,4 +27,5 @@ routes.route("/cron", cronRoute)
 routes.route("/update", updateRoute)
 routes.route("/snippet", snippetRoute)
 routes.route("/oauth", oauthRoute)
+
 export default routes

@@ -1,6 +1,6 @@
 import type { Env } from "hono";
 import type { Context } from "hono";
-import { auth } from "../lib/auth.js";
+import { auth } from "../lib/auth";
 
 
 export type EmailType = "verify" | "forget";

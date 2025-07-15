@@ -1,5 +1,5 @@
-import type { SendWebhookServiceProps } from "../lib/types.js";
-import { DISCORD_WEBHOOK_URL } from "../lib/env.js";
+import type { SendWebhookServiceProps } from "../lib/types";
+import { DISCORD_WEBHOOK_URL } from "../lib/env";
 
 export async function sendWebhookService({
   content,

@@ -1,4 +1,4 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { DATABASE_URL } from '../lib/env.js';
+import { drizzle } from 'drizzle-orm/bun-sql';
+import { DATABASE_URL } from '../lib/env';
 
-export const db = drizzle(DATABASE_URL);    
+export const db = drizzle(DATABASE_URL)

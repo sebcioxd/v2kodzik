@@ -3,7 +3,6 @@ import { Session } from "./auth-client";
 
 const getServerSession = async (): Promise<Session | null> => {
   try {
-
     const cookieHeader = (await cookies()).toString();
 
     const res = await fetch(`${process.env.BETTER_AUTH_URL}/v1/auth/get-session`, {

@@ -1,11 +1,11 @@
-import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps, CancelUploadServiceProps } from "../lib/types.js";
-import { fixRequestProps } from "../utils/req-fixer.js";
-import { shares, uploadedFiles } from "../db/schema.js";
-import { hashCode } from "../lib/hash.js";
-import { db } from "../db/index.js";
-import { eq, sql } from "drizzle-orm";
-import getS3Client from "../lib/s3.js";
-import { verifyCaptcha } from "../lib/captcha.js";
+import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps, CancelUploadServiceProps } from "../lib/types";
+import { fixRequestProps } from "../utils/req-fixer";
+import { shares, uploadedFiles } from "../db/schema";
+import { hashCode } from "../lib/hash";
+import { db } from "../db/index";
+import { sql } from "drizzle-orm";
+import { getS3Client } from "../lib/s3";
+import { verifyCaptcha } from "../lib/captcha";
 
 // Funkcja, która generuje presigned URL dla plików do wysyłki.
 export async function generatePresignedUrl({ Key }: generatePresignedUrlProps) {
@@ -20,11 +20,12 @@ export async function generatePresignedUrl({ Key }: generatePresignedUrlProps) {
         throw new Error('Invalid file path');
     }
 
-    const url = await client.getPresignedUrl("PUT", Key, {
-        expirySeconds: 200,
-        bucketName: "sharesbucket",
-        requestDate: new Date(),
-    });
+    const url = client.presign(Key, {
+        expiresIn: 600,
+        method: "PUT",
+        type: "application/octet-stream",
+        acl: "public-read",
+    })
 
     return { url }
 }

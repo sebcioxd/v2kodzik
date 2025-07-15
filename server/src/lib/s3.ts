@@ -1,16 +1,29 @@
-import { S3Client } from "@bradenmacdonald/s3-lite-client";
+import { S3Client } from "bun";
 
-import { S3_ENDPOINT, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY } from "./env.js";
+import { S3_ENDPOINT, S3_REGION, S3_ACCESS_KEY, S3_SECRET_KEY, S3_ADMIN_ACCESS_KEY, S3_ADMIN_SECRET_KEY } from "./env";
 
-export default function getS3Client({ bucket }: { bucket: string }) {
+export function getS3Client({ bucket }: { bucket: string }) {
   
-  const s3Client = new S3Client({
-      endPoint: S3_ENDPOINT,
-      region: S3_REGION,
-      accessKey: S3_ACCESS_KEY,
-      secretKey: S3_SECRET_KEY,
-      bucket: bucket,
-  });
-
- return s3Client;
+    const s3Client = new S3Client({
+        endpoint: S3_ENDPOINT,
+        region: S3_REGION,
+        accessKeyId: S3_ACCESS_KEY,
+        secretAccessKey: S3_SECRET_KEY,
+        bucket: bucket,
+    });
+  
+   return s3Client;
 }
+
+export function getS3AdminClient({ bucket }: { bucket: string }) {
+  
+    const s3Client = new S3Client({
+        endpoint: S3_ENDPOINT,
+        region: S3_REGION,
+        accessKeyId: S3_ADMIN_ACCESS_KEY,
+        secretAccessKey: S3_ADMIN_SECRET_KEY,
+        bucket: bucket,
+    });
+  
+   return s3Client;
+  }

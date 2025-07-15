@@ -1,5 +1,5 @@
-import type { AuthSession } from "../lib/types.js";
-import { auth } from "../lib/auth.js";
+import type { AuthSession } from "../lib/types";
+import { auth } from "../lib/auth";
 import { Hono } from "hono";
 
 const updateRoute = new Hono<AuthSession>();
@@ -8,7 +8,7 @@ updateRoute.post("/", async (c) => {
     const user = c.get("user");
 
     if (!user) {
-        return c.json({ error: "Unauthorized" }, 401);
+        return c.json({ error: "Nie jesteś zalogowany" }, 401);
     }
     
     const { remoteAdress, userAgent } = await c.req.json();
@@ -24,9 +24,9 @@ updateRoute.post("/", async (c) => {
             })
         }
 
-        return c.json({ message: "User updated" }, 200);
+        return c.json({ message: "Użytkownik zaktualizowany" }, 200);
     } catch (error) {
-        return c.json({ error: "Failed to update user" }, 500);
+        return c.json({ error: "Nie udało się zaktualizować użytkownika" }, 500);
     }
 });
 

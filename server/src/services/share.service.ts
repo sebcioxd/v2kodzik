@@ -1,11 +1,11 @@
-import type { GetShareFileServiceProps, VerifyShareCodeServiceProps, VerifyCookieServiceProps } from "../lib/types.js";
-import { db } from "../db/index.js";
-import { shares, uploadedFiles } from "../db/schema.js";
+import type { GetShareFileServiceProps, VerifyShareCodeServiceProps, VerifyCookieServiceProps } from "../lib/types";
+import { db } from "../db/index";
+import { shares, uploadedFiles } from "../db/schema";
 import { eq } from "drizzle-orm";
-import { verifyCode } from "../lib/hash.js";
-import { ENVIRONMENT } from "../lib/env.js";
+import { verifyCode } from "../lib/hash";
+import { ENVIRONMENT } from "../lib/env";
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
-import { DOMAIN_WILDCARD } from "../lib/env.js";
+import { DOMAIN_WILDCARD } from "../lib/env";
 
 const getFiles = async (shareId: string) => {
     const files = await db

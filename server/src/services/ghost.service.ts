@@ -1,11 +1,11 @@
-import { shares, uploadedFiles } from "../db/schema.js";
-import { sendWebhookService } from "./webhook.service.js";
+import { shares, uploadedFiles } from "../db/schema";
+import { sendWebhookService } from "./webhook.service";
 import { sql, eq, inArray } from "drizzle-orm";
-import { db } from "../db/index.js";
-import getS3Client from "../lib/s3.js";
+import { db } from "../db/index";
+import { getS3Client } from "../lib/s3";
 import type { Context } from "hono";
   
-  const s3Client = getS3Client({ bucket: "sharesbucket" });
+  const client = getS3Client({ bucket: "sharesbucket" });
   
   export async function deleteGhostFilesService({
     c,
@@ -13,7 +13,6 @@ import type { Context } from "hono";
     c: Context;
   }) {
     try {
-      // Find shares without files
       const shareWithoutFiles = await db
         .select({
           id: shares.id,
@@ -34,7 +33,7 @@ import type { Context } from "hono";
 
       for (const share of shareWithoutFiles) {
         try {
-          await s3Client.deleteObject(share.slug);
+            await client.delete(share.slug);
           deletionResults.push(share.id);
         } catch (error) {
           failedDeletions.push(share.slug);

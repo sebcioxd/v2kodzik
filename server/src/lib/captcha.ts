@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import { CLOUDFLARE_TURNSTILE_SECRET_KEY } from "./env.js";
+import { CLOUDFLARE_TURNSTILE_SECRET_KEY } from "./env";
 
 export async function verifyCaptcha({ c }: { c: Context }) {
         const { token } = await c.req.json()

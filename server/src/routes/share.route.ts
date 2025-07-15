@@ -1,6 +1,6 @@
-import { getShareFileService, verifyCookieService, verifyShareCodeService } from "../services/share.service.js";
-import { createRateLimiter } from "../services/rate-limit.service.js";
-import type { AuthSession } from "../lib/types.js";
+import { getShareFileService, verifyCookieService, verifyShareCodeService } from "../services/share.service";
+import { createRateLimiter } from "../services/rate-limit.service";
+import type { AuthSession } from "../lib/types";
 import { Hono } from "hono";
 
 const shareRoute = new Hono<AuthSession>();

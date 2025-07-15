@@ -1,8 +1,6 @@
-import type { InfoServiceResponse } from "../lib/types.js";
+import type { InfoServiceResponse } from "../lib/types";
 import type { Context } from "hono";
-import { getConnInfo } from "@hono/node-server/conninfo"
-
-
+import { getConnInfo } from 'hono/bun'
 
 export function getInfoService(c: Context): InfoServiceResponse {
 

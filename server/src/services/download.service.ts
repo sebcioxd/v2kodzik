@@ -1,16 +1,13 @@
-import type { DownloadFileServiceProps, DownloadBulkFilesServiceProps } from "../lib/types.js";
-import getS3Client from "../lib/s3.js";
+import type { DownloadFileServiceProps, DownloadBulkFilesServiceProps } from "../lib/types";
+import { getS3Client } from "../lib/s3";
 
-const s3Client = getS3Client({
-    bucket: "sharesbucket",
-});
+const client = getS3Client({ bucket: "sharesbucket" });
 
 export async function downloadFileService({ path, c }: DownloadFileServiceProps) {
     try {
-        const presignedUrl = await s3Client.presignedGetObject(path, {
-            expirySeconds: 200,
-            requestDate: new Date(),
-            bucketName: "sharesbucket",
+        const presignedUrl = client.presign(path, {
+            expiresIn: 200,
+            method: "GET",
         });
 
         return c.json({ url: presignedUrl });
@@ -25,10 +22,9 @@ export async function downloadFileService({ path, c }: DownloadFileServiceProps)
 export async function downloadBulkFilesService({ paths, c }: DownloadBulkFilesServiceProps) {
     try {
         const presignedUrls = await Promise.all(paths.map(async (path) => {
-            const url = await s3Client.presignedGetObject(path, {
-                expirySeconds: 200,
-                requestDate: new Date(),
-                bucketName: "sharesbucket",
+            const url = client.presign(path, {
+                expiresIn: 200,
+                method: "GET",
             });
             const fileName = path.split("/").pop() || "unknown";
             return { url, fileName };

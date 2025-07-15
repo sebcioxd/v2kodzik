@@ -1,6 +1,6 @@
-import type { AuthSession } from "../lib/types.js";
+import type { AuthSession } from "../lib/types";
 import { Hono } from "hono";
-import { addOAuthAccountPasswordService, getDiscordGuildsService, setOAuthStatusService } from "../services/oauth.service.js";
+import { addOAuthAccountPasswordService, getDiscordGuildsService, setOAuthStatusService } from "../services/oauth.service";
 
 const oauthRoute = new Hono<AuthSession>();
 

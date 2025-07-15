@@ -1,7 +1,7 @@
-import type { AuthSession } from "../lib/types.ts";
+import type { AuthSession } from "../lib/types";
 import type { Context } from "hono";
-import { finalizeUploadService, S3UploadService, cancelUploadService } from "../services/upload.service.js";
-import { createRateLimiter } from "../services/rate-limit.service.js";
+import { finalizeUploadService, S3UploadService, cancelUploadService } from "../services/upload.service";
+import { createRateLimiter } from "../services/rate-limit.service";
 import { Hono } from "hono";
 
 const uploadRoute = new Hono<AuthSession>();

@@ -1,6 +1,6 @@
 import { Hono } from "hono"
-import { downloadFileService, downloadBulkFilesService } from "../services/download.service.js"
-import { createRateLimiter } from "../services/rate-limit.service.js"
+import { downloadFileService, downloadBulkFilesService } from "../services/download.service"
+import { createRateLimiter } from "../services/rate-limit.service"
 const downloadRoute = new Hono()
 
 downloadRoute.get("/:folder/:file", createRateLimiter("download"), async (c) => {
@@ -20,7 +20,7 @@ downloadRoute.post("/bulk", createRateLimiter("download"), async (c) => {
         return await downloadBulkFilesService({ paths, c })
     } catch (err) {
         return c.json({
-            message: "Server error has occurred",
+            message: "Wystąpił błąd podczas pobierania plików",
             error: err,
         }, 500)
     }

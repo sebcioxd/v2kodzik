@@ -1,7 +1,7 @@
 import type { Store } from "hono-rate-limiter";
 import { rateLimiter } from "hono-rate-limiter";
 import { RedisStore } from "rate-limit-redis";
-import getRedisClient from "../lib/redis.js";
+import getRedisClient from "../lib/redis";
 
 const minutes = (min: number) => min * 60 * 1000;
 

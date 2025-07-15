@@ -1,9 +1,9 @@
-import type { CreateSnippetServiceProps, GetSnippetServiceProps } from "../lib/types.js";
-import { snippets } from "../db/schema.js";
-import { db } from "../db/index.js";
+import type { CreateSnippetServiceProps, GetSnippetServiceProps } from "../lib/types";
+import { snippets } from "../db/schema";
+import { db } from "../db/index";
 import { eq, desc } from "drizzle-orm";
 import type { Context } from "hono";
-import { restrictedPaths } from "../utils/req-fixer.js";
+import { restrictedPaths } from "../utils/req-fixer";
 
 const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 

@@ -1,10 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "../db/index.js"; 
-import { schema } from "../db/schema.js";
-import { sendEmailService } from "../services/email.service.js";
-import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET } from "../lib/env.js";
+import { db } from "../db/index"; 
+import { schema } from "../db/schema";
+import { sendEmailService } from "../services/email.service";
+import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET } from "../lib/env";
 import { emailOTP } from "better-auth/plugins"
+
 
 export const auth = betterAuth({
     database: drizzleAdapter(db, {

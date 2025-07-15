@@ -4,7 +4,7 @@
 
 Platforma open-source do przesyłania kodu, oraz załączników z **niestandardowymi** linkami.
 
-Zbudowana przy użyciu Next.js, Hono, Node.js, Drizzle ORM, PostgreSQL, Amazon S3 i Redis.
+Zbudowana przy użyciu Next.js, Hono, Bun/Node.js, Drizzle ORM, PostgreSQL, Amazon S3 i Redis.
 
 Zero vendor lock-inu - Wszystkie technologie jak najbardziej self-hostable.
 
@@ -19,7 +19,7 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
 ## W planach
 
-- Refactor z Node.js do Deno (Pełen support TypeScript'u)
+- Refactor z Node.js do Deno lub Bun'a (Pełen support TypeScript'u) 🟢
 - Refactor Front-endu, dodanie lepszego supportu TS.
 - Zamienienie npm na pnpm w front-endzie. 🟢
 - Możliwość dodawania również kodu, nie tylko załączania plików 🟢
@@ -32,6 +32,7 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
 ## Wymagania
 
+- [Bun 1.2+](https://bun.com/) 
 - [Node.js 22+](https://nodejs.org)  
 - [pnpm](https://pnpm.io/)  
 - Hosting S3 Object Storage,
@@ -46,8 +47,11 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
 ## Zmienne środowiskowe
 
-### Backend (`/server`)
+### Backend Bun (`/server`)
 [Link do zmiennych środowiskowych dla serwera](https://github.com/sebcioxd/v2kodzik/blob/main/server/.env.example)
+
+### Backend Node (`/__node-server`)
+[Link do zmiennych środowiskowych dla serwera](https://github.com/sebcioxd/v2kodzik/blob/main/__node-server/.env.example)
 
 ### Frontend (`/client`)
 [Link do zmiennych środowiskowych dla klienta](https://github.com/sebcioxd/v2kodzik/blob/main/client/.env.local.example)
@@ -55,6 +59,22 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 W każdym projekcie załączone są pliki **.env.example**
 
 ## Szybka instalacja
+
+Wybierz instalację Node czy Bun.
+
+Jeśli chcesz korzystać z Bun'a:
+- Usuń folder /__node-server
+
+Jeśli chcesz korzystać z Node'a:
+- Usuń folder /server
+- Zmień nazwę folderu __node-server na server
+
+Różnice:
+Serwer działający na Bun runtime jest o wiele szybszy pod wzgledem szybkosci. Używa on natywnych funkcji PostgreSQL i S3.
+Również obsługuję pełen support TypeScriptu.
+
+Node jest zostawiony ze względu na jego stabilność.
+Polecamy używać Bun'a.
 
 1. Sklonuj repozytorium
 ```bash
@@ -65,16 +85,28 @@ cd dajkodzik-v2
 2. Zainstaluj zależności back-endu
 ```bash
 cd server
-pnpm install
+bun install lub pnpm install jeśli korzystamy z serwera node
 ```
 
 3. Podłącz wszystkie zmienne środowiskowe (dla serwera i dla klienta)
 - Przykłady znajdziecie w `.env.local.example` i `.env.example`
 
 4. Zainicjalizuj schemat bazy danych
+##### Uwaga: Jeśli korzystasz z Bun'a, prawdopodobnie otrzymasz ten komunikat:
+> To connect to Postgres database - please install either of 'pg', 'postgres', '@neondatabase/serverless' or '@vercel/postgres' drivers
+W tym wypadku, koniecznie jest zainstalowanie drivera dla postgresa (Ponieważ drizzle korzysta z natywnego dla buna, lecz drizzle-kit tego nie obsługuję.)
+
+
+
 ```bash
+Dla bun:
+bunx drizzle-kit push
+bun i pg
+
+Dla node:
 pnpm exec drizzle-kit push # pnpm dlx drizzle-kit push
 ```
+
 
 5. Stwórz bucket w kompatybilnym z S3 Object Storage
 - Nazwa bucketu: `sharesbucket`
@@ -101,7 +133,7 @@ npm run dev
 - Rekomendowane: Vercel
 - Alternatywa: VPS z Dokploy
 
-### Backend (Hono + Node.js)
+### Backend (Hono + Bun/Node.js)
 - Serverless: Railway.app, fly.io
 - Server VPS: Dokploy
 - Kompilacja: zalecane użycie Railpack lub Nixpacks

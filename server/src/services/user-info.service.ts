@@ -1,9 +1,7 @@
-import type { GetUserHistoryServiceProps, GetUserHistoryCountServiceProps } from "../lib/types.js";
-import { shares, snippets } from "../db/schema.js";
-import { db } from "../db/index.js";
+import type { GetUserHistoryServiceProps, GetUserHistoryCountServiceProps } from "../lib/types";
+import { shares, snippets } from "../db/schema";
+import { db } from "../db/index";
 import { eq, desc } from "drizzle-orm";
-
-
 
 export async function getUserHistoryService({ offset, limit, userId }: GetUserHistoryServiceProps) {
     const history = await db

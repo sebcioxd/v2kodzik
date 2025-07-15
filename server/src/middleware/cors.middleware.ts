@@ -1,5 +1,5 @@
 import { cors } from "hono/cors"
-import { SITE_URL } from "../lib/env.js"
+import { SITE_URL } from "../lib/env"
 
 const configCors = cors({
     origin: SITE_URL,
