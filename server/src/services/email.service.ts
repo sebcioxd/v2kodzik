@@ -1,29 +1,41 @@
-import type { EmailServiceProps } from '../lib/types'
-import { emailVerifyTemplate } from "../templates/email-verify"
-import { passwordForgetTemplate } from "../templates/password-forget"
-import { SMTP_USER, SMTP_PASS, MAILGUN_API_KEY } from '../lib/env'
+import type { EmailServiceProps } from "../lib/types";
+import { emailVerifyTemplate } from "../templates/email-verify";
+import { passwordForgetTemplate } from "../templates/password-forget";
+import { SMTP_USER, SMTP_PASS, MAILGUN_API_KEY } from "../lib/env";
 import { createMessage } from "@upyo/core";
-import { MailgunTransport } from "@upyo/mailgun";
-export async function sendEmailService({ to, subject, text, emailType }: EmailServiceProps) {
-    const emailTemplate = emailType === "verify" ? emailVerifyTemplate(text, to) : passwordForgetTemplate(text)
+import { SmtpTransport } from "@upyo/smtp";
 
-    const transporter = new MailgunTransport({
-        apiKey: MAILGUN_API_KEY,
-        domain: "mail.dajkodzik.pl",
-        region: "eu"
-    })
+export async function sendEmailService({
+  to,
+  subject,
+  text,
+  emailType,
+}: EmailServiceProps) {
+  const emailTemplate =
+    emailType === "verify"
+      ? emailVerifyTemplate(text, to)
+      : passwordForgetTemplate(text);
 
-    const message = createMessage({
-        from: "Dajkodzik.pl <hello@dajkodzik.pl>",
-        to: to,
-        subject: subject,
-        content: { html: emailTemplate || "" }
-    })
+  const transporter = new SmtpTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASS,
+    },
+  });
 
-    try {
-        await transporter.send(message)
-    } catch (err) {
-        console.log(err)
-    }
+  const message = createMessage({
+    from: "Dajkodzik.pl <xyzniarde@gmail.com>",
+    to: to,
+    subject: subject,
+    content: { html: emailTemplate || "" },
+  });
 
+  try {
+    await transporter.send(message);
+  } catch (err) {
+    console.log(err);
+  }
 }

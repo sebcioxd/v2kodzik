@@ -243,7 +243,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
         if (axios.isAxiosError(error) && error.response?.status === 429) {
             toast.error(`Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.`);
         } else {
-            toast.error('Nie udało się pobrać pliku. Spróbuj ponownie później.');
+            toast.error('Nie udało się pobrać pliku. Użyj pobierania w formie zip.');
         }
     } finally {
         setDownloadingFiles((prev) => ({ ...prev, [fileId]: false }));
