@@ -20,6 +20,10 @@ export const shares = pgTable('shares', {
     .on(t.userId, t.createdAt.desc()),
   index('idx_shares_expires_at')
     .on(t.expiresAt),
+  index('idx_shares_slug_code')
+    .on(t.slug, t.code),
+  index('idx_shares_slug_private')
+    .on(t.slug, t.private),
 ]);
 
 export const uploadedFiles = pgTable('uploaded_files', {
@@ -35,6 +39,10 @@ export const uploadedFiles = pgTable('uploaded_files', {
     .on(t.shareId),
   index('idx_uploaded_files_storage_path')
     .on(t.storagePath),
+  index('idx_uploaded_files_share_created')
+    .on(t.shareId, t.createdAt.desc()),
+  index('idx_uploaded_files_share_size')
+    .on(t.shareId, t.size),
 ]);
 
 export const snippets = pgTable('snippets', {
