@@ -143,14 +143,14 @@ export async function finalizeUploadService({ c, user }: FinalizeUploadServicePr
                 userAgent: c.req.header("user-agent") || null,
             }).returning({ id: shares.id });
 
-            await Promise.all(files.map(async (file: { fileName: string; size: number }) => {
-                await tx.insert(uploadedFiles).values({
-                    shareId: shareResult[0].id,
-                    fileName: file.fileName,
-                    size: file.size,
-                    storagePath: `${slug}/${file.fileName}`, 
-                });
+            const fileInserts = files.map((file: { fileName: string; size: number }) => ({
+                shareId: shareResult[0].id,
+                fileName: file.fileName,
+                size: file.size,
+                storagePath: `${slug}/${file.fileName}`,
             }));
+            
+            await tx.insert(uploadedFiles).values(fileInserts);
 
             return shareResult[0].id;
         });
