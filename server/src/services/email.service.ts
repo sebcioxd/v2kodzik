@@ -14,7 +14,7 @@ export async function sendEmailService({ to, subject, text, emailType }: EmailSe
     })
 
     const message = createMessage({
-        from: "hello@dajkodzik.pl",
+        from: "Dajkodzik.pl <hello@dajkodzik.pl>",
         to: to,
         subject: subject,
         content: { html: emailTemplate || "" }
