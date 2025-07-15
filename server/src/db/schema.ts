@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, pgTable, text, timestamp, uuid, boolean } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp, uuid, boolean, index } from 'drizzle-orm/pg-core';
 
 export const shares = pgTable('shares', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -13,7 +13,14 @@ export const shares = pgTable('shares', {
   visibility: boolean('visibility').default(true),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
-});
+}, (t) => ({
+  visibilityCreatedAtIdx: index('idx_shares_visibility_created')
+    .on(t.visibility, t.createdAt.desc()),
+  userIdCreatedAtIdx: index('idx_shares_user_created')
+    .on(t.userId, t.createdAt.desc()),
+  expiresAtIdx: index('idx_shares_expires_at')
+    .on(t.expiresAt),
+}));
 
 export const uploadedFiles = pgTable('uploaded_files', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
@@ -23,7 +30,12 @@ export const uploadedFiles = pgTable('uploaded_files', {
   storagePath: text('storage_path').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (t) => ({
+  shareIdIdx: index('idx_uploaded_files_share_id')
+    .on(t.shareId),
+  storagePathIdx: index('idx_uploaded_files_storage_path')
+    .on(t.storagePath),
+}));
 
 export const snippets = pgTable('snippets', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
