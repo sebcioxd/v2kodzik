@@ -4,51 +4,87 @@ export const passwordForgetTemplate = (text: string) => `<!DOCTYPE html PUBLIC "
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Zresetuj hasło - dajkodzik.pl</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+  </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif; background-color: #09090b; color: #f8fafc;">
+<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #09090b; color: #f4f4f5; line-height: 1.6;">
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #09090b;">
     <tr>
-      <td align="center" style="padding: 40px 0;">
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="max-width: 600px; width: 100%; background-color: #09090b; border: 1px solid #27272a; border-radius: 8px; overflow: hidden;">
-          <!-- Header -->
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 480px; background-color: #09090b;">
+          
+          <!-- Logo Section -->
           <tr>
-            <td align="center" style="padding: 30px 20px; border-bottom: 1px solid #27272a; background-color: #09090b;">
-              <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #f8fafc;">dajkodzik.pl</h1>
-              <p style="margin: 10px 0 0 0; color: #71717a;">Przesyłaj pliki w mgnieniu oka</p>
+            <td align="center" style="padding: 40px 0 30px 0;">
+              <img src="https://www.dajkodzik.pl/logo-small.png" 
+                   alt="dajkodzik.pl" 
+                   width="110" 
+                   height="100" 
+                   style="display: block; border: 0; border-radius: 8px;" />
             </td>
           </tr>
-          
-          <!-- Content -->
+
+          <!-- Main Content Card -->
           <tr>
-            <td style="padding: 30px; background-color: #09090b;">
-              <p style="margin-bottom: 20px; font-size: 16px; line-height: 1.5; color: #a1a1aa;">Otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta.</p>
-              
-              <p style="margin-bottom: 30px; font-size: 16px; line-height: 1.5; color: #a1a1aa;">Kliknij poniższy przycisk, aby ustawić nowe hasło. Ze względów bezpieczeństwa link jest ważny tylko przez 15 minut.</p>
-              
-              <!-- Button -->
-              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+            <td>
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #0c0c0e; border: 1px solid #27272a; border-radius: 12px; overflow: hidden;">
+                
+                <!-- Header -->
                 <tr>
-                  <td align="center" style="padding: 20px 0;">
-                    <a href="${text}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 16px; color: #f8fafc; text-decoration: none; border-radius: 4px; background-color: #18181b; border: 1px solid #27272a;">Zresetuj hasło</a>
+                  <td style="padding: 32px 32px 24px 32px; text-align: center; border-bottom: 1px dashed #27272a;">
+                    <h1 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600; color: #f4f4f5; letter-spacing: -0.025em;">
+                      Zresetuj hasło
+                    </h1>
+                    <p style="margin: 0; font-size: 16px; color: #a1a1aa; font-weight: 400;">
+                      Otrzymaliśmy prośbę o reset hasła
+                    </p>
                   </td>
                 </tr>
+
+                <!-- Reset Button Section -->
+                <tr>
+                  <td style="padding: 32px; text-align: center;">
+                    <p style="margin: 0 0 24px 0; font-size: 16px; color: #d4d4d8; line-height: 1.5;">
+                      Kliknij poniższy przycisk, aby ustawić nowe hasło:
+                    </p>
+                    
+                    <!-- Reset Button -->
+                    <div style="margin: 0 0 24px 0;">
+                      <a href="${text}" 
+                         target="_blank" 
+                         style="display: inline-block; padding: 16px 32px; font-size: 16px; font-weight: 500; color: #f4f4f5; text-decoration: none; background-color: #09090b; border: 2px solid #2c2c30; border-radius: 8px; transition: all 0.2s;">
+                        🔐 Ustaw nowe hasło
+                      </a>
+                    </div>
+
+                    <div style="margin: 24px 0 0 0; padding: 16px; background-color: #09090b; border: 1px solid #27272a; border-radius: 6px;">
+                      <p style="margin: 0 0 8px 0; font-size: 14px; color: #71717a; line-height: 1.4;">
+                        ⏰ Link wygaśnie za 30 minut
+                      </p>
+                      <p style="margin: 0 0 12px 0; font-size: 14px; color: #71717a; line-height: 1.4;">
+                        🛡️ Jeśli nie prosiłeś o reset, zignoruj tę wiadomość
+                      </p>
+                      <p style="margin: 0; font-size: 12px; color: #52525b; line-height: 1.4; word-break: break-all;">
+                        Link: <a href="${text}" style="color: #a1a1aa; text-decoration: underline;">${text}</a>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
               </table>
-              
-              <p style="margin-bottom: 20px; font-size: 14px; line-height: 1.5; color: #71717a;">Jeśli nie prosiłeś o zmianę hasła, zignoruj tę wiadomość lub skontaktuj się z nami.</p>
-              
-              <p style="margin-bottom: 0; font-size: 14px; line-height: 1.5; color: #71717a;">Link do resetowania hasła:</p>
-              <p style="margin-top: 10px; margin-bottom: 30px; font-size: 14px; line-height: 1.5; word-break: break-all;">
-                <a href="${text}" style="color: #60a5fa; text-decoration: underline;">${text}</a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 32px 0; text-align: center;">
+              <p style="margin: 0; font-size: 14px; color: #52525b;">
+                © 2025 dajkodzik.pl · Przesyłaj pliki w mgnieniu oka
               </p>
             </td>
           </tr>
-          
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 20px; border-top: 1px solid #27272a; background-color: #09090b;">
-              <p style="margin: 0; font-size: 14px; color: #71717a; text-align: center;">© 2024 dajkodzik.pl - Wszystkie prawa zastrzeżone.</p>
-            </td>
-          </tr>
+
         </table>
       </td>
     </tr>
