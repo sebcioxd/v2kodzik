@@ -1,6 +1,6 @@
 import { config } from "dotenv"
 
-config({ path: ".env" })
+config({ path: ".env", quiet: true })
 
 export const DATABASE_URL = process.env.DATABASE_URL!
 export const TEST = process.env.TEST!

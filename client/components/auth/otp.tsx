@@ -11,7 +11,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -88,80 +87,71 @@ export default function OTPInput() {
     };
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto max-w-md mt-10">
-            <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 rounded-lg bg-zinc-950/10 backdrop-blur-sm">
-                <div className="flex flex-col items-start justify-start pb-10 animate-fade-in-01-text opacity-0">
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="p-2 bg-zinc-900/20 border border-dashed border-zinc-800 rounded-md">
-                            <KeyRound className="h-5 w-5 text-zinc-400" />
-                        </div>
-                        <h1 className="text-xl text-zinc-100">Weryfikacja kodu</h1>
-                    </div>
-                    <p className="text-zinc-500 text-sm">
-                        Wprowadź 6-cyfrowy kod weryfikacyjny wysłany na twój adres email
+        <main className="flex flex-col items-center justify-center container mx-auto max-w-md animate-slide-in-bottom mt-10">
+            <div className="w-full max-w-2xl p-8 relative border border-zinc-800 rounded-lg">
+                <div className="flex flex-col items-center justify-center pb-10 animate-fade-in-01-text opacity-0">
+                    <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+                        Weryfikacja kodu
+                    </h1>
+                    <p className="text-zinc-500 text-md">
+                        Wprowadź 6-cyfrowy kod weryfikacyjny wysłany na adres <span className="text-zinc-200 font-medium">{email}</span>
                     </p>
-                    {email && (
-                        <div className="mt-4 p-3 border border-dashed border-zinc-800 rounded-md bg-zinc-900/20 text-zinc-400 text-sm flex items-center gap-2 animate-slide-in-left">
-                            <Mail className="h-4 w-4" />
-                            <span>Kod został wysłany na adres <span className="text-zinc-200 font-medium">{email}</span></span>
-                        </div>
-                    )}
                 </div>
 
+
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative w-full animate-fade-in-01-text opacity-0"> 
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative w-full"> 
                         <FormField
                             control={form.control}
                             name="otp"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col items-center">
-                                    <FormLabel className="text-zinc-400 mb-2">Kod weryfikacyjny</FormLabel>
+                                    <FormLabel className="text-zinc-400 text-md">Kod weryfikacyjny</FormLabel>
                                     <FormControl>
-                                    <InputOTP
+                                        <InputOTP
                                             maxLength={6}
                                             value={field.value}
                                             onChange={field.onChange}
-                                           
                                         >
                                             <InputOTPGroup>
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                                                     index={0}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                                                     index={1}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                                                     index={2}
                                                 />
-                                                </InputOTPGroup>
-                                                <InputOTPSeparator className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-400"/>
-                                                <InputOTPGroup>
+                                            </InputOTPGroup>
+                                            <InputOTPSeparator className="text-zinc-400"/>
+                                            <InputOTPGroup>
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                                                     index={3}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                                                     index={4}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                                                     index={5}
                                                 />
                                             </InputOTPGroup>
                                         </InputOTP>
                                     </FormControl>
-                                    <FormMessage className="text-red-400 animate-fade-in-01-text mt-2" />
+                                    <FormMessage className="text-red-400 animate-fade-in-01-text" />
                                 </FormItem>
                             )}
                         />
 
                         <Button
                             type="submit"
-                            className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+                            className="w-full bg-zinc-900/20 border border-zinc-900 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
                             disabled={isSubmitting || isRouting}
                         >
                             {isSubmitting || isRouting ? (
@@ -178,30 +168,29 @@ export default function OTPInput() {
                         </Button>
 
                         {error && (
-                            <div className="p-3 border border-dashed border-red-800 bg-red-950/10 text-red-400 rounded-md text-sm animate-fade-in-01-text flex items-center gap-2">
+                            <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text flex items-center gap-2">
                                 <XCircle className="h-4 w-4" />
                                 Nieprawidłowy kod weryfikacyjny. Proszę spróbować ponownie.
                             </div>
                         )}
                         {success && (
-                            <div className="p-3 border border-dashed border-green-800 bg-green-950/10 text-green-400 rounded-md text-sm animate-fade-in-01-text flex items-center gap-2">
+                            <div className="p-3 border border-dashed border-green-800 text-green-400 rounded-md text-sm animate-fade-in-01-text flex items-center gap-2">
                                 <CheckCircle className="h-4 w-4" />
                                 Weryfikacja powiodła się. Przekierowanie...
                             </div>
                         )}
                     </form>
                 </Form>
-            </div>
 
-            <div className="mt-4 animate-slide-in-left">
-                <Alert className="bg-zinc-950/10 border-zinc-800 border-dashed text-zinc-400">
-                    <Terminal className="h-4 w-4" />
-                    <AlertTitle className="text-sm">Nie otrzymałeś kodu?</AlertTitle>
-                    <AlertDescription className="text-[0.7rem]">
-                        Sprawdź folder spam w swojej skrzynce pocztowej
-                        
-                    </AlertDescription>
-                </Alert>
+                <div className="mt-6">
+                    <Alert className="bg-zinc-900/20 border-zinc-800 border text-zinc-400">
+                        <Terminal className="h-4 w-4" />
+                        <AlertTitle className="text-sm">Nie otrzymałeś kodu?</AlertTitle>
+                        <AlertDescription className="text-sm">
+                            Sprawdź folder spam w swojej skrzynce pocztowej
+                        </AlertDescription>
+                    </Alert>
+                </div>
             </div>
         </main>
     );
