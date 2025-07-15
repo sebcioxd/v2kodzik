@@ -6,12 +6,26 @@ import { db } from "../db/index";
 import { sql } from "drizzle-orm";
 import { getS3Client } from "../lib/s3";
 import { verifyCaptcha } from "../lib/captcha";
+import { S3Client } from "bun";
+
+// Klasa, która zarządza pojedynczym klientem S3.
+// Jest to zrobione w celu uniknięcia tworzenia nowego klienta S3 za każdym razem, gdy jest to potrzebne.
+class S3 {
+    private static client: S3Client;
+
+    static getClient() {
+        if (!this.client) {
+            this.client = getS3Client({ bucket: "sharesbucket" });
+        }
+        return this.client;
+    }
+}
+
 
 // Funkcja, która generuje presigned URL dla plików do wysyłki.
 export async function generatePresignedUrl({ Key }: generatePresignedUrlProps) {
-    const client = getS3Client({ bucket: "sharesbucket" });
-
     // Zabezpieczenia generowania url:
+    const client = S3.getClient();
     if (!Key || typeof Key !== 'string') {
         throw new Error('Invalid Key provided');
     }
