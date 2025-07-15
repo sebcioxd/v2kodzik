@@ -80,7 +80,7 @@ export const auth = betterAuth({
             async sendVerificationOTP({ email, otp}) { 
                 await sendEmailService({
                     to: email,
-                    subject: "Verify your email",
+                    subject: "Zweryfikuj swój adres e-mail - dajkodzik.pl",
                     text: otp,
                     emailType: "verify"
                 })
