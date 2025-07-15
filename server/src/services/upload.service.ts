@@ -115,31 +115,35 @@ export async function finalizeUploadService({ c, user }: FinalizeUploadServicePr
     } = await c.req.json();
 
     try {
-        const shareResult = await db.insert(shares).values({
-            slug: slug,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            expiresAt: new Date(Date.now() + (time === "24" ? 24 * 60 * 60 * 1000 : time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
-            userId: user ? user.id : null,
-            private: isPrivate,
-            code: accessCode ? await hashCode(accessCode) : null,
-            visibility: visibility,
-            ipAddress: c.req.header("x-forwarded-for") || null,
-            userAgent: c.req.header("user-agent") || null,
-        }).returning({ id: shares.id });
+        const result = await db.transaction(async (tx) => {
+            const shareResult = await tx.insert(shares).values({
+                slug: slug,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                expiresAt: new Date(Date.now() + (time === "24" ? 24 * 60 * 60 * 1000 : time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
+                userId: user ? user.id : null,
+                private: isPrivate,
+                code: accessCode ? await hashCode(accessCode) : null,
+                visibility: visibility,
+                ipAddress: c.req.header("x-forwarded-for") || null,
+                userAgent: c.req.header("user-agent") || null,
+            }).returning({ id: shares.id });
 
-        await Promise.all(files.map(async (file: { fileName: string; size: number }) => {
-            await db.insert(uploadedFiles).values({
-                shareId: shareResult[0].id,
-                fileName: file.fileName,
-                size: file.size,
-                storagePath: `${slug}/${file.fileName}`, 
-            })
-        }));
+            await Promise.all(files.map(async (file: { fileName: string; size: number }) => {
+                await tx.insert(uploadedFiles).values({
+                    shareId: shareResult[0].id,
+                    fileName: file.fileName,
+                    size: file.size,
+                    storagePath: `${slug}/${file.fileName}`, 
+                });
+            }));
+
+            return shareResult[0].id;
+        });
 
         return c.json({
             message: "Pliki zostały wysłane pomyślnie",
-            shareId: shareResult[0].id
+            shareId: result
         });
 
     } catch (error) {
