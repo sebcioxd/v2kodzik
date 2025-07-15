@@ -17,7 +17,7 @@ export type InfoServiceResponse = {
     remoteAdress_v6: string;
     userAgent: string;
     referer: string;
-    nodeVersion: string;
+    bunVersion: string;
     port: number;
     transport: string;
     host: string;

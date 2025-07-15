@@ -10,8 +10,8 @@ export async function sendEmailService({ to, subject, text, emailType }: EmailSe
 
     const transporter = new SmtpTransport({
         host: "smtp.gmail.com",
-        port: 587,
-        secure: false, 
+        port: 465,
+        secure: true, 
         auth: {
             user: SMTP_USER,
             pass: SMTP_PASS

@@ -14,7 +14,7 @@ export function getInfoService(c: Context): InfoServiceResponse {
         transport: info.remote.transport || "",
         userAgent: c.req.header("user-agent") || "",
         referer: c.req.header("referer") || "",
-        nodeVersion: process.version,
+        bunVersion: Bun.version,
     }
 
     return response;
