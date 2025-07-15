@@ -1,7 +1,7 @@
 import type { EmailServiceProps } from "../lib/types";
 import { emailVerifyTemplate } from "../templates/email-verify";
 import { passwordForgetTemplate } from "../templates/password-forget";
-import { SMTP_USER, SMTP_PASS, MAILGUN_API_KEY } from "../lib/env";
+import { SMTP_USER, SMTP_PASS } from "../lib/env";
 import { createMessage } from "@upyo/core";
 import { SmtpTransport } from "@upyo/smtp";
 

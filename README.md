@@ -17,6 +17,34 @@ Ważniejsze endpointy zabezpieczone **rate-limitem**.
 
 Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
+## Jak maksymalizujemy szybkość wsyłania plików i kodu?
+
+Dajkodzik wykorzystuje najnowsze technologie i optymalizacje, aby zapewnić maksymalną wydajność:
+
+1. **Natywny klient PostgreSQL Bun'a**
+   - Wykorzystujemy wbudowany w Bun'a klient PostgreSQL, który jest znacznie szybszy od tradycyjnych sterowników Node.js
+   - Używa protokołu binarnego zamiast tekstowego
+   - Zoptymalizowany connection pooling
+   - Wykorzystuje wewnętrzne optymalizacje silnika JavaScriptCore
+
+2. **Presigned URLs dla S3**
+   - Zamiast przesyłać pliki przez nasz serwer, generujemy presigned URLs
+   - Pozwala to na bezpośrednie przesyłanie plików do S3, omijając nasz serwer
+   - Znacząco zmniejsza obciążenie serwera
+   - Umożliwia równoległe przesyłanie wielu plików
+
+3. **Natywny klient S3 Bun'a**
+   - Wykorzystuje natywne bindingi Bun'a dla operacji S3
+   - Szybsza obsługa strumieni danych
+   - Zoptymalizowane zarządzanie pamięcią
+   - Efektywniejsze przetwarzanie dużych plików
+
+4. **Architektura bez blokowania**
+   - Brak operacji blokujących w kodzie
+   - Wykorzystanie natywnych implementacji zamiast zewnętrznych bibliotek
+
+Dzięki tym optymalizacjom, **Dajkodzik** może obsłużyć zaskakująco dużą ilość przesyłanego transferu jak na technologię opartą na JavaScripcie.
+
 ## W planach
 
 - Refactor z Node.js do Deno lub Bun'a (Pełen support TypeScript'u) 🟢
@@ -33,8 +61,7 @@ Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 ## Wymagania
 
 - [Bun 1.2+](https://bun.com/) 
-- [Node.js 22+](https://nodejs.org)  
-- [pnpm](https://pnpm.io/)  
+- [Node.js 22+](https://nodejs.org), [pnpm](https://pnpm.io/)  
 - Hosting S3 Object Storage,
 **Testowane:**
 [MinIO](https://min.io/docs/minio/container/index.html),

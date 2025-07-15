@@ -5,7 +5,6 @@
       "name": "server-bun",
       "dependencies": {
         "@upyo/core": "^0.1.1",
-        "@upyo/mailgun": "^0.1.1",
         "@upyo/smtp": "^0.1.1",
         "bcryptjs": "^3.0.2",
         "better-auth": "^1.2.12",
@@ -13,7 +12,6 @@
         "drizzle-orm": "^0.44.3",
         "hono": "^4.8.5",
         "hono-rate-limiter": "^0.4.2",
-        "pg": "^8.16.3",
         "rate-limit-redis": "^4.2.1",
         "redis": "^5.6.0",
       },
@@ -125,8 +123,6 @@
     "@types/react": ["@types/react@19.1.8", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-AwAfQ2Wa5bCx9WP8nZL2uMZWod7J7/JSplxbTmBQ5ms6QpqNYm672H0Vu9ZVKVngQ+ii4R/byguVEUZQyeg44g=="],
 
     "@upyo/core": ["@upyo/core@0.1.1", "", {}, "sha512-uyI6U9Zk56XgVLV3rWQsdJRE2RzCIHBAmHbFkHB3cNqyW0yNnBj18aQZp9SP0GhfrQ60K+uAAsl6eX81wp8vIw=="],
-
-    "@upyo/mailgun": ["@upyo/mailgun@0.1.1", "", { "peerDependencies": { "@upyo/core": "0.1.1" } }, "sha512-n0/OcPoTDrSFPGj+NRVa6EkXz+NyrzOCrr+mSk2WKLXfJe2B8zoNfftW2ZasajZwhpeq+Nw5VcubcrrTV8W38w=="],
 
     "@upyo/smtp": ["@upyo/smtp@0.1.1", "", { "peerDependencies": { "@upyo/core": "0.1.1" } }, "sha512-de5ExIDcMROFttT4WM18RcTDc+/Vt7WbIHCvvLnZ+XKzzv4XpRu6oG9exbi+ilK0qXvhDF9O8V4IsF4bcGW2ig=="],
 
