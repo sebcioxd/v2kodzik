@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "@upyo/core": "^0.1.1",
-    "@upyo/smtp": "^0.1.1",
+    "@upyo/mailgun": "^0.1.1",
     "bcryptjs": "^3.0.2",
     "better-auth": "^1.2.12",
     "dotenv": "^17.2.0",

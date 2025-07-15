@@ -5,7 +5,7 @@
       "name": "server-bun",
       "dependencies": {
         "@upyo/core": "^0.1.1",
-        "@upyo/smtp": "^0.1.1",
+        "@upyo/mailgun": "^0.1.1",
         "bcryptjs": "^3.0.2",
         "better-auth": "^1.2.12",
         "dotenv": "^17.2.0",
@@ -124,7 +124,7 @@
 
     "@upyo/core": ["@upyo/core@0.1.1", "", {}, "sha512-uyI6U9Zk56XgVLV3rWQsdJRE2RzCIHBAmHbFkHB3cNqyW0yNnBj18aQZp9SP0GhfrQ60K+uAAsl6eX81wp8vIw=="],
 
-    "@upyo/smtp": ["@upyo/smtp@0.1.1", "", { "peerDependencies": { "@upyo/core": "0.1.1" } }, "sha512-de5ExIDcMROFttT4WM18RcTDc+/Vt7WbIHCvvLnZ+XKzzv4XpRu6oG9exbi+ilK0qXvhDF9O8V4IsF4bcGW2ig=="],
+    "@upyo/mailgun": ["@upyo/mailgun@0.1.1", "", { "peerDependencies": { "@upyo/core": "0.1.1" } }, "sha512-n0/OcPoTDrSFPGj+NRVa6EkXz+NyrzOCrr+mSk2WKLXfJe2B8zoNfftW2ZasajZwhpeq+Nw5VcubcrrTV8W38w=="],
 
     "accepts": ["accepts@2.0.0", "", { "dependencies": { "mime-types": "^3.0.0", "negotiator": "^1.0.0" } }, "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng=="],
 
