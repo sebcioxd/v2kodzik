@@ -12,6 +12,37 @@ import type {
   
 
   const client = getS3AdminClient({ bucket: "sharesbucket" });
+
+  async function deleteS3FilesBatch(filesToDelete: string[], batchSize = 10) {
+    const deletionResults: string[] = [];
+    const errors: string[] = [];
+    
+    for (let i = 0; i < filesToDelete.length; i += batchSize) {
+      const batch = filesToDelete.slice(i, i + batchSize);
+      
+      const promises = batch.map(async (file) => {
+        try {
+          await client.delete(file);
+          return { success: true, file };
+        } catch (error) {
+          console.error(`Nie udało się usunąć pliku ${file}:`, error);
+          return { success: false, file, error };
+        }
+      });
+      
+      const results = await Promise.allSettled(promises);
+      
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value.success) {
+          deletionResults.push(result.value.file);
+        } else {
+          errors.push(result.status === 'fulfilled' ? result.value.file : 'Unknown error');
+        }
+      }
+    }
+    
+    return { deletionResults, errors };
+  }
   
   export async function deleteExpireFilesService({
     c,
@@ -30,13 +61,12 @@ import type {
     try {
       await db.delete(shares).where(lt(shares.expiresAt, sql`NOW()`));
   
-      const snippetsToDelete = await db.select().from(snippets).where(lt(snippets.expiresAt, sql`NOW()`));
-  
-      const snippetsToDeleteSlugs: string[] = [];
-      for (const snippet of snippetsToDelete) {
-        snippetsToDeleteSlugs.push(snippet.slug);
-      }
-      await db.delete(snippets).where(lt(snippets.expiresAt, sql`NOW()`));
+      const deletedSnippets = await db
+      .delete(snippets)
+      .where(lt(snippets.expiresAt, sql`NOW()`))
+      .returning({ slug: snippets.slug });
+    
+      const snippetsToDeleteSlugs = deletedSnippets.map(s => s.slug);
   
       if (snippetsToDeleteSlugs.length > 0) {
         await sendWebhookService({
@@ -63,16 +93,7 @@ import type {
         (folder) => !slugs.some((slug) => slug.slug === folder.split("/")[0])
       );
   
-      const deletionResults: string[] = [];
-  
-      for (const folder of foldersToDelete) {
-        try {
-          await client.delete(folder);
-          deletionResults.push(folder);
-        } catch (error) {
-          console.error(`Nie udało się usunąć pliku ${folder}:`, error);
-        }
-      }
+      const { deletionResults, errors } = await deleteS3FilesBatch(foldersToDelete);
   
       await sendWebhookService({
         content: deletionResults.length > 0 ? 
@@ -85,6 +106,7 @@ import type {
   
       return c.json({
         deletionResults,
+        errors,
       });
   
     } catch (error) {
