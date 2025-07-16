@@ -6,6 +6,7 @@ import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
+  InputOTPSeparator,
 } from "@/components/ui/input-otp"
 import axios, { AxiosProgressEvent } from "axios";
 import { BlobWriter, ZipWriter, BlobReader } from "@zip.js/zip.js";
@@ -508,13 +509,12 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
 
   // Function to verify access code
   const verifyAccessCode = async () => {
-    if (accessCode.length !== 4) {
-      setCodeError("Kod dostępu musi zawierać 4 znaki");
+    if (accessCode.length !== 6) {
+      toast.error("Kod dostępu musi zawierać 6 znaków");
       return;
     }
     
     setIsVerifying(true);
-    setCodeError("");
     
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/share/verify?slug=${slug}&accessCode=${accessCode}`, {
@@ -533,11 +533,11 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
         if (data.storagePath) setFileStoragePath(data.storagePath);
         setAccessGranted(true);
       } else {
-        setCodeError(data.message || "Nieprawidłowy kod dostępu");
+        toast.error(data.message || "Nieprawidłowy kod dostępu");
         setRemainingRequests(data.remaining_requests);
       }
     } catch (error) {
-      setCodeError("Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.");
+      toast.error("Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.");
     } finally {
       setIsVerifying(false);
     }
@@ -546,42 +546,52 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
   // If private and access not granted, show access code input
   if (isPrivate && !accessGranted) {
     return (
-      <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10">
+      <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-sm max-w-sm animate-fade-in-01-text mt-10">
         <div className="w-full space-y-4">
-          <div className="border border-dashed border-zinc-800 rounded-md p-6 bg-zinc-950/10 text-zinc-400">
-            <h2 className="text-lg font-medium text-zinc-200 mb-4">Dostęp do linku <span className="text-zinc-400">{slug}</span> jest chroniony</h2>
-            <p className="mb-4">Wprowadź kod dostępu, a następnie kliknij "Potwierdź kod dostępu"</p>
+          <div className="border border-zinc-800 rounded-md p-6 bg-zinc-950/10 text-zinc-400">
+            <h2 className="text-xl text-center font-semibold tracking-tight text-zinc-100 ">Dostęp do linku <span className="text-zinc-400">{slug}</span> jest chroniony</h2>
+            <p className="mb-4 mt-1 text-center text-md text-zinc-400">Wprowadź kod dostępu, a następnie kliknij <br /> <span className="text-zinc-200 font-medium">"Potwierdź kod dostępu"</span></p>
             
             <div className="space-y-4">
-              <div className="flex flex-col">
-                <label className="text-zinc-400 mb-2 flex items-center"> <Lock className="h-4 w-4 mr-2" /> Kod dostępu (4 znaki)</label>
+              <div className="flex flex-col items-center">
                 <InputOTP
-                  maxLength={4}
+                  maxLength={6}
                   value={accessCode}
                   onChange={setAccessCode}
                 >
                   <InputOTPGroup>
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={0}
                     />
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={1}
                     />
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={2}
                     />
+                    </InputOTPGroup>
+                    <InputOTPSeparator className="text-zinc-400"/>
+                    <InputOTPGroup>
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={3}
                     />
+                    <InputOTPSlot 
+                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      index={4}
+                    />
+                    <InputOTPSlot 
+                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      index={5}
+                    />  
                   </InputOTPGroup>
                 </InputOTP>
 
-                <div className="flex flex-col my-2 border-t border-dashed border-zinc-800 pt-2">
-                  <p className="text-zinc-600 mb-2 text-sm">Informacje o linku:</p>
+                <div className="flex flex-col my-4 border-t border-zinc-800 pt-2">
+                  <p className="text-zinc-600 mb-1 text-sm">Informacje o udostępnionym linku:</p>
                   <p className="text-zinc-700 text-sm">Link wygaśnie za: {formatTimeRemaining(createdAt, expiresAt)}</p>
                   <p className="text-zinc-700 text-sm">Slug (link): {slug}</p>
                   <p className="text-zinc-700 text-sm">ID linku: {fileId}</p>
@@ -593,7 +603,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               <Button
                 className="w-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
                 onClick={verifyAccessCode}
-                disabled={isVerifying || accessCode.length !== 4}
+                disabled={isVerifying || accessCode.length !== 6}
               >
                 {isVerifying ? (
                   <div className="flex items-center">

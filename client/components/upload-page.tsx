@@ -95,10 +95,10 @@ const formSchema = z
       .refine(
         (val) =>
           !val ||
-          val.length === 4 ||
+          val.length === 6 ||
           val.length === 0 ||
           val.length === undefined,
-        { message: "Kod dostępu musi zawierać 4 znaki" }
+        { message: "Kod dostępu musi zawierać 6 znaków" }
       )
       .optional(),
   })
@@ -106,7 +106,7 @@ const formSchema = z
     (data) => {
       // If isPrivate is true, accessCode must be provided and have exactly 4 characters
       return (
-        !data.isPrivate || (data.accessCode && data.accessCode.length === 4)
+        !data.isPrivate || (data.accessCode && data.accessCode.length === 6)
       );
     },
     {
@@ -641,30 +641,38 @@ export function UploadPage() {
                                   </FormLabel>
                                   <FormControl>
                                     <InputOTP
-                                      maxLength={4}
+                                      maxLength={6}
                                       value={field.value || ""}
                                       onChange={field.onChange}
                                       disabled={isSubmitting}
                                     >
                                       <InputOTPGroup>
                                         <InputOTPSlot
-                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200"
                                           index={0}
                                         />
                                         <InputOTPSlot
-                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200"
                                           index={1}
                                         />
-                                        </InputOTPGroup>
-                                        <InputOTPSeparator className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-400"/>
-                                        <InputOTPGroup>
-                                        <InputOTPSlot
-                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                         <InputOTPSlot
+                                          className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200"
                                           index={2}
                                         />
+                                        </InputOTPGroup>
+                                        <InputOTPSeparator className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-400"/>
+                                        <InputOTPGroup>
                                         <InputOTPSlot
-                                          className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200"
                                           index={3}
+                                        />
+                                        <InputOTPSlot
+                                          className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          index={4}
+                                        />
+                                        <InputOTPSlot
+                                          className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          index={5}
                                         />
                                       </InputOTPGroup>
                                     </InputOTP>
