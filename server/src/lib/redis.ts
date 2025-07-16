@@ -11,6 +11,8 @@ const getRedisClient = () => {
             socket: {
                 host: REDIS_HOST,
                 port: parseInt(REDIS_PORT || "17856"),
+                connectTimeout: 5000,
+                socketTimeout: 5000,
             }
         })
         client.on("error", (err) => {
