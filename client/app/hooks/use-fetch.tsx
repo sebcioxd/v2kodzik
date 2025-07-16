@@ -34,9 +34,16 @@ export const useFetch = () => {
     const { data: lastPosts, isLoading: isLastPostsLoading } = useQuery<LastPostsResponse>({
         queryKey: ["last-posts"],
         queryFn: async () => {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/last-posts`);
-            return response.json();
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/last-posts`);
+                return response.json();
+            } catch (error) {
+                console.error("Error fetching last posts:", error);
+                throw error;
+            }
         },
+        retry: 3,
+        retryDelay: 1000,
     });
 
     return { status, isStatusLoading, isStatusError, lastPosts, isLastPostsLoading };
