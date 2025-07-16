@@ -38,11 +38,10 @@ export const rateLimitConfigs = {
 
 type RateLimitKey = keyof typeof rateLimitConfigs;
 
-const redisClient = getRedisClient();
-
 export function createRateLimiter(key: RateLimitKey) {
     const config = rateLimitConfigs[key];
-    
+    const redisClient = getRedisClient();
+
     return rateLimiter({
         windowMs: config.windowMs,
         limit: config.limit,
@@ -51,6 +50,7 @@ export function createRateLimiter(key: RateLimitKey) {
             return `${key}:${ip}`;
         },
         store: new RedisStore({
+
             sendCommand: (...args: string[]) => redisClient.sendCommand(args),
         }) as unknown as Store,
     });
