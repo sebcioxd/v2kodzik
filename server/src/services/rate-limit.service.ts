@@ -39,19 +39,26 @@ export const rateLimitConfigs = {
 type RateLimitKey = keyof typeof rateLimitConfigs;
 
 export function createRateLimiter(key: RateLimitKey) {
-    const config = rateLimitConfigs[key];
-    const redisClient = getRedisClient();
-
-    return rateLimiter({
-        windowMs: config.windowMs,
-        limit: config.limit,
-        keyGenerator: (c) => {
-            const ip = c.req.header("CF-Connecting-IP") ?? "127.0.0.1";
-            return `${key}:${ip}`;
-        },
-        store: new RedisStore({
-
-            sendCommand: (...args: string[]) => redisClient.sendCommand(args),
-        }) as unknown as Store,
-    });
+    let rateLimiterInstance: any = null;
+    
+    return async (c: any, next: any) => {
+        if (!rateLimiterInstance) {
+            const config = rateLimitConfigs[key];
+            const redisClient = getRedisClient();
+            
+            rateLimiterInstance = rateLimiter({
+                windowMs: config.windowMs,
+                limit: config.limit,
+                keyGenerator: (c) => {
+                    const ip = c.req.header("CF-Connecting-IP") ?? "127.0.0.1";
+                    return `${key}:${ip}`;
+                },
+                store: new RedisStore({
+                    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+                }) as unknown as Store,
+            });
+        }
+        
+        return rateLimiterInstance(c, next);
+    };
 }
