@@ -1,7 +1,7 @@
 import type { Store } from "hono-rate-limiter";
 import { rateLimiter } from "hono-rate-limiter";
 import { RedisStore } from "rate-limit-redis";
-import getRedisClient from "../lib/redis";
+import { Redis } from "../lib/redis";
 
 const minutes = (min: number) => min * 60 * 1000;
 
@@ -38,15 +38,17 @@ export const rateLimitConfigs = {
 
 type RateLimitKey = keyof typeof rateLimitConfigs;
 
+
+
 export function createRateLimiter(key: RateLimitKey) {
-    let rateLimiterInstance: any = null;
-    
     return async (c: any, next: any) => {
-        if (!rateLimiterInstance) {
-            const config = rateLimitConfigs[key];
-            const redisClient = getRedisClient();
-            
-            rateLimiterInstance = rateLimiter({
+        const config = rateLimitConfigs[key];
+        const redisClient = await Redis.getClient();
+       
+        try {
+            await redisClient.connect();
+
+            const limiter = rateLimiter({
                 windowMs: config.windowMs,
                 limit: config.limit,
                 keyGenerator: (c) => {
@@ -57,8 +59,10 @@ export function createRateLimiter(key: RateLimitKey) {
                     sendCommand: (...args: string[]) => redisClient.sendCommand(args),
                 }) as unknown as Store,
             });
+           
+            return await limiter(c, next);
+        } finally {
+            redisClient.destroy(); 
         }
-        
-        return rateLimiterInstance(c, next);
     };
 }
