@@ -31,7 +31,7 @@ export const useFetch = () => {
         
     });
 
-    const { data: lastPosts, isLoading: isLastPostsLoading } = useQuery<LastPostsResponse>({
+    const { data: lastPosts, isLoading: isLastPostsLoading, isError: isLastPostsError } = useQuery<LastPostsResponse>({
         queryKey: ["last-posts"],
         queryFn: async () => {
             try {
@@ -43,10 +43,10 @@ export const useFetch = () => {
             }
         },
         retry: 3,
-        retryDelay: 1000,
+        retryDelay: 2000,
     });
 
-    return { status, isStatusLoading, isStatusError, lastPosts, isLastPostsLoading };
+    return { status, isStatusLoading, isStatusError, lastPosts, isLastPostsLoading, isLastPostsError };
 }
 
 

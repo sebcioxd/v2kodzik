@@ -84,7 +84,7 @@ export default function RecentShareCard({ slug, createdAt, expiresAt, private: i
 
 // Update RecentShares component
 export function RecentShares() {
-  const { lastPosts, isLastPostsLoading } = useFetch();
+  const { lastPosts, isLastPostsLoading, isLastPostsError } = useFetch();
   const [shares, setShares] = useState<LastPosts[]>([]);
   const [count, setCount] = useState<number>(0);
 
@@ -98,6 +98,10 @@ export function RecentShares() {
 
   if (isLastPostsLoading) {
     return <RecentSharesSkeleton />;
+  }
+
+  if (isLastPostsError) {
+    return <div className="text-zinc-400 text-sm animate-slide-in-bottom font-medium self-start">Wystąpił błąd podczas ładowania linków. <Link href="/upload" className="text-zinc-300 hover:text-zinc-100 transition-colors underline underline-offset-4">Dodaj teraz</Link></div>
   }
 
   if (shares.length === 0) {
