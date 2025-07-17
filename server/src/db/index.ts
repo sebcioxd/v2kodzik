@@ -1,4 +1,6 @@
 import { drizzle } from 'drizzle-orm/bun-sql';
+import { SQL } from 'bun';
 import { DATABASE_URL } from '../lib/env';
 
-export const db = drizzle(DATABASE_URL);
+const client = new SQL(DATABASE_URL);
+export const db = drizzle({ client });
