@@ -2,11 +2,10 @@ import type {
     DeleteExpireFilesServiceBody,
     DeleteExpireFilesServiceProps,
   } from "../lib/types";
-  import { shares, snippets } from "../db/schema";
+  import { shares } from "../db/schema";
   import { CRON_BODY_KEY } from "../lib/env";
   import { sendWebhookService } from "./webhook.service";
   import { deleteGhostFilesService } from "./ghost.service";
-  import { sql, lt } from "drizzle-orm";
   import { db } from "../db/index";
   import { getS3AdminClient } from "../lib/s3";
   
@@ -59,26 +58,6 @@ import type {
     }
   
     try {
-      await db.delete(shares).where(lt(shares.expiresAt, sql`NOW()`));
-  
-      const deletedSnippets = await db
-      .delete(snippets)
-      .where(lt(snippets.expiresAt, sql`NOW()`))
-      .returning({ slug: snippets.slug });
-    
-      const snippetsToDeleteSlugs = deletedSnippets.map(s => s.slug);
-  
-      if (snippetsToDeleteSlugs.length > 0) {
-        await sendWebhookService({
-          content: `Pomyślnie usunięto ${snippetsToDeleteSlugs.length} ${snippetsToDeleteSlugs.length === 1 ? "snippet" : "snippetów"}. Usunięte snippety: ${snippetsToDeleteSlugs.join(", ")}`,
-        });
-      } else {
-        await sendWebhookService({
-          content: `Sprawdzono snippety, nie ma żadnych do usunięcia.`,
-      });
-      }
-      
-  
       const folders: string[] = [];
       const listResponse = await client.list();
       if (listResponse.contents) {
@@ -101,7 +80,6 @@ import type {
         `Sprawdzono pliki, nie ma żadnych do usunięcia.`,
       });
   
-      // Delete files that do not have uploaded files
       await deleteGhostFilesService({ c });
   
       return c.json({
