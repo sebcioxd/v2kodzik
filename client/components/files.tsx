@@ -632,7 +632,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
       <div className="w-full space-y-4 animate-fade-in-01-text">
         <div className="flex flex-col gap-2">
           <div className="border-b border-dashed border-zinc-800 p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
-          <span>Kod linku: <span className="font-medium text-zinc-200">{slug}</span></span>
+          <span>dajkodzik.pl/<span className="font-medium text-zinc-200">{slug}</span></span>
           <LinkIcon className="h-4 w-4" />
           </div>
         </div>

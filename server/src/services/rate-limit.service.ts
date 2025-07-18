@@ -56,13 +56,16 @@ export function createRateLimiter(key: RateLimitKey) {
                     return `${key}:${ip}`;
                 },
                 store: new RedisStore({
-                    sendCommand: (...args: string[]) => redisClient.sendCommand(args),
+                    sendCommand: (...args: string[]) => {
+                        const [command, ...commandArgs] = args;
+                        return redisClient.send(command, commandArgs);
+                    },
                 }) as unknown as Store,
-            });
+            }); 
            
             return await limiter(c, next);
         } finally {
-            redisClient.destroy(); 
+            redisClient.close(); 
         }
     };
 }

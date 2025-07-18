@@ -341,14 +341,14 @@ export function UploadPage() {
     
       <Form {...form}>
         
-        <form onSubmit={form.handleSubmit(handleUpload)} className="space-y-6 tracking-tight">
+        <form onSubmit={form.handleSubmit(handleUpload)} className="space-y-6 ">
           <FormField
             control={form.control}
             name="files"
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={`text-zinc-200 animate-fade-in-01-text border-dashed border-zinc-700 border-b pb-3 mb-2 ${
+                  className={`text-zinc-200 animate-fade-in-01-text border-dashed  border-zinc-700 border-b pb-3 mb-2 ${
                     isSubmitting ? "opacity-50" : ""
                   }`}
                 >
@@ -359,7 +359,7 @@ export function UploadPage() {
                     maxFiles={20}
                     maxSize={getMaxSize()}
                     maxTotalSize={getMaxSize()}
-                    className="w-full md:min-w-md max-w-md animate-fade-in-01-text"
+                    className="w-full md:min-w-md max-w-md animate-fade-in-01-text tracking-tight"
                     value={field.value}
                     onValueChange={(files) => {
                       if (!isSubmitting) {
@@ -481,7 +481,7 @@ export function UploadPage() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={`text-zinc-200 animate-fade-in-01-text border-dashed border-zinc-700 border-b pb-3 ${
+                  className={`text-zinc-200 animate-fade-in-01-text text-sm  border-dashed border-zinc-700 border-b pb-3 ${
                     isSubmitting ? "opacity-50" : ""
                   }`}
                 >

@@ -1,9 +1,10 @@
-import bcrypt from "bcryptjs";
-
 export const hashCode = async (code: string) => {
-    return await bcrypt.hash(code, 4);
+    return await Bun.password.hash(code, {
+        algorithm: "bcrypt",
+        cost: 4,
+    })
 }
 
 export const verifyCode = async (code: string, hashedCode: string) => {
-    return await bcrypt.compare(code, hashedCode);
+    return await Bun.password.verify(code, hashedCode);
 }

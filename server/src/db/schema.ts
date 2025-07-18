@@ -54,7 +54,7 @@ export const snippets = pgTable('snippets', {
   userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
-  code: text('code'),
+code: text('code'),
   language: text('language'),
 });
 
