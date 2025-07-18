@@ -18,6 +18,12 @@ export const auth = betterAuth({
         },
     },
     basePath: "/v1/auth",
+    session: {
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60,
+        }
+    },
     user: {
         additionalFields: {
             ipAddress: {
