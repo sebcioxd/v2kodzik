@@ -225,6 +225,10 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
             url,
             method: 'GET',
             responseType: 'blob',
+            headers: {
+                "Accept": "*/*",
+            },
+            withCredentials: false,
             onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
                 if (progressEvent.total) {
                     const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
@@ -326,6 +330,10 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
                     url,
                     method: 'GET',
                     responseType: 'blob',
+                    headers: {
+                        "Accept": "*/*",
+                    },
+                    withCredentials: false,
                     onDownloadProgress: (progressEvent: AxiosProgressEvent) => {
                         if (progressEvent.total) {
                             const fileProgress = Math.round((progressEvent.loaded / progressEvent.total) * 100);

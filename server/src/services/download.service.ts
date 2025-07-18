@@ -26,6 +26,12 @@ export class DownloadService {
     public async downloadFile({ path, c }: DownloadFileServiceProps) {
         try {
             const presignedUrl = this.getCachedUrl(path);
+            
+            // Przyjazne dla CDN'a nagłówki
+            c.header('Cache-Control', 'public, max-age=3600');
+            c.header('CDN-Cache-Control', 'public, max-age=86400');
+            c.header('Vary', 'Accept-Encoding');
+
             return c.json({ url: presignedUrl });
         } catch (err) {
             return c.json({
