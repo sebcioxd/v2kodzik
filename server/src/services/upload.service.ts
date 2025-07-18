@@ -104,13 +104,25 @@ export class UploadService {
             time 
         } = await c.req.json();
 
+        let expirationInterval: string;
+            switch (time) {
+                case "24":
+                    expirationInterval = "24 hours";
+                    break;
+                case "168":
+                    expirationInterval = "7 days";
+                    break;
+                default:
+                    expirationInterval = "30 minutes";
+                    break;
+            }
         try {
             const result = await db.transaction(async (tx) => {
                 const shareResult = await tx.insert(shares).values({
                     slug: slug,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    expiresAt: new Date(Date.now() + (time === "24" ? 24 * 60 * 60 * 1000 : time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)), 
+                    createdAt: sql`NOW()`,
+                    updatedAt: sql`NOW()`,
+                    expiresAt: sql.raw(`NOW() + INTERVAL '${expirationInterval}'`),
                     userId: user ? user.id : null,
                     private: isPrivate,
                     code: accessCode ? await hashCode(accessCode) : null,

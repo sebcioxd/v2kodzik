@@ -10,7 +10,7 @@ const setupCronJob = async () => {
             SELECT cron.schedule(
                 'shares_cleanup',                    
                 '*/5 * * * *',                      
-                'DELETE FROM shares WHERE expires_at < (NOW() + INTERVAL ''2 hours'');'  
+                'DELETE FROM shares WHERE expires_at < NOW();'  
             );
         `;
         console.log('🟢 Shares cron pomyślnie ustawiony', result);
@@ -19,7 +19,7 @@ const setupCronJob = async () => {
             SELECT cron.schedule(
                 'snippet_cleanup',                    
                 '*/5 * * * *',                      
-                'DELETE FROM snippets WHERE expires_at < (NOW() + INTERVAL ''2 hours'');'  
+                'DELETE FROM snippets WHERE expires_at < NOW();'  
             );
         `;
         console.log('🟢 Snippet cleanup cron pomyślnie ustawiony', snippetSchedule);
@@ -30,5 +30,4 @@ const setupCronJob = async () => {
 };
 
 setupCronJob();
-
 

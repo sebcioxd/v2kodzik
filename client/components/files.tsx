@@ -173,27 +173,30 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
   // Updated time remaining calculation
   const formatTimeRemaining = (createdAt: string, expiresAt: string) => {
     if (!expiresAt) {
-      return "Czas nieznany";
+        return "Czas nieznany";
     }
-
-    const created = new Date(createdAt);
+    
+    // Parse as UTC and subtract 2 hours to get actual local expiry time
     const expires = new Date(expiresAt);
+    const localExpires = new Date(expires.getTime() - (2 * 60 * 60 * 1000));
+    
     const now = new Date();
-    const diff = expires.getTime() - now.getTime();
-    
+    const diff = localExpires.getTime() - now.getTime();
+   
     if (diff <= 0) {
-      return "Wygaśnie w ciągu kilku godz.";
+        return "Wygaśnie w ciągu kilku godz.";
     }
-    
+   
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
+   
     if (hours === 0) {
-      return `${minutes}m`;
+        return `${minutes}m`;
     }
-    
+   
     return `${hours}h ${minutes}m`;
-  };
+};
+
 
   const handleDownload = async (path: string, fileId: string): Promise<void> => {
     setDownloadingFiles((prev) => ({ ...prev, [fileId]: true }));
