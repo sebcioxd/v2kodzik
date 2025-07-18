@@ -1,7 +1,7 @@
 import type { DownloadFileServiceProps, DownloadBulkFilesServiceProps } from "../lib/types";
 import { getS3Client } from "../lib/s3";
 import { S3Client } from "bun";
-
+import { CDN_URL } from "../lib/env";
 
 export class DownloadService {
     private client: S3Client;
@@ -10,6 +10,7 @@ export class DownloadService {
         this.client = getS3Client({ bucket });
     }
 
+    // Jeśli nie mamy CDN'a, to pobieramy plik z S3 za pomocą presigned url
     private getPresignedUrl(path: string) {
         return this.client.presign(path, {
             expiresIn: 200,
@@ -17,9 +18,14 @@ export class DownloadService {
         })
     }
 
+    // Jeśli mamy CDN'a, to pobieramy plik z CDN'a
+    private getCachedUrl(path: string) {
+        return `${CDN_URL}/${path}`
+    }
+
     public async downloadFile({ path, c }: DownloadFileServiceProps) {
         try {
-            const presignedUrl = this.getPresignedUrl(path);
+            const presignedUrl = this.getCachedUrl(path);
             return c.json({ url: presignedUrl });
         } catch (err) {
             return c.json({
@@ -32,7 +38,7 @@ export class DownloadService {
     public async downloadBulkFiles({ paths, c }: DownloadBulkFilesServiceProps) {
         try {
             const presignedUrls = paths.map((path) => {
-                const url = this.getPresignedUrl(path);
+                const url = this.getCachedUrl(path);
                 return { url, fileName: path.split("/").pop() || "unknown" };
             });
             return c.json({ urls: presignedUrls });
