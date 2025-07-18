@@ -341,7 +341,7 @@ export function UploadPage() {
     
       <Form {...form}>
         
-        <form onSubmit={form.handleSubmit(handleUpload)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(handleUpload)} className="space-y-6 tracking-tight">
           <FormField
             control={form.control}
             name="files"

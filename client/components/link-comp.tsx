@@ -60,7 +60,7 @@ export function RecentSharesSkeleton() {
 
 export default function RecentShareCard({ slug, createdAt, expiresAt, private: isPrivate }: ShareCardProps) {
   return (
-    <div className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-2">
+    <div className="border border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-2">
       <div className="flex justify-between items-center">
         <div className="flex">
           <span className="text-zinc-400 text-md font-medium flex items-center gap-2">

@@ -76,7 +76,9 @@ export const user = pgTable("user", {
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
   oauth: boolean("oauth"),
-});
+}, (t) => [
+  index("idx_user_emails").on(t.email),
+]);
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -89,7 +91,10 @@ export const session = pgTable("session", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-});
+}, (t) => [
+  index("idx_session_user_id").on(t.userId),
+  index("idx_session_token").on(t.token),
+]);
 
 export const account = pgTable("account", {
   id: text("id").primaryKey(),
@@ -107,7 +112,9 @@ export const account = pgTable("account", {
   password: text("password"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
-});
+}, (t) => [
+  index("idx_account_user_id").on(t.userId),
+]);
 
 export const verification = pgTable("verification", {
   id: text("id").primaryKey(),
@@ -120,7 +127,9 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").$defaultFn(
     () => /* @__PURE__ */ new Date()
   ),
-});
+}, (t) => [
+  index("idx_verification_identifier").on(t.identifier),
+]);
 
 
   

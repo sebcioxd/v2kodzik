@@ -19,8 +19,8 @@ export default function Hero() {
             <Image 
               src="/logo-no-bg.png" 
               alt="Hero" 
-              width={180} 
-              height={180} 
+              width={220} 
+              height={220} 
               className=" animate-fade-in-01-image opacity-0"
             />
             <div className="absolute inset-0 bg-zinc-400/10 blur-2xl rounded-full animate-pulse" />
@@ -28,10 +28,10 @@ export default function Hero() {
 
           {/* Main Heading with Gradient Text */}
           <div className="text-center space-y-4">
-            <h1 className="md:text-4xl text-3xl font-bold tracking-tight animate-fade-in-01-text opacity-0 bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
+            <h1 className="md:text-4xl text-3xl font-bold tracking-tighter animate-fade-in-01-text opacity-0 bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
               Przesyłaj pliki w mgnieniu oka
             </h1>
-            <p className="text-zinc-400 text-lg text-wrap max-w-2xl text-center animate-slide-in-left opacity-0 leading-relaxed">
+            <p className="text-zinc-400 text-lg tracking-tight text-wrap max-w-2xl text-center animate-slide-in-left opacity-0 leading-relaxed">
               Dzięki wygodnemu interfejsowi, przesyłanie plików jest niezwykle proste. 
               Użyj naszego serwisu do przesyłania plików i zyskaj wiele czasu. 
               Możesz w łatwy sposób generować linki niestandardowe, skracając czas drugiej osoby.

@@ -20,7 +20,7 @@ export default function FAQ() {
               Ile trwa dostęp do linku?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Link jest dostępny przez 24 godziny. Możesz przedłużyć czas do 7 dni. Dostępne tylko dla zalogowanych użytkowników.
+              Link jest dostępny przez 24 godziny lub 30 minut. Możesz przedłużyć czas do 7 dni. Dostępne tylko dla zalogowanych użytkowników.
             </AccordionContent>
         </AccordionItem>
         
@@ -29,7 +29,7 @@ export default function FAQ() {
               Jakie są ograniczenia dotyczące plików?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Maksymalnie 20 plików, 40MB maksymalnie.
+              Maksymalnie 20 plików, 100MB maksymalnie.
             </AccordionContent>
         </AccordionItem>
         

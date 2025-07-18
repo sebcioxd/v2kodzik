@@ -16,7 +16,7 @@ export default function Navbar() {
         <nav className="flex flex-col p-2 rounded-md mx-auto w-full md:max-w-4xl sticky top-0 z-50 max-w-sm border-zinc-800 pt-2  backdrop-blur-sm animate-fade-in-01-text">
             <div className="flex justify-between items-center w-full">
                 <Link href="/" className="flex items-center gap-2 group">
-                    <h1 className="text-zinc-400 md:text-lg text-xl group-hover:text-zinc-200 transition-colors">dajkodzik.pl</h1>
+                    <h1 className="text-zinc-400 md:text-xl text-lg tracking-tight group-hover:text-zinc-200 transition-colors">dajkodzik.pl</h1>
                 </Link>
                 
                 <button 
@@ -26,7 +26,7 @@ export default function Navbar() {
                     {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
 
-                <div className="hidden md:flex items-center gap-6">
+                <div className="hidden md:flex items-center gap-6 tracking-tight">
                     <Link 
                         href="/upload" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
