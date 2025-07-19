@@ -12,6 +12,7 @@ import axios, { AxiosProgressEvent } from "axios";
 import { BlobWriter, ZipWriter, BlobReader } from "@zip.js/zip.js";
 import { toast } from "sonner";
 import { useSearchParams } from 'next/navigation';
+import { formatDate } from "@/lib/date";
 
 interface File {
   id: string;
@@ -176,12 +177,10 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
         return "Czas nieznany";
     }
     
-    // Parse as UTC and subtract 2 hours to get actual local expiry time
-    const expires = new Date(expiresAt);
-    const localExpires = new Date(expires.getTime() - (2 * 60 * 60 * 1000));
+    const localExpires = formatDate(expiresAt);
     
     const now = new Date();
-    const diff = localExpires.getTime() - now.getTime();
+    const diff = new Date(localExpires).getTime() - now.getTime();
    
     if (diff <= 0) {
         return "Wygaśnie w ciągu kilku godz.";

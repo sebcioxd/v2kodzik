@@ -7,6 +7,8 @@ import { authClient, User } from "@/lib/auth-client";
 import { useTransition } from "react";
 import { useState } from "react";
 import Link from "next/link";
+import { formatDate } from "@/lib/date";
+
 type Share = {
     id: string;
     slug: string;
@@ -18,20 +20,7 @@ type Share = {
     private: boolean;
 }
 
-function formatDate(dateString: string) {
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('pl-PL', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    } catch (error) {
-        return 'Data niedostępna';
-    }
-}
+
 
 export default function UserPanel({ shares, user }: { shares: Share[], user: User }) {
     const router = useRouter();
