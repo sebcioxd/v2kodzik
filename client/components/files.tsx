@@ -12,7 +12,7 @@ import axios, { AxiosProgressEvent } from "axios";
 import { BlobWriter, ZipWriter, BlobReader } from "@zip.js/zip.js";
 import { toast } from "sonner";
 import { useSearchParams } from 'next/navigation';
-import { formatDate } from "@/lib/date";
+import { formatTimeRemaining } from "@/lib/date";
 
 interface File {
   id: string;
@@ -171,30 +171,6 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Updated time remaining calculation
-  const formatTimeRemaining = (createdAt: string, expiresAt: string) => {
-    if (!expiresAt) {
-        return "Czas nieznany";
-    }
-    
-    const localExpires = formatDate(expiresAt);
-    
-    const now = new Date();
-    const diff = new Date(localExpires).getTime() - now.getTime();
-   
-    if (diff <= 0) {
-        return "Wygaśnie w ciągu kilku godz.";
-    }
-   
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-   
-    if (hours === 0) {
-        return `${minutes}m`;
-    }
-   
-    return `${hours}h ${minutes}m`;
-};
 
 
   const handleDownload = async (path: string, fileId: string): Promise<void> => {

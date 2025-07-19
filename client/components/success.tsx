@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Copy, Share2, ArrowLeft } from "lucide-react";
+import { Copy, Share2, ArrowLeft, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import {
@@ -11,17 +11,18 @@ import {
   AlertTitle,
 } from "@/components/ui/alert";
 import confetti from "canvas-confetti";
+import { toast } from "sonner";
 
 export default function Success() {
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
   const time = searchParams.get("time");
   const type = searchParams.get("type");
-  const [copied, setCopied] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   const fullUrl = type === "upload" ? `${process.env.NEXT_PUBLIC_SITE_URL}/${slug}` : `${process.env.NEXT_PUBLIC_SITE_URL}/s/${slug}`;
 
   useEffect(() => {
-    const end = Date.now() + 3 * 1000; // 3 seconds
+    const end = Date.now() + 3 * 1000;
     const colors = ["#6366f1", "#8b5cf6", "#d946ef", "#ec4899", "#f43f5e"];
 
     const frame = () => {
@@ -53,78 +54,86 @@ export default function Success() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(fullUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      toast.success('Link skopiowany do schowka!');
     } catch (err) {
       console.error("Failed to copy:", err);
+      toast.error('Nie udało się skopiować linku');
     }
   };
 
   const shareLink = async () => {
-    if (navigator.share) {
-      try {
+    setIsSharing(true);
+    try {
+      if (navigator.share) {
         await navigator.share({
           title: 'Pliki wysłane',
           text: 'Sprawdź te pliki, które wysłałem',
           url: fullUrl,
         });
-      } catch (err) {
-        console.error("Share failed:", err);
+      } else {
+        await copyToClipboard();
       }
-    } else {
-      copyToClipboard();
+    } catch (err) {
+      console.error("Share failed:", err);
+      toast.error('Nie udało się udostępnić linku');
+    } finally {
+      setIsSharing(false);
     }
   };
 
   return (
-    <main className="flex flex-col items-center justify-center w-full mx-auto space-y-6 animate-fade-in-01-text mt-6 container md:max-w-nd max-w-sm">
-      <Alert className="bg-zinc-950/10 border-zinc-800 border-dashed">
-        <AlertTitle className="text-zinc-200">Link został wygenerowany!</AlertTitle>
-        <AlertDescription className="text-zinc-400">
-          Twój link będzie aktywny przez następne {time === "24" ? "24 godziny" : time === "168" ? "7 dni" : "30 minut"}
-        </AlertDescription>
-      </Alert>
+    <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10">
+      <div className="w-full space-y-4">
+        <div className="flex flex-col items-center justify-center pb-2 animate-fade-in-01-text opacity-0">
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+          Link <span className="text-zinc-400">{slug} </span> został wygenerowany!
+          </h1>
+          <p className="text-zinc-500 text-md tracking-tight">
+          Twój link będzie aktywny przez następne {time === "24" ? "24 godziny" : time === "168" ? "7 dni" : "30 minut"}          </p>
+        </div>
 
-      <div className="w-full p-4 bg-zinc-950/20 border border-dashed border-zinc-800 rounded-md">
-        <p className="text-zinc-400 text-sm mb-2">Twój link: (kliknij aby przejść)</p>
-        <div className="flex items-center gap-2">
-          <span className="flex-1 p-2 bg-zinc-900/50 text-md font-medium rounded-full text-blue-400 overflow-x-auto">
-            <Link href={fullUrl}>{fullUrl}</Link>
-          </span>
+
+        <div className="w-full p-4 bg-zinc-950/20 border border-dashed border-zinc-800 rounded-md animate-slide-in-bottom">
+          <p className="text-zinc-400 text-sm mb-2 flex items-center gap-2 tracking-tight">
+            <LinkIcon className="h-4 w-4" />
+            Twój link: (kliknij aby przejść)
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="flex-1 p-2 bg-zinc-900/50 text-md font-medium rounded-md text-zinc-200 overflow-x-auto border border-zinc-800/50">
+              <Link href={fullUrl} className="hover:text-zinc-100 transition-colors tracking-tight">
+                {fullUrl}
+              </Link>
+            </span>
+            <Button
+              onClick={copyToClipboard}
+              className="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-800"
+              size="lg"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex gap-4 w-full animate-slide-in-bottom">
           <Button
-            onClick={copyToClipboard}
-            className="bg-zinc-900 hover:bg-zinc-800 text-zinc-400"
-            size="sm"
+            onClick={shareLink}
+            disabled={isSharing}
+            className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-800"
           >
-            <Copy className="h-4 w-4" />
+            <Share2 className="mr-2 h-4 w-4" />
+            Udostępnij
+          </Button>
+          <Button
+            asChild
+            className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-800"
+          >
+            <Link href="/upload">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Wróć
+            </Link>
           </Button>
         </div>
       </div>
-
-      <div className="flex gap-4 w-full">
-        <Button
-          onClick={shareLink}
-          className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400"
-        >
-          <Share2 className="mr-2 h-4 w-4" />
-          Udostępnij
-        </Button>
-        <Button
-          asChild
-          className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400"
-        >
-          <Link href="/upload">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Wróć
-          </Link>
-        </Button>
-      </div>
-
-      {copied && (
-        <div className="p-2 border border-dashed border-green-800 text-green-300 text-center rounded-md text-sm w-full">
-          Skopiowano do schowka!
-        </div>
-      )}
     </main>
   );
 }
