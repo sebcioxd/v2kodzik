@@ -17,31 +17,28 @@ Ważniejsze endpointy zabezpieczone **rate-limitem**.
 
 Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
-## Jak maksymalizujemy szybkość wsyłania plików i kodu?
+## Jak maksymalizujemy szybkość wsyłania plików i kodu? (Bun)
 
-Dajkodzik wykorzystuje najnowsze technologie i optymalizacje, aby zapewnić maksymalną wydajność:
+Dajkodzik jest **performance-obssesed**. Jest zbudowany żeby wykorzystać maksimum z nowoczesnych rozwiązań, 
+ta platforma jest również szybsza niż 90% na rynku. Jedyne nad czym pracujemy to zwiększenie limitu transferu (Płatności w planach)
 
-1. **Natywny klient PostgreSQL Bun'a**
-   - Wykorzystujemy wbudowany w Bun'a klient PostgreSQL, który jest znacznie szybszy od tradycyjnych sterowników Node.js
-   - Używa protokołu binarnego zamiast tekstowego
-   - Zoptymalizowany connection pooling
-   - Wykorzystuje wewnętrzne optymalizacje silnika JavaScriptCore
-
+1. **Natywne API Bun'a które jest znacznie szybsze niż gotowe biblioteki**
+   - Wykorzystujemy wbudowany w **Bun'a klient PostgreSQL**, który jest znacznie szybszy od tradycyjnych sterowników Node.js
+   - Korzystamy z **natywnego Bun S3 API** co też zwiększa prędość
+   - Natywne hasowanie haseł, kodów, dzięki **Bun Password API**
+   - Natywny klient redis przez **Bun RedisClient API** co diamentralnie zwiększa prędkość działania.
 2. **Presigned URLs dla S3**
    - Zamiast przesyłać pliki przez nasz serwer, generujemy presigned URLs
    - Pozwala to na bezpośrednie przesyłanie plików do S3, omijając nasz serwer
    - Znacząco zmniejsza obciążenie serwera
    - Umożliwia równoległe przesyłanie wielu plików
+3. **Indeksowanie bazy danych**
+   - Schemat bazy danych ma już gotowe indeksy, co potrafi zwiększyć szybkość niektórych kwerend o nawet 95%
+   - [Schemat zindeksowanej bazy danych](https://github.com/sebcioxd/v2kodzik/blob/main/server/src/db/schema.ts)
+4. **Cały serwer posiada jedynie **7** zależności, z czego jedna to samo API.**
+   - Dzięki wykorzystaniu natywnym API oferowanym przez Bun'a, minimalizujemy wielkość projektu.
+   - [Plik z zależnościami](https://github.com/sebcioxd/v2kodzik/blob/main/server/package.json)
 
-3. **Natywny klient S3 Bun'a**
-   - Wykorzystuje natywne bindingi Bun'a dla operacji S3
-   - Szybsza obsługa strumieni danych
-   - Zoptymalizowane zarządzanie pamięcią
-   - Efektywniejsze przetwarzanie dużych plików
-
-4. **Architektura bez blokowania**
-   - Brak operacji blokujących w kodzie
-   - Wykorzystanie natywnych implementacji zamiast zewnętrznych bibliotek
 
 Dzięki tym optymalizacjom, **Dajkodzik** może obsłużyć zaskakująco dużą ilość przesyłanego transferu jak na technologię opartą na JavaScripcie.
 
@@ -49,6 +46,7 @@ Dzięki tym optymalizacjom, **Dajkodzik** może obsłużyć zaskakująco dużą 
 
 - Refactor z Node.js do Deno lub Bun'a (Pełen support TypeScript'u) 🟢
 - Refactor Front-endu, dodanie lepszego supportu TS.
+- Wspieranie płatności aby zwiększyć maksymalny transfer pliku (z 100MB do 2GB).
 - Zamienienie npm na pnpm w front-endzie. 🟢
 - Możliwość dodawania również kodu, nie tylko załączania plików 🟢
 
@@ -62,15 +60,7 @@ Dzięki tym optymalizacjom, **Dajkodzik** może obsłużyć zaskakująco dużą 
 
 - [Bun 1.2+](https://bun.com/) 
 - [Node.js 22+](https://nodejs.org), [pnpm](https://pnpm.io/)  
-- Hosting S3 Object Storage,
-**Testowane:**
-[MinIO](https://min.io/docs/minio/container/index.html),
-[Cloudflare R2](https://www.cloudflare.com/developer-platform/products/r2/)
-- Hosting PostgreSQL ([Docker](https://hub.docker.com/_/postgres), [Neon](https://neon.com/), [Supabase](https://supabase.com/))
-- Hosting Redis ([Redis.io](https://redis.io/), [Docker](https://hub.docker.com/_/redis))
-- Konta Google i Discord do skonfigurowania OAuth (Darmowe)
-- Konto w Cloudflare do skonfigurowania Cloudflare Turnstile (Darmowe)
-- Cron jobs
+- S3 API, PostgreSQL, Redis.
 
 ## Zmienne środowiskowe
 
@@ -165,10 +155,18 @@ npm run dev
 - Server VPS: Dokploy
 - Kompilacja: zalecane użycie Railpack lub Nixpacks
 
-## Czyszczenie miejsca (Cron)
+## Czyszczenie miejsca, Edge lub Cron jobs
+
+[Funkcja Edge (działa w środowisku serverless) do czyszczenia serwera S3 i Bazy danych](https://github.com/sebcioxd/v2kodzik/blob/main/server/src/lib/edge.ts)
+
+
+Jeśli macie możliwość i chcecie mieć szybkie crony bazy danych bez obciążania S3, możecie zainstalować rozszerzenie pg-cron do bazy PostgreSQL.
+
+[Obraz Postgresa z SSL oraz rozszerzeniem pg-cron](https://github.com/sebcioxd/v2kodzik/blob/main/pg_image)
+
+[Funkcje cronowe kompatybilne z schematem bazy danych, gotowe do uruchomienia po instalacji bazy danych](https://github.com/sebcioxd/v2kodzik/blob/main/server/src/lib/cron.ts)
 
 Endpoint API do uruchomienia czyszczenia:
-
 
 **javascript**
 ```javascript
@@ -191,7 +189,7 @@ curl -s -X POST https://api.domena.pl/v1/cron \
   -d '{"key": "CRON_BODY_KEY"}'
 ```
 
-Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin z poprawnym kluczem autoryzacyjnym.
+Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin z poprawnym kluczem autoryzacyjnym. (Lub wystarczy funkcja Edge)
 Nie jest to wymagane, lecz po jakimś czasie aplikacja może być przeciążona ilością danych.
 Czyszczyenie może być wykonane nawet manualnie co jakiś czas bo cała logika znajduję się w tym Endpoincie.
 
