@@ -1,6 +1,12 @@
-import { sql } from "bun"; // można uzyc drizzle
+import { sql } from "bun"; 
 
-// URUCHOM PLIK Z BUN RUN src/lib/cron.ts
+/* 
+** TO JEST FUNKCJA JEŚLI MACIE MOŻLIWOŚĆ UŻYWANIA pg-cron, więcej inforamcji w /pg_image/guide.md
+** NIE JEST TO ZASTĄPIENIE TRADYCYJNEGO /v1/cron, TYLKO JEGO WSPOMAGACZ
+** URUCHOM PLIK Z BUN RUN src/lib/cron.ts
+** ZMIANY POWINNY ZOSTAĆ WPROWADZONE DO BAZY
+*/
+
 
 const setupCronJob = async () => {
     try {
@@ -30,4 +36,3 @@ const setupCronJob = async () => {
 };
 
 setupCronJob();
-

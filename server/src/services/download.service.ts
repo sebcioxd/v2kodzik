@@ -19,14 +19,16 @@ export class DownloadService {
     }
 
     // Jeśli mamy CDN'a, to pobieramy plik z CDN'a
+    // Warto zaznaczyć, że to może być problemtayczne jeśli chodzi o zachowanie prywatności użytkownika
     private getCachedUrl(path: string) {
         return `${CDN_URL}/${path}`
     }
 
+
     public async downloadFile({ path, c }: DownloadFileServiceProps) {
         try {
             const presignedUrl = this.getCachedUrl(path);
-            
+
             // Przyjazne dla CDN'a nagłówki
             c.header('Cache-Control', 'public, max-age=3600');
             c.header('CDN-Cache-Control', 'public, max-age=86400');
@@ -57,40 +59,3 @@ export class DownloadService {
     }
 }
 
-
-// const client = getS3Client({ bucket: "sharesbucket" });
-
-// export async function downloadFileService({ path, c }: DownloadFileServiceProps) {
-//     try {
-//         const presignedUrl = client.presign(path, {
-//             expiresIn: 200,
-//             method: "GET",
-//         });
-
-//         return c.json({ url: presignedUrl });
-//     } catch (err) {
-//         return c.json({
-//             message: "Wystąpił błąd podczas pobierania pliku",
-//             error: err,
-//         }, 500);
-//     }
-// }
-// export async function downloadBulkFilesService({ paths, c }: DownloadBulkFilesServiceProps) {
-//     try {
-//         const presignedUrls = paths.map((path) => {
-//             const url = client.presign(path, {
-//                 expiresIn: 200,
-//                 method: "GET",
-//             });
-//             const fileName = path.split("/").pop() || "unknown";
-//             return { url, fileName };
-//         });
-        
-//         return c.json({ urls: presignedUrls });
-//     } catch (err) {
-//         return c.json({
-//             message: "Wystąpił błąd podczas pobierania plików",
-//             error: err,
-//         }, 500);
-//     }
-// }
