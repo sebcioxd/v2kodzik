@@ -367,7 +367,7 @@ export function UploadPage() {
   return (
     <>
 
-{info?.userAgent && !localStorage.getItem("safari_accepted") && (
+{info?.userAgent && !localStorage.getItem("safari_accepted") && isSafariBrowser(info?.userAgent) && (
   <Dialog open={isSafari}>
     <DialogContent className="border border-dashed border-zinc-800 bg-zinc-950/70 backdrop-blur-sm text-zinc-200 ">
       <DialogHeader>
