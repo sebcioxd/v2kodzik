@@ -394,7 +394,7 @@ export function UploadPage() {
             variant="outline"
             className="bg-zinc-950/20 text-red-400 border-zinc-800  hover:bg-zinc-800 hover:text-zinc-200"
           >
-            Przejdź do przesyłania
+            Nie korzystam z przeglądarki Safari
           </Button>
         </DialogClose>
       </DialogFooter>
