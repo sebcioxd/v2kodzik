@@ -29,46 +29,39 @@ interface InfoResponse {
     host: string;
 }
 
-export const useFetch = () => {
-    const { 
-        data: info, 
-        isLoading: isInfoLoading, 
-        isError: isInfoError 
-    } = useQuery<InfoResponse>({
+// Split into individual hooks
+export const useInfo = () => {
+    return useQuery<InfoResponse>({
         queryKey: ["info"],
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/info`);
             return response.json();
         },
     });
+};
 
-    const { 
-        data: update, 
-        isLoading: isUpdateLoading, 
-        isError: isUpdateError 
-    } = useQuery({
-        queryKey: ["update", info?.remoteAdress, info?.userAgent],
-        enabled: !!info?.remoteAdress && !!info?.userAgent,
+export const useUpdate = (remoteAddress?: string, userAgent?: string) => {
+    return useQuery({
+        queryKey: ["update", remoteAddress, userAgent],
+        enabled: !!remoteAddress && !!userAgent,
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/update`, {
                 method: 'POST',
                 credentials: 'include',
                 body: JSON.stringify({
-                    remoteAdress: info?.remoteAdress,
-                    userAgent: info?.userAgent,
+                    remoteAdress: remoteAddress,
+                    userAgent: userAgent,
                 }),
             });
             return response.json();
         },
     });
+};
 
-    const { 
-        data: oauth, 
-        isLoading: isOauthLoading, 
-        isError: isOauthError 
-    } = useQuery({
+export const useOauth = (updateEnabled: boolean) => {
+    return useQuery({
         queryKey: ["oauth"],
-        enabled: !!update,
+        enabled: updateEnabled,
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/oauth/set`, {
                 method: 'POST',
@@ -77,24 +70,20 @@ export const useFetch = () => {
             return response.json();
         },
     });
+};
 
-    const { 
-        data: status, 
-        isLoading: isStatusLoading, 
-        isError: isStatusError 
-    } = useQuery<Status>({
+export const useStatus = () => {
+    return useQuery<Status>({
         queryKey: ["status"],
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/status`);
             return response.json();
         },
     });
+};
 
-    const { 
-        data: lastPosts, 
-        isLoading: isLastPostsLoading, 
-        isError: isLastPostsError 
-    } = useQuery<LastPostsResponse>({
+export const useLastPosts = () => {
+    return useQuery<LastPostsResponse>({
         queryKey: ["last-posts"],
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/last-posts`);
@@ -103,24 +92,6 @@ export const useFetch = () => {
         retry: 3,
         retryDelay: 2000,
     });
-
-    return {
-        status,
-        isStatusLoading,
-        isStatusError,
-        lastPosts,
-        isLastPostsLoading,
-        isLastPostsError,
-        info,
-        isInfoLoading,
-        isInfoError,
-        update,
-        isUpdateLoading,
-        isUpdateError,
-        oauth,
-        isOauthLoading,
-        isOauthError,
-    };
 };
 
 

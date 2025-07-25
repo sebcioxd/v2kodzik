@@ -39,6 +39,17 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { Turnstile, TurnstileRef } from "@/components/turnstile";
+import { useInfo } from "@/app/hooks/use-fetch";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import { Label } from "./ui/label";
 
 const formSchema = z
   .object({
@@ -123,6 +134,13 @@ function formatBytes(bytes: number) {
   return `${mb.toFixed(1)} MB`;
 }
 
+function isSafariBrowser(userAgent: string) {
+  const isSafariTest = /^((?!chrome|android).)*Safari/i.test(userAgent);
+  return isSafariTest;
+}
+
+
+
 export function UploadPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(false);
@@ -135,6 +153,10 @@ export function UploadPage() {
   const [cancelTokenSource, setCancelTokenSource] = useState<any>(null);
   const turnstileRef = useRef<TurnstileRef>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isSafari, setIsSafari] = useState(true);
+
+  const { data: info } = useInfo();
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -146,6 +168,11 @@ export function UploadPage() {
       time: "24",
     },
   });
+  
+  function handleProceed() {
+    setIsSafari(false);
+    localStorage.setItem("safari_accepted", "true");
+  }
 
   const selectedTime = form.watch("time");
 
@@ -183,6 +210,7 @@ export function UploadPage() {
       toast.error("Proszę ukończyć captche.");
       return;
     }
+
 
     // Create a new cancel token source
     const source = axios.CancelToken.source();
@@ -338,6 +366,41 @@ export function UploadPage() {
 
   return (
     <>
+
+{info?.userAgent && !localStorage.getItem("safari_accepted") && (
+  <Dialog open={isSafari}>
+    <DialogContent className="border border-dashed border-zinc-800 bg-zinc-950/70 backdrop-blur-sm text-zinc-200 ">
+      <DialogHeader>
+        <DialogTitle className="text-zinc-200 tracking-tight">
+          Wykryliśmy, że korzystasz z przeglądrki Safari.
+        </DialogTitle>
+        <DialogDescription className="text-zinc-400">
+          Przeglądarka ta nie jest wspierana. Safari notorycznie zwraca błędy podczas przesyłania plików. Prosimy o użycie innej przeglądarki.
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter className="justify-start border-t border-dashed border-zinc-800 pt-4">
+        <DialogClose asChild onClick={() => router.push("/")}>
+          <Button 
+            type="button" 
+            variant="outline"
+            className="bg-zinc-950/20 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+          >
+            Wróć do strony głównej
+          </Button>
+        </DialogClose>
+        <DialogClose asChild onClick={handleProceed}>
+          <Button 
+            type="button" 
+            variant="outline"
+            className="bg-zinc-950/20 text-red-400 border-zinc-800  hover:bg-zinc-800 hover:text-zinc-200"
+          >
+            Przejdź do przesyłania
+          </Button>
+        </DialogClose>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+)}
     
       <Form {...form}>
         

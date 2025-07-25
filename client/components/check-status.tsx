@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFetch, Status } from "@/app/hooks/use-fetch";
+import { useStatus, Status } from "@/app/hooks/use-fetch";
 
 export default function CheckStatus() {
     const [status, setStatus] = useState<Status>({
         message: 'loading',
         status: 0
     });
-    const { status: statusData, isStatusLoading, isStatusError } = useFetch();
+    const { data: statusData, isLoading: isStatusLoading, isError: isStatusError } = useStatus();
 
     useEffect(() => {
         if (isStatusError) {

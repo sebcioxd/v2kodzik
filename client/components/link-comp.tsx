@@ -4,7 +4,7 @@ import { ExternalLink, Clock, Lock } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
-import { useFetch, LastPosts } from "@/app/hooks/use-fetch";
+import { useLastPosts, LastPosts } from "@/app/hooks/use-fetch";
 import { formatDate } from "@/lib/date";
 
 interface ShareCardProps {
@@ -14,7 +14,7 @@ interface ShareCardProps {
   private: boolean;
 }
 
-// Add skeleton component
+// Add skeleton componentc
 export function RecentSharesSkeleton() {
   return (
     <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-4 animate-slide-in-bottom">
@@ -46,11 +46,11 @@ export function RecentSharesSkeleton() {
 
 export default function RecentShareCard({ slug, createdAt, expiresAt, private: isPrivate }: ShareCardProps) {
   return (
-    <div className="border border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-2">
+    <div className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-2 tracking-tight">
       <div className="flex justify-between items-center">
         <div className="flex">
-          <span className="text-zinc-400 text-md font-medium flex items-center gap-2">
-            Kod linku: <span className="text-zinc-200 ml-[-1px] break-all whitespace-pre-wrap">{slug}</span> {isPrivate ? <Lock className="h-4 w-4 text-zinc-400" /> : null}
+          <span className="text-zinc-400 text-md font-medium flex items-center ">
+            dajkodzik.pl/<span className="text-zinc-300 break-all whitespace-pre-wrap">{slug}</span> {isPrivate ? <Lock className="h-4 w-4 text-zinc-400 ml-2" /> : null}
           </span> 
         </div>
         <Link
@@ -71,7 +71,7 @@ export default function RecentShareCard({ slug, createdAt, expiresAt, private: i
 
 // Update RecentShares component
 export function RecentShares() {
-  const { lastPosts, isLastPostsLoading, isLastPostsError } = useFetch();
+  const { data: lastPosts, isLoading: isLastPostsLoading, isError: isLastPostsError } = useLastPosts();
   const [shares, setShares] = useState<LastPosts[]>([]);
   const [count, setCount] = useState<number>(0);
 

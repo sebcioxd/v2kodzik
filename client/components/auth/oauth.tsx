@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useFetch } from "@/app/hooks/use-fetch";
+import { useInfo, useUpdate, useOauth } from "@/app/hooks/use-fetch";
 
 export default function OAuth() {
   const searchParams = useSearchParams();
@@ -13,16 +13,22 @@ export default function OAuth() {
   const oauth = searchParams.get("oauth") || false;
 
   const {
-    info,
-    isInfoLoading,
-    isInfoError,
-    update,
-    isUpdateLoading,
-    isUpdateError,
-    oauth: oauthData,
-    isOauthLoading,
-    isOauthError,
-  } = useFetch();
+    data: info,
+    isLoading: isInfoLoading,
+    isError: isInfoError,
+  } = useInfo();
+
+  const {
+    data: update,
+    isLoading: isUpdateLoading,
+    isError: isUpdateError,
+  } = useUpdate(info?.remoteAdress, info?.userAgent);
+
+  const {
+    data: oauthData,
+    isLoading: isOauthLoading,
+    isError: isOauthError,
+  } = useOauth(!!update);
 
   useEffect(() => {
     const shouldRedirectToOAuth =
