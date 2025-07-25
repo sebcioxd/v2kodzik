@@ -20,3 +20,4 @@ export const DISCORD_CLIENT_SECRET = Bun.env.DISCORD_CLIENT_SECRET!
 export const CLOUDFLARE_TURNSTILE_SECRET_KEY = Bun.env.CLOUDFLARE_TURNSTILE_SECRET_KEY!
 export const REDIS_URL = Bun.env.REDIS_URL!
 export const CDN_URL = Bun.env.CDN_URL!
+export const MAILGUN_API_KEY = Bun.env.MAILGUN_API_KEY!

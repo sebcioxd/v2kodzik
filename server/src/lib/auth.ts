@@ -52,6 +52,14 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: true,
         resetPasswordTokenExpiresIn: 30 * 60,
+        password: {
+            hash: async (password) => {
+                return await Bun.password.hash(password);
+            },
+            verify: async (data) => {
+                return await Bun.password.verify(data.password, data.hash);
+            },
+        },
         sendResetPassword: async ({ user, token }) => {
             const callbackURL = `${BETTER_AUTH_URL}/v1/auth/reset-password/${token}?callbackURL=${SITE_URL}/auth/forget/password`
             await sendEmailService({

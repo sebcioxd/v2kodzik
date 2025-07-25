@@ -106,7 +106,7 @@ export default function SignIn() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center container mx-auto max-w-md animate-slide-in-bottom">
+    <main className="flex flex-col items-center justify-center container mx-auto max-w-md animate-slide-in-right">
       <div className="w-full max-w-2xl p-8 relative border  border-zinc-800 rounded-lg">
         <div className="flex flex-col items-center justify-center pb-10 animate-fade-in-01-text opacity-0">
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
