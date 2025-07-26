@@ -411,7 +411,7 @@ export function UploadPage() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={`text-zinc-200 animate-fade-in-01-text border-dashed  border-zinc-700 border-b pb-3 mb-2 ${
+                  className={`text-zinc-200 animate-fade-in-01-text border-dashed tracking-tight border-zinc-800 border-b pb-3 mb-2 ${
                     isSubmitting ? "opacity-50" : ""
                   }`}
                 >
@@ -422,7 +422,7 @@ export function UploadPage() {
                     maxFiles={20}
                     maxSize={getMaxSize()}
                     maxTotalSize={getMaxSize()}
-                    className="w-full md:min-w-md max-w-md animate-fade-in-01-text tracking-tight"
+                    className="w-full md:min-w-sm max-w-md animate-fade-in-01-text tracking-tight"
                     value={field.value}
                     onValueChange={(files) => {
                       if (!isSubmitting) {
@@ -454,42 +454,34 @@ export function UploadPage() {
                       }`}
                     >
                       <div className="flex flex-col items-center gap-1 text-center">
-                        <div className="flex items-center justify-center rounded-full border border-dashed border-zinc-800 p-2.5">
+                        <div className="flex items-center justify-center rounded-full border border-dashed border-zinc-800 p-2">
                           <Upload className="size-6 text-zinc-400" />
                         </div>
                         <p className="font-medium text-md text-zinc-200">
                           Przeciągnij i upuść pliki tutaj
                         </p>
-                        <p className="text-zinc-400 text-md">
+                        <p className="text-zinc-400 text-md trac">
                           Lub kliknij aby przeglądać do {getMaxSizeText()} oraz 20 plików
                         </p>
                       </div>
-                      <FileUploadTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="lg"
-                          className="mt-2 w-fit text-zinc-400 hover:text-zinc-200 hover:bg-zinc-950/30 border-zinc-800 bg-zinc-950/20"
-                        >
-                          Przeglądaj pliki
-                        </Button>
-                      </FileUploadTrigger>
+                      
                     </FileUploadDropzone>
                     <FileUploadList>
                       {field.value.map((file, index) => (
                         <FileUploadItem
-                          key={index}
+                          key={index} 
                           value={file}
-                          className={`border-dashed border-zinc-800 ${
+                          className={`border-dashed py-2 border-zinc-800 ${
                             isSubmitting ? "opacity-50 pointer-events-none" : ""
                           }`}
                         >
-                          <FileUploadItemPreview className="bg-zinc-800/50 rounded-md text-zinc-300 border-zinc-950" />
+                          <FileUploadItemPreview className="bg-darken rounded-md text-zinc-300 border-zinc-950" />
                           <FileUploadItemMetadata className="text-zinc-400" />
                           <FileUploadItemDelete asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-700"
+                              className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-600"
                               disabled={isSubmitting}
                             >
                               <X />
@@ -544,34 +536,35 @@ export function UploadPage() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel
-                  className={`text-zinc-200 animate-fade-in-01-text text-sm  border-dashed border-zinc-700 border-b pb-3 ${
+                  className={`text-zinc-200 animate-fade-in-01-text text-sm  pb-1${
                     isSubmitting ? "opacity-50" : ""
                   }`}
                 >
-                  <LinkIcon className="w-4 h-4" /> Niestandarowy link: (opcjonalnie)
+                  <LinkIcon className="w-4 h-4" /> Niestandarowy link: <span className="text-zinc-600 animate-fade-in-01-text ml-[-2]">opcjonalne</span>
                 </FormLabel>
                 <FormControl>
                   <div
-                    className={`flex items-center gap-2 py-2 ${
+                    className={`w-full max-w-md ${
                       isSubmitting ? "opacity-50" : ""
                     }`}
                   >
-                    <span className="text-zinc-400 animate-fade-in-01-text bg-zinc-950/20 border-zinc-800 rounded-md px-1 py-1">
-                      dajkodzik.pl/
-                    </span>
-                    <Input
-                      {...field}
-                      disabled={isSubmitting}
-                      placeholder="np. moj-link"
-                      
-                      className={`w-full max-w-md bg-zinc-950/20 border-zinc-800 text-zinc-200 placeholder:text-zinc-400 animate-fade-in-01-text ${
-                        isSubmitting ? "cursor-not-allowed" : ""
-                      }`}
-                    />
+                    <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                      <span className="text-zinc-400 px-2  border-r border-dashed border-zinc-800 bg-zinc-950/20 text-sm">
+                        dajkodzik.pl/
+                      </span>
+                      <Input
+                        {...field}
+                        disabled={isSubmitting}
+                        placeholder="np. moj-link"
+                        className={`flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 ${
+                          isSubmitting ? "cursor-not-allowed" : ""
+                        }`}
+                      />
+                    </div>
                   </div>
                 </FormControl>
                 <p
-                  className={`text-md text-zinc-400 mt-1 ${
+                  className={`text-sm text-zinc-400 mt-1 tracking-tight ${
                     isSubmitting ? "opacity-50" : ""
                   }`}
                 >
@@ -687,7 +680,7 @@ export function UploadPage() {
                           </TabsTrigger>
                         </TabsList>
                         <TabsContent value="public" className="py-2">
-                          <p className="text-md text-zinc-400 animate-fade-in-01-text">
+                          <p className="text-sm tracking-tight text-zinc-400 animate-fade-in-01-text">
                             Każdy z linkiem będzie miał dostęp do twoich plików.
                           </p>
                         </TabsContent>

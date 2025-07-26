@@ -10,9 +10,9 @@ export default function Hero() {
   const { data: session, isPending } = useSession();
 
   return (
-    <main className="flex flex-col items-center justify-center md:max-w-4xl max-w-sm  mx-auto px-4">
+    <main className="flex flex-col items-center justify-center md:max-w-4xl  max-w-sm mx-auto px-4">
       {/* Hero Section with Gradient Background */}
-      <div className="w-full rounded-2xl bg-gradient-to-b from-zinc-900/50 to-zinc-950/50 p-8 backdrop-blur-sm border border-dashed border-zinc-800 animate-fade-in-01-text">
+      <div className="w-full  bg-gradient-to-b p-8 backdrop-blur-sm border-dashed border rounded-lg border-zinc-800 animate-fade-in-01-text">
         <div className="flex flex-col items-center space-y-6">
           {/* Logo with Glow Effect */}
           <div className="relative">

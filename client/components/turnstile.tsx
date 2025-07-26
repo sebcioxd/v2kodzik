@@ -49,7 +49,7 @@ export const Turnstile = forwardRef<TurnstileRef, TurnstileProps>(
 
     return (
       <div className="w-full flex justify-center mb-4">
-        <div className="p-2 rounded-lg border-2backdrop-blur-sm hover:border-zinc-700 transition-all duration-300">
+        <div className="p-2 rounded-lg  backdrop-blur-sm hover:border-zinc-700 transition-all duration-300">
           <TurnstileWidget
             ref={widgetRef}
             siteKey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY!}
