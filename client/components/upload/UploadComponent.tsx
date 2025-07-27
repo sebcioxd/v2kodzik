@@ -291,6 +291,59 @@ export function UploadPage() {
               </FormItem>
             )}
           />
+          <Button
+            type="submit"
+            className={`w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400 animate-slide-in-left ${isUploading ? "bg-zinc-900/20" : ""}`}
+            disabled={isUploading || !turnstileToken}
+            size="sm"
+          >
+            {isUploading ? (
+              <span className="flex items-center justify-center">
+                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
+                {progressPercentage === 0 ? (
+                  `Przygotowywanie ${form.getValues("files").length} ${form.getValues("files").length === 1 ? 'pliku' : 'plików'}...`
+                ) : progressPercentage === 100 ? (
+                  "Przetwarzanie plików..."
+                ) : (
+                  `Wysyłanie... ${progressPercentage}%`
+                )}
+              </span>
+            ) : (
+              <span className="flex items-center justify-center">
+                <Upload className="mr-2 h-4 w-4" />
+                  Wygeneruj link z plikami
+              </span>
+            )}
+          </Button>
+
+          {isUploading && (
+            <div className="w-full space-y-2 animate-fade-in-01-text flex items-center justify-center flex-col">
+              <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
+                  style={{
+                    width: `${progressPercentage}%`,
+                    backgroundColor: progressPercentage === 100 ? "#10B981" : undefined,
+                  }}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={cancelUpload}
+                className="text-zinc-400 hover:text-red-400 hover:bg-red-400/10 flex items-center justify-center gap-2"
+              >
+                <XCircle className="h-4 w-4" />
+                Anuluj wysyłanie
+              </Button>
+            </div>
+          )}
+
+          <Turnstile 
+            ref={turnstileRef}
+            onTokenChange={setTurnstileToken} 
+          />
 
           {/* Additional Settings */}
           <div className="w-full animate-fade-in-01-text">
@@ -515,62 +568,8 @@ export function UploadPage() {
             </div>
           </div>
 
-          {/* Turnstile */}
-          <Turnstile 
-            ref={turnstileRef}
-            onTokenChange={setTurnstileToken} 
-          />
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            className={`w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400 animate-slide-in-left ${isUploading ? "bg-zinc-900/20" : ""}`}
-            disabled={isUploading || !turnstileToken}
-            size="sm"
-          >
-            {isUploading ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                {progressPercentage === 0 ? (
-                  `Przygotowywanie ${form.getValues("files").length} ${form.getValues("files").length === 1 ? 'pliku' : 'plików'}...`
-                ) : progressPercentage === 100 ? (
-                  "Przetwarzanie plików..."
-                ) : (
-                  `Wysyłanie... ${progressPercentage}%`
-                )}
-              </span>
-            ) : (
-              <span className="flex items-center justify-center">
-                <Upload className="mr-2 h-4 w-4" />
-                Wygeneruj link z plikami
-              </span>
-            )}
-          </Button>
-
-          {/* Upload Progress & Cancel */}
-          {isUploading && (
-            <div className="w-full space-y-2 animate-fade-in-01-text flex items-center justify-center flex-col">
-              <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
-                  style={{
-                    width: `${progressPercentage}%`,
-                    backgroundColor: progressPercentage === 100 ? "#10B981" : undefined,
-                  }}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={cancelUpload}
-                className="text-zinc-400 hover:text-red-400 hover:bg-red-400/10 flex items-center justify-center gap-2"
-              >
-                <XCircle className="h-4 w-4" />
-                Anuluj wysyłanie
-              </Button>
-            </div>
-          )}
+         
+          
         </form>
       </Form>
     </>

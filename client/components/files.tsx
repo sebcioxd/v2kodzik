@@ -1,5 +1,5 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import {
@@ -13,6 +13,13 @@ import { BlobWriter, ZipWriter, BlobReader } from "@zip.js/zip.js";
 import { toast } from "sonner";
 import { useSearchParams } from 'next/navigation';
 import { formatTimeRemaining } from "@/lib/date";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface File {
   id: string;
@@ -20,6 +27,8 @@ interface File {
   size: number;
   shareId: string;
   storagePath: string;
+  lastModified: number;
+  contentType: string;
 }
 
 interface FilesProps {
@@ -149,6 +158,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
     filesProgress: {},
     status: 'preparing'
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (autoVerified && autoVerifiedPrivateStatus) {
@@ -171,6 +181,41 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // Add this helper function to get content type label
+  function getContentTypeLabel(contentType: string): string {
+    const CONTENT_TYPES = {
+      "image/png": "Obraz PNG",
+      "image/jpeg": "Obraz JPEG",
+      "image/jpg": "Obraz JPG",
+      "image/gif": "Animacja GIF",
+      "image/webp": "Obraz WebP",
+      "video/mp4": "Video MP4",
+      "video/webm": "Video WebM",
+      "video/ogg": "Video OGG",
+      "application/pdf": "Dokument PDF",
+      "application/msword": "Dokument Word",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "Dokument Word",
+      "text/plain": "Plik tekstowy",
+      "application/json": "Plik JSON",
+      "text/html": "Plik HTML",
+      "text/css": "Arkusz stylów CSS",
+      "text/javascript": "Plik JavaScript",
+      "text/php": "Plik PHP",
+      "text/python": "Plik Python",
+      "text/ruby": "Plik Ruby",
+      "text/perl": "Plik Perl",
+      "text/shell": "Plik Shell",
+      "text/sql": "Plik SQL",
+      "application/x-zip-compressed": "Archiwum ZIP",
+      "application/x-rar-compressed": "Archiwum RAR",
+      "application/x-7z-compressed": "Archiwum 7-Zip",
+      "application/x-tar": "Archiwum",
+      "application/x-gzip": "Archiwum",
+      "application/x-bzip2": "Archiwum",
+    };
+
+    return CONTENT_TYPES[contentType as keyof typeof CONTENT_TYPES] || contentType;
+  }
 
 
   const handleDownload = async (path: string, fileId: string): Promise<void> => {
@@ -610,6 +655,37 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
     );
   }
 
+
+
+  const unixToDate = (unix: number | string) => {
+    
+    if (!unix) return "Brak daty";
+    
+    try {
+      const unixNumber = typeof unix === 'string' ? parseInt(unix, 10) : unix;
+      if (isNaN(unixNumber)) {
+        return "Nieprawidłowa data (błąd konwersji)";
+      }
+      
+      const date = new Date(unixNumber);
+
+      if (isNaN(date.getTime())) {
+        return "Nieprawidłowa data (NaN)";
+      }
+      
+      return date.toLocaleString('pl-PL', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    } catch (error) {
+      console.error('Błąd podczas przetwarzania daty:', error);
+      return "Nieprawidłowa data (błąd)";
+    }
+  };
   return (
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10 ">
       <div className="w-full space-y-4 animate-fade-in-01-text">
@@ -731,26 +807,37 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               <div className="flex items-center space-x-3">
                 {getFileIcon(file.fileName)}
                 <div className="flex flex-col">
-                  <span className="text-zinc-200 text-sm">{file.fileName}</span>
+                  <span className="text-zinc-200 text-sm">{file.fileName} </span>
                   <span className="text-zinc-500 text-xs">{formatBytes(file.size)}</span>
+                  
                 </div>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-                onClick={() => handleDownload(file.storagePath, file.id)}
-                disabled={!!downloadingFiles[file.id]}
-              >
-                {downloadingFiles[file.id] ? (
-                  <div className="flex items-center">
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    <span>{downloadProgress[file.id] ?? 0}%</span>
-                  </div>
-                ) : (
-                  <Download className="h-4 w-4" />
-                )}
-              </Button>
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                  onClick={() => setSelectedFile(file)}
+                >
+                  <Info className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                  onClick={() => handleDownload(file.storagePath, file.id)}
+                  disabled={!!downloadingFiles[file.id]}
+                >
+                  {downloadingFiles[file.id] ? (
+                    <div className="flex items-center">
+                      <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
+                      <span>{downloadProgress[file.id] ?? 0}%</span>
+                    </div>
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
             </div>
             
             {/* Progress bar */}
@@ -767,6 +854,39 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
           </div>
         ))}
       </div>
+      <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
+        <DialogContent className="border border-dashed border-zinc-800 bg-zinc-950/70 backdrop-blur-sm text-zinc-200">
+          <DialogHeader>
+            <DialogTitle className="text-zinc-200 tracking-tight flex items-center gap-2">
+              {getFileIcon(selectedFile?.fileName || "", selectedFile?.contentType)}
+              {selectedFile?.fileName}
+            </DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Szczegółowe informacje o pliku
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
+                <span className="text-zinc-400">Typ pliku</span>
+                <span className="text-zinc-200">{selectedFile && getContentTypeLabel(selectedFile.contentType)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
+                <span className="text-zinc-400">Rozmiar</span>
+                <span className="text-zinc-200">{selectedFile && formatBytes(selectedFile.size)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
+                <span className="text-zinc-400">ID pliku</span>
+                <span className="text-zinc-200">{selectedFile?.id}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
+                <span className="text-zinc-400">Ostatnia modyfikacja pliku</span>
+                <span className="text-zinc-200 ">{unixToDate(selectedFile?.lastModified ?? 0)}</span>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

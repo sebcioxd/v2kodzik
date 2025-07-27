@@ -32,6 +32,8 @@ export const uploadedFiles = pgTable('uploaded_files', {
   fileName: text('file_name').notNull(),
   size: integer('size').notNull(),
   storagePath: text('storage_path').notNull(),
+  contentType: text('content_type').notNull().default('application/octet-stream'),
+  lastModified: text('last_modified'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (t) => [

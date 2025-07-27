@@ -15,7 +15,7 @@ export class UploadService {
         this.client = getS3Client({ bucket });
     }
 
-    private generatePresignedUrl(key: string) {
+    private generatePresignedUrl(key: string, contentType: string) {
         if (!key || typeof key !== 'string') {
             throw new Error('Invalid Key provided');
         }
@@ -27,7 +27,7 @@ export class UploadService {
         const url = this.client.presign(key, {
             expiresIn: 600,
             method: "PUT",
-            type: "application/octet-stream",
+            type: contentType,
             acl: "public-read",
         });
 
@@ -38,6 +38,7 @@ export class UploadService {
         try {
             const { slug, isPrivate, accessCode, visibility, time } = c.req.query();
             const fileNames = c.req.query("fileNames")?.split(",");
+            const contentTypes = c.req.query("contentTypes")?.split(",");
 
             try {
                 await verifyCaptcha({ c });
@@ -47,7 +48,7 @@ export class UploadService {
                 }, 400);
             }
 
-            const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time, fileNames: fileNames || [] }, c, user);
+            const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time, fileNames: fileNames || [], contentTypes: contentTypes || [] }, c, user);
 
             if (result instanceof Response) {
                 return result;
@@ -55,10 +56,14 @@ export class UploadService {
 
             const req: UploadRequestProps = result;
 
-            const presignedData = await Promise.all(req.fileNames.map(async (fileName) => {
-                const uploadService = this.generatePresignedUrl(`${req.slug}/${fileName}`);
+            const presignedData = await Promise.all(req.fileNames.map(async (fileName, index) => {
+                const uploadService = this.generatePresignedUrl(
+                    `${req.slug}/${fileName}`, 
+                    req.contentTypes[index] || req.contentTypes[0]
+                );
                 return {
                     fileName,
+                    contentType: req.contentTypes[index] || req.contentTypes[0],
                     ...uploadService
                 };
             }));
@@ -131,10 +136,12 @@ export class UploadService {
                     userAgent: c.req.header("user-agent") || null,
                 }).returning({ id: shares.id });
 
-                const fileInserts = files.map((file: { fileName: string; size: number }) => ({
+                const fileInserts = files.map((file: { fileName: string; size: number; contentType: string; lastModified: number }) => ({
                     shareId: shareResult[0].id,
                     fileName: file.fileName,
                     size: file.size,
+                    contentType: file.contentType,
+                    lastModified: file.lastModified,
                     storagePath: `${slug}/${file.fileName}`,
                 }));
                 
@@ -150,7 +157,7 @@ export class UploadService {
 
         } catch (error) {
             return c.json({
-                message: "Wystąpił błąd podczas wysyłania plików",
+                message: `Wystąpił błąd podczas wysyłania plików: ${error}`,
                 error
             }, 500);
         }

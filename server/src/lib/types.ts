@@ -46,6 +46,7 @@ export type UploadRequestProps = {
     visibility: string;
     time: string;
     fileNames: string[];
+    contentTypes: string[];
 }
 
 export type FinalizeUploadServiceProps = {

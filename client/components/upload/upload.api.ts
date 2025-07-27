@@ -7,7 +7,7 @@ export async function getPresignedUrls(
 ): Promise<PresignResponse> {
   const fileNames = data.files.map(file => file.name).join(',');
   const contentTypes = data.files.map(file => file.type).join(',');
-  
+ 
   const response = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign?` + 
     `slug=${data.slug}&` +
@@ -29,13 +29,16 @@ export async function uploadFileToS3(
   presignedUrl: string,
   cancelToken: any,
   onProgress: (progress: UploadProgress) => void,
-  fileIndex: number
+fileIndex: number
 ): Promise<void> {
   await axios.put(presignedUrl, file, {
     withCredentials: false,
     maxBodyLength: Infinity,
     maxContentLength: Infinity,
     cancelToken,
+    headers: {
+      'Content-Type': file.type
+    },
     onUploadProgress: (progressEvent) => {
       if (progressEvent.total) {
         onProgress({
@@ -60,7 +63,9 @@ export async function finalizeUpload(
       slug,
       files: files.map(file => ({
         fileName: file.name,
-        size: file.size
+        size: file.size,
+        contentType: file.type,
+        lastModified: file.lastModified,
       })),
       isPrivate: data.isPrivate,
       visibility: data.visibility,
