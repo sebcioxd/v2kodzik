@@ -4,6 +4,8 @@ interface File {
   size: number;
   shareId: string;
   storagePath: string;
+  lastModified: number;
+  contentType: string;
 }
 
 interface Share {
