@@ -34,27 +34,27 @@ export class UploadService {
         return { url };
     }
 
-    public async uploadFiles({ c, user }: S3UploadServiceProps) {
+   
+    public async uploadFiles({ c, user, queryData, bodyData }: S3UploadServiceProps) {
         try {
-            const { slug, isPrivate, accessCode, visibility, time } = c.req.query();
-            const fileNames = c.req.query("fileNames")?.split(",");
-            const contentTypes = c.req.query("contentTypes")?.split(",");
+            const { slug, isPrivate, accessCode, visibility, time, fileNames, contentTypes } = queryData;
+            const { token } = bodyData;
 
             try {
-                await verifyCaptcha({ c });
+                await verifyCaptcha({ c, token });
             } catch (error) {
                 return c.json({
                     message: `Nie udało się zweryfikować captchy. ${error}`,
                 }, 400);
             }
-
-            const result = await fixRequestProps({ slug, isPrivate, accessCode, visibility, time, fileNames: fileNames || [], contentTypes: contentTypes || [] }, c, user);
+            
+            const result = await fixRequestProps(queryData, c, user);
 
             if (result instanceof Response) {
                 return result;
             }
 
-            const req: UploadRequestProps = result;
+            const req = result;
 
             const presignedData = await Promise.all(req.fileNames.map(async (fileName, index) => {
                 const uploadService = this.generatePresignedUrl(

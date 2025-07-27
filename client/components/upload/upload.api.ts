@@ -1,6 +1,7 @@
 import axios from "axios";
 import { PresignResponse, UploadFormData, UploadProgress } from "./upload.types";
 
+
 export async function getPresignedUrls(
   data: UploadFormData,
   turnstileToken: string
@@ -23,6 +24,7 @@ export async function getPresignedUrls(
 
   return response.data;
 }
+
 
 export async function uploadFileToS3(
   file: File,

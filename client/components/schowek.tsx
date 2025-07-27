@@ -17,8 +17,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Code2, Link as LinkIcon, Clock, EyeOff, Megaphone, Lock, Rss } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Code2, Link as LinkIcon, Clock, Loader2, Rss } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -141,24 +141,25 @@ export default function Schowek() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 animate-fade-in-01-text">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Code Input Section */}
         <FormField
           control={form.control}
           name="code"
           render={({ field }) => (
-            <FormItem className="animate-fade-in-01-text">
-              <FormLabel className="text-zinc-200 border-dashed border-zinc-700 border-b pb-3 mb-4 flex items-center gap-2">
-                <Code2 className="w-4 h-4 text-zinc-400" /> 
-                <span className="font-medium">Twój kod:</span>
+            <FormItem>
+              <FormLabel className={`text-zinc-200 animate-fade-in-01-text border-dashed tracking-tight border-zinc-800 border-b pb-3 mb-2 ${isSubmitting ? "opacity-50" : ""}`}>
+                <Code2 className="w-4 h-4" /> Kod do wysłania:
               </FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   disabled={isSubmitting}
                   placeholder="Wklej swój kod tutaj..."
-                  className="min-h-[300px] w-full md:min-w-lg max-w-md bg-zinc-950/20 border-zinc-800 
-                    text-zinc-200 placeholder:text-zinc-500 focus:ring-zinc-700 focus:border-zinc-700
-                    transition-all duration-200 hover:bg-zinc-950/30"
+                  className="min-h-[300px] w-full md:min-w-sm max-w-md animate-fade-in-01-text tracking-tight
+                    bg-transparent border border-dashed border-zinc-800 text-zinc-200 
+                    placeholder:text-zinc-400 hover:bg-zinc-950/30 backdrop-blur-sm
+                    focus-visible:ring-0 focus-visible:ring-offset-0 transition-all duration-200"
                 />
               </FormControl>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
@@ -166,14 +167,14 @@ export default function Schowek() {
           )}
         />
 
+        {/* Language Selection */}
         <FormField
           control={form.control}
           name="language"
           render={({ field }) => (
-            <FormItem className="animate-fade-in-01-text">
-              <FormLabel className="text-zinc-200 border-dashed border-zinc-700 border-b pb-3 mb-4 flex items-center gap-2">
-                <Rss className="w-4 h-4 text-zinc-400" />
-                <span className="font-medium">Język programowania:</span>
+            <FormItem>
+              <FormLabel className={`text-zinc-200 animate-fade-in-01-text tracking-tight border-dashed border-zinc-800 border-b pb-3 mb-2 ${isSubmitting ? "opacity-50" : ""}`}>
+                <Rss className="w-4 h-4" /> Język programowania:
               </FormLabel>
               <Select
                 disabled={isSubmitting}
@@ -181,17 +182,24 @@ export default function Schowek() {
                 value={field.value}
               >
                 <FormControl>
-                  <SelectTrigger className="bg-zinc-950/20 border-zinc-800 text-zinc-200 
-                    hover:bg-zinc-950/30 transition-colors duration-200">
+                  <SelectTrigger className="w-full max-w-md bg-transparent border border-dashed border-zinc-800 
+                    text-zinc-200 hover:bg-zinc-950/30 backdrop-blur-sm tracking-tight h-9">
                     <SelectValue placeholder="Wybierz język programowania" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-zinc-900 border-zinc-800">
+                <SelectContent 
+                  className="w-full max-w-[16rem] max-h-[20rem] bg-zinc-950/70 backdrop-blur-sm border border-dashed border-zinc-800 
+                    shadow-lg animate-in fade-in-0 zoom-in-95"
+                >
                   {PROGRAMMING_LANGUAGES.map((language) => (
                     <SelectItem
                       key={language.value}
                       value={language.value}
-                      className="text-zinc-200 hover:bg-zinc-800 transition-colors duration-150"
+                      className="text-sm text-zinc-200 h-8 px-2
+                        hover:bg-zinc-800/40 focus:bg-zinc-800/40
+                        tracking-tight cursor-pointer
+                        transition-all duration-75 ease-out
+                        data-[highlighted]:bg-zinc-800/40 data-[highlighted]:text-zinc-200"
                     >
                       {language.label}
                     </SelectItem>
@@ -203,31 +211,35 @@ export default function Schowek() {
           )}
         />
 
+        {/* Custom Slug Section */}
         <FormField
           control={form.control}
           name="slug"
           render={({ field }) => (
-            <FormItem className="animate-fade-in-01-text">
-              <FormLabel className="text-zinc-200 border-dashed border-zinc-700 border-b pb-3 flex items-center gap-2">
-                <LinkIcon className="w-4 h-4 text-zinc-400" /> 
-                <span className="font-medium">Niestandarowy link:</span>
-                <span className="text-zinc-500 text-sm">(opcjonalnie)</span>
+            <FormItem>
+              <FormLabel className={`text-zinc-200 animate-fade-in-01-text text-sm pb-1 ${isSubmitting ? "opacity-50" : ""}`}>
+                <LinkIcon className="w-4 h-4" /> Niestandarowy link: 
+                <span className="text-zinc-600 animate-fade-in-01-text ml-1">opcjonalne</span>
               </FormLabel>
               <FormControl>
-                <div className="flex items-center gap-2 py-2 mt-2">
-                  <span className="text-zinc-400 bg-zinc-950/20 flex-shrink-0">
-                    dajkodzik.pl/s/
-                  </span>
-                  <Input
-                    {...field}
-                    disabled={isSubmitting}
-                    placeholder="np. moj-kod"
-                    className="w-full bg-zinc-950/20 border-zinc-800 text-zinc-200 
-                      placeholder:text-zinc-500 focus:ring-zinc-700 focus:border-zinc-700
-                      transition-all duration-200 hover:bg-zinc-950/30"
-                  />
+                <div className="w-full max-w-md">
+                  <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                    <span className="text-zinc-400 px-2 border-r border-dashed border-zinc-800 bg-zinc-950/20 text-sm">
+                      dajkodzik.pl/s/
+                    </span>
+                    <Input
+                      {...field}
+                      disabled={isSubmitting}
+                      placeholder="np. moj-kod"
+                      className="flex-1 border-0 bg-transparent text-zinc-200 text-sm 
+                        placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                    />
+                  </div>
                 </div>
               </FormControl>
+              <p className={`text-sm text-zinc-400 mt-1 tracking-tight ${isSubmitting ? "opacity-50" : ""}`}>
+                Wpisz własną nazwę lub zostaw puste dla auto-generacji.
+              </p>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
             </FormItem>
           )}
@@ -235,10 +247,7 @@ export default function Schowek() {
 
         {/* Time Setting */}
         <div className="w-full animate-fade-in-01-text">
-          <h3 className="text-zinc-200 mb-4 text-md border-b border-dashed border-zinc-800 pb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-zinc-400" />
-            <span className="font-medium">Jak długo kod ma być dostępny?</span>
-          </h3>
+          <h4 className="text-zinc-300 mb-2 text-sm font-medium tracking-tight">Jak długo kod ma być dostępny?</h4>
           <FormField
             control={form.control}
             name="time"
@@ -246,17 +255,16 @@ export default function Schowek() {
               <FormItem>
                 <FormControl>
                   <Tabs
-                    defaultValue="24"
-                    onValueChange={field.onChange}
                     value={field.value}
-                    className="w-full"
+                    onValueChange={field.onChange}
+                    className="w-full animate-slide-in-left"
                   >
-                    <TabsList className="w-full space-x-3 bg-transparent">
+                    <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 tracking-tight">
                       <TabsTrigger
                         value="24"
-                        className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 p-2.5 text-zinc-400 
-                          data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                          hover:bg-zinc-950/30 transition-all duration-200"
+                        className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 
+                          text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 
+                          hover:bg-zinc-800/50"
                         disabled={isSubmitting}
                       >
                         <Clock className="h-4 w-4 mr-2" />
@@ -264,9 +272,9 @@ export default function Schowek() {
                       </TabsTrigger>
                       <TabsTrigger
                         value="168"
-                        className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 p-2.5 text-zinc-400 
-                          data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200
-                          hover:bg-zinc-950/30 transition-all duration-200"
+                        className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 
+                          text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 
+                          hover:bg-zinc-800/50"
                         disabled={isSubmitting}
                       >
                         <Clock className="h-4 w-4 mr-2" />
@@ -283,34 +291,35 @@ export default function Schowek() {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-300 
-            transition-all duration-200 animate-fade-in-01-text
-            border border-dashed border-zinc-800 hover:border-zinc-700 group"
+          className="w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400 
+            animate-slide-in-left"
           disabled={isSubmitting}
+          size="sm"
         >
           {isSubmitting ? (
-            <span className="flex items-center">
-              <div className="animate-spin mr-2 h-4 w-4 border-2 border-zinc-400 border-t-transparent rounded-full" />
-              Zapisywanie...
+            <span className="flex items-center justify-center">
+              <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
+              Zapisywanie kodu...
             </span>
           ) : (
             <span className="flex items-center justify-center">
-              <Code2 className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
-              Zapisz i wygeneruj link
+              <Code2 className="mr-2 h-4 w-4" />
+              Wygeneruj link z kodem
             </span>
           )}
         </Button>
 
+        {/* Status Messages */}
         {error && (
-          <div className="p-2.5 border border-dashed border-red-800/50 bg-red-950/10 text-red-300 
-            text-center rounded-md text-sm animate-fade-in-01-text">
+          <div className="p-2.5 border border-dashed border-red-800/50 bg-red-950/10 text-red-400 
+            text-center rounded-sm text-sm animate-fade-in-01-text tracking-tight">
             {errorMessage}
           </div>
         )}
 
         {success && (
-          <div className="p-2.5 border border-dashed border-green-800/50 bg-green-950/10 text-green-300 
-            text-center rounded-md text-sm animate-fade-in-01-text">
+          <div className="p-2.5 border border-dashed border-green-800/50 bg-green-950/10 text-green-400 
+            text-center rounded-sm text-sm animate-fade-in-01-text tracking-tight">
             Kod został pomyślnie zapisany.
           </div>
         )}

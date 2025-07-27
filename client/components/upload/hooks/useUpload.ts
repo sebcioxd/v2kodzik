@@ -107,6 +107,13 @@ export function useUpload() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 429) {
           errorMessage = "Przekroczono limit żądań. Odczekaj chwilę i spróbuj ponownie.";
+        } else if (error.response?.data?.error?.name === "ZodError") {
+          try {
+            const zodErrors = JSON.parse(error.response.data.error.message);
+            errorMessage = zodErrors[0]?.message || "Błąd walidacji formularza";
+          } catch {
+            errorMessage = "Błąd walidacji formularza";
+          }
         } else if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
         }

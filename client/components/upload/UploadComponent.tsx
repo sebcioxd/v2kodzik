@@ -293,7 +293,7 @@ export function UploadPage() {
           />
           <Button
             type="submit"
-            className={`w-full bg-zinc-900 backdrop-blur-sm hover:bg-zinc-800 duration-50 text-zinc-400 animate-slide-in-left ${isUploading ? "bg-zinc-900/20" : ""}`}
+            className={`w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300  ${turnstileToken ? "disabled:bg-zinc-800/50" : "bg-zinc-900/20"} ${isUploading ? "bg-zinc-900/20" : ""}`}
             disabled={isUploading || !turnstileToken}
             size="sm"
           >
@@ -354,7 +354,7 @@ export function UploadPage() {
 
             {/* Access Type */}
             <div className="mb-6 border-b border-dashed border-zinc-800">
-              <h4 className="text-zinc-300 mb-2 text-sm font-tight">Kto może otworzyć link?</h4>
+              <h4 className="text-zinc-300 mb-2 text-sm tracking-tight">Kto może otworzyć link?</h4>
               <FormField
                 control={form.control}
                 name="isPrivate"
@@ -371,7 +371,7 @@ export function UploadPage() {
                         }}
                         className="w-full animate-slide-in-left"
                       >
-                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800">
+                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 tracking-tight">
                           <TabsTrigger
                             value="public"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50"
@@ -401,7 +401,7 @@ export function UploadPage() {
                               name="accessCode"
                               render={({ field }) => (
                                 <FormItem className="flex flex-col justify-center items-center">
-                                  <FormLabel className="text-zinc-400 mb-2 flex items-center gap-2 text-md">
+                                  <FormLabel className="text-zinc-400 mb-2 flex items-center gap-2 text-md tracking-tight">
                                     Podaj kod dostępu
                                   </FormLabel>
                                   <FormControl>
@@ -410,10 +410,11 @@ export function UploadPage() {
                                       value={field.value || ""}
                                       onChange={field.onChange}
                                       disabled={isUploading}
+                                      
                                     >
                                       <InputOTPGroup>
                                         <InputOTPSlot
-                                          className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200"
+                                          className="bg-zinc-950/20 border-b border-t  border-zinc-800 backdrop-blur-sm text-zinc-200"
                                           index={0}
                                         />
                                         <InputOTPSlot
@@ -460,7 +461,7 @@ export function UploadPage() {
 
             {/* Visibility Setting */}
             <div className="mb-6">
-              <h4 className="text-zinc-300 mb-2 text-sm font-medium">Czy pokazać link na stronie głównej?</h4>
+              <h4 className="text-zinc-300 mb-2 text-sm font-medium tracking-tight">Czy pokazać link na stronie głównej?</h4>
               <FormField
                 control={form.control}
                 name="visibility"
@@ -472,7 +473,7 @@ export function UploadPage() {
                         onValueChange={(value) => field.onChange(value === "visible")}
                         className="w-full animate-slide-in-left"
                       >
-                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800">
+                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 tracking-tight">
                           <TabsTrigger
                             value="visible"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50"
@@ -499,7 +500,7 @@ export function UploadPage() {
 
             {/* Expiration Setting */}
             <div className="mb-6">
-              <h4 className="text-zinc-300 mb-2 text-sm font-medium">Jak długo link ma być aktywny?</h4>
+              <h4 className="text-zinc-300 mb-2 text-sm font-medium tracking-tight">Jak długo link ma być aktywny?</h4>
               <FormField
                 control={form.control}
                 name="time"
@@ -515,7 +516,7 @@ export function UploadPage() {
                         }}
                         className="w-full animate-slide-in-left"
                       >
-                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800">
+                        <TabsList className="w-full space-x-2 bg-transparent border-dashed border-zinc-800 tracking-tight">
                           <TabsTrigger
                             value="0.5"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50 relative group"

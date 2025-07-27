@@ -1,7 +1,8 @@
 import type { Env } from "hono";
 import type { Context } from "hono";
 import { auth } from "../lib/auth";
-
+import { uploadQuerySchema, uploadBodySchema } from "./zod";
+import { z } from "zod";
 
 export type EmailType = "verify" | "forget";
 
@@ -36,13 +37,15 @@ export type generatePresignedUrlProps = {
 
 export type S3UploadServiceProps = {
     c: Context;
-    user: typeof User;
+    user: typeof User | null;
+    queryData: z.infer<typeof uploadQuerySchema>;
+    bodyData: z.infer<typeof uploadBodySchema>;
 }
 
 export type UploadRequestProps = {
-    slug: string;
-    isPrivate: string;
-    accessCode: string;
+    slug: string | undefined;
+    isPrivate: boolean | undefined;
+    accessCode: string | undefined;
     visibility: string;
     time: string;
     fileNames: string[];
