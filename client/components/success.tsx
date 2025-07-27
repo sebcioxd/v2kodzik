@@ -82,7 +82,7 @@ export default function Success() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10">
+    <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-sm max-w-sm animate-fade-in-01-text mt-10">
       <div className="w-full space-y-4">
         <div className="flex flex-col items-center justify-center pb-2 animate-fade-in-01-text opacity-0">
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
@@ -93,21 +93,21 @@ export default function Success() {
         </div>
 
 
-        <div className="w-full p-4 bg-zinc-950/20 border border-dashed border-zinc-800 rounded-md animate-slide-in-bottom">
+        <div className="w-full p-3 bg-zinc-950/20 border border-dashed border-zinc-800 rounded-md animate-slide-in-bottom">
           <p className="text-zinc-400 text-sm mb-2 flex items-center gap-2 tracking-tight">
             <LinkIcon className="h-4 w-4" />
             Twój link: (kliknij aby przejść)
           </p>
           <div className="flex items-center gap-2">
-            <span className="flex-1 p-2 bg-zinc-900/50 text-md font-medium rounded-md text-zinc-200 overflow-x-auto border border-zinc-800/50">
-              <Link href={fullUrl} className="hover:text-zinc-100 transition-colors tracking-tight">
+            <span className="flex-1 p-1 bg-zinc-900/50 text-md font-medium rounded-md text-zinc-200 overflow-x-auto border border-zinc-800/50">
+              <Link href={fullUrl} className="hover:text-zinc-100 transition-colors tracking-tight p-1">
                 {fullUrl}
               </Link>
             </span>
             <Button
               onClick={copyToClipboard}
               className="bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-800"
-              size="lg"
+              size="sm"
             >
               <Copy className="h-4 w-4" />
             </Button>
@@ -118,6 +118,7 @@ export default function Success() {
           <Button
             onClick={shareLink}
             disabled={isSharing}
+            size="sm"
             className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-800"
           >
             <Share2 className="mr-2 h-4 w-4" />
@@ -126,6 +127,7 @@ export default function Success() {
           <Button
             asChild
             className="flex-1 bg-zinc-900 hover:bg-zinc-800 text-zinc-400 border border-dashed border-zinc-800"
+            size="sm"
           >
             <Link href="/upload">
               <ArrowLeft className="mr-2 h-4 w-4" />

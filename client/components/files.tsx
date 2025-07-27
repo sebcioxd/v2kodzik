@@ -182,7 +182,13 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
   };
 
   // Add this helper function to get content type label
-  function getContentTypeLabel(contentType: string): string {
+  function getContentTypeLabel(contentType: string, fileName: string): string {
+    // If no content type, extract and return the file extension
+    if (!contentType) {
+      const extension = fileName.split('.').pop()?.toUpperCase();
+      return extension ? `Plik ${extension}` : 'Nieznany typ pliku';
+    }
+
     const CONTENT_TYPES = {
       "image/png": "Obraz PNG",
       "image/jpeg": "Obraz JPEG",
@@ -579,9 +585,14 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
     return (
       <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-sm max-w-sm animate-fade-in-01-text mt-10">
         <div className="w-full space-y-4">
-          <div className="border border-zinc-800 rounded-md p-6 bg-zinc-950/10 text-zinc-400">
-            <h2 className="text-xl text-center font-semibold tracking-tight text-zinc-100 ">Dostęp do linku <span className="text-zinc-400">{slug}</span> jest chroniony</h2>
-            <p className="mb-4 mt-1 text-center text-md text-zinc-400">Wprowadź kod dostępu, a następnie kliknij <br /> <span className="text-zinc-200 font-medium">"Potwierdź kod dostępu"</span></p>
+          <div className="border border-dashed border-zinc-800 rounded-md p-6 bg-zinc-950/10 backdrop-blur-sm">
+            <h2 className="text-xl text-center font-semibold tracking-tight text-zinc-100">
+              Dostęp do linku <span className="text-zinc-400">{slug}</span> jest chroniony
+            </h2>
+            <p className="mb-4 mt-1 text-center text-sm text-zinc-400">
+              Wprowadź kod dostępu, a następnie kliknij <br /> 
+              <span className="text-zinc-200 font-medium">"Potwierdź kod dostępu"</span>
+            </p>
             
             <div className="space-y-4">
               <div className="flex flex-col items-center">
@@ -592,57 +603,58 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
                 >
                   <InputOTPGroup>
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
                       index={0}
                     />
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
                       index={1}
                     />
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
                       index={2}
                     />
-                    </InputOTPGroup>
-                    <InputOTPSeparator className="text-zinc-400"/>
-                    <InputOTPGroup>
+                  </InputOTPGroup>
+                  <InputOTPSeparator className="text-zinc-400"/>
+                  <InputOTPGroup>
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
                       index={3}
                     />
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
                       index={4}
                     />
                     <InputOTPSlot 
-                      className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
                       index={5}
                     />  
                   </InputOTPGroup>
                 </InputOTP>
 
-                <div className="flex flex-col my-4 border-t border-zinc-800 pt-2">
-                  <p className="text-zinc-600 mb-1 text-sm">Informacje o udostępnionym linku:</p>
-                  <p className="text-zinc-700 text-sm">Link wygaśnie za: {formatTimeRemaining(createdAt, expiresAt)}</p>
-                  <p className="text-zinc-700 text-sm">Slug (link): {slug}</p>
-                  <p className="text-zinc-700 text-sm">ID linku: {fileId}</p>
-                  {remainingRequests > 0 && <p className="text-zinc-700 text-sm">Pozostałe żądania: {remainingRequests}</p>}
+                <div className="flex flex-col my-4 border-t border-dashed border-zinc-800 pt-2">
+                  <p className="text-zinc-600 mb-1 text-xs">Informacje o udostępnionym linku:</p>
+                  <p className="text-zinc-700 text-xs">Link wygaśnie za: {formatTimeRemaining(createdAt, expiresAt)}</p>
+                  <p className="text-zinc-700 text-xs">Slug (link): {slug}</p>
+                  <p className="text-zinc-700 text-xs">ID linku: {fileId}</p>
+                  {remainingRequests > 0 && <p className="text-zinc-700 text-xs">Pozostałe żądania: {remainingRequests}</p>}
                 </div>
                 {codeError && <p className="text-red-400 text-sm mt-2">{codeError}</p>}
               </div>
               
               <Button
-                className="w-full bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
+                className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-300"
                 onClick={verifyAccessCode}
                 disabled={isVerifying || accessCode.length !== 6}
+                size="sm"
               >
                 {isVerifying ? (
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     <span>Weryfikacja...</span>
                   </div>
                 ) : (
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <Key className="h-4 w-4 mr-2" />
                     Potwierdź kod dostępu
                   </div>
@@ -687,74 +699,65 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
     }
   };
   return (
-    <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10 ">
+    <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-md max-w-sm animate-fade-in-01-text mt-10">
       <div className="w-full space-y-4 animate-fade-in-01-text">
         <div className="flex flex-col gap-2">
-          <div className="border-b border-dashed border-zinc-800 p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
-          <span>dajkodzik.pl/<span className="font-medium text-zinc-200">{slug}</span></span>
-          <LinkIcon className="h-4 w-4" />
+          <div className="border-b border-dashed border-zinc-800 p-3 bg-zinc-950/10 backdrop-blur-sm text-zinc-400 text-sm flex items-center justify-between">
+            <span>dajkodzik.pl/<span className="font-medium text-zinc-200">{slug}</span></span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+              onClick={handleShare}
+              disabled={isSharing}
+            >
+              {isSharing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Share2 className="h-4 w-4" />
+              )}
+            </Button>
           </div>
         </div>
         
-        <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10 text-zinc-400 text-sm flex items-center justify-between">
+        <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10 backdrop-blur-sm text-zinc-400 text-sm flex items-center justify-between">
           <span>Link wygaśnie za:</span>
           <span className="font-medium text-zinc-200">{formatTimeRemaining(createdAt, expiresAt)}</span>
         </div>
 
-        <div className="w-full flex gap-2">
-          <Button 
-            className="flex-1 bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
-            size="sm"
-            onClick={handleBulkDownload}
-            disabled={isDownloading}
-          >
-            {isDownloading ? (
-                <div className="flex items-center">
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    <span>
-                        {bulkDownloadState.status === 'preparing' && 'Przygotowywanie...'}
-                        {bulkDownloadState.status === 'downloading' && (
-                          bulkDownloadState.totalProgress === 100 
-                            ? 'Kompresowanie...' 
-                            : `Pobieranie... ${bulkDownloadState.totalProgress}%`
-                        )}
-                        {bulkDownloadState.status === 'compressing' && 'Kompresowanie...'}
-                        {bulkDownloadState.status === 'complete' && 'Zakończono!'}
-                    </span>
-                </div>
-            ) : (
-                <>
-                    <Archive className="h-4 w-4 mr-2" />
-                    Pobierz wszystkie i skompresuj (.ZIP)
-                </>
-            )}
-          </Button>
-          
-          <Button 
-            className="bg-zinc-900 text-zinc-400 hover:bg-zinc-800 border border-dashed border-zinc-800"
-            size="sm"
-            onClick={handleShare}
-            disabled={isSharing}
-          >
-            {isSharing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Share2 className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-          
+        <Button 
+          className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-300"
+          size="sm"
+          onClick={handleBulkDownload}
+          disabled={isDownloading}
+        >
+          {isDownloading ? (
+            <div className="flex items-center justify-center">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <span>
+                {bulkDownloadState.status === 'preparing' && 'Przygotowywanie...'}
+                {bulkDownloadState.status === 'downloading' && `Pobieranie... ${bulkDownloadState.totalProgress}%`}
+                {bulkDownloadState.status === 'compressing' && 'Kompresowanie...'}
+                {bulkDownloadState.status === 'complete' && 'Zakończono!'}
+              </span>
+            </div>
+          ) : (
+            <>
+              <Archive className="h-4 w-4 mr-2" />
+              Pobierz wszystkie i skompresuj (.ZIP)
+            </>
+          )}
+        </Button>
+
         {isDownloading && (
           <div className="w-full space-y-2 animate-fade-in-01-text">
-            <div className="w-full bg-zinc-800 rounded-full h-1.5">
-                <div 
-                    className={`h-1.5 rounded-full transition-all duration-300 ease-out ${
-                      bulkDownloadState.totalProgress === 100 || bulkDownloadState.status === 'compressing' 
-                        ? 'bg-green-300' 
-                        : 'bg-zinc-400'
-                    }`}
-                    style={{ width: `${bulkDownloadState.totalProgress}%` }}
-                ></div>
+            <div className="w-full bg-zinc-800/30 rounded-full h-1">
+              <div 
+                className={`h-1 rounded-full transition-all duration-300 ease-out ${
+                  bulkDownloadState.totalProgress === 100 ? 'bg-green-400' : 'bg-zinc-400'
+                }`}
+                style={{ width: `${bulkDownloadState.totalProgress}%` }}
+              ></div>
             </div>
             
             {bulkDownloadState.currentFile && (
@@ -801,7 +804,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
         {filesData.map((file) => (
           <div 
             key={file.id}
-            className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors animate-slide-in-bottom"
+            className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10 backdrop-blur-sm hover:bg-zinc-950/20 transition-colors animate-slide-in-bottom"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -869,7 +872,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
             <div className="space-y-2">
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
                 <span className="text-zinc-400">Typ pliku</span>
-                <span className="text-zinc-200">{selectedFile && getContentTypeLabel(selectedFile.contentType)}</span>
+                <span className="text-zinc-200">{selectedFile && getContentTypeLabel(selectedFile.contentType, selectedFile.fileName)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
                 <span className="text-zinc-400">Rozmiar</span>
