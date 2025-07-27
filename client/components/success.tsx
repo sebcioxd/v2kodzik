@@ -85,7 +85,7 @@ export default function Success() {
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-sm max-w-sm animate-fade-in-01-text mt-10">
       <div className="w-full space-y-4">
         <div className="flex flex-col items-center justify-center pb-2 animate-fade-in-01-text opacity-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+          <h1 className="text-2xl font-semibold tracking-tight text-center text-zinc-100">
           Link <span className="text-zinc-400">{slug} </span> został wygenerowany!
           </h1>
           <p className="text-zinc-500 text-md tracking-tight">

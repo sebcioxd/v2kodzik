@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "@/lib/auth-client";
 import { useForm } from "react-hook-form";
@@ -49,10 +49,10 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 
-// Import our custom hooks and types
 import { useUpload } from "./hooks/useUpload";
 import { useFileValidation } from "./hooks/useFileValidation";
 import { useSafariDetection } from "./hooks/useSafariDetection";
+import { useFormPersistence } from "./hooks/useFormPersistance";
 import { uploadFormSchema, UploadFormData } from "./upload.types";
 import { formatBytes, getMaxSizeText } from "./upload.utils";
 
@@ -61,18 +61,41 @@ export function UploadPage() {
   const { data: info } = useInfo();
   const router = useRouter();
   const [totalSize, setTotalSize] = useState(0);
+  
 
-  const form = useForm<UploadFormData>({
-    resolver: zodResolver(uploadFormSchema),
-    defaultValues: {
-      files: [],
+  const { persistedData, updatePersistedData, clearPersistedData, initializeForm } = useFormPersistence({
+    key: "upload-form-data",
+    initialData: {
       slug: "",
       isPrivate: false,
       visibility: true,
       accessCode: "",
       time: "24",
     },
+    excludeFields: ["files"], 
   });
+  
+  const form = useForm<UploadFormData>({
+    resolver: zodResolver(uploadFormSchema),
+    defaultValues: {
+      ...persistedData,
+      files: [], 
+    },
+  });
+  
+  // Initialize form with persisted data after form is created
+  useEffect(() => {
+    initializeForm(form);
+  }, [initializeForm, form]);
+  
+  // Watch for form changes and persist them
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      updatePersistedData(value as Partial<UploadFormData>);
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [form, updatePersistedData]);
 
   const selectedTime = form.watch("time");
   const { validateFile, onFileReject, maxSize } = useFileValidation(selectedTime);
@@ -85,6 +108,7 @@ export function UploadPage() {
     setTurnstileToken 
   } = useUpload();
   const { showSafariDialog, handleSafariProceed } = useSafariDetection(info?.userAgent);
+
 
   const handleFileChange = useCallback((files: File[]) => {
     if (uploadState.isUploading) return;
@@ -121,7 +145,11 @@ export function UploadPage() {
   }, [form]);
 
   const onSubmit = (data: UploadFormData) => {
-    uploadMutation.mutate(data);
+    uploadMutation.mutate(data, {
+      onSuccess: () => {
+        clearPersistedData(form);
+      }
+    });
   };
 
   const progressPercentage = uploadState.progress;
