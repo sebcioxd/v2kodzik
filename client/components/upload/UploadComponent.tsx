@@ -76,51 +76,54 @@ const UploadProgressView = memo(({
   progressPercentage, 
   totalSize, 
   cancelUpload,
-  isCancelling 
+  isCancelling,
+  isRouting 
 }: { 
   files: File[], 
   progressPercentage: number, 
   totalSize: number,
   cancelUpload: () => void,
-  isCancelling?: boolean
+  isCancelling?: boolean,
+  isRouting?: boolean
 }) => {
   return (
     <div className="inset-0 backdrop-blur-sm container mx-auto w-full md:max-w-md max-w-sm flex flex-col items-center justify-center space-y-8 p-6 z-50 transition-opacity duration-300 animate-fade-in-01-text">
       <div className="text-center space-y-4 animate-fade-in-01-text">
         <div className="flex items-center justify-center">
-          <div className="relative">
-            <div className={`w-15 h-15 border border-dashed rounded-full backdrop-blur-sm flex items-center justify-center transition-colors duration-300 ${
-              isCancelling 
+          <div className={`w-15 h-15 border border-dashed rounded-full backdrop-blur-sm flex items-center justify-center transition-colors duration-300 ${
+            isRouting 
+              ? 'border-emerald-600 bg-emerald-950/30'
+              : isCancelling 
                 ? 'border-amber-600 bg-amber-950/30' 
                 : 'border-zinc-800 bg-zinc-950/30'
-            }`}>
-              {isCancelling ? (
-                <XCircle className="w-6 h-6 text-amber-400" />
-              ) : (
-                <Loader2 className="w-6 h-6 text-zinc-300 animate-spin" />
-              )}
-            </div>
-            {!isCancelling && (
-              <div className="absolute -top-1 -right-1 w-6 h-6 bg-zinc-800 border border-dashed border-zinc-700 rounded-full flex items-center justify-center">
-                <Upload className="w-3 h-3 text-zinc-400" />
-              </div>
+          }`}>
+            {isRouting ? (
+              <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+            ) : isCancelling ? (
+              <XCircle className="w-6 h-6 text-amber-400" />
+            ) : (
+              <Loader2 className="w-6 h-6 text-zinc-300 animate-spin" />
             )}
           </div>
         </div>
         
         <div className="space-y-2">
           <h2 className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
+            isRouting ? 'text-emerald-300' :
             isCancelling ? 'text-amber-300' : 'text-zinc-200'
           }`}>
-            {isCancelling ? 'Anulowanie przesyłania...' :
+            {isRouting ? 'Przekierowywanie...' :
+             isCancelling ? 'Anulowanie przesyłania...' :
              progressPercentage === 0 ? 'Przygotowywanie plików...' : 
              progressPercentage === 100 ? 'Przetwarzanie...' : 
              'Wysyłanie plików'}
           </h2>
           <p className={`text-sm transition-colors duration-300 ${
+            isRouting ? 'text-emerald-400/80' :
             isCancelling ? 'text-amber-400/80' : 'text-zinc-400'
           }`}>
-            {isCancelling ? 'Przerywanie procesu i czyszczenie danych...' :
+            {isRouting ? 'Zaraz zostaniesz przekierowany do strony z linkiem' :
+             isCancelling ? 'Przerywanie procesu i czyszczenie danych...' :
              progressPercentage === 0 ? `Przygotowywanie ${files.length} ${files.length === 1 ? 'pliku' : 'plików'} do wysłania` :
              progressPercentage === 100 ? 'Finalizowanie przesyłania, proszę czekać...' :
              `Postęp: ${progressPercentage}% • ${files.length} ${files.length === 1 ? 'plik' : 'plików'}`}
@@ -128,32 +131,35 @@ const UploadProgressView = memo(({
         </div>
       </div>
 
+      {/* Progress bar - update colors for routing state */}
       <div className="w-full max-w-sm space-y-4 tracking-tight animate-fade-in-01-text">
         <div className="space-y-2">
           <div className={`h-2 w-full rounded-full overflow-hidden border border-dashed transition-colors duration-300 ${
-            isCancelling 
-              ? 'bg-amber-950/30 border-amber-800/50' 
-              : 'bg-zinc-800/30 border-zinc-800/50'
+            isRouting 
+              ? 'bg-emerald-950/30 border-emerald-800/50'
+              : isCancelling 
+                ? 'bg-amber-950/30 border-amber-800/50' 
+                : 'bg-zinc-800/30 border-zinc-800/50'
           }`}>
             <div
               className={`h-full transition-all duration-300 ease-out rounded-full ${
-                isCancelling 
-                  ? 'bg-amber-500' 
-                  : progressPercentage === 100 
-                    ? 'bg-emerald-500' 
-                    : 'bg-zinc-400'
+                isRouting 
+                  ? 'bg-emerald-500'
+                  : isCancelling 
+                    ? 'bg-amber-500' 
+                    : progressPercentage === 100 
+                      ? 'bg-emerald-500' 
+                      : 'bg-zinc-400'
               }`}
               style={{
-                transform: isCancelling 
-                  ? 'translateX(-100%)' 
-                  : `translateX(${progressPercentage - 100}%)`,
+                transform: `translateX(${progressPercentage - 100}%)`,
                 width: '100%',
               }}
             />
           </div>
           <div className="flex justify-between items-center text-sm text-zinc-400">
             <span>{formatBytes(totalSize)} całkowity rozmiar</span>
-            <span>{isCancelling ? 'Anulowanie...' : `${progressPercentage}%`}</span>
+            <span>{isRouting ? 'Gotowe!' : isCancelling ? 'Anulowanie...' : `${progressPercentage}%`}</span>
           </div>
         </div>
       </div>
@@ -222,31 +228,33 @@ const UploadProgressView = memo(({
         )}
       </div>
 
-      {/* Cancel Button */}
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        onClick={cancelUpload}
-        disabled={isCancelling}
-        className={`transition-all duration-200 flex items-center gap-2 border border-dashed backdrop-blur-sm ${
-          isCancelling
-            ? 'text-amber-300 border-amber-800 bg-amber-950/20 cursor-not-allowed opacity-50'
-            : 'text-zinc-400 hover:text-red-400 hover:bg-red-400/10 border-zinc-800 bg-zinc-950/20 hover:border-red-800'
-        }`}
-      >
-        {isCancelling ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Anulowanie...
-          </>
-        ) : (
-          <>
-            <XCircle className="h-4 w-4" />
-            Anuluj wysyłanie
-          </>
-        )}
-      </Button>
+      {/* Cancel Button - hide during routing */}
+      {!isRouting && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={cancelUpload}
+          disabled={isCancelling}
+          className={`transition-all duration-200 flex items-center gap-2 border border-dashed backdrop-blur-sm ${
+            isCancelling
+              ? 'text-amber-300 border-amber-800 bg-amber-950/20 cursor-not-allowed opacity-50'
+              : 'text-zinc-400 hover:text-red-400 hover:bg-red-400/10 border-zinc-800 bg-zinc-950/20 hover:border-red-800'
+          }`}
+        >
+          {isCancelling ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Anulowanie...
+            </>
+          ) : (
+            <>
+              <XCircle className="h-4 w-4" />
+              Anuluj wysyłanie
+            </>
+          )}
+        </Button>
+      )}
     </div>
   );
 });
@@ -362,6 +370,7 @@ export function UploadPage() {
   const progressPercentage = uploadState.progress;
   const isUploading = uploadState.isUploading;
   const isCancelling = uploadState.isCancelling;
+  const isRouting = uploadState.isRouting;
   
   // Store files data when upload starts to prevent undefined access
   const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
@@ -373,7 +382,7 @@ export function UploadPage() {
   }, [isUploading, form]);
 
   // If uploading, show only the progress view with smooth transition
-  if (isUploading) {
+  if (isUploading || isRouting) {
     const files = uploadingFiles.length > 0 ? uploadingFiles : form.getValues("files") || [];
     return (
       <>
@@ -384,6 +393,7 @@ export function UploadPage() {
           totalSize={totalSize}
           cancelUpload={cancelUpload}
           isCancelling={isCancelling}
+          isRouting={isRouting}
         />
       </>
     );

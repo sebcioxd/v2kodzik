@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo, useEffect } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect, useTransition } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -13,14 +13,18 @@ interface FileProgress {
   loaded: number;
   total: number;
   progress: number;
+  weight: number; // File size as weight for weighted average
 }
 
 export function useUpload() {
   const router = useRouter();
+  // Correct way to use useTransition
+  const [isRouting, startTransition] = useTransition();
   const turnstileRef = useRef<TurnstileRef>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [fileProgressMap, setFileProgressMap] = useState<Map<number, FileProgress>>(new Map());
   const [smoothedProgress, setSmoothProgress] = useState(0);
+  const [totalBytes, setTotalBytes] = useState(0);
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
     progress: 0,
@@ -39,34 +43,47 @@ export function useUpload() {
     setTurnstileToken(null);
   }, []);
 
-  // Calculate average progress across all files
-  const averageProgress = useMemo(() => {
-    if (fileProgressMap.size === 0) return 0;
+  // Calculate weighted progress based on file sizes
+  const weightedProgress = useMemo(() => {
+    if (fileProgressMap.size === 0 || totalBytes === 0) return 0;
     
-    const totalProgress = Array.from(fileProgressMap.values()).reduce(
-      (sum, fileProgress) => sum + fileProgress.progress,
-      0
-    );
+    let totalLoadedBytes = 0;
     
-    return Math.round(totalProgress / fileProgressMap.size);
-  }, [fileProgressMap]);
+    Array.from(fileProgressMap.values()).forEach(fileProgress => {
+      totalLoadedBytes += fileProgress.loaded;
+    });
+    
+    return Math.min(Math.round((totalLoadedBytes / totalBytes) * 100), 100);
+  }, [fileProgressMap, totalBytes]);
 
-  // Smooth progress updates to prevent chunkiness
+  // More aggressive smoothing for better UX
   useEffect(() => {
-    if (averageProgress === smoothedProgress || isCancelling) return;
+    if (weightedProgress === smoothedProgress || isCancelling) return;
     
-    const diff = averageProgress - smoothedProgress;
-    const step = Math.sign(diff) * Math.max(1, Math.abs(diff) * 0.85);
+    const diff = weightedProgress - smoothedProgress;
+    
+    // Faster smoothing for small differences, slower for large jumps
+    const smoothingFactor = Math.abs(diff) > 10 ? 0.3 : 0.7;
+    const step = diff * smoothingFactor;
+    
+    // Minimum step to prevent stalling
+    const minStep = Math.sign(diff) * Math.max(0.5, Math.abs(step));
     
     const timer = setTimeout(() => {
       setSmoothProgress(prev => {
-        const next = prev + step;
-        return Math.abs(next - averageProgress) < 1 ? averageProgress : Math.round(next);
+        const next = prev + minStep;
+        
+        // Snap to target if very close
+        if (Math.abs(next - weightedProgress) < 0.5) {
+          return weightedProgress;
+        }
+        
+        return Math.round(Math.max(0, Math.min(100, next)));
       });
-    }, 50);
+    }, 30); // 
     
     return () => clearTimeout(timer);
-  }, [averageProgress, smoothedProgress, isCancelling]);
+  }, [weightedProgress, smoothedProgress, isCancelling]);
 
   // Update upload state with smooth progress
   useEffect(() => {
@@ -78,19 +95,24 @@ export function useUpload() {
     }
   }, [smoothedProgress, isCancelling]);
 
-  const updateProgress = useCallback((progressData: UploadProgress) => {
+  const updateProgress = useCallback((progressData: UploadProgress, files: File[]) => {
     if (isCancelling) return;
     
     setFileProgressMap(prev => {
       const newMap = new Map(prev);
-      const progress = Math.min(Math.round((progressData.loaded / progressData.total) * 100), 100);
+      const file = files[progressData.fileIndex];
       
-      newMap.set(progressData.fileIndex, {
-        fileIndex: progressData.fileIndex,
-        loaded: progressData.loaded,
-        total: progressData.total,
-        progress: progress,
-      });
+      if (file) {
+        const progress = Math.min(Math.round((progressData.loaded / progressData.total) * 100), 100);
+        
+        newMap.set(progressData.fileIndex, {
+          fileIndex: progressData.fileIndex,
+          loaded: progressData.loaded,
+          total: progressData.total,
+          progress: progress,
+          weight: file.size,
+        });
+      }
       
       return newMap;
     });
@@ -103,6 +125,10 @@ export function useUpload() {
       }
 
       const cancelTokenSource = createCancelToken();
+      
+      // Calculate total bytes for weighted progress
+      const totalFileBytes = data.files.reduce((sum, file) => sum + file.size, 0);
+      setTotalBytes(totalFileBytes);
       
       // Reset progress tracking and cancel state
       setFileProgressMap(new Map());
@@ -125,15 +151,20 @@ export function useUpload() {
         // Store cancel data when we get it
         setCancelData({ slug, signature: cancel_signature });
 
-        // Step 2: Upload files to S3
+        // Step 2: Upload files to S3 with staggered start for smoother progress
         const uploadPromises = data.files.map(async (file, index) => {
           const presignedInfo = presignedData[index];
+          
+          // Small delay to prevent all files from starting simultaneously
+          if (index > 0) {
+            await new Promise(resolve => setTimeout(resolve, index * 50));
+          }
           
           return uploadFileToS3(
             file,
             presignedInfo.url,
             cancelTokenSource.token,
-            updateProgress,
+            (progress) => updateProgress(progress, data.files),
             index
           );
         });
@@ -146,20 +177,22 @@ export function useUpload() {
         // Success - set to 100% immediately
         setSmoothProgress(100);
         resetTurnstile();
-        router.push(`/success?slug=${slug}&time=${time}&type=upload`);
+        
+        // Use startTransition from the destructured hook
+        startTransition(() => {
+          router.push(`/success?slug=${slug}&time=${time}&type=upload`);
+        });
         
         return { slug, time };
       } catch (error) {
         // Check if this was a user-initiated cancellation
         if (axios.isCancel(error)) {
-          // Don't throw for cancellation - it's handled separately
           return { cancelled: true };
         }
         throw error;
       }
     },
     onError: (error: any) => {
-      // Don't handle cancellation errors here anymore
       if (error?.cancelled) return;
       
       console.error("Upload error:", error);
@@ -192,6 +225,7 @@ export function useUpload() {
       // Reset progress tracking
       setFileProgressMap(new Map());
       setSmoothProgress(0);
+      setTotalBytes(0);
       setIsCancelling(false);
       
       toast.error(errorMessage);
@@ -212,6 +246,7 @@ export function useUpload() {
       // Reset progress tracking
       setFileProgressMap(new Map());
       setSmoothProgress(0);
+      setTotalBytes(0);
       setIsCancelling(false);
     },
   });
@@ -249,6 +284,7 @@ export function useUpload() {
       
       setFileProgressMap(new Map());
       setSmoothProgress(0);
+      setTotalBytes(0);
       setCancelData(null);
       setIsCancelling(false);
       resetTurnstile();
@@ -258,7 +294,8 @@ export function useUpload() {
   return {
     uploadState: {
       ...uploadState,
-      isCancelling
+      isCancelling,
+      isRouting // Use the isRouting state from useTransition
     },
     uploadMutation,
     cancelUpload,
