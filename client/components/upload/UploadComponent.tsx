@@ -55,20 +55,7 @@ import { useFileValidation } from "./hooks/useFileValidation";
 import { useSafariDetection } from "./hooks/useSafariDetection";
 import { uploadFormSchema, UploadFormData } from "./upload.types";
 import { formatBytes, getMaxSizeText } from "./upload.utils";
-
-const ProgressBar = memo(({ progress }: { progress: number }) => (
-  <div className="h-2 w-full bg-zinc-800/30 rounded-full overflow-hidden border border-dashed border-zinc-800/50">
-    <div
-      className="h-full bg-zinc-400 transition-transform duration-300 ease-out rounded-full"
-      style={{
-        transform: `translateX(${progress - 100}%)`,
-        width: '100%',
-        backgroundColor: progress === 100 ? "#10B981" : undefined,
-      }}
-    />
-  </div>
-));
-ProgressBar.displayName = 'ProgressBar';
+import { Progress } from "@/components/ui/progress";
 
 const UploadProgressView = memo(({ 
   files, 
@@ -104,7 +91,7 @@ const UploadProgressView = memo(({
               <Loader2 className="w-6 h-6 text-zinc-300 animate-spin" />
             )}
           </div>
-        </div>
+      </div>
         
         <div className="space-y-2">
           <h2 className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
@@ -117,7 +104,7 @@ const UploadProgressView = memo(({
              progressPercentage === 100 ? 'Przetwarzanie...' : 
              'Wysyłanie plików'}
           </h2>
-          <p className={`text-sm transition-colors duration-300 ${
+          <p className={`text-sm transition-colors duration-300 animate-fade-in-01-text ${
             isRouting ? 'text-emerald-400/80' :
             isCancelling ? 'text-amber-400/80' : 'text-zinc-400'
           }`}>
@@ -125,41 +112,30 @@ const UploadProgressView = memo(({
              isCancelling ? 'Przerywanie procesu i czyszczenie danych...' :
              progressPercentage === 0 ? `Przygotowywanie ${files.length} ${files.length === 1 ? 'pliku' : 'plików'} do wysłania` :
              progressPercentage === 100 ? 'Finalizowanie przesyłania, proszę czekać...' :
-             `Postęp: ${progressPercentage}% • ${files.length} ${files.length === 1 ? 'plik' : 'plików'}`}
+             `Wysyłanie... • ${files.length} ${files.length === 1 ? 'plik' : 'plików'}`}
           </p>
         </div>
       </div>
 
       {/* Progress bar - update colors for routing state */}
       <div className="w-full max-w-sm space-y-4 tracking-tight animate-fade-in-01-text">
-        <div className="space-y-2">
-          <div className={`h-2 w-full rounded-full overflow-hidden border border-dashed transition-colors duration-300 ${
+        <Progress 
+          value={progressPercentage} 
+          className={`h-2 transition-colors duration-300 ${
             isRouting 
-              ? 'bg-emerald-950/30 border-emerald-800/50'
+              ? 'bg-emerald-950/30 [&>[data-slot=progress-indicator]]:bg-emerald-500'
               : isCancelling 
-                ? 'bg-amber-950/30 border-amber-800/50' 
-                : 'bg-zinc-800/30 border-zinc-800/50'
-          }`}>
-            <div
-              className={`h-full transition-all duration-300 ease-out rounded-full ${
-                isRouting 
-                  ? 'bg-emerald-500'
-                  : isCancelling 
-                    ? 'bg-amber-500' 
-                    : progressPercentage === 100 
-                      ? 'bg-emerald-500' 
-                      : 'bg-zinc-400'
-              }`}
-              style={{
-                transform: `translateX(${progressPercentage - 100}%)`,
-                width: '100%',
-              }}
-            />
-          </div>
-          <div className="flex justify-between items-center text-sm text-zinc-400">
-            <span>{formatBytes(totalSize)} całkowity rozmiar</span>
-            <span>{isRouting ? 'Gotowe!' : isCancelling ? 'Anulowanie...' : `${progressPercentage}%`}</span>
-          </div>
+                ? 'bg-amber-950/30 [&>[data-slot=progress-indicator]]:bg-amber-500' 
+                : 'bg-zinc-800/30 [&>[data-slot=progress-indicator]]:bg-zinc-400'
+          }`}
+        />
+        <div className="flex justify-between items-center text-sm text-zinc-400 animate-fade-in-01-text">
+          <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">
+            {formatBytes(Math.round((progressPercentage / 100) * totalSize))} / {formatBytes(totalSize)}
+          </span>
+          <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">
+            {isRouting ? 'Gotowe!' : isCancelling ? 'Anulowanie...' : `${progressPercentage}%`}
+          </span>
         </div>
       </div>
 
@@ -218,7 +194,7 @@ const UploadProgressView = memo(({
             <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="text-sm font-medium text-amber-200 tracking-tight">Nie zamykaj tej strony!</p>
-              <p className="text-xs text-amber-300/80 tracking-tight">
+              <p className="text-sm text-amber-300/80 tracking-tight">
                 Zamknięcie karty lub przeglądarki przerwie wysyłanie plików. 
                 Proces może potrwać kilka minut w zależności od rozmiaru plików.
               </p>
@@ -476,17 +452,16 @@ export function UploadPage() {
                       <div className="mt-4 space-y-1 animate-fade-in-01-text">
                         <div className="flex justify-between items-center text-md text-zinc-400">
                           <span>Całkowity rozmiar</span>
-                          <span>{formatBytes(totalSize)} / {getMaxSizeText(selectedTime)}</span>
+                          <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">{formatBytes(totalSize)} / {getMaxSizeText(selectedTime)}</span>
                         </div>
-                        <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
-                            style={{
-                              width: `${Math.min((totalSize / maxSize) * 100, 100)}%`,
-                              backgroundColor: totalSize > maxSize ? "#ef4444" : undefined,
-                            }}
-                          />
-                        </div>
+                        <Progress 
+                          value={Math.min((totalSize / maxSize) * 100, 100)}
+                          className={`h-1 transition-colors duration-300 ${
+                            totalSize > maxSize 
+                              ? 'bg-zinc-800/30 [&>[data-slot=progress-indicator]]:bg-red-500'
+                              : 'bg-zinc-800/30 [&>[data-slot=progress-indicator]]:bg-zinc-400'
+                          }`}
+                        />
                       </div>
                     )}
                   </FileUpload>
