@@ -98,7 +98,7 @@ const UploadProgressView = memo(({
                 : 'border-zinc-800 bg-zinc-950/30'
           }`}>
             {isRouting ? (
-              <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+              <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" />
             ) : isCancelling ? (
               <XCircle className="w-6 h-6 text-amber-400" />
             ) : (
@@ -239,7 +239,7 @@ const UploadProgressView = memo(({
           className={`transition-all duration-200 flex items-center gap-2 border border-dashed backdrop-blur-sm ${
             isCancelling
               ? 'text-amber-300 border-amber-800 bg-amber-950/20 cursor-not-allowed opacity-50'
-              : 'text-zinc-400 hover:text-red-400 hover:bg-red-400/10 border-zinc-800 bg-zinc-950/20 hover:border-red-800'
+              : 'text-zinc-400 hover:text-red-400 hover:bg-zinc-800/50 border-zinc-800 bg-zinc-950/20 '
           }`}
         >
           {isCancelling ? (

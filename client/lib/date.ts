@@ -25,7 +25,7 @@ export function formatDate(dateString: string) {
     const diff = localExpires.getTime() - now.getTime();
    
     if (diff <= 0) {
-        return "Wygaśnie w ciągu kilku godz.";
+        return "W kolejce do usunięcia";
     }
    
     const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -35,5 +35,5 @@ export function formatDate(dateString: string) {
         return `${minutes}m`;
     }
    
-    return `${hours}h ${minutes}m`;
+    return `${hours}g ${minutes}m`;
 };

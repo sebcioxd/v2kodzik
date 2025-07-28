@@ -21,35 +21,35 @@ export default function Success() {
   const [isSharing, setIsSharing] = useState(false);
   const fullUrl = type === "upload" ? `${process.env.NEXT_PUBLIC_SITE_URL}/${slug}` : `${process.env.NEXT_PUBLIC_SITE_URL}/s/${slug}`;
 
-  useEffect(() => {
-    const end = Date.now() + 3 * 1000;
-    const colors = ["#6366f1", "#8b5cf6", "#d946ef", "#ec4899", "#f43f5e"];
+  // useEffect(() => {
+  //   const end = Date.now() + 3 * 1000;
+  //   const colors = ["#6366f1", "#8b5cf6", "#d946ef", "#ec4899", "#f43f5e"];
 
-    const frame = () => {
-      if (Date.now() > end) return;
+  //   const frame = () => {
+  //     if (Date.now() > end) return;
 
-      confetti({
-        particleCount: 2,
-        angle: 60,
-        spread: 55,
-        startVelocity: 60,
-        origin: { x: 0, y: 0.5 },
-        colors: colors,
-      });
-      confetti({
-        particleCount: 2,
-        angle: 120,
-        spread: 55,
-        startVelocity: 60,
-        origin: { x: 1, y: 0.5 },
-        colors: colors,
-      });
+  //     confetti({
+  //       particleCount: 2,
+  //       angle: 60,
+  //       spread: 55,
+  //       startVelocity: 60,
+  //       origin: { x: 0, y: 0.5 },
+  //       colors: colors,
+  //     });
+  //     confetti({
+  //       particleCount: 2,
+  //       angle: 120,
+  //       spread: 55,
+  //       startVelocity: 60,
+  //       origin: { x: 1, y: 0.5 },
+  //       colors: colors,
+  //     });
 
-      requestAnimationFrame(frame);
-    };
+  //     requestAnimationFrame(frame);
+  //   };
 
-    frame();
-  }, []);
+  //   frame();
+  // }, []);
 
   const copyToClipboard = async () => {
     try {
@@ -85,8 +85,8 @@ export default function Success() {
     <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-sm max-w-sm animate-fade-in-01-text mt-10">
       <div className="w-full space-y-4">
         <div className="flex flex-col items-center justify-center pb-2 animate-fade-in-01-text opacity-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-center text-zinc-100">
-          Link <span className="text-zinc-400">{slug} </span> został wygenerowany!
+          <h1 className="text-2xl font-semibold min-w-xl tracking-tight text-center text-zinc-100">
+          Link <span className="text-zinc-400">{slug}</span> został wygenerowany!
           </h1>
           <p className="text-zinc-500 text-md tracking-tight">
           Twój link będzie aktywny przez następne {time === "24" ? "24 godziny" : time === "168" ? "7 dni" : "30 minut"}          </p>

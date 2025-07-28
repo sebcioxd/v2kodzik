@@ -32,7 +32,7 @@ export default function UserPanel({ shares, user }: { shares: Share[], user: Use
         <main className="flex flex-col items-center justify-center container mx-auto w-full md:max-w-5xl max-w-md animate-fade-in-01-text mt-10">
             <div className="w-full space-y-6">
                 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-                    <h2 className="text-xl text-zinc-200 font-medium">
+                    <h2 className="text-xl text-zinc-200 font-medium tracking-tight">
                         Panel użytkownika <span className="text-zinc-400">{user.name}</span>
                     </h2>
                     
