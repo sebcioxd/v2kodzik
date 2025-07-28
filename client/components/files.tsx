@@ -760,11 +760,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               ></div>
             </div>
             
-            {bulkDownloadState.currentFile && (
-                <div className="text-xs text-zinc-400">
-                    Aktualny plik: {bulkDownloadState.currentFile}
-                </div>
-            )}
+            
             
             <div className="grid gap-1">
                 {Object.entries(bulkDownloadState.filesProgress).map(([fileId, file]) => (
