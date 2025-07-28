@@ -33,6 +33,10 @@ export const rateLimitConfigs = {
     forget: {
         windowMs: minutes(10),
         limit: 3,
+    },
+    finalize: {
+        windowMs: minutes(20),
+        limit: 3,
     }
 } as const;
 

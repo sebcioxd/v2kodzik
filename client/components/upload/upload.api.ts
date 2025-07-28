@@ -57,7 +57,8 @@ export async function finalizeUpload(
   slug: string,
   files: File[],
   data: UploadFormData,
-  time: string
+  time: number,
+  finalize_signature: string
 ): Promise<void> {
   await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/finalize`,
@@ -72,7 +73,8 @@ export async function finalizeUpload(
       isPrivate: data.isPrivate,
       visibility: data.visibility,
       accessCode: data.accessCode,
-      time
+      time,
+      signature: finalize_signature
     },
     { withCredentials: true }
   );

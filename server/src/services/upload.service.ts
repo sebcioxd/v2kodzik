@@ -1,9 +1,9 @@
 import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps, CancelUploadServiceProps } from "../lib/types";
 import { fixRequestProps } from "../utils/req-fixer";
-import { shares, uploadedFiles } from "../db/schema";
+import { shares, uploadedFiles, signatures } from "../db/schema";
 import { hashCode } from "../lib/hash";
 import { db } from "../db/index";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 import { getS3Client } from "../lib/s3";
 import { verifyCaptcha } from "../lib/captcha";
 import { S3Client } from "bun";
@@ -34,10 +34,19 @@ export class UploadService {
         return { url };
     }
 
+    private async generateSignature() {
+        const signature = Bun.randomUUIDv7();
+
+        await db.insert(signatures).values({
+            signature,
+        });
+
+        return signature;
+    }
+
    
     public async uploadFiles({ c, user, queryData, bodyData }: S3UploadServiceProps) {
         try {
-            const { slug, isPrivate, accessCode, visibility, time, fileNames, contentTypes } = queryData;
             const { token } = bodyData;
 
             try {
@@ -68,11 +77,14 @@ export class UploadService {
                 };
             }));
 
+            const signature = await this.generateSignature();
+
             return c.json({
                 presignedData,
                 slug: req.slug,
-                time: req.time
-            });
+                time: parseFloat(req.time),
+                finalize_signature: signature
+            }); 
 
         } catch (error) {
             return c.json({
@@ -99,22 +111,31 @@ export class UploadService {
         }
     }
 
-    public async finalizeUpload({ c, user }: FinalizeUploadServiceProps) {
-        const { 
-            slug,
-            files,
-            isPrivate,
-            accessCode,
-            visibility,
-            time 
-        } = await c.req.json();
+    public async finalizeUpload({ c, user, body }: FinalizeUploadServiceProps) {
+        const { slug, files, isPrivate, accessCode, visibility, time, signature } = body;
+
+        if (!signature) {
+            return c.json({
+                message: "Podpis jest wymagany",
+            }, 400);
+        }
+
+        const signatureCheck = await db.select().from(signatures).where(eq(signatures.signature, signature));
+
+        if (!signatureCheck || signatureCheck.length === 0 || signatureCheck[0].expiresAt < new Date()) {
+            return c.json({
+                message: "Nieprawidłowy podpis",
+            }, 400);
+        }
+
+        await db.delete(signatures).where(eq(signatures.signature, signature));
 
         let expirationInterval: string;
             switch (time) {
-                case "24":
+                case 24:
                     expirationInterval = "24 hours";
                     break;
-                case "168":
+                case 168:
                     expirationInterval = "7 days";
                     break;
                 default:
@@ -124,16 +145,14 @@ export class UploadService {
         try {
             const result = await db.transaction(async (tx) => {
                 const shareResult = await tx.insert(shares).values({
-                    slug: slug,
-                    createdAt: sql`NOW()`,
-                    updatedAt: sql`NOW()`,
-                    expiresAt: sql.raw(`NOW() + INTERVAL '${expirationInterval}'`),
-                    userId: user ? user.id : null,
+                    slug,
+                    visibility,
                     private: isPrivate,
+                    userId: user ? user.id : null,
                     code: accessCode ? await hashCode(accessCode) : null,
-                    visibility: visibility,
-                    ipAddress: c.req.header("x-forwarded-for") || null,
+                    expiresAt: sql.raw(`NOW() + INTERVAL '${expirationInterval}'`),
                     userAgent: c.req.header("user-agent") || null,
+                    ipAddress: c.req.header("CF-Connecting-IP") || c.req.header("x-forwarded-for") || "127.0.0.1",
                 }).returning({ id: shares.id });
 
                 const fileInserts = files.map((file: { fileName: string; size: number; contentType: string; lastModified: number }) => ({

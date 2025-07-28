@@ -10,6 +10,21 @@ export const uploadQuerySchema = z.object({
     time: z.string().min(1, "Czas jest wymagany"),
 });
 
+export const finalizeSchema = z.object({
+    slug: z.string().min(1, "Slug jest wymagany"),
+    files: z.array(z.object({
+        fileName: z.string().min(1, "Nazwa pliku jest wymagana"),
+        size: z.number().min(1, "Rozmiar pliku jest wymagany"),
+        contentType: z.string().min(0, "Typ pliku jest wymagany"),
+        lastModified: z.number().min(1, "Data modyfikacji jest wymagana"),
+    })),
+    isPrivate: z.boolean(),
+    visibility: z.boolean(),
+    accessCode: z.string().optional().or(z.literal('')).transform(val => val === '' ? undefined : val),
+    time: z.number().min(0.5, "Czas jest wymagany").max(168, "Czas jest zbyt duży"),
+    signature: z.string().min(1, "Podpis jest wymagany"),
+});
+
 export const uploadBodySchema = z.object({
     token: z.string().min(1, "Turnstile token jest wymagany"),
 });

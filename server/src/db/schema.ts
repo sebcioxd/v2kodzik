@@ -4,8 +4,8 @@ import { integer, pgTable, text, timestamp, uuid, boolean, index } from 'drizzle
 export const shares = pgTable('shares', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   slug: text('slug').notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => sql`NOW()`).notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   private: boolean('private').default(false),
@@ -33,9 +33,9 @@ export const uploadedFiles = pgTable('uploaded_files', {
   size: integer('size').notNull(),
   storagePath: text('storage_path').notNull(),
   contentType: text('content_type').notNull().default('application/octet-stream'),
-  lastModified: text('last_modified'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  lastModified: integer('last_modified'),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => sql`NOW()`).notNull(),
 }, (t) => [
   index('idx_uploaded_files_share_id')
     .on(t.shareId),
@@ -50,15 +50,24 @@ export const uploadedFiles = pgTable('uploaded_files', {
 export const snippets = pgTable('snippets', {
   id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
   slug: text('slug').notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => sql`NOW()`).notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
-code: text('code'),
+  code: text('code'),
   language: text('language'),
 });
+
+export const signatures = pgTable('signatures', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  signature: text('signature').notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  expiresAt: timestamp('expires_at').$defaultFn(() => sql`NOW() + INTERVAL '5 minutes'`).notNull(),
+}, (t) => [
+  index('idx_signatures_signature').on(t.signature),
+]);
 
 
 export const user = pgTable("user", {

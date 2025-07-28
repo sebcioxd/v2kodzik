@@ -62,7 +62,8 @@ export interface PresignedData {
 export interface PresignResponse {
   presignedData: PresignedData[];
   slug: string;
-  time: string;
+  time: number;
+  finalize_signature: string;
 }
 
 export interface UploadProgress {

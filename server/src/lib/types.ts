@@ -1,7 +1,7 @@
 import type { Env } from "hono";
 import type { Context } from "hono";
 import { auth } from "../lib/auth";
-import { uploadQuerySchema, uploadBodySchema } from "./zod";
+import { uploadQuerySchema, uploadBodySchema, finalizeSchema } from "./zod";
 import { z } from "zod";
 
 export type EmailType = "verify" | "forget";
@@ -54,7 +54,8 @@ export type UploadRequestProps = {
 
 export type FinalizeUploadServiceProps = {
     c: Context;
-    user: typeof User;
+    user: typeof User | null;
+    body: z.infer<typeof finalizeSchema>;
 }
 
 export type GetUserHistoryServiceProps = {
