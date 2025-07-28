@@ -131,7 +131,7 @@ const UploadProgressView = memo(({
         />
         <div className="flex justify-between items-center text-sm text-zinc-400 animate-fade-in-01-text">
           <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">
-            {formatBytes(Math.round((progressPercentage / 100) * totalSize))} / {formatBytes(totalSize)}
+            {progressPercentage > 0 ? formatBytes(Math.round((progressPercentage / 100) * totalSize)) + " / " + formatBytes(totalSize) : "Przygotowywanie..."}
           </span>
           <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">
             {isRouting ? 'Gotowe!' : isCancelling ? 'Anulowanie...' : `${progressPercentage}%`}
@@ -301,18 +301,13 @@ export function UploadPage() {
   }, [form]);
 
   const onSubmit = (data: UploadFormData) => {
-    // Store current files before upload starts
     setUploadingFiles(data.files || []);
     
     uploadMutation.mutate(data, {
       onSuccess: () => {
-        // Reset uploading files after successful upload
-        setTimeout(() => {
-          setUploadingFiles([]);
-        }, 1000);
+        setUploadingFiles([])
       },
       onError: () => {
-        // Reset uploading files on error
         setUploadingFiles([]);
       }
     });
