@@ -18,7 +18,6 @@ interface FileProgress {
 
 export function useUpload() {
   const router = useRouter();
-  // Correct way to use useTransition
   const [isRouting, startTransition] = useTransition();
   const turnstileRef = useRef<TurnstileRef>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -32,7 +31,6 @@ export function useUpload() {
     cancelTokenSource: null,
   });
 
-  // Add state for cancel data and cancellation status
   const [cancelData, setCancelData] = useState<{ slug: string; signature: string } | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   
@@ -43,7 +41,6 @@ export function useUpload() {
     setTurnstileToken(null);
   }, []);
 
-  // Calculate weighted progress based on file sizes
   const weightedProgress = useMemo(() => {
     if (fileProgressMap.size === 0 || totalBytes === 0) return 0;
     
@@ -56,36 +53,31 @@ export function useUpload() {
     return Math.min(Math.round((totalLoadedBytes / totalBytes) * 100), 100);
   }, [fileProgressMap, totalBytes]);
 
-  // More aggressive smoothing for better UX
   useEffect(() => {
     if (weightedProgress === smoothedProgress || isCancelling) return;
     
     const diff = weightedProgress - smoothedProgress;
     
-    // Faster smoothing for small differences, slower for large jumps
     const smoothingFactor = Math.abs(diff) > 10 ? 0.3 : 0.7;
     const step = diff * smoothingFactor;
     
-    // Minimum step to prevent stalling
     const minStep = Math.sign(diff) * Math.max(0.5, Math.abs(step));
     
     const timer = setTimeout(() => {
       setSmoothProgress(prev => {
         const next = prev + minStep;
         
-        // Snap to target if very close
         if (Math.abs(next - weightedProgress) < 0.5) {
           return weightedProgress;
         }
         
         return Math.round(Math.max(0, Math.min(100, next)));
       });
-    }, 45); // 
+    }, 45);
     
     return () => clearTimeout(timer);
   }, [weightedProgress, smoothedProgress, isCancelling]);
 
-  // Update upload state with smooth progress
   useEffect(() => {
     if (!isCancelling) {
       setUploadState(prev => ({
@@ -126,11 +118,9 @@ export function useUpload() {
 
       const cancelTokenSource = createCancelToken();
       
-      // Calculate total bytes for weighted progress
       const totalFileBytes = data.files.reduce((sum, file) => sum + file.size, 0);
       setTotalBytes(totalFileBytes);
       
-      // Reset progress tracking and cancel state
       setFileProgressMap(new Map());
       setSmoothProgress(0);
       setIsCancelling(false);
@@ -144,18 +134,14 @@ export function useUpload() {
       }));
 
       try {
-        // Step 1: Get presigned URLs
         const presignResponse = await getPresignedUrls(data, turnstileToken);
         const { presignedData, slug, time, finalize_signature, cancel_signature } = presignResponse;
 
-        // Store cancel data when we get it
         setCancelData({ slug, signature: cancel_signature });
 
-        // Step 2: Upload files to S3 with staggered start for smoother progress
         const uploadPromises = data.files.map(async (file, index) => {
           const presignedInfo = presignedData[index];
           
-          // Small delay to prevent all files from starting simultaneously
           if (index > 0) {
             await new Promise(resolve => setTimeout(resolve, index * 50));
           }
@@ -174,18 +160,19 @@ export function useUpload() {
           finalizeUpload(slug, data.files, data, time, finalize_signature, cancel_signature)
         ]);
   
-        // Success - set to 100% immediately
         setSmoothProgress(100);
+        setUploadState(prev => ({
+          ...prev,
+          progress: 100
+        }));
         resetTurnstile();
         
-        // Use startTransition from the destructured hook
         startTransition(() => {
           router.push(`/success?slug=${slug}&time=${time}&type=upload`);
         });
         
         return { slug, time };
       } catch (error) {
-        // Check if this was a user-initiated cancellation
         if (axios.isCancel(error)) {
           return { cancelled: true };
         }
@@ -222,7 +209,6 @@ export function useUpload() {
         cancelTokenSource: null 
       }));
       
-      // Reset progress tracking
       setFileProgressMap(new Map());
       setSmoothProgress(0);
       setTotalBytes(0);
@@ -232,22 +218,23 @@ export function useUpload() {
       resetTurnstile();
     },
     onSuccess: (result) => {
-      // Don't reset state for cancelled uploads
       if (result?.cancelled) return;
       
-      setUploadState(prev => ({ 
-        ...prev, 
-        isUploading: false, 
-        progress: 0, 
-        error: null,
-        cancelTokenSource: null 
-      }));
-      
-      // Reset progress tracking
-      setFileProgressMap(new Map());
-      setSmoothProgress(0);
-      setTotalBytes(0);
-      setIsCancelling(false);
+      // Don't reset states during routing to success page
+      if (!result?.slug) {
+        setUploadState(prev => ({ 
+          ...prev, 
+          isUploading: false, 
+          progress: 0, 
+          error: null,
+          cancelTokenSource: null 
+        }));
+        
+        setFileProgressMap(new Map());
+        setSmoothProgress(0);
+        setTotalBytes(0);
+        setIsCancelling(false);
+      }
     },
   });
 
@@ -257,23 +244,18 @@ export function useUpload() {
     setIsCancelling(true);
     
     try {
-      // Cancel the axios requests
       uploadState.cancelTokenSource.cancel('Upload cancelled by user');
       
-      // Call API to cleanup server-side resources
       await apiCancelUpload(cancelData.slug, cancelData.signature);
       
-      // Show success message for cancellation
       toast.success("Przesyłanie zostało anulowane", {
         description: "Pliki nie zostały przesłane"
       });
       
     } catch (error) {
       console.warn("Error during upload cancellation cleanup:", error);
-      // Still show success since the main cancellation worked
       toast.success("Przesyłanie zostało anulowane");
     } finally {
-      // Reset all state
       setUploadState(prev => ({ 
         ...prev, 
         isUploading: false, 
@@ -295,7 +277,7 @@ export function useUpload() {
     uploadState: {
       ...uploadState,
       isCancelling,
-      isRouting // Use the isRouting state from useTransition
+      isRouting
     },
     uploadMutation,
     cancelUpload,

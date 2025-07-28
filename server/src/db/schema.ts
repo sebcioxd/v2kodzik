@@ -74,6 +74,7 @@ export const cancelSignatures = pgTable('cancel_signatures', {
   signature: text('signature').notNull(),
   createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
   expiresAt: timestamp('expires_at').$defaultFn(() => sql`NOW() + INTERVAL '5 minutes'`).notNull(),
+  slug: text('slug').notNull(),
 }, (t) => [
   index('idx_cancel_signatures_signature').on(t.signature),
 ]);

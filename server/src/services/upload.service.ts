@@ -34,7 +34,7 @@ export class UploadService {
         return { url };
     }
 
-    private async generateSignatures() {
+    private async generateSignatures(slug: string) {
         const signature = Bun.randomUUIDv7();
         const cancelSignature = Bun.randomUUIDv7();
 
@@ -44,6 +44,7 @@ export class UploadService {
             }),
             db.insert(cancelSignatures).values({
                 signature: cancelSignature,
+                slug,
             }),
         ]);
 
@@ -82,7 +83,7 @@ export class UploadService {
                 };
             }));
 
-            const { signature, cancelSignature } = await this.generateSignatures();
+            const { signature, cancelSignature } = await this.generateSignatures(req.slug || "");
 
             return c.json({
                 presignedData,
@@ -90,7 +91,7 @@ export class UploadService {
                 time: parseFloat(req.time),
                 finalize_signature: signature,
                 cancel_signature: cancelSignature
-            }); 
+            }); 6
 
         } catch (error) {
             return c.json({
@@ -112,6 +113,12 @@ export class UploadService {
         const cancelSignatureCheck = await db.select().from(cancelSignatures).where(eq(cancelSignatures.signature, cancel_signature));
 
         if (!cancelSignatureCheck || cancelSignatureCheck.length === 0 || cancelSignatureCheck[0].expiresAt < new Date()) {
+            return c.json({
+                message: "Nieprawidłowy podpis anulowania",
+            }, 400);
+        }
+
+        if (cancelSignatureCheck[0].slug !== slug) {
             return c.json({
                 message: "Nieprawidłowy podpis anulowania",
             }, 400);
