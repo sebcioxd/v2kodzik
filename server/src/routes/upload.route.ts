@@ -4,7 +4,7 @@ import { UploadService } from "../services/upload.service";
 import { createRateLimiter } from "../services/rate-limit.service";
 import { Hono } from "hono";
 import { zValidator } from '@hono/zod-validator';
-import { uploadQuerySchema, uploadBodySchema, finalizeSchema } from "../lib/zod";
+import { uploadQuerySchema, uploadBodySchema, finalizeSchema, cancelBodySchema } from "../lib/zod";
 
 const uploadRoute = new Hono<AuthSession>();
 const uploadService = new UploadService("sharesbucket");
@@ -33,10 +33,13 @@ async (c) => {
     return await uploadService.finalizeUpload({ c, user, body });
 });
 
-uploadRoute.post("/cancel/:slug", async (c: Context) => {
+uploadRoute.post("/cancel/:slug",
+zValidator("json", cancelBodySchema),
+async (c) => {
     const { slug } = c.req.param();
+    const body = c.req.valid('json');
 
-    return await uploadService.cancelUpload({ c, slug });
+    return await uploadService.cancelUpload({ c, slug, body });
 });
 
 

@@ -29,3 +29,7 @@ export const finalizeSchema = z.object({
 export const uploadBodySchema = z.object({
     token: z.string().min(1, "Turnstile token jest wymagany"),
 });
+
+export const cancelBodySchema = z.object({
+    cancel_signature: z.string().min(1, "Podpis anulowania jest wymagany"),
+})

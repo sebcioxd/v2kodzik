@@ -9,13 +9,13 @@ import {
   
   const snippetRoute = new Hono<AuthSession>();
   
-  snippetRoute.post("/create", createRateLimiter("snippet"), async (c: Context) => {
+  snippetRoute.post("/create", createRateLimiter("snippet"), async (c) => {
     const user = c.get("user");
   
     return await createSnippetService({ c, user });
   });
   
-  snippetRoute.get("/get/:slug", async (c: Context) => {
+  snippetRoute.get("/get/:slug", async (c) => {
     const { slug } = c.req.param();
     return await getSnippetService({ c, slug });
   });

@@ -1,7 +1,7 @@
 import type { Env } from "hono";
 import type { Context } from "hono";
 import { auth } from "../lib/auth";
-import { uploadQuerySchema, uploadBodySchema, finalizeSchema } from "./zod";
+import { uploadQuerySchema, uploadBodySchema, finalizeSchema, cancelBodySchema } from "./zod";
 import { z } from "zod";
 
 export type EmailType = "verify" | "forget";
@@ -109,7 +109,7 @@ export type SendWebhookServiceProps = {
 
 export type CreateSnippetServiceProps = {
     c: Context;
-    user: typeof User;
+    user: typeof User | null;
 }
 
 export type GetSnippetServiceProps = {
@@ -120,6 +120,7 @@ export type GetSnippetServiceProps = {
 export type CancelUploadServiceProps = {
     c: Context;
     slug: string;
+    body: z.infer<typeof cancelBodySchema>;
 }
 
 export type SetOAuthStatusServiceProps = {

@@ -1,6 +1,6 @@
-import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps, CancelUploadServiceProps } from "../lib/types";
-import { fixRequestProps } from "../utils/req-fixer";
+import type { FinalizeUploadServiceProps, S3UploadServiceProps, CancelUploadServiceProps } from "../lib/types";
 import { shares, uploadedFiles, signatures, cancelSignatures } from "../db/schema";
+import { fixRequestProps } from "../utils/req-fixer";
 import { hashCode } from "../lib/hash";
 import { db } from "../db/index";
 import { sql, eq } from "drizzle-orm";
@@ -101,8 +101,8 @@ export class UploadService {
         }   
     }
 
-    public async cancelUpload({ c, slug }: CancelUploadServiceProps) {
-        const { cancel_signature } = await c.req.json();
+    public async cancelUpload({ c, slug, body }: CancelUploadServiceProps) {
+        const { cancel_signature } = body;
 
         if (!cancel_signature) {
             return c.json({
