@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { TurnstileRef } from "@/components/turnstile";
 import { UploadFormData, UploadProgress, UploadState } from "../upload.types";
-import { getPresignedUrls, uploadFileToS3, finalizeUpload } from "../upload.api";
+import { getPresignedUrls, uploadFileToS3, finalizeUpload, cancelUpload as apiCancelUpload } from "../upload.api";
 import { createCancelToken } from "../upload.utils";
 
 interface FileProgress {
@@ -28,6 +28,10 @@ export function useUpload() {
     cancelTokenSource: null,
   });
 
+  // Add state for cancel data and cancellation status
+  const [cancelData, setCancelData] = useState<{ slug: string; signature: string } | null>(null);
+  const [isCancelling, setIsCancelling] = useState(false);
+  
   const resetTurnstile = useCallback(() => {
     if (turnstileRef.current) {
       turnstileRef.current.reset();
@@ -49,10 +53,10 @@ export function useUpload() {
 
   // Smooth progress updates to prevent chunkiness
   useEffect(() => {
-    if (averageProgress === smoothedProgress) return;
+    if (averageProgress === smoothedProgress || isCancelling) return;
     
     const diff = averageProgress - smoothedProgress;
-    const step = Math.sign(diff) * Math.max(1, Math.abs(diff) * 0.55);
+    const step = Math.sign(diff) * Math.max(1, Math.abs(diff) * 0.85);
     
     const timer = setTimeout(() => {
       setSmoothProgress(prev => {
@@ -62,17 +66,21 @@ export function useUpload() {
     }, 50);
     
     return () => clearTimeout(timer);
-  }, [averageProgress, smoothedProgress]);
+  }, [averageProgress, smoothedProgress, isCancelling]);
 
   // Update upload state with smooth progress
   useEffect(() => {
-    setUploadState(prev => ({
-      ...prev,
-      progress: smoothedProgress
-    }));
-  }, [smoothedProgress]);
+    if (!isCancelling) {
+      setUploadState(prev => ({
+        ...prev,
+        progress: smoothedProgress
+      }));
+    }
+  }, [smoothedProgress, isCancelling]);
 
   const updateProgress = useCallback((progressData: UploadProgress) => {
+    if (isCancelling) return;
+    
     setFileProgressMap(prev => {
       const newMap = new Map(prev);
       const progress = Math.min(Math.round((progressData.loaded / progressData.total) * 100), 100);
@@ -86,7 +94,7 @@ export function useUpload() {
       
       return newMap;
     });
-  }, []);
+  }, [isCancelling]);
 
   const uploadMutation = useMutation({
     mutationFn: async (data: UploadFormData) => {
@@ -96,9 +104,10 @@ export function useUpload() {
 
       const cancelTokenSource = createCancelToken();
       
-      // Reset progress tracking
+      // Reset progress tracking and cancel state
       setFileProgressMap(new Map());
       setSmoothProgress(0);
+      setIsCancelling(false);
       
       setUploadState(prev => ({ 
         ...prev, 
@@ -111,7 +120,10 @@ export function useUpload() {
       try {
         // Step 1: Get presigned URLs
         const presignResponse = await getPresignedUrls(data, turnstileToken);
-        const { presignedData, slug, time, finalize_signature } = presignResponse;
+        const { presignedData, slug, time, finalize_signature, cancel_signature } = presignResponse;
+
+        // Store cancel data when we get it
+        setCancelData({ slug, signature: cancel_signature });
 
         // Step 2: Upload files to S3
         const uploadPromises = data.files.map(async (file, index) => {
@@ -128,7 +140,7 @@ export function useUpload() {
 
         await Promise.all([
           Promise.all(uploadPromises),
-          finalizeUpload(slug, data.files, data, time, finalize_signature)
+          finalizeUpload(slug, data.files, data, time, finalize_signature, cancel_signature)
         ]);
   
         // Success - set to 100% immediately
@@ -138,13 +150,18 @@ export function useUpload() {
         
         return { slug, time };
       } catch (error) {
+        // Check if this was a user-initiated cancellation
         if (axios.isCancel(error)) {
-          throw new Error("Upload cancelled");
+          // Don't throw for cancellation - it's handled separately
+          return { cancelled: true };
         }
         throw error;
       }
     },
     onError: (error: any) => {
+      // Don't handle cancellation errors here anymore
+      if (error?.cancelled) return;
+      
       console.error("Upload error:", error);
       
       let errorMessage = "Wystąpił błąd podczas przesyłania plików";
@@ -162,8 +179,6 @@ export function useUpload() {
         } else if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
         }
-      } else if (error.message === "Upload cancelled") {
-        errorMessage = "Przesyłanie zostało anulowane";
       }
 
       setUploadState(prev => ({ 
@@ -177,11 +192,15 @@ export function useUpload() {
       // Reset progress tracking
       setFileProgressMap(new Map());
       setSmoothProgress(0);
+      setIsCancelling(false);
       
       toast.error(errorMessage);
       resetTurnstile();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      // Don't reset state for cancelled uploads
+      if (result?.cancelled) return;
+      
       setUploadState(prev => ({ 
         ...prev, 
         isUploading: false, 
@@ -193,28 +212,54 @@ export function useUpload() {
       // Reset progress tracking
       setFileProgressMap(new Map());
       setSmoothProgress(0);
+      setIsCancelling(false);
     },
   });
 
-  const cancelUpload = useCallback(() => {
-    if (uploadState.cancelTokenSource) {
+  const cancelUpload = useCallback(async () => {
+    if (!uploadState.cancelTokenSource || !cancelData || isCancelling) return;
+
+    setIsCancelling(true);
+    
+    try {
+      // Cancel the axios requests
       uploadState.cancelTokenSource.cancel('Upload cancelled by user');
+      
+      // Call API to cleanup server-side resources
+      await apiCancelUpload(cancelData.slug, cancelData.signature);
+      
+      // Show success message for cancellation
+      toast.success("Przesyłanie zostało anulowane", {
+        description: "Pliki nie zostały przesłane"
+      });
+      
+    } catch (error) {
+      console.warn("Error during upload cancellation cleanup:", error);
+      // Still show success since the main cancellation worked
+      toast.success("Przesyłanie zostało anulowane");
+    } finally {
+      // Reset all state
       setUploadState(prev => ({ 
         ...prev, 
         isUploading: false, 
         progress: 0, 
-        error: "Przesyłanie zostało anulowane",
+        error: null,
         cancelTokenSource: null 
       }));
       
-      // Reset progress tracking
       setFileProgressMap(new Map());
       setSmoothProgress(0);
+      setCancelData(null);
+      setIsCancelling(false);
+      resetTurnstile();
     }
-  }, [uploadState.cancelTokenSource]);
+  }, [uploadState.cancelTokenSource, cancelData, isCancelling, resetTurnstile]);
 
   return {
-    uploadState,
+    uploadState: {
+      ...uploadState,
+      isCancelling
+    },
     uploadMutation,
     cancelUpload,
     turnstileRef,

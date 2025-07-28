@@ -64,6 +64,7 @@ export interface PresignResponse {
   slug: string;
   time: number;
   finalize_signature: string;
+  cancel_signature: string;
 }
 
 export interface UploadProgress {

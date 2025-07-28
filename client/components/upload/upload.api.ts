@@ -58,7 +58,8 @@ export async function finalizeUpload(
   files: File[],
   data: UploadFormData,
   time: number,
-  finalize_signature: string
+  finalize_signature: string,
+  cancel_signature: string
 ): Promise<void> {
   await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/finalize`,
@@ -74,8 +75,17 @@ export async function finalizeUpload(
       visibility: data.visibility,
       accessCode: data.accessCode,
       time,
-      signature: finalize_signature
+      signature: finalize_signature,
+      cancel_signature: cancel_signature
     },
     { withCredentials: true }
   );
 }
+
+export async function cancelUpload(
+  slug: string,
+  cancel_signature: string
+): Promise<void> {
+  await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/v1/upload/cancel/${slug}`, { cancel_signature, }, { withCredentials: true });
+}
+

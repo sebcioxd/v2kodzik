@@ -12,7 +12,6 @@ const uploadService = new UploadService("sharesbucket");
 uploadRoute.post("/presign",
 zValidator("query", uploadQuerySchema), 
 zValidator("json", uploadBodySchema), 
-createRateLimiter("upload"),
 async (c) => {
     
     const user = c.get("user");
@@ -23,7 +22,6 @@ async (c) => {
 });
 
 uploadRoute.post("/finalize", 
-createRateLimiter("finalize"), 
 zValidator("json", finalizeSchema),
 async (c) => {
 
@@ -33,7 +31,7 @@ async (c) => {
     return await uploadService.finalizeUpload({ c, user, body });
 });
 
-uploadRoute.get("/cancel/:slug", async (c: Context) => {
+uploadRoute.post("/cancel/:slug", async (c: Context) => {
     const { slug } = c.req.param();
 
     return await uploadService.cancelUpload({ c, slug });

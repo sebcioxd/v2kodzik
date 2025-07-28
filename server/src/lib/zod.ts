@@ -23,6 +23,7 @@ export const finalizeSchema = z.object({
     accessCode: z.string().optional().or(z.literal('')).transform(val => val === '' ? undefined : val),
     time: z.number().min(0.5, "Czas jest wymagany").max(168, "Czas jest zbyt duży"),
     signature: z.string().min(1, "Podpis jest wymagany"),
+    cancel_signature: z.string().min(1, "Podpis anulowania jest wymagany"),
 });
 
 export const uploadBodySchema = z.object({

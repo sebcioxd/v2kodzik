@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, memo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "@/lib/auth-client";
 import { useForm } from "react-hook-form";
@@ -44,7 +44,8 @@ import { Turnstile } from "@/components/turnstile";
 import { useInfo } from "@/app/hooks/use-fetch";
 import { 
   Upload, X, ShieldPlus, Loader2, Rss, Lock, 
-  Megaphone, EyeOff, Clock, Link as LinkIcon, XCircle 
+  Megaphone, EyeOff, Clock, Link as LinkIcon, XCircle,
+  AlertTriangle, CheckCircle2, FileText
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -55,6 +56,201 @@ import { useSafariDetection } from "./hooks/useSafariDetection";
 import { useFormPersistence } from "./hooks/useFormPersistance";
 import { uploadFormSchema, UploadFormData } from "./upload.types";
 import { formatBytes, getMaxSizeText } from "./upload.utils";
+
+const ProgressBar = memo(({ progress }: { progress: number }) => (
+  <div className="h-2 w-full bg-zinc-800/30 rounded-full overflow-hidden border border-dashed border-zinc-800/50">
+    <div
+      className="h-full bg-zinc-400 transition-transform duration-300 ease-out rounded-full"
+      style={{
+        transform: `translateX(${progress - 100}%)`,
+        width: '100%',
+        backgroundColor: progress === 100 ? "#10B981" : undefined,
+      }}
+    />
+  </div>
+));
+ProgressBar.displayName = 'ProgressBar';
+
+const UploadProgressView = memo(({ 
+  files, 
+  progressPercentage, 
+  totalSize, 
+  cancelUpload,
+  isCancelling 
+}: { 
+  files: File[], 
+  progressPercentage: number, 
+  totalSize: number,
+  cancelUpload: () => void,
+  isCancelling?: boolean
+}) => {
+  return (
+    <div className="inset-0 backdrop-blur-sm container mx-auto w-full md:max-w-md max-w-sm flex flex-col items-center justify-center space-y-8 p-6 z-50 transition-opacity duration-300 animate-fade-in-01-text">
+      <div className="text-center space-y-4 animate-fade-in-01-text">
+        <div className="flex items-center justify-center">
+          <div className="relative">
+            <div className={`w-15 h-15 border border-dashed rounded-full backdrop-blur-sm flex items-center justify-center transition-colors duration-300 ${
+              isCancelling 
+                ? 'border-amber-600 bg-amber-950/30' 
+                : 'border-zinc-800 bg-zinc-950/30'
+            }`}>
+              {isCancelling ? (
+                <XCircle className="w-6 h-6 text-amber-400" />
+              ) : (
+                <Loader2 className="w-6 h-6 text-zinc-300 animate-spin" />
+              )}
+            </div>
+            {!isCancelling && (
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-zinc-800 border border-dashed border-zinc-700 rounded-full flex items-center justify-center">
+                <Upload className="w-3 h-3 text-zinc-400" />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <h2 className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
+            isCancelling ? 'text-amber-300' : 'text-zinc-200'
+          }`}>
+            {isCancelling ? 'Anulowanie przesyłania...' :
+             progressPercentage === 0 ? 'Przygotowywanie plików...' : 
+             progressPercentage === 100 ? 'Przetwarzanie...' : 
+             'Wysyłanie plików'}
+          </h2>
+          <p className={`text-sm transition-colors duration-300 ${
+            isCancelling ? 'text-amber-400/80' : 'text-zinc-400'
+          }`}>
+            {isCancelling ? 'Przerywanie procesu i czyszczenie danych...' :
+             progressPercentage === 0 ? `Przygotowywanie ${files.length} ${files.length === 1 ? 'pliku' : 'plików'} do wysłania` :
+             progressPercentage === 100 ? 'Finalizowanie przesyłania, proszę czekać...' :
+             `Postęp: ${progressPercentage}% • ${files.length} ${files.length === 1 ? 'plik' : 'plików'}`}
+          </p>
+        </div>
+      </div>
+
+      <div className="w-full max-w-sm space-y-4 tracking-tight animate-fade-in-01-text">
+        <div className="space-y-2">
+          <div className={`h-2 w-full rounded-full overflow-hidden border border-dashed transition-colors duration-300 ${
+            isCancelling 
+              ? 'bg-amber-950/30 border-amber-800/50' 
+              : 'bg-zinc-800/30 border-zinc-800/50'
+          }`}>
+            <div
+              className={`h-full transition-all duration-300 ease-out rounded-full ${
+                isCancelling 
+                  ? 'bg-amber-500' 
+                  : progressPercentage === 100 
+                    ? 'bg-emerald-500' 
+                    : 'bg-zinc-400'
+              }`}
+              style={{
+                transform: isCancelling 
+                  ? 'translateX(-100%)' 
+                  : `translateX(${progressPercentage - 100}%)`,
+                width: '100%',
+              }}
+            />
+          </div>
+          <div className="flex justify-between items-center text-sm text-zinc-400">
+            <span>{formatBytes(totalSize)} całkowity rozmiar</span>
+            <span>{isCancelling ? 'Anulowanie...' : `${progressPercentage}%`}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* File List */}
+      <div className="w-full max-w-sm space-y-3">
+        <div className={`border border-dashed rounded-lg backdrop-blur-sm p-3 transition-colors duration-300 ${
+          isCancelling 
+            ? 'border-amber-800 bg-amber-950/10' 
+            : 'border-zinc-800 bg-zinc-950/20'
+        }`}>
+          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-dashed border-zinc-800">
+            <FileText className="w-4 h-4 text-zinc-400" />
+            <span className="text-sm font-medium tracking-tight text-zinc-300">
+              {isCancelling ? 'Anulowane pliki:' : 'Wysyłane pliki:'}
+            </span>
+          </div>
+          
+          <div className="space-y-2 max-h-32 overflow-y-auto">
+            {files.map((file, index) => (
+              <div key={index} className={`flex items-center justify-between py-1 px-2 rounded border border-dashed transition-colors duration-300 ${
+                isCancelling 
+                  ? 'bg-amber-800/10 border-amber-800/30' 
+                  : 'bg-zinc-800/20 border-zinc-800/50'
+              }`}>
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-300 ${
+                    isCancelling 
+                      ? 'bg-amber-500' 
+                      : 'bg-zinc-400 animate-pulse'
+                  }`} />
+                  <span className="text-xs text-zinc-300 truncate">{file.name}</span>
+                </div>
+                <span className="text-xs text-zinc-500 flex-shrink-0 ml-2">
+                  {formatBytes(file.size)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Warning/Status Message */}
+      <div className="w-full max-w-sm">
+        {isCancelling ? (
+          <div className="flex items-start gap-3 p-4 border border-dashed border-amber-800/50 bg-amber-950/10 backdrop-blur-sm rounded-lg">
+            <Loader2 className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5 animate-spin" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-amber-200 tracking-tight">Anulowanie w toku</p>
+              <p className="text-xs text-amber-300/80 tracking-tight">
+                Przerywamy przesyłanie i czyścimy dane. To może potrwać chwilę...
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-start gap-3 p-4 border border-dashed border-amber-800/50 bg-amber-950/10 backdrop-blur-sm rounded-lg">
+            <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-amber-200 tracking-tight">Nie zamykaj tej strony!</p>
+              <p className="text-xs text-amber-300/80 tracking-tight">
+                Zamknięcie karty lub przeglądarki przerwie wysyłanie plików. 
+                Proces może potrwać kilka minut w zależności od rozmiaru plików.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Cancel Button */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        onClick={cancelUpload}
+        disabled={isCancelling}
+        className={`transition-all duration-200 flex items-center gap-2 border border-dashed backdrop-blur-sm ${
+          isCancelling
+            ? 'text-amber-300 border-amber-800 bg-amber-950/20 cursor-not-allowed opacity-50'
+            : 'text-zinc-400 hover:text-red-400 hover:bg-red-400/10 border-zinc-800 bg-zinc-950/20 hover:border-red-800'
+        }`}
+      >
+        {isCancelling ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Anulowanie...
+          </>
+        ) : (
+          <>
+            <XCircle className="h-4 w-4" />
+            Anuluj wysyłanie
+          </>
+        )}
+      </Button>
+    </div>
+  );
+});
+UploadProgressView.displayName = 'UploadProgressView';
 
 export function UploadPage() {
   const { data: session } = useSession();
@@ -145,18 +341,56 @@ export function UploadPage() {
   }, [form]);
 
   const onSubmit = (data: UploadFormData) => {
+    // Store current files before upload starts
+    setUploadingFiles(data.files || []);
+    
     uploadMutation.mutate(data, {
       onSuccess: () => {
         clearPersistedData(form);
+        // Reset uploading files after successful upload
+        setTimeout(() => {
+          setUploadingFiles([]);
+        }, 1000);
+      },
+      onError: () => {
+        // Reset uploading files on error
+        setUploadingFiles([]);
       }
     });
   };
 
   const progressPercentage = uploadState.progress;
   const isUploading = uploadState.isUploading;
+  const isCancelling = uploadState.isCancelling;
+  
+  // Store files data when upload starts to prevent undefined access
+  const [uploadingFiles, setUploadingFiles] = useState<File[]>([]);
+  
+  useEffect(() => {
+    if (isUploading && form.getValues("files")?.length > 0) {
+      setUploadingFiles(form.getValues("files"));
+    }
+  }, [isUploading, form]);
+
+  // If uploading, show only the progress view with smooth transition
+  if (isUploading) {
+    const files = uploadingFiles.length > 0 ? uploadingFiles : form.getValues("files") || [];
+    return (
+      <>
+       
+        <UploadProgressView 
+          files={files}
+          progressPercentage={progressPercentage}
+          totalSize={totalSize}
+          cancelUpload={cancelUpload}
+          isCancelling={isCancelling}
+        />
+      </>
+    );
+  }
 
   return (
-    <>
+    <div className="transition-opacity duration-300">
       {/* Safari Warning Dialog */}
       <Dialog open={showSafariDialog}>
         <DialogContent className="border border-dashed border-zinc-800 bg-zinc-950/70 backdrop-blur-sm text-zinc-200">
@@ -198,7 +432,7 @@ export function UploadPage() {
             name="files"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={`text-zinc-200 animate-fade-in-01-text border-dashed tracking-tight border-zinc-800 border-b pb-3 mb-2 ${isUploading ? "opacity-50" : ""}`}>
+                <FormLabel className="text-zinc-200 animate-fade-in-01-text border-dashed tracking-tight border-zinc-800 border-b pb-3 mb-2">
                   <Upload className="w-4 h-4" /> Pliki do wysłania:
                 </FormLabel>
                 <FormControl>
@@ -215,9 +449,8 @@ export function UploadPage() {
                     onFileValidate={validateFile}
                     onFileReject={onFileReject}
                     multiple
-                    disabled={isUploading}
                   >
-                    <FileUploadDropzone className={`border-dashed border-zinc-800 hover:bg-zinc-950/30 ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}>
+                    <FileUploadDropzone className="border-dashed border-zinc-800 hover:bg-zinc-950/30">
                       <div className="flex flex-col items-center gap-1 text-center">
                         <div className="flex items-center justify-center rounded-full border border-dashed border-zinc-800 p-2">
                           <Upload className="size-6 text-zinc-400" />
@@ -226,17 +459,17 @@ export function UploadPage() {
                           Przeciągnij i upuść pliki tutaj
                         </p>
                         <p className="text-zinc-400 text-md">
-                          Lub kliknij aby przeglądać do {getMaxSizeText(selectedTime)} oraz 20 plików
+                          Lub kliknij aby przeglądać do <span className="text-zinc-200 ">{getMaxSizeText(selectedTime)}</span> oraz 20 plików
                         </p>
                       </div>
                     </FileUploadDropzone>
                     
                     <FileUploadList>
-                      {field.value.map((file, index) => (
+                      {field.value?.map((file, index) => (
                         <FileUploadItem
                           key={index} 
                           value={file}
-                          className={`border-dashed py-2 border-zinc-800 ${isUploading ? "opacity-50 pointer-events-none" : ""}`}
+                          className="border-dashed py-2 border-zinc-800"
                         >
                           <FileUploadItemPreview className="bg-darken rounded-md text-zinc-300 border-zinc-950" />
                           <FileUploadItemMetadata className="text-zinc-400" />
@@ -245,17 +478,16 @@ export function UploadPage() {
                               variant="ghost"
                               size="icon"
                               className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-600"
-                              disabled={isUploading}
                             >
                               <X />
                             </Button>
                           </FileUploadItemDelete>
                         </FileUploadItem>
-                      ))}
+                      )) || []}
                     </FileUploadList>
 
                     {/* File Size Progress */}
-                    {field.value.length > 0 && (
+                    {field.value?.length > 0 && (
                       <div className="mt-4 space-y-1 animate-fade-in-01-text">
                         <div className="flex justify-between items-center text-md text-zinc-400">
                           <span>Całkowity rozmiar</span>
@@ -293,80 +525,43 @@ export function UploadPage() {
             name="slug"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className={`text-zinc-200 animate-fade-in-01-text text-sm pb-1 ${isUploading ? "opacity-50" : ""}`}>
+                <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
                   <LinkIcon className="w-4 h-4" /> Niestandarowy link: 
                   <span className="text-zinc-600 animate-fade-in-01-text ml-[-2]">opcjonalne</span>
                 </FormLabel>
                 <FormControl>
-                  <div className={`w-full max-w-md ${isUploading ? "opacity-50" : ""}`}>
+                  <div className="w-full max-w-md">
                     <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
                       <span className="text-zinc-400 px-2 border-r border-dashed border-zinc-800 bg-zinc-950/20 text-sm">
                         dajkodzik.pl/
                       </span>
                       <Input
                         {...field}
-                        disabled={isUploading}
                         placeholder="np. moj-link"
-                        className={`flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8 ${isUploading ? "cursor-not-allowed" : ""}`}
+                        className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
                       />
                     </div>
                   </div>
                 </FormControl>
-                <p className={`text-sm text-zinc-400 mt-1 tracking-tight ${isUploading ? "opacity-50" : ""}`}>
+                <p className="text-sm text-zinc-400 mt-1 tracking-tight">
                   Wpisz własną nazwę lub zostaw puste dla auto-generacji.
                 </p>
                 <FormMessage className="text-red-400 animate-fade-in-01-text" />
               </FormItem>
             )}
           />
-          <Button
+
+      <Button
             type="submit"
-            className={`w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300  ${turnstileToken ? "disabled:bg-zinc-800/50" : "bg-zinc-900/20"} ${isUploading ? "bg-zinc-900/20" : ""}`}
-            disabled={isUploading || !turnstileToken}
+            className={`w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300  ${turnstileToken ? "disabled:bg-zinc-800/50" : "bg-zinc-900/20"}`}
+            disabled={!turnstileToken}
             size="sm"
           >
-            {isUploading ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" />
-                {progressPercentage === 0 ? (
-                  `Przygotowywanie ${form.getValues("files").length} ${form.getValues("files").length === 1 ? 'pliku' : 'plików'}...`
-                ) : progressPercentage === 100 ? (
-                  "Przetwarzanie plików..."
-                ) : (
-                  `Wysyłanie... ${progressPercentage}%`
-                )}
-              </span>
-            ) : (
-              <span className="flex items-center justify-center">
-                <Upload className="mr-2 h-4 w-4" />
-                  Wygeneruj link z plikami
-              </span>
-            )}
+            <span className="flex items-center justify-center">
+              <Upload className="mr-2 h-4 w-4" />
+              Wygeneruj link z plikami
+            </span>
           </Button>
-
-          {isUploading && (
-            <div className="w-full space-y-2 animate-fade-in-01-text flex items-center justify-center flex-col">
-              <div className="h-1 w-full bg-zinc-800/30 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-zinc-400 transition-all duration-300 ease-out transform origin-left rounded-full"
-                  style={{
-                    width: `${progressPercentage}%`,
-                    backgroundColor: progressPercentage === 100 ? "#10B981" : undefined,
-                  }}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={cancelUpload}
-                className="text-zinc-400 hover:text-red-400 hover:bg-red-400/10 flex items-center justify-center gap-2"
-              >
-                <XCircle className="h-4 w-4" />
-                Anuluj wysyłanie
-              </Button>
-            </div>
-          )}
 
           <Turnstile 
             ref={turnstileRef}
@@ -403,7 +598,6 @@ export function UploadPage() {
                           <TabsTrigger
                             value="public"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50"
-                            disabled={isUploading}
                           >
                             <Rss className="h-4 w-4 mr-2" />
                             Każdy z linkiem
@@ -411,7 +605,6 @@ export function UploadPage() {
                           <TabsTrigger
                             value="private"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50"
-                            disabled={isUploading}
                           >
                             <Lock className="h-4 w-4 mr-2" />
                             Tylko z hasłem
@@ -437,8 +630,6 @@ export function UploadPage() {
                                       maxLength={6}
                                       value={field.value || ""}
                                       onChange={field.onChange}
-                                      disabled={isUploading}
-                                      
                                     >
                                       <InputOTPGroup>
                                         <InputOTPSlot
@@ -505,7 +696,6 @@ export function UploadPage() {
                           <TabsTrigger
                             value="visible"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50"
-                            disabled={isUploading}
                           >
                             <Megaphone className="h-4 w-4 mr-2" />
                             Tak, pokaż publicznie
@@ -513,7 +703,6 @@ export function UploadPage() {
                           <TabsTrigger
                             value="hidden"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50"
-                            disabled={isUploading}
                           >
                             <EyeOff className="h-4 w-4 mr-2" />
                             Nie, ukryj link
@@ -548,7 +737,6 @@ export function UploadPage() {
                           <TabsTrigger
                             value="0.5"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50 relative group"
-                            disabled={isUploading}
                           >
                             <Clock className="h-4 w-4 mr-2" />
                             30 minut
@@ -559,7 +747,6 @@ export function UploadPage() {
                           <TabsTrigger
                             value="24"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50"
-                            disabled={isUploading}
                           >
                             <Clock className="h-4 w-4 mr-2" />
                             24 godziny
@@ -567,7 +754,7 @@ export function UploadPage() {
                           <TabsTrigger
                             value="168"
                             className="w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 transition-all data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-200 hover:bg-zinc-800/50 relative group"
-                            disabled={isUploading || !session}
+                            disabled={!session}
                           >
                             <Clock className="h-4 w-4 mr-2" />
                             7 dni
@@ -597,10 +784,9 @@ export function UploadPage() {
             </div>
           </div>
 
-         
           
         </form>
       </Form>
-    </>
+    </div>
   );
 }

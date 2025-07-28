@@ -33,7 +33,7 @@ export const uploadedFiles = pgTable('uploaded_files', {
   size: integer('size').notNull(),
   storagePath: text('storage_path').notNull(),
   contentType: text('content_type').notNull().default('application/octet-stream'),
-  lastModified: integer('last_modified'),
+  lastModified: text('last_modified'),
   createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
   updatedAt: timestamp('updated_at').$defaultFn(() => sql`NOW()`).notNull(),
 }, (t) => [
@@ -67,6 +67,15 @@ export const signatures = pgTable('signatures', {
   expiresAt: timestamp('expires_at').$defaultFn(() => sql`NOW() + INTERVAL '5 minutes'`).notNull(),
 }, (t) => [
   index('idx_signatures_signature').on(t.signature),
+]);
+
+export const cancelSignatures = pgTable('cancel_signatures', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  signature: text('signature').notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  expiresAt: timestamp('expires_at').$defaultFn(() => sql`NOW() + INTERVAL '5 minutes'`).notNull(),
+}, (t) => [
+  index('idx_cancel_signatures_signature').on(t.signature),
 ]);
 
 

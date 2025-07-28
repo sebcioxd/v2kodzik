@@ -39,6 +39,15 @@ const setupCronJob = async () => {
         `;
         console.log('🟢 Signature cleanup cron pomyślnie ustawiony', signatureSchedule);
 
+        const cancelSignatureSchedule = await sql`
+            SELECT cron.schedule(
+                'cancel_signature_cleanup',                    
+                '*/5 * * * *',                      
+                'DELETE FROM cancel_signatures WHERE expires_at < NOW();'  
+            );
+        `;
+        console.log('🟢 Cancel signature cleanup cron pomyślnie ustawiony', cancelSignatureSchedule);
+
     } catch (error) {
             console.error('🔴 Wystąpił błąd podczas ustawiania cron jobów:', error);
         }

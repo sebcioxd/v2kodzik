@@ -1,6 +1,6 @@
 import type { FinalizeUploadServiceProps, generatePresignedUrlProps, S3UploadServiceProps, UploadRequestProps, CancelUploadServiceProps } from "../lib/types";
 import { fixRequestProps } from "../utils/req-fixer";
-import { shares, uploadedFiles, signatures } from "../db/schema";
+import { shares, uploadedFiles, signatures, cancelSignatures } from "../db/schema";
 import { hashCode } from "../lib/hash";
 import { db } from "../db/index";
 import { sql, eq } from "drizzle-orm";
@@ -34,17 +34,22 @@ export class UploadService {
         return { url };
     }
 
-    private async generateSignature() {
+    private async generateSignatures() {
         const signature = Bun.randomUUIDv7();
+        const cancelSignature = Bun.randomUUIDv7();
 
-        await db.insert(signatures).values({
-            signature,
-        });
+        await Promise.all([
+            db.insert(signatures).values({
+                signature,
+            }),
+            db.insert(cancelSignatures).values({
+                signature: cancelSignature,
+            }),
+        ]);
 
-        return signature;
+        return { signature, cancelSignature };
     }
 
-   
     public async uploadFiles({ c, user, queryData, bodyData }: S3UploadServiceProps) {
         try {
             const { token } = bodyData;
@@ -77,13 +82,14 @@ export class UploadService {
                 };
             }));
 
-            const signature = await this.generateSignature();
+            const { signature, cancelSignature } = await this.generateSignatures();
 
             return c.json({
                 presignedData,
                 slug: req.slug,
                 time: parseFloat(req.time),
-                finalize_signature: signature
+                finalize_signature: signature,
+                cancel_signature: cancelSignature
             }); 
 
         } catch (error) {
@@ -94,21 +100,45 @@ export class UploadService {
         }   
     }
 
-    public async cancelUpload({ c }: CancelUploadServiceProps) {
-        const { slug } = c.req.query();
+    public async cancelUpload({ c, slug }: CancelUploadServiceProps) {
+        const { cancel_signature } = await c.req.json();
 
-        const checkForUploadedFiles = await db
-            .select()
-            .from(uploadedFiles)
-            .where(sql`${uploadedFiles.storagePath} LIKE ${slug + '/%'}`);
-
-        const hasFiles = checkForUploadedFiles.length > 0;
-
-        if (hasFiles) {
+        if (!cancel_signature) {
             return c.json({
-                message: "Pliki zostały już wysłane",
+                message: "Podpis anulowania jest wymagany",
             }, 400);
         }
+
+        const cancelSignatureCheck = await db.select().from(cancelSignatures).where(eq(cancelSignatures.signature, cancel_signature));
+
+        if (!cancelSignatureCheck || cancelSignatureCheck.length === 0 || cancelSignatureCheck[0].expiresAt < new Date()) {
+            return c.json({
+                message: "Nieprawidłowy podpis anulowania",
+            }, 400);
+        }
+
+        const share = await db.select().from(shares).where(eq(shares.slug, slug)).limit(1);
+    
+        if (!share || share.length === 0) {
+            return c.json({
+                message: "Nie znaleziono udostępnienia",
+            }, 404);
+        }
+    
+        const slugUploadedFiles = await db.select().from(uploadedFiles).where(eq(uploadedFiles.shareId, share[0].id));
+
+        await Promise.all(slugUploadedFiles.map(async (file) => {
+            this.client.delete(file.storagePath);
+        }));
+
+        await Promise.all([
+            db.delete(cancelSignatures).where(eq(cancelSignatures.signature, cancel_signature)),
+            db.delete(shares).where(eq(shares.slug, slug)),
+        ]);
+
+        return c.json({
+            message: "Pliki zostały anulowane pomyślnie",
+        }, 200);
     }
 
     public async finalizeUpload({ c, user, body }: FinalizeUploadServiceProps) {
@@ -127,8 +157,11 @@ export class UploadService {
                 message: "Nieprawidłowy podpis",
             }, 400);
         }
+ 
 
         await db.delete(signatures).where(eq(signatures.signature, signature));
+            
+      
 
         let expirationInterval: string;
             switch (time) {
@@ -160,7 +193,7 @@ export class UploadService {
                     fileName: file.fileName,
                     size: file.size,
                     contentType: file.contentType,
-                    lastModified: file.lastModified,
+                    lastModified: file.lastModified.toString(),
                     storagePath: `${slug}/${file.fileName}`,
                 }));
                 
