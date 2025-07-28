@@ -53,7 +53,6 @@ import { toast } from "sonner";
 import { useUpload } from "./hooks/useUpload";
 import { useFileValidation } from "./hooks/useFileValidation";
 import { useSafariDetection } from "./hooks/useSafariDetection";
-import { useFormPersistence } from "./hooks/useFormPersistance";
 import { uploadFormSchema, UploadFormData } from "./upload.types";
 import { formatBytes, getMaxSizeText } from "./upload.utils";
 
@@ -266,41 +265,18 @@ export function UploadPage() {
   const router = useRouter();
   const [totalSize, setTotalSize] = useState(0);
   
-
-  const { persistedData, updatePersistedData, clearPersistedData, initializeForm } = useFormPersistence({
-    key: "upload-form-data",
-    initialData: {
+  const form = useForm<UploadFormData>({
+    resolver: zodResolver(uploadFormSchema),
+    defaultValues: {
       slug: "",
       isPrivate: false,
       visibility: true,
       accessCode: "",
       time: "24",
-    },
-    excludeFields: ["files"], 
-  });
-  
-  const form = useForm<UploadFormData>({
-    resolver: zodResolver(uploadFormSchema),
-    defaultValues: {
-      ...persistedData,
       files: [], 
     },
   });
   
-  // Initialize form with persisted data after form is created
-  useEffect(() => {
-    initializeForm(form);
-  }, [initializeForm, form]);
-  
-  // Watch for form changes and persist them
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      updatePersistedData(value as Partial<UploadFormData>);
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [form, updatePersistedData]);
-
   const selectedTime = form.watch("time");
   const { validateFile, onFileReject, maxSize } = useFileValidation(selectedTime);
   const { 
@@ -354,7 +330,6 @@ export function UploadPage() {
     
     uploadMutation.mutate(data, {
       onSuccess: () => {
-        clearPersistedData(form);
         // Reset uploading files after successful upload
         setTimeout(() => {
           setUploadingFiles([]);

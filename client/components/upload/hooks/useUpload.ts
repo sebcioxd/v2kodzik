@@ -73,7 +73,7 @@ export function useUpload() {
         
         return Math.round(Math.max(0, Math.min(100, next)));
       });
-    }, 45);
+    }, 80);
     
     return () => clearTimeout(timer);
   }, [weightedProgress, smoothedProgress, isCancelling]);
