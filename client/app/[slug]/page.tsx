@@ -1,3 +1,4 @@
+
 interface File {
   id: string;
   fileName: string;
@@ -24,8 +25,9 @@ interface Share {
 }
 
 import Files from "@/components/files";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { cookies } from 'next/headers'
+
 
 export default async function ShareSlugPage({ params }: { params: Promise<{ slug: string }>}) {
 

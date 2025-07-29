@@ -37,6 +37,10 @@ export const rateLimitConfigs = {
     finalize: {
         windowMs: minutes(20),
         limit: 3,
+    },
+    cancel: {
+        windowMs: minutes(20),
+        limit: 3,
     }
 } as const;
 

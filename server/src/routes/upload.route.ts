@@ -35,6 +35,7 @@ async (c) => {
 
 uploadRoute.post("/cancel/:slug",
 zValidator("json", cancelBodySchema),
+createRateLimiter("cancel"),
 async (c) => {
     const { slug } = c.req.param();
     const body = c.req.valid('json');
