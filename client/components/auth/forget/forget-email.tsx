@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogIn, Send } from "lucide-react";
+import { LogIn, Send, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { authClient, useSession } from "@/lib/auth-client";
 import {
@@ -87,64 +87,54 @@ export default function ForgetEmail() {
     };
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto max-w-md">
-            <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 rounded-lg">
-                <div className="flex flex-col items-start justify-start pb-10 animate-fade-in-01-text opacity-0">
-                    <h1 className="text-2xl text-zinc-100">Zapomniałeś hasła?</h1>
-                    <p className="text-zinc-500 text-md">
+        <main className="flex flex-col items-center justify-center container mx-auto max-w-[26rem] animate-slide-in-left">
+            <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 backdrop-blur-sm rounded-lg">
+                <div className="flex flex-col items-center justify-center pb-6 animate-fade-in-01-text opacity-0">
+                    <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
+                        Zapomniałeś hasła?
+                    </h1>
+                    <p className="text-zinc-500 text-sm">
                         Wprowadź swój adres email, aby otrzymać link do zmiany hasła.
                     </p>
                 </div>
                 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative w-full">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 relative w-full">
                         <FormField
                             control={form.control}
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-zinc-400">Adres e-mail twojego konta</FormLabel>
+                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
+                                        Adres e-mail twojego konta
+                                    </FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            {...field}
-                                            type="email"
-                                            className="bg-zinc-950/20 border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
-                                            placeholder="twój.email@przykład.com"
-                                        />
+                                        <div className="w-full">
+                                            <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                                                <Input 
+                                                    {...field}
+                                                    type="email"
+                                                    className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                                                    placeholder="twój.email@przykład.com"
+                                                />
+                                            </div>
+                                        </div>
                                     </FormControl>
-                                    <FormMessage className="text-red-400" />
+                                    <FormMessage className="text-red-400 animate-fade-in-01-text" />
                                 </FormItem>
                             )}
                         />
 
                         <Button
                             type="submit"
-                            className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+                            className="w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300"
                             disabled={isSubmitting || isRouting}
+                            size="sm"
                         >
                             {isSubmitting || isRouting ? (
                                 <span className="flex items-center justify-center">
-                                    <svg
-                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle
-                                            className="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        ></circle>
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
-                                    </svg>
-                                     {isRouting ? "Przekierowanie..." : "Wysyłanie..."}
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    {isRouting ? "Przekierowanie..." : "Wysyłanie..."}
                                 </span>
                             ) : (
                                 <span className="flex items-center justify-center">
@@ -154,9 +144,11 @@ export default function ForgetEmail() {
                             )}
                         </Button>
 
-                        <Link href="/auth" className="text-zinc-500 hover:text-zinc-400">
-                            Wróć do logowania
-                        </Link>
+                        <div className="text-center">
+                            <Link href="/auth" className="text-zinc-500 hover:text-zinc-400 text-sm">
+                                Wróć do logowania
+                            </Link>
+                        </div>
 
                         {error && (
                             <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text">

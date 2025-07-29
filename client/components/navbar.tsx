@@ -13,8 +13,8 @@ export default function Navbar() {
 
 
     return (
-        <nav className="flex flex-col p-2 rounded-md mx-auto w-full md:max-w-4xl sticky top-0 z-50 max-w-sm border-zinc-800 pt-2  backdrop-blur-sm animate-fade-in-01-text">
-            <div className="flex justify-between items-center w-full">
+        <nav className="flex flex-col p-2 rounded-md w-full sticky top-0 z-50  border-zinc-800 pt-2  backdrop-blur-md animate-fade-in-01-text">
+            <div className="flex justify-between items-center w-full mx-auto md:max-w-4xl">
                 <Link href="/" className="flex items-center gap-2 group">
                     <h1 className="text-zinc-400 md:text-xl text-lg tracking-tight group-hover:text-zinc-200 transition-colors">dajkodzik.pl</h1>
                 </Link>

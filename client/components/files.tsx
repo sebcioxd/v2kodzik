@@ -856,31 +856,31 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
       <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
         <DialogContent className="border border-dashed border-zinc-800 bg-zinc-950/70 backdrop-blur-sm text-zinc-200">
           <DialogHeader>
-            <DialogTitle className="text-zinc-200 tracking-tight flex items-center gap-2">
+            <DialogTitle className="text-zinc-200 tracking-tight flex items-center text-md gap-2">
               {getFileIcon(selectedFile?.fileName || "", selectedFile?.contentType)}
               {selectedFile?.fileName}
             </DialogTitle>
-            <DialogDescription className="text-zinc-400">
+            <DialogDescription className="text-zinc-400 text-sm">
               Szczegółowe informacje o pliku
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
-                <span className="text-zinc-400">Typ pliku</span>
-                <span className="text-zinc-200">{selectedFile && getContentTypeLabel(selectedFile.contentType, selectedFile.fileName)}</span>
+                <span className="text-zinc-400 text-sm">Typ pliku</span>
+                <span className="text-zinc-200 text-sm">{selectedFile && getContentTypeLabel(selectedFile.contentType, selectedFile.fileName)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
-                <span className="text-zinc-400">Rozmiar</span>
-                <span className="text-zinc-200">{selectedFile && formatBytes(selectedFile.size)}</span>
+                <span className="text-zinc-400 text-sm">Rozmiar</span>
+                <span className="text-zinc-200 text-sm">{selectedFile && formatBytes(selectedFile.size)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
-                <span className="text-zinc-400">ID pliku</span>
-                <span className="text-zinc-200">{selectedFile?.id}</span>
+                <span className="text-zinc-400 text-sm">ID pliku</span>
+                <span className="text-zinc-200 text-sm">{selectedFile?.id}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
-                <span className="text-zinc-400">Ostatnia modyfikacja pliku</span>
-                <span className="text-zinc-200 ">{unixToDate(selectedFile?.lastModified ?? 0)}</span>
+                <span className="text-zinc-400 text-sm">Ostatnia modyfikacja pliku</span>
+                <span className="text-zinc-200 text-sm">{unixToDate(selectedFile?.lastModified ?? 0)}</span>
               </div>
             </div>
           </div>

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { set, z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { UserPlus, Eye, EyeOff, Loader2 } from "lucide-react";
+import { UserPlus, Eye, EyeOff, Loader2, User, Mail, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import {
@@ -22,6 +22,7 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import Google from "./google";
 import Discord from "./discord";
+import { toast } from "sonner";
 
 type FormData = {
     username: string;
@@ -69,7 +70,7 @@ export default function SignUp() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isRouting, startRouting] = useTransition();
-
+   
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -83,6 +84,7 @@ export default function SignUp() {
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
         try {
+
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/info`)
             const apiResponse: apiResponse = await res.json()
             
@@ -102,6 +104,7 @@ export default function SignUp() {
                     startRouting(() => {
                         router.push(`/auth/otp?email=${data.email}`);
                     });
+                  
                 },
                 onError: (ctx) => {
                     if (ctx.response.status !== 429) {
@@ -112,6 +115,7 @@ export default function SignUp() {
                     setRateLimited(true);
                     setError(false)
                     setIsSubmitting(false);
+                   
                 },
                 onRequest: () => {
                     setIsSubmitting(true);
@@ -125,24 +129,25 @@ export default function SignUp() {
             console.error("Error signing up:", error);
             setError(true);
             setIsSubmitting(false);
+          
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto max-w-md animate-slide-in-left">
-            <div className="w-full max-w-2xl p-8 relative border border-zinc-800 rounded-lg">
-                <div className="flex flex-col items-center justify-center pb-10 animate-fade-in-01-text opacity-0">
-                    <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+        <main className="flex flex-col items-center justify-center container mx-auto max-w-[26rem] animate-slide-in-left">
+            <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 backdrop-blur-sm rounded-lg">
+                <div className="flex flex-col items-center justify-center pb-6 animate-fade-in-01-text opacity-0">
+                    <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
                         Rejestracja
                     </h1>
-                    <p className="text-zinc-500 text-md">
+                    <p className="text-zinc-500 text-sm">
                         Utwórz konto, aby rozpocząć
                     </p>
                 </div>
 
-                <div className="space-y-4 mb-6 animate-slide-in-left">
+                <div className="space-y-4 mb-6 animate-slide-in-left flex flex-col  items-center justify-center">
                     <Google />
                     <Discord />
                 </div>
@@ -157,19 +162,25 @@ export default function SignUp() {
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative w-full">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 relative w-full">
                         <FormField
                             control={form.control}
                             name="username"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-zinc-400">Nazwa użytkownika</FormLabel>
+                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
+                                        Nazwa użytkownika
+                                    </FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            {...field}
-                                            className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
-                                            placeholder="Wprowadź swoją nazwę użytkownika"
-                                        />
+                                        <div className="w-full">
+                                            <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                                                <Input 
+                                                    {...field}
+                                                    className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                                                    placeholder="Wprowadź swoją nazwę użytkownika"
+                                                />
+                                            </div>
+                                        </div>
                                     </FormControl>
                                     <FormMessage className="text-red-400 animate-fade-in-01-text" />
                                 </FormItem>
@@ -181,14 +192,20 @@ export default function SignUp() {
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-zinc-400">Adres email</FormLabel>
+                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
+                                         Adres email
+                                    </FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            {...field}
-                                            type="email"
-                                            className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
-                                            placeholder="twój.email@przykład.com"
-                                        />
+                                        <div className="w-full">
+                                            <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                                                <Input 
+                                                    {...field}
+                                                    type="email"
+                                                    className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                                                    placeholder="twój.email@przykład.com"
+                                                />
+                                            </div>
+                                        </div>
                                     </FormControl>
                                     <FormMessage className="text-red-400 animate-fade-in-01-text" />
                                 </FormItem>
@@ -200,29 +217,33 @@ export default function SignUp() {
                             name="password"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-zinc-400">Hasło</FormLabel>
+                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
+                                        Hasło
+                                    </FormLabel>
                                     <FormControl>
-                                        <div className="relative">
-                                            <Input 
-                                                {...field}
-                                                type={showPassword ? "text" : "password"}
-                                                className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
-                                                placeholder="Wprowadź swoje hasło"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-400"
-                                            >
-                                                {showPassword ? (
-                                                    <EyeOff className="h-4 w-4" />
-                                                ) : (
-                                                    <Eye className="h-4 w-4" />
-                                                )}
-                                            </button>
+                                        <div className="w-full">
+                                            <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                                                <Input 
+                                                    {...field}
+                                                    type={showPassword ? "text" : "password"}
+                                                    className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                                                    placeholder="Wprowadź swoje hasło"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="px-3 text-zinc-500 hover:text-zinc-400 transition-colors"
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
                                         </div>
                                     </FormControl>
-                                    <FormMessage className="text-red-400 animate-fade-in-01-text    " />
+                                    <FormMessage className="text-red-400 animate-fade-in-01-text" />
                                 </FormItem>
                             )}
                         />
@@ -232,26 +253,30 @@ export default function SignUp() {
                             name="confirmPassword"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className="text-zinc-400">Potwierdź hasło</FormLabel>
+                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
+                                        Potwierdź hasło
+                                    </FormLabel>
                                     <FormControl>
-                                        <div className="relative">
-                                            <Input 
-                                                {...field}
-                                                type={showConfirmPassword ? "text" : "password"}
-                                                className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
-                                                placeholder="Potwierdź swoje hasło"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-400"
-                                            >
-                                                {showConfirmPassword ? (
-                                                    <EyeOff className="h-4 w-4" />
-                                                ) : (
-                                                    <Eye className="h-4 w-4" />
-                                                )}
-                                            </button>
+                                        <div className="w-full">
+                                            <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                                                <Input 
+                                                    {...field}
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                                                    placeholder="Potwierdź swoje hasło"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="px-3 text-zinc-500 hover:text-zinc-400 transition-colors"
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
                                         </div>
                                     </FormControl>
                                     <FormMessage className="text-red-400 animate-fade-in-01-text" />
@@ -263,10 +288,13 @@ export default function SignUp() {
                             Rejestrując się, akceptujesz <Link href="/terms" className="text-zinc-400 hover:text-zinc-300">warunki użytkowania</Link> 
                         </FormDescription>
 
+                       
+                        
                         <Button
                             type="submit"
-                            className="w-full bg-zinc-900/20 border border-zinc-900 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+                            className={`w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300`}
                             disabled={isSubmitting || isRouting}
+                            size="sm"
                         >
                             {isSubmitting || isRouting ? (
                                 <span className="flex items-center justify-center">
@@ -281,6 +309,8 @@ export default function SignUp() {
                             )}
                         </Button>
 
+
+
                         {error && (
                             <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text">
                                 Wystąpił błąd podczas rejestracji. Proszę spróbować ponownie.
@@ -293,8 +323,6 @@ export default function SignUp() {
                         )}
                     </form>
                 </Form>
-
-                
             </div>
         </main>
     );

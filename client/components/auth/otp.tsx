@@ -58,7 +58,7 @@ export default function OTPInput() {
                 email: email || "",
                 otp: data.otp,
             },
-            {
+            { 
                 onSuccess: () => {
                     setSuccess(true);
                     setIsSubmitting(false);
@@ -87,58 +87,58 @@ export default function OTPInput() {
     };
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto max-w-md animate-slide-in-bottom mt-10">
-            <div className="w-full max-w-2xl p-8 relative border border-zinc-800 rounded-lg">
-                <div className="flex flex-col items-center justify-center pb-10 animate-fade-in-01-text opacity-0">
-                    <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+        <main className="flex flex-col items-center justify-center container mx-auto max-w-sm animate-slide-in-left">
+            <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 backdrop-blur-sm rounded-lg">
+                <div className="flex flex-col items-center justify-center pb-6 animate-fade-in-01-text opacity-0">
+                    <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
                         Weryfikacja kodu
                     </h1>
-                    <p className="text-zinc-500 text-md">
+                    <p className="text-zinc-500 text-sm">
                         Wprowadź 6-cyfrowy kod weryfikacyjny wysłany na adres <span className="text-zinc-200 font-medium">{email}</span>
                     </p>
                 </div>
 
-
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 relative w-full"> 
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 relative w-full"> 
                         <FormField
                             control={form.control}
                             name="otp"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col items-center">
-                                    <FormLabel className="text-zinc-400 text-md">Kod weryfikacyjny</FormLabel>
+                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">Kod weryfikacyjny</FormLabel>
                                     <FormControl>
                                         <InputOTP
                                             maxLength={6}
                                             value={field.value}
                                             onChange={field.onChange}
+                                        
                                         >
                                             <InputOTPGroup>
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-transparent border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus:border-zinc-600" 
                                                     index={0}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-transparent border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus:border-zinc-600" 
                                                     index={1}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-transparent border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus:border-zinc-600" 
                                                     index={2}
                                                 />
                                             </InputOTPGroup>
                                             <InputOTPSeparator className="text-zinc-400"/>
                                             <InputOTPGroup>
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-transparent border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus:border-zinc-600" 
                                                     index={3}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-transparent border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus:border-zinc-600" 
                                                     index={4}
                                                 />
                                                 <InputOTPSlot 
-                                                    className="bg-zinc-950/20 border-b border-t border-zinc-800 backdrop-blur-sm text-zinc-200" 
+                                                    className="bg-transparent border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus:border-zinc-600" 
                                                     index={5}
                                                 />
                                             </InputOTPGroup>
@@ -151,8 +151,9 @@ export default function OTPInput() {
 
                         <Button
                             type="submit"
-                            className="w-full bg-zinc-900/20 border border-zinc-900 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+                            className="w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300"
                             disabled={isSubmitting || isRouting}
+                            size="sm"
                         >
                             {isSubmitting || isRouting ? (
                                 <span className="flex items-center justify-center">
@@ -183,7 +184,7 @@ export default function OTPInput() {
                 </Form>
 
                 <div className="mt-6">
-                    <Alert className="bg-zinc-900/20 border-zinc-800 border text-zinc-400">
+                    <Alert className="bg-zinc-900/20 border-dashed border-zinc-800 text-zinc-400">
                         <Terminal className="h-4 w-4" />
                         <AlertTitle className="text-sm">Nie otrzymałeś kodu?</AlertTitle>
                         <AlertDescription className="text-sm">

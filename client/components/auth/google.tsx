@@ -26,7 +26,8 @@ export default function Google() {
         <Button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+            size="sm"
+            className=" bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left text-sm tracking-tight w-full"
         >
             {isLoading ? (
                 <span className="flex items-center justify-center">

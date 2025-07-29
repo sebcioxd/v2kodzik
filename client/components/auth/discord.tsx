@@ -27,15 +27,16 @@ export default function Discord() {
         <Button
             onClick={handleDiscordSignIn}
             disabled={isLoading}
-            className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+            size="sm"
+            className=" bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left text-sm tracking-tight w-full"
         >
             {isLoading ? (
-                <span className="flex items-center justify-center">
+                <span className="flex items-center justify-center text-sm">
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Logowanie...
                 </span>
             ) : (
-                <span className="flex items-center justify-center">
+                <span className="flex items-center justify-center text-sm">
                     <svg
                         className="mr-2 h-4 w-4"
                         xmlns="http://www.w3.org/2000/svg"

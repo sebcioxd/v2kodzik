@@ -106,18 +106,18 @@ export default function SignIn() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center container mx-auto max-w-md animate-slide-in-right">
-      <div className="w-full max-w-2xl p-8 relative border  border-zinc-800 rounded-lg">
-        <div className="flex flex-col items-center justify-center pb-10 animate-fade-in-01-text opacity-0">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+    <main className="flex flex-col items-center justify-center container mx-auto max-w-[26rem] animate-slide-in-left">
+      <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 backdrop-blur-sm rounded-lg">
+        <div className="flex flex-col items-center justify-center pb-6 animate-fade-in-01-text opacity-0">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
             Zaloguj się
           </h1>
-          <p className="text-zinc-500 text-md">
+          <p className="text-zinc-500 text-sm">
             Witaj z powrotem! Proszę wprowadzić swoje dane
           </p>
         </div>
 
-        <div className="space-y-4 mb-6 animate-slide-in-left">
+        <div className="space-y-4 mb-6 animate-slide-in-left flex flex-col items-center justify-center">
           <Google />
           <Discord />
         </div>
@@ -134,21 +134,27 @@ export default function SignIn() {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-6 relative w-full"
+            className="space-y-4 relative w-full"
           >
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-zinc-400 ">Adres email</FormLabel>
+                  <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
+                    Adres email
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
-                      placeholder="twój.email@przykład.com"
-                    />
+                    <div className="w-full">
+                      <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                        <Input
+                          {...field}
+                          type="email"
+                          className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                          placeholder="twój.email@przykład.com"
+                        />
+                      </div>
+                    </div>
                   </FormControl>
                   <FormMessage className="text-red-400 animate-fade-in-01-text" />
                 </FormItem>
@@ -160,32 +166,36 @@ export default function SignIn() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-zinc-400">Hasło</FormLabel>
+                  <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">
+                    Hasło
+                  </FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        type={showPassword ? "text" : "password"}
-                        className="bg-zinc-950/20 border-zinc-800 backdrop-blur-sm text-zinc-200 placeholder:text-zinc-500"
-                        placeholder="Wprowadź swoje hasło"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-400"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
+                    <div className="w-full">
+                      <div className="flex items-center w-full backdrop-blur-sm border border-dashed border-zinc-800 rounded-sm overflow-hidden group transition-all duration-300 hover:bg-zinc-800/50">
+                        <Input
+                          {...field}
+                          type={showPassword ? "text" : "password"}
+                          className="flex-1 border-0 bg-transparent text-zinc-200 text-sm placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
+                          placeholder="Wprowadź swoje hasło"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="px-3 text-zinc-500 hover:text-zinc-400 transition-colors"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </FormControl>
                   <FormMessage className="text-red-400 animate-fade-in-01-text" />
                   <Link
                     href="/auth/forget"
-                    className="text-zinc-500 hover:text-zinc-400"
+                    className="text-zinc-500 hover:text-zinc-400 text-sm"
                   >
                     Zapomniałeś hasła?
                   </Link>
@@ -206,10 +216,10 @@ export default function SignIn() {
                     />
                   </FormControl>
                   <div className="flex flex-col ml-2">
-                    <FormLabel className="text-zinc-400 font-normal">
+                    <FormLabel className="text-zinc-200 font-normal text-sm">
                       Zapamiętaj mnie
                     </FormLabel>
-                    <FormDescription className="text-zinc-500">
+                    <FormDescription className="text-zinc-500 text-sm">
                       Nie wylogujesz się po zamknięciu przeglądarki.
                     </FormDescription>
                   </div>
@@ -219,8 +229,9 @@ export default function SignIn() {
 
             <Button
               type="submit"
-              className="w-full bg-zinc-900/20 border border-zinc-900 backdrop-blur-sm hover:bg-zinc-800 text-zinc-400 animate-slide-in-left"
+              className="w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300"
               disabled={isSubmitting || isRouting}
+              size="sm"
             >
               {isSubmitting || isRouting ? (
                 <span className="flex items-center justify-center">
@@ -253,8 +264,6 @@ export default function SignIn() {
             )}
           </form>
         </Form>
-
-      
       </div>
     </main>
   );

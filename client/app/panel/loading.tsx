@@ -8,7 +8,7 @@ export default function Loading() {
           <Skeleton className="h-4 w-32 bg-zinc-800" />
         </div>
         <div className="border border-dashed border-zinc-800 rounded-md p-3 bg-zinc-950/10">
-          <Skeleton className="h-8 w-full bg-zinc-800" />
+          <Skeleton className="h-4 w-full bg-zinc-800" />
         </div>
 
         <div className="flex justify-between items-center border-b border-dashed border-zinc-800 pb-2">
@@ -29,7 +29,7 @@ export default function Loading() {
                   <Skeleton className="h-3 w-16 bg-zinc-800" />
                 </div>
               </div>
-              <Skeleton className="h-8 w-8 bg-zinc-800" />
+              <Skeleton className="h-6 w-6 bg-zinc-800" />
             </div>
           </div>
         ))}

@@ -96,7 +96,7 @@ export const auth = betterAuth({
             }, 
             sendVerificationOnSignUp: true,
             expiresIn: 30 * 60,
-        }) 
+        })
     ]
     
 });

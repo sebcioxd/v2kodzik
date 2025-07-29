@@ -10,7 +10,7 @@ export default function AuthTabs() {
         <p className='text-zinc-500 text-sm animate-fade-in-01-text opacity-0'>
           Kliknij na kartę aby się zalogować lub zarejestrować.
         </p>
-        <TabsList className='w-full max-w-md space-x-2 bg-transparent border-dashed border-zinc-800 relative animate-slide-in-left'>
+        <TabsList className='w-full max-w-[26rem] space-x-2 bg-transparent border-dashed border-zinc-800 relative animate-slide-in-left'>
             <TabsTrigger 
                 value="sign-in" 
                 className='w-full bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm p-3 text-zinc-400 
