@@ -43,203 +43,18 @@ import { Input } from "@/components/ui/input";
 import { Turnstile } from "@/components/turnstile";
 import { useInfo } from "@/app/hooks/use-fetch";
 import { 
-  Upload, X, ShieldPlus, Loader2, Rss, Lock, 
-  Megaphone, EyeOff, Clock, Link as LinkIcon, XCircle,
-  AlertTriangle, CheckCircle2, FileText
+  Upload, X, ShieldPlus, Rss, Lock, 
+  Megaphone, EyeOff, Clock, Link as LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-
 import { useUpload } from "./hooks/useUpload";
 import { useFileValidation } from "./hooks/useFileValidation";
 import { useSafariDetection } from "./hooks/useSafariDetection";
 import { uploadFormSchema, UploadFormData } from "./upload.types";
 import { formatBytes, getMaxSizeText } from "./upload.utils";
 import { Progress } from "@/components/ui/progress";
-
-const UploadProgressView = memo(({ 
-  files, 
-  progressPercentage, 
-  totalSize, 
-  cancelUpload,
-  isCancelling,
-  isRouting 
-}: { 
-  files: File[], 
-  progressPercentage: number, 
-  totalSize: number,
-  cancelUpload: () => void,
-  isCancelling?: boolean,
-  isRouting?: boolean
-}) => {
-  return (
-    <div className="inset-0 backdrop-blur-sm container mx-auto w-full md:max-w-md max-w-sm flex flex-col items-center justify-center space-y-8 p-6 z-50 transition-opacity duration-300 animate-fade-in-01-text">
-      <div className="text-center space-y-4 animate-fade-in-01-text">
-        <div className="flex items-center justify-center">
-          <div className={`w-15 h-15 border border-dashed rounded-full backdrop-blur-sm flex items-center justify-center transition-colors duration-300 ${
-            isRouting 
-              ? 'border-emerald-600 bg-emerald-950/30'
-              : isCancelling 
-                ? 'border-amber-600 bg-amber-950/30' 
-                : 'border-zinc-800 bg-zinc-950/30'
-          }`}>
-            {isRouting ? (
-              <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" />
-            ) : isCancelling ? (
-              <XCircle className="w-6 h-6 text-amber-400" />
-            ) : (
-              <Loader2 className="w-6 h-6 text-zinc-300 animate-spin" />
-            )}
-          </div>
-      </div>
-        
-        <div className="space-y-2">
-          <h2 className={`text-xl font-medium tracking-tight transition-colors duration-300 ${
-            isRouting ? 'text-emerald-300' :
-            isCancelling ? 'text-amber-300' : 'text-zinc-200'
-          }`}>
-            {isRouting ? 'Przekierowywanie...' :
-             isCancelling ? 'Anulowanie przesyłania...' :
-             progressPercentage === 0 ? 'Przygotowywanie plików...' : 
-             progressPercentage === 100 ? 'Przetwarzanie...' : 
-             'Wysyłanie plików'}
-          </h2>
-          <p className={`text-sm transition-colors duration-300 animate-fade-in-01-text ${
-            isRouting ? 'text-emerald-400/80' :
-            isCancelling ? 'text-amber-400/80' : 'text-zinc-400'
-          }`}>
-            {isRouting ? 'Zaraz zostaniesz przekierowany do strony z linkiem' :
-             isCancelling ? 'Przerywanie procesu i czyszczenie danych...' :
-             progressPercentage === 0 ? `Przygotowywanie ${files.length} ${files.length === 1 ? 'pliku' : 'plików'} do wysłania` :
-             progressPercentage === 100 ? 'Finalizowanie przesyłania, proszę czekać...' :
-             `Wysyłanie... • ${files.length} ${files.length === 1 ? 'plik' : 'plików'}`}
-          </p>
-        </div>
-      </div>
-
-      {/* Progress bar - update colors for routing state */}
-      <div className="w-full max-w-sm space-y-4 tracking-tight animate-fade-in-01-text">
-        <Progress 
-          value={progressPercentage} 
-          className={`h-2 transition-colors duration-300 ${
-            isRouting 
-              ? 'bg-emerald-950/30 [&>[data-slot=progress-indicator]]:bg-emerald-500'
-              : isCancelling 
-                ? 'bg-amber-950/30 [&>[data-slot=progress-indicator]]:bg-amber-500' 
-                : 'bg-zinc-800/30 [&>[data-slot=progress-indicator]]:bg-zinc-400'
-          }`}
-        />
-        <div className="flex justify-between items-center text-sm text-zinc-400 animate-fade-in-01-text transition-colors duration-300">
-          {progressPercentage > 0 ? (
-            <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">
-              {formatBytes(Math.round((progressPercentage / 100) * totalSize))} / {formatBytes(totalSize)}
-            </span>
-          ) : (
-            <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">
-              Przygotowywanie...
-            </span>
-          )}
-          <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">
-            {isRouting ? 'Gotowe!' : isCancelling ? 'Anulowanie...' : `${progressPercentage}%`}
-          </span>
-        </div>
-      </div>
-
-      {/* File List */}
-      <div className="w-full max-w-sm space-y-3">
-        <div className={`border border-dashed rounded-lg backdrop-blur-sm p-3 transition-colors duration-300 ${
-          isCancelling 
-            ? 'border-amber-800 bg-amber-950/10' 
-            : 'border-zinc-800 bg-zinc-950/20'
-        }`}>
-          <div className="flex items-center gap-2 mb-3 pb-2 border-b border-dashed border-zinc-800">
-            <FileText className="w-4 h-4 text-zinc-400" />
-            <span className="text-sm font-medium tracking-tight text-zinc-300">
-              {isCancelling ? 'Anulowane pliki:' : 'Wysyłane pliki:'}
-            </span>
-          </div>
-          
-          <div className="space-y-2 max-h-32 overflow-y-auto">
-            {files.map((file, index) => (
-              <div key={index} className={`flex items-center justify-between py-1 px-2 rounded border border-dashed transition-colors duration-300 ${
-                isCancelling 
-                  ? 'bg-amber-800/10 border-amber-800/30' 
-                  : 'bg-zinc-800/20 border-zinc-800/50'
-              }`}>
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-300 ${
-                    isCancelling 
-                      ? 'bg-amber-500' 
-                      : 'bg-zinc-400 animate-pulse'
-                  }`} />
-                  <span className="text-xs text-zinc-300 truncate">{file.name}</span>
-                </div>
-                <span className="text-xs text-zinc-500 flex-shrink-0 ml-2">
-                  {formatBytes(file.size)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Warning/Status Message */}
-      <div className="w-full max-w-sm">
-        {isCancelling ? (
-          <div className="flex items-start gap-3 p-4 border border-dashed border-amber-800/50 bg-amber-950/10 backdrop-blur-sm rounded-lg">
-            <Loader2 className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5 animate-spin" />
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-amber-200 tracking-tight">Anulowanie w toku</p>
-              <p className="text-xs text-amber-300/80 tracking-tight">
-                Przerywamy przesyłanie i czyścimy dane. To może potrwać chwilę...
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-start gap-3 p-4 border border-dashed border-amber-800/50 bg-amber-950/10 backdrop-blur-sm rounded-lg">
-            <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-amber-200 tracking-tight">Nie zamykaj tej strony!</p>
-              <p className="text-sm text-amber-300/80 tracking-tight">
-                Zamknięcie karty lub przeglądarki przerwie wysyłanie plików. 
-                Proces może potrwać kilka minut w zależności od rozmiaru plików.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Cancel Button - hide during routing */}
-      {!isRouting && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={cancelUpload}
-          disabled={isCancelling}
-          className={`transition-all duration-200 flex items-center gap-2 border border-dashed backdrop-blur-sm ${
-            isCancelling
-              ? 'text-amber-300 border-amber-800 bg-amber-950/20 cursor-not-allowed opacity-50'
-              : 'text-zinc-400 hover:text-red-400 hover:bg-zinc-800/50 border-zinc-800 bg-zinc-950/20 '
-          }`}
-        >
-          {isCancelling ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Anulowanie...
-            </>
-          ) : (
-            <>
-              <XCircle className="h-4 w-4" />
-              Anuluj wysyłanie
-            </>
-          )}
-        </Button>
-      )}
-    </div>
-  );
-});
-UploadProgressView.displayName = 'UploadProgressView';
+import { UploadProgressView } from "./ProgressComponent";
 
 export function UploadPage() {
   const { data: session } = useSession();
@@ -338,7 +153,6 @@ export function UploadPage() {
     const files = uploadingFiles.length > 0 ? uploadingFiles : form.getValues("files") || [];
     return (
       <>
-       
         <UploadProgressView 
           files={files}
           progressPercentage={progressPercentage}

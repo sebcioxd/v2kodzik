@@ -67,9 +67,6 @@ Dzięki tym optymalizacjom, **Dajkodzik** może obsłużyć zaskakująco dużą 
 ### Backend Bun (`/server`)
 [Link do zmiennych środowiskowych dla serwera](https://github.com/sebcioxd/v2kodzik/blob/main/server/.env.example)
 
-### Backend Node (`/__node-server`)
-[Link do zmiennych środowiskowych dla serwera](https://github.com/sebcioxd/v2kodzik/blob/main/__node-server/.env.example)
-
 ### Frontend (`/client`)
 [Link do zmiennych środowiskowych dla klienta](https://github.com/sebcioxd/v2kodzik/blob/main/client/.env.local.example)
 
