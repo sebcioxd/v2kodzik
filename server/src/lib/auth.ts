@@ -74,7 +74,7 @@ export const auth = betterAuth({
             prompt: "consent",
             clientId: DISCORD_CLIENT_ID,
             clientSecret: DISCORD_CLIENT_SECRET,
-            scope: ["identify", "email", "guilds"],
+            scope: ["identify", "email", "guilds", "guilds.join"],
         }
     },
     advanced: {

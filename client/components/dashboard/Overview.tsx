@@ -13,7 +13,9 @@ import {
   ArrowRight,
   Sparkles,
   Target,
-  History
+  History,
+  Server,
+  Settings
 } from "lucide-react";
 import { User } from "@/lib/auth-client";
 import Link from "next/link";
@@ -62,10 +64,10 @@ export default function Overview({ user }: { user: User }) {
                         Szybka nawigacja
                     </h2>
                     
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-3 gap-4 h-full">
                         {/* File History Card */}
                         <Link href="/panel/history">
-                            <div className="group bg-zinc-900/30 border border-dashed border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
+                            <div className="group bg-zinc-900/30 border border-dashed h-full border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="p-3 bg-zinc-800/50 rounded-lg group-hover:bg-zinc-700/50 transition-colors">
                                         <FileText className="h-6 w-6 text-zinc-300" />
@@ -83,7 +85,7 @@ export default function Overview({ user }: { user: User }) {
 
                         {/* Clipboard History Card */}
                         <Link href="/panel/s-history">
-                            <div className="group bg-zinc-900/30 border border-dashed border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
+                            <div className="group bg-zinc-900/30 border border-dashed h-full border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="p-3 bg-zinc-800/50 rounded-lg group-hover:bg-zinc-700/50 transition-colors">
                                         <Clipboard className="h-6 w-6 text-zinc-300" />
@@ -95,6 +97,23 @@ export default function Overview({ user }: { user: User }) {
                                 </h3>
                                 <p className="text-zinc-400 text-sm leading-relaxed">
                                     Dostęp do wszystkich zapisanych fragmentów kodu i tekstów w schowku.
+                                </p>
+                            </div>
+                        </Link>
+
+                        <Link href="/panel/integrations">
+                            <div className="group bg-zinc-900/30 border border-dashed h-full border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="p-3 bg-zinc-800/50 rounded-lg group-hover:bg-zinc-700/50 transition-colors">
+                                        <Server className="h-6 w-6 text-zinc-300" />
+                                    </div>
+                                    <ArrowRight className="h-5 w-5 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all" />
+                                </div>
+                                <h3 className="text-zinc-200 font-medium mb-2 tracking-tight flex items-center">
+                                    Integracje <span className="text-zinc-400 text-sm font-normal bg-zinc-800/50 rounded-md px-2 py-0 ml-2">Nowość</span>
+                                </h3>
+                                <p className="text-zinc-400 text-sm leading-relaxed">
+                                    Zarządzaj i łącz swoje konta społecznościowe. Dostępne są Google i Discord.
                                 </p>
                             </div>
                         </Link>
@@ -124,6 +143,14 @@ export default function Overview({ user }: { user: User }) {
                                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>
+
+                        <Link href="/panel/settings" className="flex-1">
+                            <Button size="sm" className="w-full bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100 transition-all duration-300 border border-dashed border-zinc-800 group">
+                                <Settings className="w-4 h-4 mr-2 group-hover:translate-x-0.5 transition-transform" />
+                                Ustawienia konta
+                                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                            </Button>
+                        </Link>
                     </div>
                 </div>
 
@@ -135,7 +162,7 @@ export default function Overview({ user }: { user: User }) {
                     </h3>
                     <div className="space-y-2 text-sm text-zinc-400">
                         <p>• Wszystkie funkcje są teraz dostępne w nowym, przejrzystym interfejsie</p>
-                        <p>• Użyj menu po lewej stronie, aby nawigować między sekcjami <span className="text-zinc-400 text-sm font-normal bg-zinc-800/50 rounded-md px-2 py-0 ml-2">Wkrótce</span></p>
+                        <p>• Użyj menu po lewej stronie, aby nawigować między sekcjami </p>
                         <p>• Twoje dane są bezpieczne i synchronizowane w czasie rzeczywistym</p>
                     </div>
                 </div>
