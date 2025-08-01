@@ -73,7 +73,7 @@ export default function Navbar() {
                         <Link 
                             href="/panel" 
                             className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
-                                pathname === "/panel" 
+                                pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" 
                                     ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
                                     : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
                             }`}

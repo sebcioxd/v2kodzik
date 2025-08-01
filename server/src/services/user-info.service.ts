@@ -25,3 +25,27 @@ export async function getUserHistoryCountService({ userId }: GetUserHistoryCount
 
     return uniqueCount;
 }
+
+
+export async function getUserSnippetsService({ offset, limit, userId }: GetUserHistoryServiceProps) {
+    const history = await db
+        .select()
+        .from(snippets)
+        .where(eq(snippets.userId, userId))
+        .orderBy(desc(snippets.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+    return history;
+}
+
+export async function getUserSnippetsCountService({ userId }: GetUserHistoryCountServiceProps) {
+    const distinctShares = await db
+        .selectDistinct({ id: snippets.id })
+        .from(snippets)
+        .where(eq(snippets.userId, userId));
+
+    const uniqueCount = distinctShares.length;
+
+    return uniqueCount;
+}
