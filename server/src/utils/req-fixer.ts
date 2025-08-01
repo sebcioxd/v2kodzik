@@ -5,7 +5,7 @@ import { db } from "../db/index";
 import { shares } from "../db/schema";
 import { eq } from "drizzle-orm";
 
-export const restrictedPaths = ["upload", "search", "faq", "api", "admin", "auth", "panel", "success", "schowek", "terms", "oauth-password"];
+export const restrictedPaths = ["upload", "search", "faq", "api", "admin", "auth", "panel", "success", "schowek", "terms", "oauth-password", "pricing"];
 const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 
 type ValidatedUploadRequest = z.infer<typeof uploadQuerySchema>;

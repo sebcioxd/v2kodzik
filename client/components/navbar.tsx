@@ -13,10 +13,10 @@ export default function Navbar() {
 
 
     return (
-        <nav className="flex flex-col p-2 rounded-md w-full sticky top-0 z-50  border-zinc-800 pt-2  backdrop-blur-md animate-fade-in-01-text">
+        <nav className="flex flex-col p-2 rounded-md w-full border-b border-dashed sticky top-0 z-50  border-zinc-800 pt-2  backdrop-blur-md animate-fade-in-01-text">
             <div className="flex justify-between items-center w-full mx-auto md:max-w-4xl">
                 <Link href="/" className="flex items-center gap-2 group">
-                    <h1 className="text-zinc-400 md:text-xl text-lg tracking-tight group-hover:text-zinc-200 transition-colors">dajkodzik.pl</h1>
+                    <h1 className="text-zinc-200 md:text-xl text-lg tracking-tight group-hover:text-zinc-200 transition-colors">Dajkodzik</h1>
                 </Link>
                 
                 <button 
@@ -26,43 +26,53 @@ export default function Navbar() {
                     {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
 
-                <div className="hidden md:flex items-center gap-6 tracking-tight">
+                <div className="hidden md:flex items-center gap-2 tracking-tight">
                     <Link 
                         href="/upload" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/upload" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                     >
                         Prześlij pliki
                     </Link>
                     <Link 
                         href="/search" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/search" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                     >
                         Mam kod
                     </Link>
                     <Link 
+                        href="/pricing" 
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
+                            pathname === "/pricing" 
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
+                        }`}
+                    >
+                        Cennik
+                    </Link>
+                    <Link 
                         href="/faq" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/faq" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                     >
                         FAQ
                     </Link>
                     <Link 
                         href="/schowek" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/schowek" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                     >
                         Schowek
@@ -72,10 +82,10 @@ export default function Navbar() {
                     ) : session ? (
                         <Link 
                             href="/panel" 
-                            className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
-                                pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" 
-                                    ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                    : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                            className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
+                                pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" || pathname === "/panel/settings" || pathname === "/panel/integrations"
+                                    ? "text-zinc-200" 
+                                    : "text-zinc-400"
                             }`}
                         >
                             Panel
@@ -83,10 +93,10 @@ export default function Navbar() {
                     ) : (
                         <Link 
                             href="/auth" 
-                            className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                            className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                                 pathname === "/auth" 
-                                    ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                    : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                    ? "text-zinc-200" 
+                                    : "text-zinc-400"
                             }`}
                         >
                             Zaloguj
@@ -99,10 +109,10 @@ export default function Navbar() {
                 <div className="md:hidden flex flex-col gap-4 mt-4 border-t border-zinc-800 pt-4 animate-fade-in-01-text">
                     <Link 
                         href="/upload" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/upload" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                     >
@@ -110,20 +120,20 @@ export default function Navbar() {
                     </Link>
                     <Link 
                         href="/schowek" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/schowek" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                     >
                         Schowek
                     </Link>
                     <Link 
                         href="/search" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/search" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                     >
@@ -131,10 +141,10 @@ export default function Navbar() {
                     </Link>
                     <Link 
                         href="/faq" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/faq" 
-                                ? "text-zinc-200 after:absolute after:bottom-[-4px] after:left-0 after:w-full after:h-[1px] after:bg-zinc-400 after:rounded-full after:animate-fade-in-01-text" 
-                                : "text-zinc-400 hover:after:absolute hover:after:bottom-[-4px] hover:after:left-0 hover:after:w-full hover:after:h-[1px] hover:after:bg-zinc-600 hover:after:rounded-full"
+                                ? "text-zinc-200" 
+                                : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                     >
@@ -145,8 +155,10 @@ export default function Navbar() {
                     ) : session ? (
                         <Link 
                             href="/panel" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 relative ${
-                            pathname === "/panel" ? "text-zinc-200" : "text-zinc-400"
+                            className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
+                                pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" || pathname === "/panel/settings" || pathname === "/panel/integrations"
+                                    ? "text-zinc-200" 
+                                    : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
                     >
