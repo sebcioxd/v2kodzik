@@ -101,14 +101,6 @@ export class MonthlyUsageService {
         }).where(eq(monthlyLimits.userId, referenceId));
     }
 
-    async decreaseMonthlyLimits({ referenceId, megabytesToSubtract }: { referenceId: string, megabytesToSubtract: number }) {
-        // const limits = await db.select().from(monthlyLimits).where(eq(monthlyLimits.userId, referenceId));
-
-        await db.update(monthlyLimits).set({
-            megabytesLimit: megabytesToSubtract,
-        }).where(eq(monthlyLimits.userId, referenceId));
-    }
-
     async resetMonthlyLimits({ referenceId }: { referenceId: string }) {
         await db.update(monthlyLimits).set({
             megabytesLimit: 1000,

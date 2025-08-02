@@ -190,9 +190,10 @@ export default function Subscriptions({ user }: SubscriptionsProps) {
     try {
       await authClient.subscription.upgrade({
         plan: planName,
+        annual: false,
         successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
         cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
-        subscriptionId: activeSubscription?.id, // Include if upgrading existing subscription
+        subscriptionId: activeSubscription?.id,
       });
     } catch (error) {
       console.error('Error upgrading subscription:', error);

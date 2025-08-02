@@ -185,53 +185,17 @@ export const auth = betterAuth({
                     const monthlyService = new MonthlyUsageService();
 
                     if (stripeSubscription.status === 'canceled' || stripeSubscription.cancel_at_period_end) {
-                        if (stripeSubscription.status === 'canceled') {
-                            switch (stripeSubscription.items.data[0].plan.id) {
-                                case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
-                                    await monthlyService.decreaseMonthlyLimits({
-                                        referenceId: subscription.referenceId,
-                                        megabytesToSubtract: 10000, // 10GB
-                                    })
-                                    break;
-                                case "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus
-                                    await monthlyService.decreaseMonthlyLimits({
-                                        referenceId: subscription.referenceId,
-                                        megabytesToSubtract: 50000, // 50GB
-                                    })
-                                    break;
-                                case "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
-                                    await monthlyService.decreaseMonthlyLimits({
-                                        referenceId: subscription.referenceId,
-                                        megabytesToSubtract: 150000, // 150GB
-                                    })
-                                    break;
-                            }
-                        }
+                        await monthlyService.resetMonthlyLimits({
+                            referenceId: subscription.referenceId,
+                        })
                     }
                 },
                 onSubscriptionDeleted: async ({  subscription, stripeSubscription }) => {
                     const monthlyService = new MonthlyUsageService();
 
-                    switch (stripeSubscription.items.data[0].plan.id) {
-                        case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
-                            await monthlyService.decreaseMonthlyLimits({
-                                referenceId: subscription.referenceId,
-                                megabytesToSubtract: 10000, // 10GB
-                            })
-                            break;
-                        case "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus
-                            await monthlyService.decreaseMonthlyLimits({
-                                referenceId: subscription.referenceId,
-                                megabytesToSubtract: 50000, // 50GB
-                            })
-                            break;
-                        case "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
-                            await monthlyService.decreaseMonthlyLimits({
-                                referenceId: subscription.referenceId,
-                                megabytesToSubtract: 150000, // 150GB
-                            })
-                            break;
-                    }
+                    await monthlyService.resetMonthlyLimits({
+                        referenceId: subscription.referenceId,
+                    })
                 },
                 onSubscriptionUpdate: async ({ subscription }) => {
                     const monthlyService = new MonthlyUsageService();
