@@ -12,6 +12,7 @@ import cronRoute from "./cron.route";
 import updateRoute from "./update.route";
 import snippetRoute from "./snippets.route";
 import oauthRoute from "./oauth.route";
+import limitsRoute from "./limits.route";
 
 const routes = new Hono()
 
@@ -27,5 +28,6 @@ routes.route("/cron", cronRoute)
 routes.route("/update", updateRoute)
 routes.route("/snippet", snippetRoute)
 routes.route("/oauth", oauthRoute)
+routes.route("/limits", limitsRoute)
 
 export default routes

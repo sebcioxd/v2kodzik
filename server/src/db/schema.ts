@@ -79,6 +79,18 @@ export const cancelSignatures = pgTable('cancel_signatures', {
   index('idx_cancel_signatures_signature').on(t.signature),
 ]);
 
+export const monthlyLimits = pgTable('monthly_limits', {
+  id: uuid('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+  megabytesUsed: integer('megabytes_used').notNull().default(0),
+  megabytesLimit: integer('megabytes_limit').notNull().default(1000),
+  resetAt: timestamp('reset_at').notNull().default(sql`NOW() + INTERVAL '1 month'`),
+}, (t) => [
+  index('idx_monthly_limits_user_id')
+    .on(t.userId),
+  index('idx_monthly_limits_reset_at')
+    .on(t.resetAt),
+]);
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),

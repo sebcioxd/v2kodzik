@@ -28,6 +28,7 @@ export const finalizeSchema = z.object({
 
 export const uploadBodySchema = z.object({
     token: z.string().min(1, "Turnstile token jest wymagany"),
+    fileSizes: z.array(z.number()).optional()
 });
 
 export const cancelBodySchema = z.object({

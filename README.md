@@ -159,9 +159,9 @@ npm run dev
 
 Jeśli macie możliwość i chcecie mieć szybkie crony bazy danych bez obciążania S3, możecie zainstalować rozszerzenie pg-cron do bazy PostgreSQL.
 
-[Obraz Postgresa z SSL oraz rozszerzeniem pg-cron](https://github.com/sebcioxd/v2kodzik/blob/main/pg_image)
+[Obraz Postgresa z SSL oraz rozszerzeniem pg-cron](https://github.com/sebcioxd/v2kodzik/blob/main/image)
 
-[Funkcje cronowe kompatybilne z schematem bazy danych, gotowe do uruchomienia po instalacji bazy danych](https://github.com/sebcioxd/v2kodzik/blob/main/server/src/lib/cron.ts)
+[Funkcje cronowe kompatybilne z schematem bazy danych, gotowe do uruchomienia po instalacji bazy danych](https://github.com/sebcioxd/v2kodzik/blob/main/server/src/lib/pg-cron.ts)
 
 Endpoint API do uruchomienia czyszczenia:
 

@@ -48,6 +48,15 @@ const setupCronJob = async () => {
         `;
         console.log('🟢 Cancel signature cleanup cron pomyślnie ustawiony', cancelSignatureSchedule);
 
+        const monthlyLimitsCleanup = await sql`
+            SELECT cron.schedule(
+                'monthly_limits_cleanup',                    
+                '0 0 1 * *',                      
+                'UPDATE monthly_limits SET megabytes_used = 0, reset_at = NOW() + INTERVAL ''1 month'' WHERE reset_at < NOW();'  
+            );
+        `;
+        console.log('🟢 Monthly limits cleanup cron pomyślnie ustawiony', monthlyLimitsCleanup);
+
     } catch (error) {
             console.error('🔴 Wystąpił błąd podczas ustawiania cron jobów:', error);
         }

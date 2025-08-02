@@ -7,12 +7,15 @@ import { sql, eq } from "drizzle-orm";
 import { getS3Client } from "../lib/s3";
 import { verifyCaptcha } from "../lib/captcha";
 import { S3Client } from "bun";
+import { MonthlyUsageService } from "./monthly-limits.service";
 
 export class UploadService {
     private client: S3Client;
+    private monthlyService: MonthlyUsageService;
     
     constructor(bucket: string) {
         this.client = getS3Client({ bucket });
+        this.monthlyService = new MonthlyUsageService();
     }
 
     private generatePresignedUrl(key: string, contentType: string) {
@@ -53,7 +56,7 @@ export class UploadService {
 
     public async uploadFiles({ c, user, queryData, bodyData }: S3UploadServiceProps) {
         try {
-            const { token } = bodyData;
+            const { token, fileSizes } = bodyData; // Add fileSizes to bodyData
 
             try {
                 await verifyCaptcha({ c, token });
@@ -70,6 +73,24 @@ export class UploadService {
             }
 
             const req = result;
+
+            if (user && fileSizes) {
+                const totalSizeInMB = fileSizes.reduce((acc, size) => acc + (size / (1024 * 1024)), 0);
+                
+                const limitCheck = await this.monthlyService.updateMonthlyLimits({ 
+                    c, 
+                    user, 
+                    megabytesUsed: totalSizeInMB 
+                });
+
+                if (limitCheck.status === 400) {
+                    return c.json({
+                        message: "Limit miesięczny został przekroczony",
+                        success: false,
+                        hasReachedLimit: true,
+                    }, 400);
+                }
+            }
 
             const presignedData = await Promise.all(req.fileNames.map(async (fileName, index) => {
                 const uploadService = this.generatePresignedUrl(
@@ -91,7 +112,7 @@ export class UploadService {
                 time: parseFloat(req.time),
                 finalize_signature: signature,
                 cancel_signature: cancelSignature
-            }); 6
+            });
 
         } catch (error) {
             return c.json({
@@ -164,24 +185,22 @@ export class UploadService {
                 message: "Nieprawidłowy podpis",
             }, 400);
         }
- 
 
         await db.delete(signatures).where(eq(signatures.signature, signature));
-            
-      
 
         let expirationInterval: string;
-            switch (time) {
-                case 24:
-                    expirationInterval = "24 hours";
-                    break;
-                case 168:
-                    expirationInterval = "7 days";
-                    break;
-                default:
-                    expirationInterval = "30 minutes";
-                    break;
-            }
+        switch (time) {
+            case 24:
+                expirationInterval = "24 hours";
+                break;
+            case 168:
+                expirationInterval = "7 days";
+                break;
+            default:
+                expirationInterval = "30 minutes";
+                break;
+        }
+
         try {
             const result = await db.transaction(async (tx) => {
                 const shareResult = await tx.insert(shares).values({

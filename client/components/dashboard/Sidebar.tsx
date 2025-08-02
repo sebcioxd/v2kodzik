@@ -11,7 +11,8 @@ import {
   Clipboard,
   Server,
   Settings,
-} from "lucide-react";
+  HardDrive,
+  } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useTransition, useState } from "react";
@@ -122,6 +123,21 @@ export default function DashboardSidebar() {
             <span className="tracking-tight">Ustaw hasło</span>
           </Link>
         )}
+      </div>
+
+      <div className="py-4 pr-4 mt-auto border-t border-dashed border-zinc-800 space-y-2">
+      <Link
+          href="/panel/limits"
+          className={cn(
+            "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+            "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+            "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+            pathname === "/panel/limits" && "bg-zinc-800 text-zinc-200"
+          )}
+        >
+          <HardDrive className="w-4 h-4 " />
+          <span className="tracking-tight">Twój transfer</span>
+        </Link>
       </div>
 
        {/* Logout Section */}

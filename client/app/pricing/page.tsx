@@ -1,12 +1,16 @@
 "use client";
 
 import { Check, Star, Zap, Crown, CreditCard, Building2, Smartphone } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const plans = [
   {
     name: "Plan Basic",
+    planName: "basic",
     price: "11,99 zł / miesiąc",
     features: [
       "10 GB transferu miesięcznie",
@@ -14,9 +18,11 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Star,
+    image: "/kodzik-basic-no-bg.png",
   },
   {
     name: "Plan Plus",
+    planName: "plus",
     price: "24,99 zł / miesiąc",
     features: [
       "50 GB transferu miesięcznie",
@@ -24,9 +30,11 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Zap,
+    image: "/kodizik-plus-no-bg.png",
   },
   {
     name: "Plan Pro",
+    planName: "pro",
     price: "49,99 zł / miesiąc",
     features: [
       "150 GB transferu miesięcznie",
@@ -34,6 +42,7 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Crown,
+    image: "/kodzik-pro-no-bg.png",
   },
 ];
 
@@ -55,7 +64,26 @@ const paymentMethods = [
   },
 ];
 
+
 export default function PricingPage() {
+
+  const { data: session } = authClient.useSession();
+
+  const router = useRouter();
+
+
+  const handleSelectPlan = async (planName: string) => {
+  
+    if (!session) {
+      toast.error("Musisz być zalogowany, aby wybrać plan.");
+      router.push("/auth");
+      return;
+    }
+  
+    toast.info(`Już wkrótce! W tej chwili nie możesz wybrać planu. ${planName}`);
+    
+  }
+  
   return (
     <main className="flex flex-col items-center w-full ">
       <div className="w-full max-w-4xl mx-auto space-y-8 px-2 py-12 animate-fade-in-01-text ">
@@ -82,6 +110,7 @@ export default function PricingPage() {
                 key={plan.name}
                 className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 flex flex-col justify-between animate-fade-in-01-text"
               >
+                
                 <div className="flex items-center gap-2 mb-2">
                   <Icon className="h-5 w-5 text-zinc-400" />
                   <span className="text-lg font-medium text-zinc-200 tracking-tight">{plan.name}</span>
@@ -95,13 +124,15 @@ export default function PricingPage() {
                     </li>
                   ))}
                 </ul>
+                <Image src={plan.image} alt={plan.name} width={80} height={80} className="my-10 self-center"/>
                 <Button
                   className="w-full bg-zinc-900 border border-dashed border-zinc-800 text-zinc-200 hover:bg-zinc-800"
                   size="sm"
-                  onClick={() => toast.error("Już wkrótce! W tej chwili nie możesz wybrać planu.")}
+                  onClick={() => handleSelectPlan(plan.planName)}
                 >
                   Wybierz plan
                 </Button>
+               
               </div>
             );
           })}
