@@ -93,33 +93,19 @@ export class MonthlyUsageService {
     });
     }
 
-    async increaseMonthlyLimits({ c, user, megabytesToAdd }: { c: Context, user: typeof User, megabytesToAdd: number }) {  
-        const limits = await db.select().from(monthlyLimits).where(eq(monthlyLimits.userId, user.id));
+    async increaseMonthlyLimits({ referenceId, megabytesToAdd }: { referenceId: string, megabytesToAdd: number }) {  
+        const limits = await db.select().from(monthlyLimits).where(eq(monthlyLimits.userId, referenceId));
 
         await db.update(monthlyLimits).set({
             megabytesLimit: limits[0].megabytesLimit + megabytesToAdd,
-        }).where(eq(monthlyLimits.userId, user.id));
-
-        return c.json({
-            message: "Limit miesięczny został zwiększony",
-            success: true,
-            oldMegabytesLimit: limits[0].megabytesLimit,
-            newMegabytesLimit: limits[0].megabytesLimit + megabytesToAdd,
-        });
+        }).where(eq(monthlyLimits.userId, referenceId));
     }
 
-    async decreaseMonthlyLimits({ c, user, megabytesToSubtract }: { c: Context, user: typeof User, megabytesToSubtract: number }) {
-        const limits = await db.select().from(monthlyLimits).where(eq(monthlyLimits.userId, user.id));
+    async decreaseMonthlyLimits({ referenceId, megabytesToSubtract }: { referenceId: string, megabytesToSubtract: number }) {
+        const limits = await db.select().from(monthlyLimits).where(eq(monthlyLimits.userId, referenceId));
 
         await db.update(monthlyLimits).set({
             megabytesLimit: limits[0].megabytesLimit - megabytesToSubtract,
-        }).where(eq(monthlyLimits.userId, user.id));
-
-        return c.json({
-            message: "Limit miesięczny został zmniejszony",
-            success: true,
-            oldMegabytesLimit: limits[0].megabytesLimit,
-            newMegabytesLimit: limits[0].megabytesLimit - megabytesToSubtract,
-        });
+        }).where(eq(monthlyLimits.userId, referenceId));
     }
 }

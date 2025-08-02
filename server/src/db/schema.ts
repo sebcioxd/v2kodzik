@@ -107,6 +107,7 @@ export const user = pgTable("user", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
   ipAddress: text('ip_address'),
+  stripeCustomerId: text("stripe_customer_id"),
   userAgent: text('user_agent'),
   oauth: boolean("oauth"),
 }, (t) => [
@@ -164,6 +165,20 @@ export const verification = pgTable("verification", {
   index("idx_verification_identifier").on(t.identifier),
 ]);
 
+export const subscription = pgTable("subscription", {
+  id: text("id").primaryKey(),
+  plan: text("plan").notNull(),
+  referenceId: text("reference_id").notNull(),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  status: text("status").default("incomplete"),
+  periodStart: timestamp("period_start"),
+  periodEnd: timestamp("period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end"),
+  seats: integer("seats"),
+});
+
+
 
   
-export const schema = { user, session, account, verification, shares, uploadedFiles, snippets };
+export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits };

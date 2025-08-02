@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 const plans = [
   {
@@ -68,20 +70,33 @@ const paymentMethods = [
 export default function PricingPage() {
 
   const { data: session } = authClient.useSession();
+  const [loadingPlans, setLoadingPlans] = useState<Record<string, boolean>>({});
 
   const router = useRouter();
 
 
   const handleSelectPlan = async (planName: string) => {
-  
+    setLoadingPlans(prev => ({ ...prev, [planName]: true }));
+    
     if (!session) {
       toast.error("Musisz być zalogowany, aby wybrać plan.");
       router.push("/auth");
+      setLoadingPlans(prev => ({ ...prev, [planName]: false }));
       return;
     }
   
-    toast.info(`Już wkrótce! W tej chwili nie możesz wybrać planu. ${planName}`);
-    
+    try {
+      await authClient.subscription.upgrade({
+        plan: planName,
+        annual: false,
+        successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
+        cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
+      });
+    } catch (error) {
+      console.error('Subscription upgrade error:', error);
+    } finally {
+      setLoadingPlans(prev => ({ ...prev, [planName]: false }));
+    }
   }
   
   return (
@@ -105,6 +120,8 @@ export default function PricingPage() {
         <div className="grid md:grid-cols-3 gap-4 animate-fade-in-01-text">
           {plans.map((plan) => {
             const Icon = plan.icon;
+            const isLoading = loadingPlans[plan.planName] || false;
+            
             return (
               <div
                 key={plan.name}
@@ -129,8 +146,9 @@ export default function PricingPage() {
                   className="w-full bg-zinc-900 border border-dashed border-zinc-800 text-zinc-200 hover:bg-zinc-800"
                   size="sm"
                   onClick={() => handleSelectPlan(plan.planName)}
+                  disabled={isLoading}
                 >
-                  Wybierz plan
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Wybierz plan"}
                 </Button>
                
               </div>

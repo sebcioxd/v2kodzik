@@ -1,6 +1,7 @@
 import { createAuthClient } from "better-auth/react"
 import { emailOTPClient } from "better-auth/client/plugins"
 import { inferAdditionalFields } from "better-auth/client/plugins";
+import { stripeClient } from "@better-auth/stripe/client"
 
 export const authClient = createAuthClient({
     baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
@@ -19,6 +20,9 @@ export const authClient = createAuthClient({
                 type: "boolean",
             }
         }
+    }),
+    stripeClient({
+        subscription: true
     })],
 })
 

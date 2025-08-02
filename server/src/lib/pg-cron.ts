@@ -51,7 +51,7 @@ const setupCronJob = async () => {
         const monthlyLimitsCleanup = await sql`
             SELECT cron.schedule(
                 'monthly_limits_cleanup',                    
-                '0 0 1 * *',                      
+                '*/5 * * * *',                      
                 'UPDATE monthly_limits SET megabytes_used = 0, reset_at = NOW() + INTERVAL ''1 month'' WHERE reset_at < NOW();'  
             );
         `;
