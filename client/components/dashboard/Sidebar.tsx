@@ -12,6 +12,7 @@ import {
   Server,
   Settings,
   HardDrive,
+  CreditCard,
   } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -138,7 +139,22 @@ export default function DashboardSidebar() {
           <HardDrive className="w-4 h-4 " />
           <span className="tracking-tight">Twój transfer</span>
         </Link>
+        <Link
+          href="/panel/subscription"
+          className={cn(
+            "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+            "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+            "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+            pathname === "/panel/subscription" && "bg-zinc-800 text-zinc-200"
+          )}
+        >
+          <CreditCard className="w-4 h-4 " />
+          <span className="tracking-tight">Subskrypcje</span>
+        </Link>
       </div>
+
+      
+      
 
        {/* Logout Section */}
       <div className="py-4 pr-4 mt-auto border-t border-dashed border-zinc-800 space-y-2">

@@ -159,7 +159,6 @@ export const auth = betterAuth({
                 onSubscriptionComplete: async ({ subscription, plan }) => {
                     const monthlyService = new MonthlyUsageService();
                     
-
                     switch (plan.priceId) {
                         case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
                             await monthlyService.increaseMonthlyLimits({
@@ -233,6 +232,40 @@ export const auth = betterAuth({
                             })
                             break;
                     }
+                },
+                onSubscriptionUpdate: async ({ subscription }) => {
+                    const monthlyService = new MonthlyUsageService();
+
+                    switch (subscription.priceId) {
+                        case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
+                            await monthlyService.resetMonthlyLimits({
+                                referenceId: subscription.referenceId,
+                            })
+                            await monthlyService.increaseMonthlyLimits({
+                                referenceId: subscription.referenceId,
+                                megabytesToAdd: 10000, // 10GB
+                            })
+                            break;
+                        case "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus  
+                            await monthlyService.resetMonthlyLimits({
+                                referenceId: subscription.referenceId,
+                            })
+                            await monthlyService.increaseMonthlyLimits({
+                                referenceId: subscription.referenceId,
+                                megabytesToAdd: 50000, // 50GB
+                            })
+                            break;
+                        case "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
+                            await monthlyService.resetMonthlyLimits({
+                                referenceId: subscription.referenceId,
+                            })
+                            await monthlyService.increaseMonthlyLimits({
+                                referenceId: subscription.referenceId,
+                                megabytesToAdd: 150000, // 150GB
+                            })
+                            break;
+                    }
+                    
                 },
             }
         })
