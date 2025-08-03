@@ -24,7 +24,7 @@ async function getUserEmailByReferenceId(referenceId: string): Promise<string | 
     }
 }
 
-const stripeClient = new Stripe(SANDBOX_STRIPE_SECRET_KEY, {
+const stripeClient = new Stripe(ENVIRONMENT === "production" ? STRIPE_SECRET_KEY : SANDBOX_STRIPE_SECRET_KEY, {
     apiVersion: "2025-07-30.basil",
 })
 
@@ -152,26 +152,26 @@ export const auth = betterAuth({
         }),
         stripe({
             stripeClient,
-            stripeWebhookSecret: SANDBOX_STRIPE_AUTH_WEBHOOK_SECRET,
+            stripeWebhookSecret: ENVIRONMENT === "production" ? STRIPE_AUTH_WEBHOOK_SECRET : SANDBOX_STRIPE_AUTH_WEBHOOK_SECRET,
             createCustomerOnSignUp: true,
             subscription: {
                 enabled: true,
                 plans: [
                     {
                         name: "basic",
-                        priceId: "price_1RrhMe1d5ff1ueqRvBxqfePA", 
-                        // sandbox: price_1RrhMe1d5ff1ueqRvBxqfePA
+                        priceId: ENVIRONMENT === "production" ? "price_1RrpUM12nSzGEbfJ2YnfVFtE" : "price_1RrhMe1d5ff1ueqRvBxqfePA",  
+                        // sandbox: price_1RrhMe1d5ff1ueqRvBxqfePA 
                         // prod: price_1RrpUM12nSzGEbfJ2YnfVFtE
                     },
                     {
                         name: "plus",
-                        priceId: "price_1RrhZW1d5ff1ueqRU3Ib2EXy", 
+                        priceId: ENVIRONMENT === "production" ? "price_1RrpaS12nSzGEbfJhRq73THv" : "price_1RrhZW1d5ff1ueqRU3Ib2EXy", 
                         // sandbox: price_1RrhZW1d5ff1ueqRU3Ib2EXy
                         // prod: price_1RrpaS12nSzGEbfJhRq73THv
                     },
                     {
                         name: "pro",
-                        priceId: "price_1Rrha51d5ff1ueqRl8pBbUYM", 
+                        priceId: ENVIRONMENT === "production" ? "price_1Rrpbc12nSzGEbfJco6U50U7" : "price_1Rrha51d5ff1ueqRl8pBbUYM", 
                         // sandbox: price_1Rrha51d5ff1ueqRl8pBbUYM
                         // prod: price_1Rrpbc12nSzGEbfJco6U50U7
                     },
@@ -185,11 +185,16 @@ export const auth = betterAuth({
                     if (userEmail) {
                         const subscriptionItem = stripeSubscription.items?.data[0];
                         const price = subscriptionItem?.price;
+              
                         
+                        // Get the amount in PLN (convert from cents)
                         const amountInCents = price?.unit_amount || 0;
                         const amountInPLN = (amountInCents / 100).toFixed(2);
-                        const taxAmount = (amountInCents * 0.23).toFixed(2);
-                        const totalAmount = (amountInCents * 1.23).toFixed(2);
+                        
+                        // Calculate tax correctly (23% VAT in Poland)
+                        const amountInPLNNumber = parseFloat(amountInPLN);
+                        const taxAmount = (amountInPLNNumber * 0.23).toFixed(2);
+                        const totalAmount = (amountInPLNNumber * 1.23).toFixed(2);
 
                         const orderDetails = {
                             planName: plan.name || "Nieznany",
