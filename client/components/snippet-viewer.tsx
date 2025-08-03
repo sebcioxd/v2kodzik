@@ -5,6 +5,7 @@ import { Highlight, themes } from "prism-react-renderer";
 import { Button } from "@/components/ui/button";
 import { Copy, Check, Share2, Clock, LinkIcon } from "lucide-react";
 import { toast } from "sonner";
+import { formatTimeRemaining } from "@/lib/date";
 
 interface SnippetViewerProps {
   code: string;
@@ -57,21 +58,7 @@ export default function SnippetViewer({ code, language, slug, createdAt, expires
     }
   };
 
-  const formatTimeRemaining = (createdAt: string, expiresAt: string) => {
-    if (!expiresAt) return "Czas nieznany";
 
-    const expires = new Date(expiresAt);
-    const now = new Date();
-    const diff = expires.getTime() - now.getTime();
-    
-    if (diff <= 0) return "Wygaśnie w ciągu kilku godz.";
-    
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (hours === 0) return `${minutes}m`;
-    return `${hours}h ${minutes}m`;
-  };
 
   // Map common language names to Prism-supported languages
   const getLanguageAlias = (lang: string): string => {
