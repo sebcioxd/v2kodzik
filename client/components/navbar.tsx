@@ -31,7 +31,7 @@ export default function Navbar() {
                         href="/upload" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/upload" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                     >
@@ -41,7 +41,7 @@ export default function Navbar() {
                         href="/search" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/search" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                     >
@@ -51,7 +51,7 @@ export default function Navbar() {
                         href="/pricing" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/pricing" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                     >
@@ -61,7 +61,7 @@ export default function Navbar() {
                         href="/faq" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/faq" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                     >
@@ -71,7 +71,7 @@ export default function Navbar() {
                         href="/schowek" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/schowek" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                     >
@@ -84,7 +84,7 @@ export default function Navbar() {
                             href="/panel" 
                             className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                                 pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" || pathname === "/panel/settings" || pathname === "/panel/integrations" || pathname === "/panel/subscription" || pathname === "/panel/limits"
-                                    ? "text-zinc-200" 
+                                    ? "text-zinc-200 bg-zinc-800/50" 
                                     : "text-zinc-400"
                             }`}
                         >
@@ -95,7 +95,7 @@ export default function Navbar() {
                             href="/auth" 
                             className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                                 pathname === "/auth" 
-                                    ? "text-zinc-200" 
+                                    ? "text-zinc-200 bg-zinc-800/50" 
                                     : "text-zinc-400"
                             }`}
                         >
@@ -111,7 +111,7 @@ export default function Navbar() {
                         href="/upload" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/upload" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
@@ -122,7 +122,7 @@ export default function Navbar() {
                         href="/schowek" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/schowek" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                     >
@@ -132,7 +132,7 @@ export default function Navbar() {
                         href="/search" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/search" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
@@ -143,7 +143,7 @@ export default function Navbar() {
                         href="/pricing" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/pricing" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
                                 : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
@@ -154,7 +154,7 @@ export default function Navbar() {
                         href="/faq" 
                         className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                             pathname === "/faq" 
-                                ? "text-zinc-200" 
+                                ? "text-zinc-200 bg-zinc-800/50 " 
                                 : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
@@ -168,7 +168,7 @@ export default function Navbar() {
                             href="/panel" 
                             className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
                                 pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" || pathname === "/panel/settings" || pathname === "/panel/integrations"
-                                    ? "text-zinc-200" 
+                                    ? "text-zinc-200 bg-zinc-800/50" 
                                     : "text-zinc-400"
                         }`}
                         onClick={() => setIsMenuOpen(false)}
@@ -179,7 +179,7 @@ export default function Navbar() {
                         <Link 
                             href="/auth" 
                             className={`text-sm font-medium transition-colors hover:text-zinc-200 ${
-                                pathname === "/auth" ? "text-zinc-200" : "text-zinc-400"
+                                pathname === "/auth" ? "text-zinc-200 bg-zinc-800/50" : "text-zinc-400"
                             }`}
                             onClick={() => setIsMenuOpen(false)}
                         >

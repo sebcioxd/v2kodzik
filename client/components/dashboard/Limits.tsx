@@ -39,6 +39,7 @@ type LimitsData = {
 // Helper function to format bytes to human readable format
 const formatBytes = (bytes: number, decimals = 2) => {
   if (bytes === 0) return '0 B';
+  if (bytes < 0) return '0 B'; // Handle negative values
   
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
@@ -215,7 +216,7 @@ export default function Limits({ user }: LimitsProps) {
                 <h4 className="text-zinc-200 font-medium text-sm">Pozostała przestrzeń</h4>
               </div>
               <div className="text-2xl font-bold text-zinc-200 mb-1">
-                {formatBytes((limitsData.megabytesLimit - limitsData.megabytesUsed) * 1024 * 1024)}
+                {formatBytes(Math.max(0, (limitsData.megabytesLimit - limitsData.megabytesUsed)) * 1024 * 1024)}
               </div>
               <p className="text-zinc-400 text-xs">
                 Dostępne do końca miesiąca

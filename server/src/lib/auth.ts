@@ -238,7 +238,7 @@ export const auth = betterAuth({
                 onSubscriptionCancel: async ({ subscription, stripeSubscription }) => {
                     const monthlyService = new MonthlyUsageService();
 
-                    if (stripeSubscription.status === 'canceled') {
+                    if (stripeSubscription.status === 'canceled' && stripeSubscription.cancel_at_period_end === false) {
                         await monthlyService.resetMonthlyLimits({
                             referenceId: subscription.referenceId,
                         })
@@ -254,29 +254,41 @@ export const auth = betterAuth({
                 onSubscriptionUpdate: async ({ subscription }) => {
                     const monthlyService = new MonthlyUsageService();
 
-                    await monthlyService.resetMonthlyLimits({
-                        referenceId: subscription.referenceId,
-                    });
-                    
-                    switch (subscription.priceId) {
-                        case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
-                            await monthlyService.increaseMonthlyLimits({
-                                referenceId: subscription.referenceId,
-                                megabytesToAdd: 10000, // 10GB
-                            })
-                            break;
-                        case "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus  
-                            await monthlyService.increaseMonthlyLimits({
-                                referenceId: subscription.referenceId,
-                                megabytesToAdd: 50000, // 50GB
-                            })
-                            break;
-                        case "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
-                            await monthlyService.increaseMonthlyLimits({
-                                referenceId: subscription.referenceId,
-                                megabytesToAdd: 150000, // 150GB
-                            })
-                            break;
+                    if (subscription.status === "canceled" && subscription.cancelAtPeriodEnd === false) {
+                        await monthlyService.resetMonthlyLimits({
+                            referenceId: subscription.referenceId,
+                        });
+                    }
+
+                    if (subscription.status === "canceled" && 
+                        subscription.cancelAtPeriodEnd === true && 
+                        subscription.periodEnd) {
+                        await monthlyService.resetMonthlyLimits({
+                            referenceId: subscription.referenceId,
+                        });
+                    }
+
+                    if (subscription.status === "active" || subscription.status === "trialing") {
+                        switch (subscription.priceId) {
+                            case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
+                                await monthlyService.increaseMonthlyLimits({
+                                    referenceId: subscription.referenceId,
+                                    megabytesToAdd: 10000, // 10GB
+                                })
+                                break;
+                            case "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus  
+                                await monthlyService.increaseMonthlyLimits({
+                                    referenceId: subscription.referenceId,
+                                    megabytesToAdd: 50000, // 50GB
+                                })
+                                break;
+                            case "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
+                                await monthlyService.increaseMonthlyLimits({
+                                    referenceId: subscription.referenceId,
+                                    megabytesToAdd: 150000, // 150GB
+                                })
+                                break;
+                        }
                     }
                 },
                 getCheckoutSessionParams: async ({ user, session, plan, subscription }, request) => {
