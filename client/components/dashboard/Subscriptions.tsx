@@ -165,9 +165,15 @@ export default function Subscriptions({
 }: SubscriptionsProps) {
   const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   const activeSubscription = subscriptions?.find(
     sub => sub.status === "active" || sub.status === "trialing"
+  );
+
+  // Find subscription that was canceled but still active (cancelAtPeriodEnd = true)
+  const canceledButActiveSubscription = subscriptions?.find(
+    sub => sub.cancelAtPeriodEnd === true && (sub.status === "active" || sub.status === "trialing")
   );
 
   const handleUpgrade = async (planName: string) => {
@@ -178,6 +184,7 @@ export default function Subscriptions({
         annual: false,
         successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
         cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
+        returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
         ...(activeSubscription?.id && { subscriptionId: activeSubscription.id }),
       });
     } catch (error) {
@@ -185,6 +192,24 @@ export default function Subscriptions({
       toast.error('Błąd podczas aktualizacji subskrypcji');
     } finally {
       setIsUpgrading(null);
+    }
+  };
+
+   const handleRestore = async () => {
+    if (!canceledButActiveSubscription) return;
+    
+    setIsRestoring(true);
+    try {
+      await authClient.subscription.restore({
+        subscriptionId: canceledButActiveSubscription.id,
+      });
+      toast.success('Subskrypcja została przywrócona');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error restoring subscription:', error);
+      toast.error('Błąd podczas przywracania subskrypcji');
+    } finally {
+      setIsRestoring(false);
     }
   };
 
@@ -312,24 +337,41 @@ export default function Subscriptions({
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    onClick={handleCancel}
-                    disabled={isCanceling}
-                    variant="outline"
-                    size="sm"
-                    className="text-red-400 hover:text-red-300 bg-darken hover:bg-red-400/10 border-red-400/20"
-                  >
-                    {isCanceling ? (
-                      <LoadingSpinner size="small" />
-                    ) : (
-                      <>
-                        <X className="h-4 w-4 mr-2" />
-                        Anuluj subskrypcję
-                      </>
-                    )}
-                  </Button>
-                  
-                 
+                  {canceledButActiveSubscription ? (
+                    <Button
+                      onClick={handleRestore}
+                      disabled={isRestoring}
+                      variant="outline"
+                      size="sm"
+                      className="text-green-400 hover:text-green-300 bg-darken hover:bg-green-400/10 border-green-400/20"
+                    >
+                      {isRestoring ? (
+                        <LoadingSpinner size="small" />
+                      ) : (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2" />
+                          Przywróć subskrypcję
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleCancel}
+                      disabled={isCanceling}
+                      variant="outline"
+                      size="sm"
+                      className="text-red-400 hover:text-red-300 bg-darken hover:bg-red-400/10 border-red-400/20"
+                    >
+                      {isCanceling ? (
+                        <LoadingSpinner size="small" />
+                      ) : (
+                        <>
+                          <X className="h-4 w-4 mr-2" />
+                          Anuluj subskrypcję
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </div>
             )}
