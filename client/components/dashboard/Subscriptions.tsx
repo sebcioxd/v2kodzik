@@ -193,7 +193,8 @@ export default function Subscriptions({ user }: SubscriptionsProps) {
         annual: false,
         successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
         cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
-        subscriptionId: activeSubscription?.id,
+        // Only pass subscriptionId if user has an active subscription
+        ...(activeSubscription?.id && { subscriptionId: activeSubscription.id }),
       });
     } catch (error) {
       console.error('Error upgrading subscription:', error);
@@ -344,15 +345,7 @@ export default function Subscriptions({ user }: SubscriptionsProps) {
                     )}
                   </Button>
                   
-                  <Link href="/pricing" className="flex-1">
-                    <Button 
-                      size="sm" 
-                      className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Zarządzaj w portalu
-                    </Button>
-                  </Link>
+                 
                 </div>
               </div>
             )}
@@ -409,11 +402,13 @@ export default function Subscriptions({ user }: SubscriptionsProps) {
                     
                     <Button
                       onClick={() => handleUpgrade(plan.name)}
-                      disabled={isCurrentPlan || isLoading}
+                      disabled={isCurrentPlan || isLoading || !!activeSubscription} // Disable if user has any active subscription
                       className={`w-full ${
                         isCurrentPlan 
                           ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed' 
-                          : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200'
+                          : !!activeSubscription
+                            ? 'bg-zinc-600 text-zinc-500 cursor-not-allowed' // Disabled styling for users with subscription
+                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200' // Normal styling for users without subscription
                       }`}
                       size="sm"
                     >
@@ -421,9 +416,14 @@ export default function Subscriptions({ user }: SubscriptionsProps) {
                         <LoadingSpinner size="small" />
                       ) : isCurrentPlan ? (
                         'Aktualny plan'
+                      ) : !!activeSubscription ? (
+                        <>
+                          Niedostępne
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </>
                       ) : (
                         <>
-                          {activeSubscription ? 'Zmień plan' : 'Wybierz plan'}
+                          Wybierz plan
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </>
                       )}

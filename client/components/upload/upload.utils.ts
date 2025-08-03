@@ -1,4 +1,7 @@
 import axios from "axios";
+import { useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+import { useState, useEffect } from "react";
 
 export function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 MB";
@@ -15,7 +18,8 @@ export function getMaxSize(time: string): number {
 }
 
 export function getMaxSizeText(time: string): string {
-  return time === "0.5" ? "100 MB" : "40 MB";
+  // Remove the time-based logic and use subscription-based limits
+  return "50MB"; // This will be overridden by the actual limit from useFileValidation
 }
 
 export function validateFileName(filename: string): string | null {

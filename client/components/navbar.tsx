@@ -83,7 +83,7 @@ export default function Navbar() {
                         <Link 
                             href="/panel" 
                             className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
-                                pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" || pathname === "/panel/settings" || pathname === "/panel/integrations"
+                                pathname === "/panel" || pathname === "/panel/history" || pathname === "/panel/s-history" || pathname === "/panel/settings" || pathname === "/panel/integrations" || pathname === "/panel/subscription" || pathname === "/panel/limits"
                                     ? "text-zinc-200" 
                                     : "text-zinc-400"
                             }`}

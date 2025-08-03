@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 const plans = [
@@ -66,14 +66,38 @@ const paymentMethods = [
   },
 ];
 
-
 export default function PricingPage() {
-
   const { data: session } = authClient.useSession();
   const [loadingPlans, setLoadingPlans] = useState<Record<string, boolean>>({});
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(true);
 
   const router = useRouter();
 
+  // Fetch user subscriptions
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      if (session?.user) {
+        try {
+          const result = await authClient.subscription.list();
+          setSubscriptions(result.data || []);
+        } catch (error) {
+          console.error('Error fetching subscriptions:', error);
+        } finally {
+          setIsLoadingSubscriptions(false);
+        }
+      } else {
+        setIsLoadingSubscriptions(false);
+      }
+    };
+
+    fetchSubscriptions();
+  }, [session]);
+
+  // Get active subscription
+  const activeSubscription = subscriptions?.find(
+    sub => sub.status === "active" || sub.status === "trialing"
+  );
 
   const handleSelectPlan = async (planName: string) => {
     setLoadingPlans(prev => ({ ...prev, [planName]: true }));
@@ -81,6 +105,13 @@ export default function PricingPage() {
     if (!session) {
       toast.error("Musisz być zalogowany, aby wybrać plan.");
       router.push("/auth");
+      setLoadingPlans(prev => ({ ...prev, [planName]: false }));
+      return;
+    }
+
+    // Check if user already has a subscription
+    if (activeSubscription) {
+      toast.error("Masz już aktywną subskrypcję. Nie możesz wybrać nowego planu.");
       setLoadingPlans(prev => ({ ...prev, [planName]: false }));
       return;
     }
@@ -116,21 +147,31 @@ export default function PricingPage() {
           </p>
         </div>
 
+
         {/* Pricing Cards */}
         <div className="grid md:grid-cols-3 gap-4 animate-fade-in-01-text">
           {plans.map((plan) => {
             const Icon = plan.icon;
             const isLoading = loadingPlans[plan.planName] || false;
+            const isCurrentPlan = activeSubscription?.plan === plan.planName;
+            const hasActiveSubscription = !!activeSubscription;
             
             return (
               <div
                 key={plan.name}
-                className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 flex flex-col justify-between animate-fade-in-01-text"
+                className={`bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 flex flex-col justify-between animate-fade-in-01-text ${
+                  hasActiveSubscription ? 'opacity-60' : ''
+                }`}
               >
                 
                 <div className="flex items-center gap-2 mb-2">
                   <Icon className="h-5 w-5 text-zinc-400" />
                   <span className="text-lg font-medium text-zinc-200 tracking-tight">{plan.name}</span>
+                  {isCurrentPlan && (
+                    <span className="text-xs bg-zinc-700 text-zinc-300 px-2 py-1 rounded">
+                      Aktualny
+                    </span>
+                  )}
                 </div>
                 <div className="text-2xl font-semibold text-zinc-100 mb-4">{plan.price}</div>
                 <ul className="space-y-2 mb-4">
@@ -143,12 +184,26 @@ export default function PricingPage() {
                 </ul>
                 <Image src={plan.image} alt={plan.name} width={80} height={80} className="my-10 self-center"/>
                 <Button
-                  className="w-full bg-zinc-900 border border-dashed border-zinc-800 text-zinc-200 hover:bg-zinc-800"
+                  className={`w-full ${
+                    isCurrentPlan 
+                      ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed' 
+                      : hasActiveSubscription
+                        ? 'bg-zinc-600 text-zinc-500 cursor-not-allowed'
+                        : 'bg-zinc-900 border border-dashed border-zinc-800 text-zinc-200 hover:bg-zinc-800'
+                  }`}
                   size="sm"
                   onClick={() => handleSelectPlan(plan.planName)}
-                  disabled={isLoading}
+                  disabled={isLoading || isCurrentPlan || hasActiveSubscription}
                 >
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Wybierz plan"}
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : isCurrentPlan ? (
+                    'Aktualny plan'
+                  ) : hasActiveSubscription ? (
+                    'Niedostępne'
+                  ) : (
+                    'Wybierz plan'
+                  )}
                 </Button>
                
               </div>

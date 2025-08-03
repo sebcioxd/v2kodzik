@@ -44,7 +44,7 @@ import { Turnstile } from "@/components/turnstile";
 import { useInfo } from "@/app/hooks/use-fetch";
 import { 
   Upload, X, ShieldPlus, Rss, Lock, 
-  Megaphone, EyeOff, Clock, Link as LinkIcon,
+  Megaphone, EyeOff, Clock, Link as LinkIcon, Crown
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -52,7 +52,7 @@ import { useUpload } from "./hooks/useUpload";
 import { useFileValidation } from "./hooks/useFileValidation";
 import { useSafariDetection } from "./hooks/useSafariDetection";
 import { uploadFormSchema, UploadFormData } from "./upload.types";
-import { formatBytes, getMaxSizeText } from "./upload.utils";
+import { formatBytes } from "./upload.utils";
 import { Progress } from "@/components/ui/progress";
 import { UploadProgressView } from "./ProgressComponent";
 
@@ -75,7 +75,7 @@ export function UploadPage() {
   });
   
   const selectedTime = form.watch("time");
-  const { validateFile, onFileReject, maxSize } = useFileValidation(selectedTime);
+  const { validateFile, onFileReject, maxSize, activeSubscription, isLoadingSubscriptions } = useFileValidation(selectedTime);
   const { 
     uploadState, 
     uploadMutation, 
@@ -85,7 +85,6 @@ export function UploadPage() {
     setTurnstileToken 
   } = useUpload();
   const { showSafariDialog, handleSafariProceed } = useSafariDetection(info?.userAgent);
-
 
   const handleFileChange = useCallback((files: File[]) => {
     if (uploadState.isUploading) return;
@@ -108,18 +107,18 @@ export function UploadPage() {
   const handleTimeChange = useCallback((newTime: string) => {
     const currentFiles = form.getValues("files");
     const currentTotalSize = currentFiles.reduce((acc, file) => acc + file.size, 0);
-    const newMaxSize = newTime === "0.5" ? 100 * 1024 * 1024 : 40 * 1024 * 1024;
     
-    if (currentTotalSize > newMaxSize) {
+    // Use the subscription-based maxSize instead of time-based
+    if (currentTotalSize > maxSize) {
       toast.error(
         `Nie można zmienić czasu - całkowity rozmiar plików (${formatBytes(currentTotalSize)}) ` +
-        `przekracza limit ${formatBytes(newMaxSize)} dla wybranego czasu.`
+        `przekracza limit ${formatBytes(maxSize)}.`
       );
       return false;
     }
     
     return true;
-  }, [form]);
+  }, [form, maxSize]);
 
   const onSubmit = (data: UploadFormData) => {
     setUploadingFiles(data.files || []);
@@ -235,7 +234,7 @@ export function UploadPage() {
                           Przeciągnij i upuść pliki tutaj
                         </p>
                         <p className="text-zinc-400 text-md">
-                          Lub kliknij aby przeglądać do <span className="text-zinc-200 ">{getMaxSizeText(selectedTime)}</span> oraz 20 plików
+                          Lub kliknij aby przeglądać do <span className="text-zinc-200 ">{formatBytes(maxSize)}</span> oraz 20 plików
                         </p>
                       </div>
                     </FileUploadDropzone>
@@ -267,7 +266,7 @@ export function UploadPage() {
                       <div className="mt-4 space-y-1 animate-fade-in-01-text">
                         <div className="flex justify-between items-center text-md text-zinc-400">
                           <span>Całkowity rozmiar</span>
-                          <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">{formatBytes(totalSize)} / {getMaxSizeText(selectedTime)}</span>
+                          <span className="animate-fade-in-01-text tracking-tight transition-colors duration-300">{formatBytes(totalSize)} / {formatBytes(maxSize)}</span>
                         </div>
                         <Progress 
                           value={Math.min((totalSize / maxSize) * 100, 100)}
@@ -326,7 +325,7 @@ export function UploadPage() {
             )}
           />
 
-      <Button
+          <Button
             type="submit"
             className={`w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300  ${turnstileToken ? "disabled:bg-zinc-800/50" : "bg-zinc-900/20"}`}
             disabled={!turnstileToken}
@@ -516,7 +515,7 @@ export function UploadPage() {
                             <Clock className="h-4 w-4 mr-2" />
                             30 minut
                             <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 hidden group-hover:block bg-zinc-900 text-zinc-200 text-xs py-1 px-2 rounded border border-zinc-800 whitespace-nowrap">
-                              Limit plików: 100MB
+                              Limit plików: {formatBytes(maxSize)}
                             </div>
                           </TabsTrigger>
                           <TabsTrigger
@@ -546,17 +545,39 @@ export function UploadPage() {
                       </Tabs>
                     </FormControl>
                     <p className="text-zinc-400 text-sm mt-2 animate-fade-in-01-text">
-                      {field.value === "0.5" 
-                        ? "Limit plików dla 30 minut: 100MB" 
-                        : !session 
-                          ? "Aby generować linki na dłużej, zaloguj się." 
-                          : ""
-                      }
+                      
                     </p>
                   </FormItem>
                 )}
               />
             </div>
+
+            {/* Subscription Info */}
+            {session?.user && (
+              <div className="mb-6 p-4 bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg">
+                <h4 className="text-zinc-300 mb-2 text-sm font-medium tracking-tight flex items-center gap-2">
+                  <Crown className="h-4 w-4" />
+                  Limit plików
+                </h4>
+                {isLoadingSubscriptions ? (
+                  <p className="text-zinc-400 text-sm">Ładowanie informacji o subskrypcji...</p>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-zinc-400 text-sm">
+                      {activeSubscription 
+                        ? `Plan ${activeSubscription.plan}: Maksymalny rozmiar pliku ${formatBytes(maxSize)}`
+                        : "Plan darmowy: Maksymalny rozmiar pliku 50MB"
+                      }
+                    </p>
+                    {!activeSubscription && (
+                      <Link href="/pricing" className="text-blue-400 hover:text-blue-300 text-sm">
+                        Rozważ upgrade, aby zwiększyć limit →
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           

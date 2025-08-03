@@ -1,9 +1,63 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { validateFileName, validateFileSize, validateTotalSize, getMaxSize } from "../upload.utils";
+import { useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+import { useState, useEffect } from "react";
 
 export function useFileValidation(selectedTime: string) {
-  const maxSize = getMaxSize(selectedTime);
+  const { data: session } = useSession();
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(true);
+
+  // Fetch user subscriptions
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      if (session?.user) {
+        try {
+          const result = await authClient.subscription.list();
+          setSubscriptions(result.data || []);
+        } catch (error) {
+          console.error('Error fetching subscriptions:', error);
+        } finally {
+          setIsLoadingSubscriptions(false);
+        }
+      } else {
+        setIsLoadingSubscriptions(false);
+      }
+    };
+
+    fetchSubscriptions();
+  }, [session]);
+
+  // Get active subscription
+  const activeSubscription = subscriptions?.find(
+    sub => sub.status === "active" || sub.status === "trialing"
+  );
+
+  // Get file size limit based on subscription
+  const getFileSizeLimit = () => {
+    if (!session?.user) {
+      return 50 * 1024 * 1024; // 50MB for free users
+    }
+
+    if (!activeSubscription) {
+      return 50 * 1024 * 1024; // 50MB for free users
+    }
+
+    switch (activeSubscription.plan) {
+      case "basic":
+        return 1 * 1024 * 1024 * 1024; // 1GB
+      case "plus":
+        return 2 * 1024 * 1024 * 1024; // 2GB
+      case "pro":
+        return 5 * 1024 * 1024 * 1024; // 5GB
+      default:
+        return 50 * 1024 * 1024; // 50MB fallback
+    }
+  };
+
+  const maxSize = getFileSizeLimit();
 
   const validateFile = useCallback((file: File): string | null => {
     // Check filename
@@ -51,5 +105,15 @@ export function useFileValidation(selectedTime: string) {
     validateFiles,
     onFileReject,
     maxSize,
+    activeSubscription,
+    isLoadingSubscriptions
   };
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
