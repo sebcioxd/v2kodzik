@@ -131,7 +131,7 @@ export default function Limits({ user }: LimitsProps) {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className={`p-3 bg-zinc-800/50 rounded-lg ${usageStatus.color}`}>
-                  <BarChart3 className="h-6 w-6" />
+                  <BarChart3 className="h-6 w-6 text-zinc-300" />
                 </div>
                 <div>
                   <h3 className="text-zinc-200 font-medium tracking-tight">
@@ -144,14 +144,10 @@ export default function Limits({ user }: LimitsProps) {
               </div>
               
               <div className="text-right">
-                <div className={`text-2xl font-bold ${usageStatus.color}`}>
+                <div className={`text-2xl font-bold text-zinc-300 bg-zinc-800/50 rounded-md px-2 py-0`}>
                   {usagePercentage.toFixed(1)}%
                 </div>
-                <div className="text-zinc-400 text-sm">
-                  {usageStatus.status === 'critical' && 'Krytyczne'}
-                  {usageStatus.status === 'warning' && 'Ostrzeżenie'}
-                  {usageStatus.status === 'normal' && 'Normalne'}
-                </div>
+                
               </div>
             </div>
 
@@ -231,7 +227,7 @@ export default function Limits({ user }: LimitsProps) {
         <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6">
           <h3 className="text-zinc-200 font-medium mb-3 tracking-tight flex items-center gap-2">
             <HardDrive className="h-4 w-4 text-zinc-400" />
-            Zwiększ swój limit <span className="text-zinc-400 text-sm font-normal bg-zinc-800/50 rounded-md px-2 py-0 ml-1">Wkrótce</span>
+            Zwiększ swój limit 
           </h3>
           <div className="space-y-2 text-sm text-zinc-400">
                Poznaj nasze oferty i zwiększ swój limit o nawet 150x!

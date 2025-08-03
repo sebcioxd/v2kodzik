@@ -4,13 +4,27 @@ import { db } from "../db/index";
 import { schema } from "../db/schema";
 import { sendEmailService } from "../services/email.service";
 import { MonthlyUsageService } from "../services/monthly-limits.service";
-import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, STRIPE_SECRET_KEY, STRIPE_AUTH_WEBHOOK_SECRET } from "../lib/env";
+import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, STRIPE_SECRET_KEY, STRIPE_AUTH_WEBHOOK_SECRET, SANDBOX_STRIPE_AUTH_WEBHOOK_SECRET, SANDBOX_STRIPE_SECRET_KEY } from "../lib/env";
 import { createAuthMiddleware, emailOTP } from "better-auth/plugins"
 import { stripe } from "@better-auth/stripe"
 import Stripe from "stripe"
 import { eq } from "drizzle-orm";
 
-const stripeClient = new Stripe(STRIPE_SECRET_KEY, {
+async function getUserEmailByReferenceId(referenceId: string): Promise<string | null> {
+    try {
+        const user = await db.select({ email: schema.user.email })
+            .from(schema.user)
+            .where(eq(schema.user.id, referenceId))
+            .limit(1);
+        
+        return user[0]?.email || null;
+    } catch (error) {
+        console.error("Error getting user email:", error);
+        return null;
+    }
+}
+
+const stripeClient = new Stripe(SANDBOX_STRIPE_SECRET_KEY, {
     apiVersion: "2025-07-30.basil",
 })
 
@@ -138,26 +152,61 @@ export const auth = betterAuth({
         }),
         stripe({
             stripeClient,
-            stripeWebhookSecret: STRIPE_AUTH_WEBHOOK_SECRET,
+            stripeWebhookSecret: SANDBOX_STRIPE_AUTH_WEBHOOK_SECRET,
             createCustomerOnSignUp: true,
             subscription: {
                 enabled: true,
                 plans: [
                     {
                         name: "basic",
-                        priceId: "price_1RrpUM12nSzGEbfJ2YnfVFtE", 
+                        priceId: "price_1RrhMe1d5ff1ueqRvBxqfePA", 
+                        // sandbox: price_1RrhMe1d5ff1ueqRvBxqfePA
+                        // prod: price_1RrpUM12nSzGEbfJ2YnfVFtE
                     },
                     {
                         name: "plus",
-                        priceId: "price_1RrpaS12nSzGEbfJhRq73THv", 
+                        priceId: "price_1RrhZW1d5ff1ueqRU3Ib2EXy", 
+                        // sandbox: price_1RrhZW1d5ff1ueqRU3Ib2EXy
+                        // prod: price_1RrpaS12nSzGEbfJhRq73THv
                     },
                     {
                         name: "pro",
-                        priceId: "price_1Rrpbc12nSzGEbfJco6U50U7", 
+                        priceId: "price_1Rrha51d5ff1ueqRl8pBbUYM", 
+                        // sandbox: price_1Rrha51d5ff1ueqRl8pBbUYM
+                        // prod: price_1Rrpbc12nSzGEbfJco6U50U7
                     },
                 ],
-                onSubscriptionComplete: async ({ subscription, plan }) => {
+                onSubscriptionComplete: async ({ subscription, plan, stripeSubscription }) => {
+                        
                     const monthlyService = new MonthlyUsageService();
+                    
+                    const userEmail = await getUserEmailByReferenceId(subscription.referenceId);
+                    
+                    if (userEmail) {
+                        const subscriptionItem = stripeSubscription.items?.data[0];
+                        const price = subscriptionItem?.price;
+                        
+                        const amountInCents = price?.unit_amount || 0;
+                        const amountInPLN = (amountInCents / 100).toFixed(2);
+                        const taxAmount = (amountInCents * 0.23).toFixed(2);
+                        const totalAmount = (amountInCents * 1.23).toFixed(2);
+
+                        const orderDetails = {
+                            planName: plan.name || "Nieznany",
+                            amount: amountInPLN,
+                            tax: taxAmount,
+                            total: totalAmount,
+                            currency: price?.currency?.toUpperCase() || "PLN",
+                            customerName: subscription.referenceId
+                        };
+                        
+                        await sendEmailService({
+                            to: userEmail,
+                            subject: "Potwierdzenie zamówienia - dajkodzik.pl",
+                            text: JSON.stringify(orderDetails),
+                            emailType: "order-confirmation"
+                        });
+                    }
                     
                     switch (plan.priceId) {
                         case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
@@ -184,7 +233,7 @@ export const auth = betterAuth({
                 onSubscriptionCancel: async ({ subscription, stripeSubscription }) => {
                     const monthlyService = new MonthlyUsageService();
 
-                    if (stripeSubscription.status === 'canceled' || stripeSubscription.cancel_at_period_end) {
+                    if (stripeSubscription.status === 'canceled') {
                         await monthlyService.resetMonthlyLimits({
                             referenceId: subscription.referenceId,
                         })

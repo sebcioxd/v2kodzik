@@ -17,7 +17,7 @@ import {
 import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth-client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -59,9 +59,9 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Star,
-    color: "text-blue-400",
-    bgColor: "bg-blue-400/10",
-    borderColor: "border-blue-400/20",
+    color: "text-zinc-400",
+    bgColor: "bg-zinc-400/10",
+    borderColor: "border-zinc-400/20",
   },
   {
     name: "plus",
@@ -73,9 +73,9 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Zap,
-    color: "text-purple-400",
-    bgColor: "bg-purple-400/10",
-    borderColor: "border-purple-400/20",
+    color: "text-zinc-400",
+    bgColor: "bg-zinc-400/10",
+    borderColor: "border-zinc-400/20",
   },
   {
     name: "pro",
@@ -87,9 +87,9 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Crown,
-    color: "text-yellow-400",
-    bgColor: "bg-yellow-400/10",
-    borderColor: "border-yellow-400/20",
+    color: "text-zinc-400",
+    bgColor: "bg-zinc-400/10",
+    borderColor: "border-zinc-400/20",
   },
 ];
 
@@ -152,34 +152,19 @@ const getStatusInfo = (status: string, cancelAtPeriodEnd: boolean) => {
 
 interface SubscriptionsProps {
   user: UserType;
+  subscriptions: Subscription[];
+  isLoading: boolean;
+  error: string | null;
 }
 
-export default function Subscriptions({ user }: SubscriptionsProps) {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default function Subscriptions({ 
+  user, 
+  subscriptions, 
+  isLoading, 
+  error 
+}: SubscriptionsProps) {
   const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
-
-  const fetchSubscriptions = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await authClient.subscription.list();
-      setSubscriptions(result.data as unknown as Subscription[]);
-    } catch (error) {
-      console.error('Error fetching subscriptions:', error);
-      setError('Błąd podczas ładowania subskrypcji');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user) {
-      fetchSubscriptions();
-    }
-  }, [user]);
 
   const activeSubscription = subscriptions?.find(
     sub => sub.status === "active" || sub.status === "trialing"
@@ -193,7 +178,6 @@ export default function Subscriptions({ user }: SubscriptionsProps) {
         annual: false,
         successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
         cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
-        // Only pass subscriptionId if user has an active subscription
         ...(activeSubscription?.id && { subscriptionId: activeSubscription.id }),
       });
     } catch (error) {
@@ -439,7 +423,7 @@ export default function Subscriptions({ user }: SubscriptionsProps) {
        
 
         {/* Info Section */}
-        {isLoading && ( 
+        {!isLoading && ( 
         <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6">
           <h3 className="text-zinc-200 font-medium mb-3 tracking-tight flex items-center gap-2">
             <CreditCard className="h-4 w-4 text-zinc-400" />

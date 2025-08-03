@@ -8,6 +8,7 @@ import { getS3Client } from "../lib/s3";
 import { verifyCaptcha } from "../lib/captcha";
 import { S3Client } from "bun";
 import { MonthlyUsageService } from "./monthly-limits.service";
+import { auth } from "../lib/auth";
 
 export class UploadService {
     private client: S3Client;
@@ -65,6 +66,8 @@ export class UploadService {
                     message: `Nie udało się zweryfikować captchy. ${error}`,
                 }, 400);
             }
+
+            
             
             const result = await fixRequestProps(queryData, c, user);
 
@@ -73,9 +76,10 @@ export class UploadService {
             }
 
             const req = result;
+            const totalSizeInMB = fileSizes?.reduce((acc, size) => acc + (size / (1024 * 1024)), 0) || 0;
+
 
             if (user && fileSizes) {
-                const totalSizeInMB = fileSizes.reduce((acc, size) => acc + (size / (1024 * 1024)), 0);
                 
                 const limitCheck = await this.monthlyService.updateMonthlyLimits({ 
                     c, 
@@ -90,6 +94,58 @@ export class UploadService {
                         hasReachedLimit: true,
                     }, 400);
                 }
+
+                const subscriptions = await auth.api.listActiveSubscriptions({
+                    query: {
+                        referenceId: user.id,
+                    },
+                    headers: c.req.raw.headers,
+                })
+
+                const getSubscription = subscriptions.find((subscription) => subscription.status === "active");
+
+                // if the subscription is not found, return 400
+                if (!getSubscription) {
+                    return c.json({
+                        message: "Nie masz aktywnej subskrypcji",
+                    }, 400);
+                }
+
+                // basic plan check
+                if (getSubscription.priceId === "price_1RrpUM12nSzGEbfJ2YnfVFtE" && totalSizeInMB > 1000) {
+                    return c.json({
+                        message: "Za dużo plików na planie Basic",
+                        success: false,
+                        hasReachedLimit: true,
+                    }, 400);
+                }
+
+                // plus plan check
+                if (getSubscription.priceId === "price_1RrpaS12nSzGEbfJhRq73THv" && totalSizeInMB > 2000) {
+                    return c.json({
+                        message: "Za dużo plików na planie Basic Plus",
+                        success: false,
+                        hasReachedLimit: true,
+                    }, 400);
+                }
+
+                // pro plan check
+                if (getSubscription.priceId === "price_1Rrpbc12nSzGEbfJco6U50U7" && totalSizeInMB > 2000) {
+                    return c.json({
+                        message: "Za dużo plików na planie Basic Pro",
+                        success: false,
+                        hasReachedLimit: true,
+                    }, 400);
+                }
+                
+            }
+
+            if (!user && totalSizeInMB > 50) {
+                return c.json({
+                    message: "Za duży rozmiar plików na planie Free",
+                    success: false,
+                    hasReachedLimit: true,
+                }, 400);
             }
 
             const presignedData = await Promise.all(req.fileNames.map(async (fileName, index) => {

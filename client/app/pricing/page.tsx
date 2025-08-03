@@ -55,14 +55,14 @@ const paymentMethods = [
     icon: CreditCard,
   },
   {
-    name: "Przelewy bankowe",
-    description: "Szybkie i bezpieczne przelewy online",
-    icon: Building2,
+    name: "Klarna",
+    description: "Płatności w ratach, zapłać później",
+    icon: Smartphone,
   },
   {
-    name: "BLIK",
-    description: "Płatności mobilne przez aplikację bankową",
-    icon: Smartphone,
+    name: "PayPal",
+    description: "Płatności online",
+    icon: CreditCard,
   },
 ];
 
@@ -138,7 +138,7 @@ export default function PricingPage() {
           <div className="flex items-center gap-3 mb-2">
             <Star className="h-5 w-5 text-zinc-400" />
             <h1 className="text-xl text-zinc-200 font-medium tracking-tight flex items-center gap-2">
-              Plany zwiększające <span className="text-zinc-400 text-sm font-normal bg-zinc-800/50 rounded-md px-2 py-0 ml-1">Już wkrótce</span>
+              Plany zwiększające
             </h1>
           </div>
           <p className="text-zinc-400 text-md leading-relaxed">

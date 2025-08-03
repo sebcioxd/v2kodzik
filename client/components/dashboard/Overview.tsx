@@ -15,7 +15,10 @@ import {
   Target,
   History,
   Server,
-  Settings
+  Settings,
+  CreditCard,
+  BarChart3,
+  Search,
 } from "lucide-react";
 import { User } from "@/lib/auth-client";
 import Link from "next/link";
@@ -118,6 +121,60 @@ export default function Overview({ user }: { user: User }) {
                             </div>
                         </Link>
                     </div>
+                    <div className="grid md:grid-cols-3 gap-4 h-full">
+                        {/* File History Card */}
+                        <Link href="/panel/subscription">
+                            <div className="group bg-zinc-900/30 border border-dashed h-full border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="p-3 bg-zinc-800/50 rounded-lg group-hover:bg-zinc-700/50 transition-colors">
+                                        <CreditCard className="h-6 w-6 text-zinc-300" />
+                                    </div>
+                                    <ArrowRight className="h-5 w-5 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all" />
+                                </div>
+                                <h3 className="text-zinc-200 font-medium mb-2 tracking-tight">
+                                    Subskrypcje
+                                </h3>
+                                <p className="text-zinc-400 text-sm leading-relaxed">
+                                    Zarządzaj swoimi subskrypcjami i planami.
+                                </p>
+                            </div>
+                        </Link>
+
+                        {/* Clipboard History Card */}
+                        <Link href="/panel/limits">
+                            <div className="group bg-zinc-900/30 border border-dashed h-full border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="p-3 bg-zinc-800/50 rounded-lg group-hover:bg-zinc-700/50 transition-colors">
+                                        <BarChart3 className="h-6 w-6 text-zinc-300" />
+                                    </div>
+                                    <ArrowRight className="h-5 w-5 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all" />
+                                </div>
+                                <h3 className="text-zinc-200 font-medium mb-2 tracking-tight flex items-center">
+                                    Twój transfer
+                                </h3>
+                                <p className="text-zinc-400 text-sm leading-relaxed">
+                                    Zobacz i zarządzaj swoim miesięcznym transferem.
+                                </p>
+                            </div>
+                        </Link>
+
+                        <Link href="/panel/settings">
+                            <div className="group bg-zinc-900/30 border border-dashed h-full border-zinc-800 rounded-lg p-4 hover:bg-zinc-800/30 transition-all duration-300 animate-slide-in-left">
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="p-3 bg-zinc-800/50 rounded-lg group-hover:bg-zinc-700/50 transition-colors">
+                                        <Settings className="h-6 w-6 text-zinc-300" />
+                                    </div>
+                                    <ArrowRight className="h-5 w-5 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all" />
+                                </div>
+                                <h3 className="text-zinc-200 font-medium mb-2 tracking-tight flex items-center">
+                                    Ustawienia
+                                </h3>
+                                <p className="text-zinc-400 text-sm leading-relaxed">
+                                    Zarządzaj swoimi ustawieniami i profilem. 
+                                </p>
+                            </div>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Quick Actions */}
@@ -144,10 +201,10 @@ export default function Overview({ user }: { user: User }) {
                             </Button>
                         </Link>
 
-                        <Link href="/panel/settings" className="flex-1">
+                        <Link href="/search" className="flex-1">
                             <Button size="sm" className="w-full bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100 transition-all duration-300 border border-dashed border-zinc-800 group">
-                                <Settings className="w-4 h-4 mr-2 group-hover:translate-x-0.5 transition-transform" />
-                                Ustawienia konta
+                                <Search className="w-4 h-4 mr-2 group-hover:translate-x-0.5 transition-transform" />
+                                Wpisz kod
                                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </Button>
                         </Link>

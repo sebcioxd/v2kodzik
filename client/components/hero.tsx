@@ -57,14 +57,7 @@ export default function Hero() {
           </section>
           
           {/* File Size Limit Notice */}
-          <div className="w-full max-w-md p-1 rounded-lganimate-slide-in-bottom">
-            <div className="flex items-center gap-2 justify-center">
-              <AlertCircle className="w-4 h-4 text-zinc-400" />
-              <p className="text-zinc-400 text-sm">
-                Maksymalny rozmiar plików: <span className="text-zinc-300">100MB</span>
-              </p>
-            </div>
-          </div>
+          
         </div>
       </div>
 
