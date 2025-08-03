@@ -55,6 +55,11 @@ const paymentMethods = [
     icon: CreditCard,
   },
   {
+    name: "Apple Pay/Google Pay",
+    description: "Płatności online",
+    icon: Smartphone,
+  },
+  {
     name: "Klarna",
     description: "Płatności w ratach, zapłać później",
     icon: Smartphone,
@@ -220,7 +225,7 @@ export default function PricingPage() {
           <p className="text-zinc-400 text-sm mb-4">
             Wszystkie płatności są przetwarzane przez Stripe - bezpieczny i zaufany system płatności online.
           </p>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             {paymentMethods.map((method) => {
               const Icon = method.icon;
               return (

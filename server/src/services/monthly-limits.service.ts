@@ -7,6 +7,8 @@ import { User } from "../lib/types";
 export class MonthlyUsageService {
     constructor() {}
 
+    private DEFAULT_USER_LIMIT: number = 1000;
+
     async getMonthlyLimits({ c, user }: { c: Context, user: typeof User | null }) {
         if (!user) {
             return c.json({
@@ -21,14 +23,14 @@ export class MonthlyUsageService {
             await db.insert(monthlyLimits).values({
                 userId: user.id,
                 megabytesUsed: 0,
-                megabytesLimit: 1000,
+                megabytesLimit: this.DEFAULT_USER_LIMIT,
             });
 
             return c.json({
                 message: "Limit miesięczny został utworzony",
                 success: true,
                 megabytesUsed: 0,
-                megabytesLimit: 1000,
+                megabytesLimit: this.DEFAULT_USER_LIMIT,
             });
         }
 
@@ -48,14 +50,14 @@ export class MonthlyUsageService {
         await db.insert(monthlyLimits).values({
             userId: user.id,
             megabytesUsed: megabytesUsed,
-            megabytesLimit: 1000,
+            megabytesLimit: this.DEFAULT_USER_LIMIT,
         });
 
         return c.json({
             message: "Limit miesięczny został utworzony",
             success: true,
             megabytesUsed: megabytesUsed,
-            megabytesLimit: 1000,
+            megabytesLimit: this.DEFAULT_USER_LIMIT,
         });
     }
 
@@ -94,8 +96,6 @@ export class MonthlyUsageService {
     }
 
     async increaseMonthlyLimits({ referenceId, megabytesToAdd }: { referenceId: string, megabytesToAdd: number }) {  
-        // const limits = await db.select().from(monthlyLimits).where(eq(monthlyLimits.userId, referenceId));
-
         await db.update(monthlyLimits).set({
             megabytesLimit: megabytesToAdd,
         }).where(eq(monthlyLimits.userId, referenceId));
