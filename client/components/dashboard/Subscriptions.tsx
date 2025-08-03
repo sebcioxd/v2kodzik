@@ -386,13 +386,11 @@ export default function Subscriptions({
                     
                     <Button
                       onClick={() => handleUpgrade(plan.name)}
-                      disabled={isCurrentPlan || isLoading || !!activeSubscription} // Disable if user has any active subscription
+                      disabled={isCurrentPlan || isLoading}
                       className={`w-full ${
                         isCurrentPlan 
                           ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed' 
-                          : !!activeSubscription
-                            ? 'bg-zinc-600 text-zinc-500 cursor-not-allowed' // Disabled styling for users with subscription
-                            : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200' // Normal styling for users without subscription
+                          : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-200'
                       }`}
                       size="sm"
                     >
@@ -400,14 +398,9 @@ export default function Subscriptions({
                         <LoadingSpinner size="small" />
                       ) : isCurrentPlan ? (
                         'Aktualny plan'
-                      ) : !!activeSubscription ? (
-                        <>
-                          Niedostępne
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </>
                       ) : (
                         <>
-                          Wybierz plan
+                          {activeSubscription ? 'Zmień plan' : 'Wybierz plan'}
                           <ArrowRight className="h-4 w-4 ml-2" />
                         </>
                       )}

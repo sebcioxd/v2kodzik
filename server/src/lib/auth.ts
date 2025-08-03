@@ -270,19 +270,19 @@ export const auth = betterAuth({
 
                     if (subscription.status === "active" || subscription.status === "trialing") {
                         switch (subscription.priceId) {
-                            case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
+                            case ENVIRONMENT === "production" ? "price_1RrpUM12nSzGEbfJ2YnfVFtE" : "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
                                 await monthlyService.increaseMonthlyLimits({
                                     referenceId: subscription.referenceId,
                                     megabytesToAdd: 10000, // 10GB
                                 })
                                 break;
-                            case "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus  
+                            case ENVIRONMENT === "production" ? "price_1RrpaS12nSzGEbfJhRq73THv" : "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus  
                                 await monthlyService.increaseMonthlyLimits({
                                     referenceId: subscription.referenceId,
                                     megabytesToAdd: 50000, // 50GB
                                 })
                                 break;
-                            case "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
+                            case ENVIRONMENT === "production" ? "price_1Rrpbc12nSzGEbfJco6U50U7" : "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
                                 await monthlyService.increaseMonthlyLimits({
                                     referenceId: subscription.referenceId,
                                     megabytesToAdd: 150000, // 150GB

@@ -60,19 +60,19 @@ export const orderConfirmationTemplate = (
                         <div style="margin: 0 0 16px 0; padding: 16px; background-color: #09090b; border: 1px solid #27272a; border-radius: 8px;">
                           <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 8px 0;">
                             <span style="font-size: 16px; color: #d4d4d8; font-weight: 500;">Plan: </span>
-                            <span style="font-size: 16px; color: #f4f4f5; font-weight: 600; text-transform: capitalize;">${planName}</span>
+                            <span style="font-size: 16px; color: #f4f4f5; font-weight: 600; text-transform: capitalize;"> ${planName}</span>
                           </div>
                           <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 8px 0;">
                             <span style="font-size: 16px; color: #d4d4d8; font-weight: 500;">Kwota: </span>
-                            <span style="font-size: 16px; color: #f4f4f5; font-weight: 600;">${amount} PLN</span>
+                            <span style="font-size: 16px; color: #f4f4f5; font-weight: 600;"> ${amount} PLN</span>
                           </div>
                           <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 8px 0;">
                             <span style="font-size: 16px; color: #d4d4d8; font-weight: 500;">Podatek: </span>
-                            <span style="font-size: 16px; color: #f4f4f5; font-weight: 600;">${tax} PLN</span>
+                            <span style="font-size: 16px; color: #f4f4f5; font-weight: 600;"> ${tax} PLN</span>
                           </div>
                           <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #27272a;">
                             <span style="font-size: 18px; color: #d4d4d8; font-weight: 600;">Razem: </span>
-                            <span style="font-size: 18px; color: #f4f4f5; font-weight: 700;">${total} PLN</span>
+                            <span style="font-size: 18px; color: #f4f4f5; font-weight: 700;"> ${total} PLN</span>
                           </div>
                         </div>
                       </div>
