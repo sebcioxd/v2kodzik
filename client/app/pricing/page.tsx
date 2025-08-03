@@ -16,7 +16,7 @@ const plans = [
     price: "11,99 zł / miesiąc",
     features: [
       "10 GB transferu miesięcznie",
-      "Maks 1GB co link",
+      "Maks 1 GB co link",
       "Wsparcie priorytetowe",
     ],
     icon: Star,
@@ -137,11 +137,11 @@ export default function PricingPage() {
         <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-8 mb-4">
           <div className="flex items-center gap-3 mb-2">
             <Star className="h-5 w-5 text-zinc-400" />
-            <h1 className="text-xl text-zinc-200 font-medium tracking-tight flex items-center gap-2">
+            <h1 className="text-xl text-zinc-200  tracking-tight flex items-center gap-2">
               Plany zwiększające
             </h1>
           </div>
-          <p className="text-zinc-400 text-md leading-relaxed">
+          <p className="text-zinc-400 text-md tracking-tight">
             Dajkodzik jest darmowym serwisem, lecz oferujemy również plany zwiększające domyślne limity. 
             Robimy to po to, aby użytkownicy mogli korzystać z naszego serwisu bez ograniczeń.
           </p>
@@ -166,17 +166,17 @@ export default function PricingPage() {
                 
                 <div className="flex items-center gap-2 mb-2">
                   <Icon className="h-5 w-5 text-zinc-400" />
-                  <span className="text-lg font-medium text-zinc-200 tracking-tight">{plan.name}</span>
+                  <span className="text-lg text-zinc-200 tracking-tight">{plan.name}</span>
                   {isCurrentPlan && (
                     <span className="text-xs bg-zinc-700 text-zinc-300 px-2 py-1 rounded">
                       Aktualny
                     </span>
                   )}
                 </div>
-                <div className="text-2xl font-semibold text-zinc-100 mb-4">{plan.price}</div>
+                  <div className="text-2xl text-zinc-100 mb-4">{plan.price}</div>
                 <ul className="space-y-2 mb-4">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-zinc-300 text-sm">
+                    <li key={feature} className="flex items-center gap-2 text-zinc-300 text-sm tracking-tight">
                       <Check className="h-4 w-4 text-zinc-400" />
                       {feature}
                     </li>
@@ -184,11 +184,11 @@ export default function PricingPage() {
                 </ul>
                 <Image src={plan.image} alt={plan.name} width={80} height={80} className="my-10 self-center"/>
                 <Button
-                  className={`w-full ${
+                  className={`w-full tracking-tight ${
                     isCurrentPlan 
                       ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed' 
                       : hasActiveSubscription
-                        ? 'bg-zinc-600 text-zinc-500 cursor-not-allowed'
+                        ? 'bg-zinc-900 text-zinc-500 cursor-not-allowed'
                         : 'bg-zinc-900 border border-dashed border-zinc-800 text-zinc-200 hover:bg-zinc-800'
                   }`}
                   size="sm"

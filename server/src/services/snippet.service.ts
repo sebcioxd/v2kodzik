@@ -1,7 +1,7 @@
 import type { CreateSnippetServiceProps, GetSnippetServiceProps } from "../lib/types";
 import { snippets } from "../db/schema";
 import { db } from "../db/index";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import type { Context } from "hono";
 import { restrictedPaths } from "../utils/req-fixer";
 
@@ -68,9 +68,7 @@ export async function createSnippetService({ c, user }: CreateSnippetServiceProp
         slug: req.slug,
         ipAddress: c.req.header("x-forwarded-for") || null,
         userAgent: c.req.header("user-agent") || null,
-        expiresAt: new Date(Date.now() + (req.time === "24" ? 24 * 60 * 60 * 1000 : req.time === "168" ? 7 * 24 * 60 * 60 * 1000 : 30 * 60 * 1000)),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        expiresAt: sql.raw(`NOW() + INTERVAL '${req.time === "24" ? "24 hours" : req.time === "168" ? "168 hours" : "30 minutes"}'`),
         code: req.code,
         language: req.language,
         userId: userId,
