@@ -104,15 +104,16 @@ export class UploadService {
 
                 const getSubscription = subscriptions.find((subscription) => subscription.status === "active");
 
-                // if the subscription is not found, return 400
-                if (!getSubscription) {
+                if (!getSubscription && totalSizeInMB > 50) {
                     return c.json({
-                        message: "Nie masz aktywnej subskrypcji",
+                        message: "Za duży rozmiar plików na planie Free",
+                        success: false,
+                        hasReachedLimit: true,
                     }, 400);
                 }
 
                 // basic plan check
-                if (getSubscription.priceId === "price_1RrpUM12nSzGEbfJ2YnfVFtE" && totalSizeInMB > 1000) {
+                if (getSubscription?.priceId === "price_1RrpUM12nSzGEbfJ2YnfVFtE" && totalSizeInMB > 1000) {
                     return c.json({
                         message: "Za dużo plików na planie Basic",
                         success: false,
@@ -121,7 +122,7 @@ export class UploadService {
                 }
 
                 // plus plan check
-                if (getSubscription.priceId === "price_1RrpaS12nSzGEbfJhRq73THv" && totalSizeInMB > 2000) {
+                if (getSubscription?.priceId === "price_1RrpaS12nSzGEbfJhRq73THv" && totalSizeInMB > 2000) {
                     return c.json({
                         message: "Za dużo plików na planie Basic Plus",
                         success: false,
@@ -130,7 +131,7 @@ export class UploadService {
                 }
 
                 // pro plan check
-                if (getSubscription.priceId === "price_1Rrpbc12nSzGEbfJco6U50U7" && totalSizeInMB > 2000) {
+                if (getSubscription?.priceId === "price_1Rrpbc12nSzGEbfJco6U50U7" && totalSizeInMB > 2000) {
                     return c.json({
                         message: "Za dużo plików na planie Basic Pro",
                         success: false,
