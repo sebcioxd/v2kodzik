@@ -145,15 +145,15 @@ export const auth = betterAuth({
                 plans: [
                     {
                         name: "basic",
-                        priceId: "price_1RrhMe1d5ff1ueqRvBxqfePA", 
+                        priceId: "price_1RrpUM12nSzGEbfJ2YnfVFtE", 
                     },
                     {
                         name: "plus",
-                        priceId: "price_1RrhZW1d5ff1ueqRU3Ib2EXy", 
+                        priceId: "price_1RrpaS12nSzGEbfJhRq73THv", 
                     },
                     {
                         name: "pro",
-                        priceId: "price_1Rrha51d5ff1ueqRl8pBbUYM", 
+                        priceId: "price_1Rrpbc12nSzGEbfJco6U50U7", 
                     },
                 ],
                 onSubscriptionComplete: async ({ subscription, plan }) => {
@@ -229,6 +229,9 @@ export const auth = betterAuth({
                     return {
                         params: {
                             allow_promotion_codes: true,
+                            automatic_tax: {
+                                enabled: true,
+                            },
                         },
                     };
                 }
