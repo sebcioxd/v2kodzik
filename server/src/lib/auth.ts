@@ -298,6 +298,7 @@ export const auth = betterAuth({
                             automatic_tax: {
                                 enabled: true,
                             },
+                            locale: "pl",
                         },
                     };
                 }
