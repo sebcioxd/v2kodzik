@@ -114,19 +114,14 @@ export default function PricingPage() {
       return;
     }
 
-    // Check if user already has a subscription
-    if (activeSubscription) {
-      toast.error("Masz już aktywną subskrypcję. Nie możesz wybrać nowego planu.");
-      setLoadingPlans(prev => ({ ...prev, [planName]: false }));
-      return;
-    }
-  
     try {
       await authClient.subscription.upgrade({
         plan: planName,
         annual: false,
         successUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
         cancelUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/pricing`,
+        returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/panel/subscription`,
+        ...(activeSubscription?.id && { subscriptionId: activeSubscription.id }),
       });
     } catch (error) {
       console.error('Subscription upgrade error:', error);
@@ -159,14 +154,11 @@ export default function PricingPage() {
             const Icon = plan.icon;
             const isLoading = loadingPlans[plan.planName] || false;
             const isCurrentPlan = activeSubscription?.plan === plan.planName;
-            const hasActiveSubscription = !!activeSubscription;
             
             return (
               <div
                 key={plan.name}
-                className={`bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 flex flex-col justify-between animate-fade-in-01-text ${
-                  hasActiveSubscription ? 'opacity-60' : ''
-                }`}
+                className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 flex flex-col justify-between animate-fade-in-01-text"
               >
                 
                 <div className="flex items-center gap-2 mb-2">
@@ -192,22 +184,18 @@ export default function PricingPage() {
                   className={`w-full tracking-tight ${
                     isCurrentPlan 
                       ? 'bg-zinc-700 text-zinc-400 cursor-not-allowed' 
-                      : hasActiveSubscription
-                        ? 'bg-zinc-900 text-zinc-500 cursor-not-allowed'
-                        : 'bg-zinc-900 border border-dashed border-zinc-800 text-zinc-200 hover:bg-zinc-800'
+                      : 'bg-zinc-900 border border-dashed border-zinc-800 text-zinc-200 hover:bg-zinc-800'
                   }`}
                   size="sm"
                   onClick={() => handleSelectPlan(plan.planName)}
-                  disabled={isLoading || isCurrentPlan || hasActiveSubscription}
+                  disabled={isLoading || isCurrentPlan}
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : isCurrentPlan ? (
                     'Aktualny plan'
-                  ) : hasActiveSubscription ? (
-                    'Niedostępne'
                   ) : (
-                    'Wybierz plan'
+                    activeSubscription ? 'Zmień plan' : 'Wybierz plan'
                   )}
                 </Button>
                

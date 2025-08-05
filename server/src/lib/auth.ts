@@ -261,6 +261,9 @@ export const auth = betterAuth({
                 onSubscriptionUpdate: async ({ subscription, event }) => {
                     const monthlyService = new MonthlyUsageService();
 
+                    const stripeSub = event.data.object as Stripe.Subscription;
+                    const newPriceId = stripeSub.items?.data[0]?.price?.id;
+
                     if (subscription.status === "canceled" && subscription.cancelAtPeriodEnd === false) {
                         await monthlyService.resetMonthlyLimits({
                             referenceId: subscription.referenceId,
@@ -275,21 +278,34 @@ export const auth = betterAuth({
                         });
                     }
 
+                    const priceIdToPlanMap = {
+                        // Sandbox price IDs
+                        "price_1RrhMe1d5ff1ueqRvBxqfePA": "basic",
+                        "price_1RrhZW1d5ff1ueqRU3Ib2EXy": "plus", 
+                        "price_1Rrha51d5ff1ueqRl8pBbUYM": "pro",
+                        // Production price IDs
+                        "price_1RrpUM12nSzGEbfJ2YnfVFtE": "basic",
+                        "price_1RrpaS12nSzGEbfJhRq73THv": "plus",
+                        "price_1Rrpbc12nSzGEbfJco6U50U7": "pro"
+                    };
+                    const newPlan = priceIdToPlanMap[newPriceId as keyof typeof priceIdToPlanMap];
+
+
                     if (subscription.status === "active" || subscription.status === "trialing") {
-                        switch (subscription.priceId) {
-                            case ENVIRONMENT === "production" ? "price_1RrpUM12nSzGEbfJ2YnfVFtE" : "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
+                        switch (newPlan) {
+                            case "basic":
                                 await monthlyService.increaseMonthlyLimits({
                                     referenceId: subscription.referenceId,
                                     megabytesToAdd: 10000, // 10GB
                                 })
                                 break;
-                            case ENVIRONMENT === "production" ? "price_1RrpaS12nSzGEbfJhRq73THv" : "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus  
+                            case "plus":
                                 await monthlyService.increaseMonthlyLimits({
                                     referenceId: subscription.referenceId,
                                     megabytesToAdd: 50000, // 50GB
                                 })
                                 break;
-                            case ENVIRONMENT === "production" ? "price_1Rrpbc12nSzGEbfJco6U50U7" : "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
+                            case "pro":
                                 await monthlyService.increaseMonthlyLimits({
                                     referenceId: subscription.referenceId,
                                     megabytesToAdd: 150000, // 150GB
