@@ -57,6 +57,8 @@ const setupCronJob = async () => {
         `;
         console.log('🟢 Monthly limits cleanup cron pomyślnie ustawiony', monthlyLimitsCleanup);
 
+
+
     } catch (error) {
             console.error('🔴 Wystąpił błąd podczas ustawiania cron jobów:', error);
         }

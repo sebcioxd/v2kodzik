@@ -181,26 +181,18 @@ export const auth = betterAuth({
                     const monthlyService = new MonthlyUsageService();
                     
                     const userEmail = await getUserEmailByReferenceId(subscription.referenceId);
-                    
+
                     if (userEmail) {
                         const subscriptionItem = stripeSubscription.items?.data[0];
                         const price = subscriptionItem?.price;
-              
-                        
-                        // Get the amount in PLN (convert from cents)
+
                         const amountInCents = price?.unit_amount || 0;
                         const amountInPLN = (amountInCents / 100).toFixed(2);
-                        
-                        // Calculate tax correctly (23% VAT in Poland)
-                        const amountInPLNNumber = parseFloat(amountInPLN);
-                        const taxAmount = (amountInPLNNumber * 0.23).toFixed(2);
-                        const totalAmount = (amountInPLNNumber * 1.23).toFixed(2);
 
                         const orderDetails = {
                             planName: plan.name || "Nieznany",
                             amount: amountInPLN,
-                            tax: taxAmount,
-                            total: totalAmount,
+                            total: amountInPLN,
                             currency: price?.currency?.toUpperCase() || "PLN",
                             customerName: subscription.referenceId
                         };
@@ -213,20 +205,20 @@ export const auth = betterAuth({
                         });
                     }
                     
-                    switch (plan.priceId) {
-                        case "price_1RrhMe1d5ff1ueqRvBxqfePA": // basic
+                    switch (plan.name) {
+                        case "basic":
                             await monthlyService.increaseMonthlyLimits({
                                 referenceId: subscription.referenceId,
                                 megabytesToAdd: 10000, // 10GB
                             })
                             break;
-                        case "price_1RrhZW1d5ff1ueqRU3Ib2EXy": // plus
+                        case "plus":
                             await monthlyService.increaseMonthlyLimits({
                                 referenceId: subscription.referenceId,
                                 megabytesToAdd: 50000, // 50GB
                             })
                             break;
-                        case "price_1Rrha51d5ff1ueqRl8pBbUYM": // pro
+                        case "pro":
                             await monthlyService.increaseMonthlyLimits({
                                 referenceId: subscription.referenceId,
                                 megabytesToAdd:  150000, // 150GB
@@ -241,7 +233,22 @@ export const auth = betterAuth({
                     if (stripeSubscription.status === 'canceled' && stripeSubscription.cancel_at_period_end === false) {
                         await monthlyService.resetMonthlyLimits({
                             referenceId: subscription.referenceId,
-                        })
+                        });
+                        
+                        const userEmail = await getUserEmailByReferenceId(subscription.referenceId);
+                        if (userEmail) {
+                            const cancellationDetails = {
+                                planName: subscription.plan, 
+                                customerName: subscription.referenceId
+                            };
+                            
+                            await sendEmailService({
+                                to: userEmail,
+                                subject: "Subskrypcja anulowana - dajkodzik.pl",
+                                text: JSON.stringify(cancellationDetails),
+                                emailType: "cancellation"
+                            });
+                        }
                     }
                 },
                 onSubscriptionDeleted: async ({  subscription, stripeSubscription }) => {
@@ -251,7 +258,7 @@ export const auth = betterAuth({
                         referenceId: subscription.referenceId,
                     })
                 },
-                onSubscriptionUpdate: async ({ subscription }) => {
+                onSubscriptionUpdate: async ({ subscription, event }) => {
                     const monthlyService = new MonthlyUsageService();
 
                     if (subscription.status === "canceled" && subscription.cancelAtPeriodEnd === false) {
@@ -302,11 +309,8 @@ export const auth = betterAuth({
                         },
                     };
                 }
-            }
+            },
         })
     ]
     
 });
-
-
-

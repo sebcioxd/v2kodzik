@@ -1,26 +1,13 @@
-export const orderConfirmationTemplate = (
+export const cancellationTemplate = (
     planName: string,
-    amount: string,
-    total: string,
     customerName: string
 ) => {
-    // Create the content with proper spacing
-    const planRow = `<div style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 8px 0;">
-        <span style="font-size: 16px; color: #d4d4d8; font-weight: 500;">Plan: </span>
-        <span style="font-size: 16px; color: #f4f4f5; font-weight: 600; text-transform: capitalize;"> ${planName}</span>
-      </div>`;
-    
-    const amountRow = `<div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #27272a;">
-        <span style="font-size: 18px; color: #d4d4d8; font-weight: 600;">Kwota: </span>
-        <span style="font-size: 18px; color: #f4f4f5; font-weight: 700;"> ${total} PLN</span>
-      </div>`;
-
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Potwierdzenie zamówienia - dajkodzik.pl</title>
+    <title>Subskrypcja anulowana - dajkodzik.pl</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
     </style>
@@ -51,44 +38,55 @@ export const orderConfirmationTemplate = (
                   <tr>
                     <td style="padding: 32px 32px 24px 32px; text-align: center; border-bottom: 1px dashed #27272a;">
                       <h1 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 600; color: #f4f4f5; letter-spacing: -0.025em;">
-                        Dziękujemy za zakup!
+                        Subskrypcja anulowana
                       </h1>
                       <p style="margin: 0; font-size: 16px; color: #a1a1aa; font-weight: 400;">
-                        Twoja subskrypcja została aktywowana
+                        Twoja subskrypcja została anulowana
                       </p>
                     </td>
                   </tr>
 
-                  <!-- Order Details Section -->
+                  <!-- Cancellation Details Section -->
                   <tr>
                     <td style="padding: 32px;">
                       <div style="margin: 0 0 24px 0;">
                         <h2 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #f4f4f5;">
-                          Szczegóły zamówienia
+                          Szczegóły anulowania
                         </h2>
                         
                         <!-- Plan Details -->
                         <div style="margin: 0 0 16px 0; padding: 16px; background-color: #09090b; border: 1px solid #27272a; border-radius: 8px;">
-                          ${planRow}
-                          ${amountRow}
+                          <div style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 8px 0;">
+                            <span style="font-size: 16px; color: #d4d4d8; font-weight: 500;">Plan: </span>
+                            <span style="font-size: 16px; color: #f4f4f5; font-weight: 600; text-transform: capitalize;"> ${planName}</span>
+                          </div>
+                          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #27272a;">
+                            <span style="font-size: 16px; color: #d4d4d8; font-weight: 500;">Status: </span>
+                            <span style="font-size: 16px; color: #ef4444; font-weight: 600;"> Anulowana</span>
+                          </div>
                         </div>
                       </div>
 
-                      <!-- Thank You Message -->
+                      <!-- Cancellation Message -->
                       <div style="margin: 0 0 24px 0; padding: 20px; background-color: #09090b; border: 1px solid #27272a; border-radius: 8px; text-align: center;">
                         <p style="margin: 0 0 12px 0; font-size: 16px; color: #d4d4d8; line-height: 1.5;">
-                          Dziękujemy za wybranie dajkodzik.pl! 🎉
+                          Twoja subskrypcja planu ${planName} została anulowana.
                         </p>
                         <p style="margin: 0; font-size: 14px; color: #a1a1aa; line-height: 1.5;">
-                          Twoja subskrypcja jest już aktywna. Możesz teraz korzystać ze wszystkich funkcji planu ${planName}.
+                          Możesz nadal korzystać z funkcji planu do końca okresu rozliczeniowego.
                         </p>
                       </div>
 
-                      <!-- Invoice Info -->
+                      <!-- What Happens Next -->
                       <div style="margin: 0 0 24px 0; padding: 16px; background-color: #09090b; border: 1px solid #27272a; border-radius: 8px;">
-                        <p style="margin: 0; font-size: 14px; color: #a1a1aa; line-height: 1.5; text-align: center;">
-                          📄 Faktura zostanie wysłana na Twój adres e-mail przez Stripe w ciągu kilku minut.
-                        </p>
+                        <h3 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600; color: #f4f4f5;">
+                          Co dalej?
+                        </h3>
+                        <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #a1a1aa; line-height: 1.6;">
+                          <li style="margin: 0 0 8px 0;">Zachowasz dostęp do funkcji premium do końca okresu rozliczeniowego</li>
+                          <li style="margin: 0 0 8px 0;">Po tym czasie wrócisz do planu darmowego</li>
+                          <li style="margin: 0;">Możesz w każdej chwili ponownie aktywować subskrypcję</li>
+                        </ul>
                       </div>
 
                       <!-- Action Buttons -->
@@ -98,13 +96,17 @@ export const orderConfirmationTemplate = (
                            style="display: inline-block; padding: 16px 32px; font-size: 16px; font-weight: 500; color: #f4f4f5; text-decoration: none; background-color: #09090b; border: 2px solid #2c2c30; border-radius: 8px; margin: 0 8px 0 0;">
                           Przejdź do panelu
                         </a>
-                       
+                        <a href="https://dajkodzik.pl/pricing" 
+                           target="_blank" 
+                           style="display: inline-block; padding: 16px 32px; font-size: 16px; font-weight: 500; color: #f4f4f5; text-decoration: none; background-color: #2c2c30; border: 2px solid #2c2c30; border-radius: 8px; margin: 0 0 0 8px;">
+                          Zobacz plany
+                        </a>
                       </div>
 
                       <!-- Support Info -->
                       <div style="margin: 24px 0 0 0; padding: 16px; background-color: #09090b; border: 1px solid #27272a; border-radius: 6px;">
                         <p style="margin: 0 0 8px 0; font-size: 14px; color: #71717a; line-height: 1.4;">
-                          💬 Potrzebujesz pomocy? Skontaktuj się z nami:
+                          💬 Masz pytania? Skontaktuj się z nami:
                         </p>
                         <p style="margin: 0; font-size: 14px; color: #71717a; line-height: 1.4;">
                           📧 <a href="mailto:support@dajkodzik.pl" style="color: #d4d4d8; text-decoration: underline;">support@dajkodzik.pl</a>
@@ -133,4 +135,3 @@ export const orderConfirmationTemplate = (
 </body>
 </html>`;
 };
-  

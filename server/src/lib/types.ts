@@ -4,7 +4,7 @@ import { auth } from "../lib/auth";
 import { uploadQuerySchema, uploadBodySchema, finalizeSchema, cancelBodySchema } from "./zod";
 import { z } from "zod";
 
-export type EmailType = "verify" | "forget" | "order-confirmation";
+export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation";
 
 export type EmailServiceProps = {
     to: string;

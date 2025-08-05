@@ -13,6 +13,7 @@ import updateRoute from "./update.route";
 import snippetRoute from "./snippets.route";
 import oauthRoute from "./oauth.route";
 import limitsRoute from "./limits.route";
+import checkoutRoute from "./checkout.route";   
 
 const routes = new Hono()
 
@@ -29,5 +30,6 @@ routes.route("/update", updateRoute)
 routes.route("/snippet", snippetRoute)
 routes.route("/oauth", oauthRoute)
 routes.route("/limits", limitsRoute)
+routes.route("/stripe", checkoutRoute)
 
 export default routes

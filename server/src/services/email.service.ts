@@ -2,6 +2,7 @@ import type { EmailServiceProps } from "../lib/types";
 import { emailVerifyTemplate } from "../templates/email-verify";
 import { passwordForgetTemplate } from "../templates/password-forget";
 import { orderConfirmationTemplate } from "../templates/order-confirmation";
+import { cancellationTemplate } from "../templates/cancellation";
 import { MAILGUN_API_KEY } from "../lib/env";
 import { createMessage } from "@upyo/core";
 import { MailgunTransport } from "@upyo/mailgun";
@@ -27,9 +28,16 @@ export async function sendEmailService({
       emailTemplate = orderConfirmationTemplate(
         orderDetails.planName,
         orderDetails.amount,
-        orderDetails.tax,
         orderDetails.total,
         orderDetails.customerName
+      );
+      break;
+    case "cancellation":
+      // For cancellation, text should be JSON string with cancellation details
+      const cancellationDetails = JSON.parse(text);
+      emailTemplate = cancellationTemplate(
+        cancellationDetails.planName,
+        cancellationDetails.customerName
       );
       break;
     default:
