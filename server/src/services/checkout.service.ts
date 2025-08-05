@@ -36,4 +36,11 @@ export class CheckoutService {
         })
         return session;
     }
+    async getBillingPortalSession(customerId: string) {
+        const session = await stripeClient.billingPortal.sessions.create({
+            customer: customerId,
+            return_url: `${SITE_URL}/panel/subscription`,
+        })
+        return session;
+    }
 }

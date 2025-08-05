@@ -17,6 +17,7 @@ type Subscription = {
   trialStart?: string;
   trialEnd?: string;
   seats?: number;
+  stripeCustomerId?: string; // This is the actual property name
 };
 
 export default function SubscriptionPage() {
@@ -31,6 +32,7 @@ export default function SubscriptionPage() {
         setError(null);
         try {
             const result = await authClient.subscription.list();
+            
             setSubscriptions(result.data as unknown as Subscription[]);
         } catch (error) {
             console.error('Error fetching subscriptions:', error);

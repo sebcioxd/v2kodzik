@@ -12,7 +12,8 @@ import {
   ExternalLink,
   Loader2,
   X,
-  RefreshCw
+  RefreshCw,
+  Settings
 } from 'lucide-react';
 import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ type Subscription = {
   trialStart?: string;
   trialEnd?: string;
   seats?: number;
+  stripeCustomerId?: string; // Changed from customerId to stripeCustomerId
 };
 
 // Plan definitions matching your auth.ts configuration
@@ -166,6 +168,7 @@ export default function Subscriptions({
   const [isUpgrading, setIsUpgrading] = useState<string | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
 
   const activeSubscription = subscriptions?.find(
     sub => sub.status === "active" || sub.status === "trialing"
@@ -195,7 +198,7 @@ export default function Subscriptions({
     }
   };
 
-   const handleRestore = async () => {
+  const handleRestore = async () => {
     if (!canceledButActiveSubscription) return;
     
     setIsRestoring(true);
@@ -227,6 +230,39 @@ export default function Subscriptions({
       toast.error('Błąd podczas anulowania subskrypcji');
     } finally {
       setIsCanceling(false);
+    }
+  };
+
+  const handleOpenBillingPortal = async () => {
+    if (!activeSubscription?.stripeCustomerId) { // Changed from customerId to stripeCustomerId
+      toast.error('Nie można otworzyć portalu rozliczeniowego');
+      return;
+    }
+
+    setIsOpeningPortal(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/stripe/portal/${activeSubscription.stripeCustomerId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create billing portal session');
+      }
+
+      const data = await response.json();
+      
+      // Open the billing portal in a new window/tab
+      window.open(data.url, '_blank');
+      toast.success('Portal rozliczeniowy otwarty w nowej karcie');
+    } catch (error) {
+      console.error('Error opening billing portal:', error);
+      toast.error('Błąd podczas otwierania portalu rozliczeniowego');
+    } finally {
+      setIsOpeningPortal(false);
     }
   };
 
@@ -355,22 +391,43 @@ export default function Subscriptions({
                       )}
                     </Button>
                   ) : (
-                    <Button
-                      onClick={handleCancel}
-                      disabled={isCanceling}
-                      variant="outline"
-                      size="sm"
-                      className="text-red-400 hover:text-red-300 bg-darken hover:bg-red-400/10 border-red-400/20"
-                    >
-                      {isCanceling ? (
-                        <LoadingSpinner size="small" />
-                      ) : (
-                        <>
-                          <X className="h-4 w-4 mr-2" />
-                          Anuluj subskrypcję
-                        </>
+                    <>
+                      <Button
+                        onClick={handleCancel}
+                        disabled={isCanceling}
+                        variant="outline"
+                        size="sm"
+                        className="text-red-400 hover:text-red-300 bg-darken hover:bg-red-400/10 border-red-400/20"
+                      >
+                        {isCanceling ? (
+                          <LoadingSpinner size="small" />
+                        ) : (
+                          <>
+                            <X className="h-4 w-4 mr-2" />
+                            Anuluj subskrypcję
+                          </>
+                        )}
+                      </Button>
+                      
+                      {activeSubscription.stripeCustomerId && (
+                        <Button
+                          onClick={handleOpenBillingPortal}
+                          disabled={isOpeningPortal}
+                          variant="outline"
+                          size="sm"
+                          className="text-blue-400 hover:text-blue-300 bg-darken hover:bg-blue-400/10 border-blue-400/20"
+                        >
+                          {isOpeningPortal ? (
+                            <LoadingSpinner size="small" />
+                          ) : (
+                            <>
+                              <Settings className="h-4 w-4 mr-2" />
+                              Zarządzaj rozliczeniami
+                            </>
+                          )}
+                        </Button>
                       )}
-                    </Button>
+                    </>
                   )}
                 </div>
               </div>
@@ -454,9 +511,6 @@ export default function Subscriptions({
           </div>
         )}
 
-        {/* Loading State */}
-       
-
         {/* Info Section */}
         {!isLoading && ( 
         <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6">
@@ -469,11 +523,11 @@ export default function Subscriptions({
             <p>• Po anulowaniu subskrypcja pozostanie aktywna do końca okresu rozliczeniowego</p>
             <p>• Zmiana planu następuje natychmiastowo</p>
             <p>• Wszystkie płatności są przetwarzane przez Stripe</p>
+            <p>• Możesz zarządzać rozliczeniami w portalu Stripe</p>
           </div>
         </div>
         )}
 
-      
       </div>
     </main>
   );

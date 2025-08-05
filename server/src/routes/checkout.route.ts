@@ -23,6 +23,20 @@ checkoutRoute.post("/checkout", async (c) => {
     })
 })
 
+checkoutRoute.get("/portal/:customerId", async (c) => {
+    const customerId = c.req.param("customerId")
+    const user = c.get("user")
 
+    if (!user) {
+        return c.json({
+            message: "Nie jesteś zalogowany",
+        }, 401)
+    }
+
+    const session = await checkoutService.getBillingPortalSession(customerId)
+    return c.json({
+        url: session.url,
+    })
+})
 
 export default checkoutRoute
