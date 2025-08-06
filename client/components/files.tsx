@@ -885,8 +885,8 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
                 <span className="text-zinc-400 text-sm">Link URL:</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-zinc-200 text-sm truncate max-w-[200px]" title={`https://cdn2.dajkodzik.pl/${slug}/${selectedFile?.fileName}`}>
-                    https://cdn2.dajkodzik.pl/{slug}/{selectedFile?.fileName}
+                  <span className="text-zinc-200 text-sm truncate max-w-[200px]" title={`${process.env.NEXT_PUBLIC_CDN_URL}/${slug}/${selectedFile?.fileName}`}>
+                    {process.env.NEXT_PUBLIC_CDN_URL}/{slug}/{selectedFile?.fileName}
                   </span>
                   <Button
                     variant="ghost"
@@ -894,7 +894,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
                     className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 h-6 px-2"
                     onClick={async () => {
                       try {
-                        await navigator.clipboard.writeText(`https://cdn2.dajkodzik.pl/${slug}/${selectedFile?.fileName}`);
+                        await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_CDN_URL}/${slug}/${selectedFile?.fileName}`);
                         toast.success('Link skopiowany do schowka!');
                       } catch (error) {
                         toast.error('Nie udało się skopiować linku');
