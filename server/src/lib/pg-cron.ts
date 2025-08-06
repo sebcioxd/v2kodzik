@@ -43,7 +43,7 @@ const setupCronJob = async () => {
             SELECT cron.schedule(
                 'cancel_signature_cleanup',                    
                 '*/5 * * * *',                      
-                'DELETE FROM cancel_signatures WHERE expires_at < NOW();'  
+                'DELETE FROM cancel_signatures WHERE expires_at < NOW();'   
             );
         `;
         console.log('🟢 Cancel signature cleanup cron pomyślnie ustawiony', cancelSignatureSchedule);

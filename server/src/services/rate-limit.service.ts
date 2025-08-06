@@ -8,7 +8,7 @@ const minutes = (min: number) => min * 60 * 1000;
 export const rateLimitConfigs = {
     upload: {
         windowMs: minutes(20), 
-        limit: 3,
+        limit: 5,
     },
     default: {
         windowMs: minutes(25),     
@@ -36,7 +36,7 @@ export const rateLimitConfigs = {
     },
     finalize: {
         windowMs: minutes(20),
-        limit: 3,
+        limit: 5,
     },
     cancel: {
         windowMs: minutes(20),
