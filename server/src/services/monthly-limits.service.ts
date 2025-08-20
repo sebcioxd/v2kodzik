@@ -39,6 +39,7 @@ export class MonthlyUsageService {
             success: true,
             megabytesUsed: limits[0].megabytesUsed,
             megabytesLimit: limits[0].megabytesLimit,
+            resetAt: limits[0].resetAt,
         });
     }
 

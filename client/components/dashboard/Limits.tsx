@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Clock,
   TrendingUp,
+  Calendar,
 } from 'lucide-react';
 import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ type LimitsData = {
   megabytesUsed: number;
   megabytesLimit: number;
   message: string;
+  resetAt?: string;
 };
 
 // Helper function to format bytes to human readable format
@@ -63,6 +65,28 @@ const getUsageStatus = (percentage: number) => {
     return { status: 'warning', color: 'text-yellow-400', bgColor: 'bg-yellow-400/10', progressColor: 'bg-yellow-400' };
   } else {
     return { status: 'normal', color: 'text-green-400', bgColor: 'bg-green-400/10', progressColor: 'bg-green-400' };
+  }
+};
+
+// Helper function to format reset date
+const formatResetDate = (resetAt: string) => {
+  const resetDate = new Date(resetAt);
+  const now = new Date();
+  const diffTime = resetDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  if (diffDays <= 0) {
+    return 'Dzisiaj';
+  } else if (diffDays === 1) {
+    return 'Jutro';
+  } else if (diffDays < 7) {
+    return `Za ${diffDays} dni`;
+  } else {
+    return resetDate.toLocaleDateString('pl-PL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   }
 };
 
@@ -161,13 +185,10 @@ export default function Limits({ user }: LimitsProps) {
               <div className="relative">
                 <Progress 
                   value={usagePercentage} 
-                  className="h-3 bg-zinc-800"
-                  style={{
-                    '--progress-background': usageStatus.progressColor
-                  } as React.CSSProperties}
+                  className="h-2 bg-zinc-800"
                 />
                 <div 
-                  className={`absolute top-0 left-0 h-3 rounded-full transition-all duration-300 ${usageStatus.progressColor}`}
+                  className="absolute top-0 left-0 h-2 rounded-full transition-all duration-300 bg-zinc-500"
                   style={{ width: `${usagePercentage}%` }}
                 />
               </div>
@@ -190,9 +211,9 @@ export default function Limits({ user }: LimitsProps) {
 
         {/* Usage Statistics */}
         {!isLoading && limitsData && (
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             {/* Used Space Card */}
-            <div className="bg-zinc-900/20 border border-zinc-800 rounded-lg p-4">
+            <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-md p-4">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-zinc-800/50 rounded-lg">
                   <TrendingUp className="h-4 w-4 text-zinc-300" />
@@ -208,7 +229,7 @@ export default function Limits({ user }: LimitsProps) {
             </div>
 
             {/* Remaining Space Card */}
-            <div className="bg-zinc-900/20 border border-zinc-800 rounded-lg p-4">
+            <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-md p-4">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-zinc-800/50 rounded-lg">
                   <Clock className="h-4 w-4 text-zinc-300" />
@@ -220,6 +241,22 @@ export default function Limits({ user }: LimitsProps) {
               </div>
               <p className="text-zinc-400 text-xs">
                 Dostępne do końca miesiąca
+              </p>
+            </div>
+
+            {/* Reset Date Card */}
+            <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-md p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-zinc-800/50 rounded-lg">
+                  <Calendar className="h-4 w-4 text-zinc-300" />
+                </div>
+                <h4 className="text-zinc-200 font-medium text-sm">Odświeżenie limitów</h4>
+              </div>
+              <div className="text-xl font-bold text-zinc-200 mb-1">
+                {limitsData.resetAt ? formatResetDate(limitsData.resetAt) : 'Nie ustawiono'}
+              </div>
+              <p className="text-zinc-400 text-xs">
+                Następny reset miesięczny
               </p>
             </div>
           </div>

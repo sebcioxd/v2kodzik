@@ -12,7 +12,7 @@ export default function Hero() {
   return (
     <main className="flex flex-col items-center justify-center md:max-w-4xl  max-w-sm mx-auto px-4">
       {/* Hero Section with Gradient Background */}
-      <div className="w-full  bg-gradient-to-b p-8 backdrop-blur-sm border-dashed border rounded-lg border-zinc-800 animate-fade-in-01-text">
+      <div className="w-full  bg-gradient-to-b p-8 backdrop-blur-sm border-dashed border rounded-md border-zinc-800 animate-fade-in-01-text">
         <div className="flex flex-col items-center space-y-6">
           {/* Logo with Glow Effect */}
           <div className="relative">

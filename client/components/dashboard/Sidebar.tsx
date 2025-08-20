@@ -222,7 +222,7 @@ export default function DashboardSidebar() {
               });
             }}
             className={cn(
-              "w-full flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+              "w-full flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group cursor-pointer",
               "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
               "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
             )}
