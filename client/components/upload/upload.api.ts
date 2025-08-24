@@ -6,22 +6,22 @@ export async function getPresignedUrls(
   data: UploadFormData,
   turnstileToken: string
 ): Promise<PresignResponse> {
-  const fileNames = data.files.map(file => file.name).join(',');
-  const contentTypes = data.files.map(file => file.type).join(',');
-  const fileSizes = data.files.map(file => file.size); // Add file sizes
+  const fileNames = data.files.map(file => file.name);
+  const contentTypes = data.files.map(file => file.type);
+  const fileSizes = data.files.map(file => file.size);
  
   const response = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign?` + 
-    `slug=${data.slug}&` +
-    `fileNames=${fileNames}&` +
-    `contentTypes=${contentTypes}&` +
-    `isPrivate=${data.isPrivate}&` +
-    `accessCode=${data.accessCode}&` +
-    `visibility=${data.visibility}&` +
-    `time=${data.time}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/v1/upload/presign`,
     { 
       token: turnstileToken,
-      fileSizes: fileSizes // Send file sizes in request body
+      fileSizes,
+      slug: data.slug,
+      fileNames,
+      contentTypes,
+      isPrivate: data.isPrivate,
+      accessCode: data.accessCode,
+      visibility: data.visibility,
+      time: data.time
     },
     { withCredentials: true }
   );

@@ -1,7 +1,7 @@
 import type { Env } from "hono";
 import type { Context } from "hono";
 import { auth } from "../lib/auth";
-import { uploadQuerySchema, uploadBodySchema, finalizeSchema, cancelBodySchema } from "./zod";
+import { uploadBodySchema, finalizeSchema, cancelBodySchema } from "./zod";
 import { z } from "zod";
 
 export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation";
@@ -35,11 +35,20 @@ export type generatePresignedUrlProps = {
     Key: string;
 }
 
-export type S3UploadServiceProps = {
+export interface S3UploadServiceProps {
     c: Context;
-    user: typeof User | null;
-    queryData: z.infer<typeof uploadQuerySchema>;
-    bodyData: z.infer<typeof uploadBodySchema>;
+    user?: typeof User | null;
+    bodyData: {
+        token: string;
+        fileSizes?: number[];
+        slug?: string;
+        fileNames: string[];
+        contentTypes: string[];
+        isPrivate: boolean;
+        accessCode?: string;
+        visibility: boolean;
+        time: number;
+    };
 }
 
 export type UploadRequestProps = {

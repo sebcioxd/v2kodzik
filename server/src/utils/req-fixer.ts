@@ -1,21 +1,28 @@
 import type { Context } from "hono";
 import type { z } from "zod";
-import { uploadQuerySchema } from "../lib/zod";
 import { db } from "../db/index";
 import { shares } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { User } from "../lib/types";
 
 export const restrictedPaths = ["upload", "search", "faq", "api", "admin", "auth", "panel", "success", "schowek", "terms", "oauth-password", "pricing"];
 const disallowedCharacters = /[(){}[\]!@#$%^&*+=\\|<>?,;:'"]/;
 
-type ValidatedUploadRequest = z.infer<typeof uploadQuerySchema>;
+type ValidatedUploadRequest = {
+    slug?: string;
+    fileNames: string[];
+    contentTypes: string[];
+    isPrivate: boolean;
+    accessCode?: string;
+    visibility: boolean;
+    time: string;
+};
 
 export async function fixRequestProps(
     req: ValidatedUploadRequest, 
     c: Context, 
-    user?: any | null
+    user?: typeof User | null
 ): Promise<ValidatedUploadRequest | Response> {    
-    
     
     if (req.isPrivate && (!req.accessCode || req.accessCode === '')) {
         return c.json({

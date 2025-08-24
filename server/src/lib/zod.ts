@@ -1,13 +1,15 @@
 import { z } from 'zod';
 
-export const uploadQuerySchema = z.object({
+export const uploadBodySchema = z.object({
+    token: z.string().min(1, "Turnstile token jest wymagany"),
+    fileSizes: z.array(z.number()).optional(),
     slug: z.string().optional().or(z.literal('')).transform(val => val === '' ? undefined : val),
-    fileNames: z.string().min(1, "Nazwy plików są wymagane").transform(val => val.split(',')),
-    contentTypes: z.string().min(0, "Typy plików są wymagane. Ten błąd może wystąpić gdy plik jest nieobsługiwanego formatu.").transform(val => val.split(',')),
-    isPrivate: z.string().transform(val => val === 'true'),
+    fileNames: z.array(z.string()).min(1, "Nazwy plików są wymagane"),
+    contentTypes: z.array(z.string()).min(1, "Typy plików są wymagane. Ten błąd może wystąpić gdy plik jest nieobsługiwanego formatu."),
+    isPrivate: z.boolean(),
     accessCode: z.string().optional().or(z.literal('')).transform(val => val === '' ? undefined : val),
-    visibility: z.string().min(1, "Widoczność jest wymagana"),
-    time: z.string().min(1, "Czas jest wymagany"),
+    visibility: z.boolean(),
+    time: z.string().transform(val => parseFloat(val)),
 });
 
 export const finalizeSchema = z.object({
@@ -24,11 +26,6 @@ export const finalizeSchema = z.object({
     time: z.number().min(0.5, "Czas jest wymagany").max(168, "Czas jest zbyt duży"),
     signature: z.string().min(1, "Podpis jest wymagany"),
     cancel_signature: z.string().min(1, "Podpis anulowania jest wymagany"),
-});
-
-export const uploadBodySchema = z.object({
-    token: z.string().min(1, "Turnstile token jest wymagany"),
-    fileSizes: z.array(z.number()).optional()
 });
 
 export const cancelBodySchema = z.object({

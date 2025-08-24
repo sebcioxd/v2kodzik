@@ -55,9 +55,9 @@ export class UploadService {
         return { signature, cancelSignature };
     }
 
-    public async uploadFiles({ c, user, queryData, bodyData }: S3UploadServiceProps) {
+    public async uploadFiles({ c, user, bodyData }: S3UploadServiceProps) {
         try {
-            const { token, fileSizes } = bodyData; // Add fileSizes to bodyData
+            const { token, fileSizes, slug, fileNames, contentTypes, isPrivate, accessCode, visibility, time } = bodyData;
 
             try {
                 await verifyCaptcha({ c, token });
@@ -67,15 +67,23 @@ export class UploadService {
                 }, 400);
             }
 
-            
-            
-            const result = await fixRequestProps(queryData, c, user);
+            const req = {
+                slug,
+                fileNames,
+                contentTypes,
+                isPrivate,
+                accessCode,
+                visibility,
+                time: time.toString()
+            };
+
+            const result = await fixRequestProps(req, c, user);
 
             if (result instanceof Response) {
                 return result;
             }
 
-            const req = result;
+            const validatedReq = result;
             const totalSizeInMB = fileSizes?.reduce((acc, size) => acc + (size / (1024 * 1024)), 0) || 0;
 
 
@@ -149,24 +157,24 @@ export class UploadService {
                 }, 400);
             }
 
-            const presignedData = await Promise.all(req.fileNames.map(async (fileName, index) => {
+            const presignedData = await Promise.all(validatedReq.fileNames.map(async (fileName: string, index: number) => {
                 const uploadService = this.generatePresignedUrl(
-                    `${req.slug}/${fileName}`, 
-                    req.contentTypes[index] || req.contentTypes[0]
+                    `${validatedReq.slug}/${fileName}`, 
+                    validatedReq.contentTypes[index] || validatedReq.contentTypes[0]
                 );
                 return {
                     fileName,
-                    contentType: req.contentTypes[index] || req.contentTypes[0],
+                    contentType: validatedReq.contentTypes[index] || validatedReq.contentTypes[0],
                     ...uploadService
                 };
             }));
 
-            const { signature, cancelSignature } = await this.generateSignatures(req.slug || "");
+            const { signature, cancelSignature } = await this.generateSignatures(validatedReq.slug || "");
 
             return c.json({
                 presignedData,
-                slug: req.slug,
-                time: parseFloat(req.time),
+                slug: validatedReq.slug,
+                time: parseFloat(validatedReq.time),
                 finalize_signature: signature,
                 cancel_signature: cancelSignature
             });
