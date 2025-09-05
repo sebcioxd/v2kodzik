@@ -11,7 +11,7 @@ export async function setOAuthStatusService({ c, user }: SetOAuthStatusServicePr
             headers: c.req.raw.headers
         })
 
-        const hasPassword = accounts.find((account) => account.provider === "credential");
+        const hasPassword = accounts.find((account) => account.providerId === "credential");
         
         if (hasPassword) {
             await auth.api.updateUser({
@@ -85,7 +85,7 @@ export async function getDiscordGuildsService({ c }: { c: Context }) {
             headers: c.req.raw.headers
         })
 
-        const acc = accounts.find((account) => account.provider === "discord");
+        const acc = accounts.find((account) => account.providerId === "discord");
 
        const accessToken = await auth.api.getAccessToken({
         body: {
