@@ -1,5 +1,5 @@
 import { db } from "../db/index";
-import { monthlyLimits } from "../db/schema";
+import { monthlyLimits, monthlyIPlimits, user } from "../db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { Context } from "hono";
 import { User } from "../lib/types";
@@ -107,4 +107,91 @@ export class MonthlyUsageService {
             megabytesLimit: 1000,
         }).where(eq(monthlyLimits.userId, referenceId));
     }
+}
+
+export class MonthlyIPLimitsService {
+    constructor() {}
+
+    private DEFAULT_IP_LIMIT: number = 500;
+
+    async getMonthlyLimits({ c, ipAddress }: { c: Context, ipAddress: string }) {
+
+        const limits = await db.select().from(monthlyIPlimits).where(eq(monthlyIPlimits.ipAddress, ipAddress));
+ 
+        if (!limits || limits.length === 0) {
+            await db.insert(monthlyIPlimits).values({
+                ipAddress: ipAddress,
+                megabytesUsed: 0,
+                megabytesLimit: this.DEFAULT_IP_LIMIT,
+            });
+
+            return c.json({
+                message: "Limit IP miesięczny został utworzony",
+                success: true,
+                megabytesUsed: 0,
+                megabytesLimit: this.DEFAULT_IP_LIMIT,
+            });
+        }
+
+        return c.json({
+            message: "Limit IP miesięczny został pobrany",
+            success: true,
+            megabytesUsed: limits[0].megabytesUsed,
+            megabytesLimit: limits[0].megabytesLimit,
+            resetAt: limits[0].resetAt,
+        });
+    }
+
+    async updateMonthlyLimits({ c, ipAddress, megabytesUsed }: { c: Context, ipAddress: string, megabytesUsed: number }) {
+
+        const limits = await db.select().from(monthlyIPlimits).where(eq(monthlyIPlimits.ipAddress, ipAddress));
+    
+        if (!limits || limits.length === 0) {
+            await db.insert(monthlyIPlimits).values({
+                ipAddress: ipAddress,
+                megabytesUsed: megabytesUsed,
+                megabytesLimit: this.DEFAULT_IP_LIMIT,
+            });
+    
+            return c.json({
+                message: "Limit IP miesięczny został utworzony",
+                success: true,
+                megabytesUsed: megabytesUsed,
+                megabytesLimit: this.DEFAULT_IP_LIMIT,
+            });
+        }
+    
+        if (limits[0].megabytesUsed === 0) {
+            await db.update(monthlyIPlimits).set({
+                megabytesUsed: megabytesUsed,
+                resetAt: sql`NOW() + INTERVAL '1 month'`,
+            }).where(eq(monthlyIPlimits.ipAddress, ipAddress));
+    
+            return c.json({
+                message: "Limit IP miesięczny został zaktualizowany",
+                success: true,
+                megabytesUsed: megabytesUsed + limits[0].megabytesUsed,
+                megabytesLimit: limits[0].megabytesLimit,
+            });
+        }
+    
+        if (limits[0].megabytesUsed + megabytesUsed > limits[0].megabytesLimit) {
+            return c.json({
+                message: "Limit IP miesięczny został przekroczony",
+                success: false,
+                hasReachedLimit: true,
+            }, 400);
+        }
+    
+        await db.update(monthlyIPlimits).set({
+            megabytesUsed: megabytesUsed + limits[0].megabytesUsed,
+        }).where(eq(monthlyIPlimits.ipAddress, ipAddress));
+    
+        return c.json({
+            message: "Limit IP miesięczny został zaktualizowany",
+            success: true,
+            megabytesUsed: megabytesUsed + limits[0].megabytesUsed,
+            megabytesLimit: limits[0].megabytesLimit,
+        });
+        }
 }

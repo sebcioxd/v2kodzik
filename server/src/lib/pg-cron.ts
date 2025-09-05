@@ -3,7 +3,7 @@ import { sql } from "bun";
 /* 
 ** TO JEST FUNKCJA JEŚLI MACIE MOŻLIWOŚĆ UŻYWANIA pg-cron, więcej inforamcji w /pg_image/guide.md
 ** NIE JEST TO ZASTĄPIENIE TRADYCYJNEGO /v1/cron, TYLKO JEGO WSPOMAGACZ
-** URUCHOM PLIK Z BUN RUN src/lib/cron.ts
+** URUCHOM PLIK Z BUN RUN src/lib/pg-cron.ts
 ** ZMIANY POWINNY ZOSTAĆ WPROWADZONE DO BAZY
 */
 
@@ -56,6 +56,15 @@ const setupCronJob = async () => {
             );
         `;
         console.log('🟢 Monthly limits cleanup cron pomyślnie ustawiony', monthlyLimitsCleanup);
+
+        const monthlyIPLimitsCleanup = await sql`
+            SELECT cron.schedule(
+                'monthly_ip_limits_cleanup',                    
+                '*/5 * * * *',                      
+                'UPDATE monthly_ip_limits SET megabytes_used = 0, reset_at = NOW() + INTERVAL ''1 month'' WHERE reset_at < NOW();'  
+            );
+        `;
+        console.log('🟢 Monthly IP limits cleanup cron pomyślnie ustawiony', monthlyIPLimitsCleanup);
 
 
 

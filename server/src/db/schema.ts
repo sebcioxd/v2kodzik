@@ -178,7 +178,16 @@ export const subscription = pgTable("subscription", {
   seats: integer("seats"),
 });
 
-
+export const monthlyIPlimits = pgTable("monthly_ip_limits", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  ipAddress: text("ip_address").notNull(),
+  megabytesUsed: integer("megabytes_used").notNull().default(0),
+  megabytesLimit: integer("megabytes_limit").notNull().default(500),
+  resetAt: timestamp("reset_at").notNull().default(sql`NOW() + INTERVAL '1 month'`),
+}, (t) => [
+  index("idx_monthly_ip_limits_ip_address").on(t.ipAddress),
+  index("idx_monthly_ip_limits_reset_at").on(t.resetAt),
+]);
 
   
-export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits };
+export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits };

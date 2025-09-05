@@ -8,15 +8,18 @@ import { getS3Client } from "../lib/s3";
 import { verifyCaptcha } from "../lib/captcha";
 import { S3Client } from "bun";
 import { MonthlyUsageService } from "./monthly-limits.service";
+import { MonthlyIPLimitsService } from "./monthly-limits.service";
 import { auth } from "../lib/auth";
 
 export class UploadService {
     private client: S3Client;
     private monthlyService: MonthlyUsageService;
-    
+    private monthlyIPService: MonthlyIPLimitsService;
+
     constructor(bucket: string) {
         this.client = getS3Client({ bucket });
         this.monthlyService = new MonthlyUsageService();
+        this.monthlyIPService = new MonthlyIPLimitsService();
     }
 
     private generatePresignedUrl(key: string, contentType: string) {
@@ -97,7 +100,7 @@ export class UploadService {
 
                 if (limitCheck.status === 400) {
                     return c.json({
-                        message: "Limit miesięczny został przekroczony",
+                        message: "Limit miesięczny transferu został przekroczony.",
                         success: false,
                         hasReachedLimit: true,
                     }, 400);
@@ -155,6 +158,26 @@ export class UploadService {
                     success: false,
                     hasReachedLimit: true,
                 }, 400);
+            }
+
+            /**
+                INTENCJONALNE SPRAWDZENIE LIMITU ADRESU IP, JEŚLI NIE MA UŻYTKOWNIKA.
+            */
+            if (!user) {
+                const ipAddress = c.req.header("CF-Connecting-IP") || c.req.header("x-forwarded-for") || "127.0.0.1";
+                const limitCheck = await this.monthlyIPService.updateMonthlyLimits({ 
+                    c, 
+                    ipAddress, 
+                    megabytesUsed: totalSizeInMB 
+                });
+
+                if (limitCheck.status === 400) {
+                    return c.json({
+                        message: "Limit miesięczny transferu został przekroczony, załóż konto aby uniknąć ograniczeń",
+                        success: false,
+                        hasReachedLimit: true,
+                    }, 400);
+                }
             }
 
             const presignedData = await Promise.all(validatedReq.fileNames.map(async (fileName: string, index: number) => {

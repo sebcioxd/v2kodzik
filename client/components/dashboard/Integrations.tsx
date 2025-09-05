@@ -15,6 +15,7 @@ import { formatDate } from '@/lib/date';
 import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth-client';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 // Custom Loading Spinner Component
 const LoadingSpinner = ({ size = "default" }: { size?: "small" | "default" | "large" }) => {
@@ -32,7 +33,7 @@ const LoadingSpinner = ({ size = "default" }: { size?: "small" | "default" | "la
 // Updated type to match the actual structure returned by listAccounts
 type Account = {
   id: string;
-  provider: string; // Changed from providerId to provider
+  providerId: string; // Fixed: Changed back to providerId to match actual API response
   createdAt: Date;
   updatedAt: Date;
   accountId: string;
@@ -124,7 +125,7 @@ export default function Integrations({ user }: IntegrationsProps) {
       });
     } catch (error) {
       console.error('Error linking account:', error);
-      // You might want to show a toast notification here
+      toast.error('Błąd podczas łączenia konta');
     } finally {
       setIsLinking(null);
     }
@@ -145,9 +146,9 @@ export default function Integrations({ user }: IntegrationsProps) {
     }
   };
 
-  // Fixed: Use account.provider instead of account.providerId
+  // Fixed: Use account.providerId instead of account.provider
   // Filter out credential provider and only show social providers
-  const linkedProviders = accounts?.map(account => account.provider as ProviderType) || [];
+  const linkedProviders = accounts?.map(account => account.providerId as ProviderType) || [];
   const availableProviders = (Object.keys(providerNames) as ProviderType[]).filter(
     provider => !linkedProviders.includes(provider)
   );
@@ -182,7 +183,7 @@ export default function Integrations({ user }: IntegrationsProps) {
               Połączone konta
             </h3>
 
-            {!accounts || accounts.filter(account => account.provider !== 'credential').length === 0 ? (
+            {!accounts || accounts.filter(account => account.providerId !== 'credential').length === 0 ? (
               <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 text-center">
                 <User className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
                 <p className="text-zinc-400 mb-2">Brak połączonych kont</p>
@@ -193,11 +194,11 @@ export default function Integrations({ user }: IntegrationsProps) {
             ) : (
               <div className="grid gap-4">
                 {accounts
-                  .filter(account => account.provider !== 'credential')
+                  .filter(account => account.providerId !== 'credential')
                   .map((account) => {
-                  const provider = account.provider as ProviderType;
+                  const provider = account.providerId as ProviderType;
                   const IconComponent = providerIcons[provider];
-                  const providerName = providerNames[provider] || account.provider;
+                  const providerName = providerNames[provider] || account.providerId;
                   const providerColor = providerColors[provider] || "text-zinc-400";
                   
                   return (
@@ -222,7 +223,7 @@ export default function Integrations({ user }: IntegrationsProps) {
                               ID: {account.accountId}
                             </p>
                             <p className="text-zinc-400 text-sm">
-                              Wystawca: {account.provider}
+                              Wystawca: {account.providerId}
                             </p>
                           </div>
                         </div>
@@ -237,7 +238,7 @@ export default function Integrations({ user }: IntegrationsProps) {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleUnlinkAccount(account.id, account.provider)}
+                            onClick={() => handleUnlinkAccount(account.id, account.providerId)}
                             disabled={isUnlinking === account.id}
                             className="text-red-400 hover:text-red-30 bg-darken hover:bg-red-400/10 border-red-400/20"
                           >
