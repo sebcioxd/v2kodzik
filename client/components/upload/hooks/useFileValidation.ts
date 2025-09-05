@@ -1,14 +1,14 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { validateFileName, validateFileSize, validateTotalSize, getMaxSize } from "../upload.utils";
+import { validateFileName, validateFileSize, validateTotalSize, getMaxSize, sanitizeFileName } from "../upload.utils";
 import { useSession } from "@/lib/auth-client";
 import { authClient } from "@/lib/auth-client";
-import { useState, useEffect } from "react";
 
 export function useFileValidation(selectedTime: string) {
   const { data: session } = useSession();
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
   const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(true);
+  const [filenameChanges, setFilenameChanges] = useState<Map<string, string>>(new Map());
 
   // Fetch user subscriptions
   useEffect(() => {
@@ -59,11 +59,30 @@ export function useFileValidation(selectedTime: string) {
 
   const maxSize = getFileSizeLimit();
 
-  const validateFile = useCallback((file: File): string | null => {
-    // Check filename
-    const filenameError = validateFileName(file.name);
-    if (filenameError) return filenameError;
+  const sanitizeFile = useCallback((file: File): File => {
+    const sanitizedName = sanitizeFileName(file.name);
+    if (sanitizedName !== file.name) {
+      // Store the filename change for inline display
+      setFilenameChanges(prev => new Map(prev).set(file.name, sanitizedName));
+      
+      // Create a new File object with the sanitized name
+      return new File([file], sanitizedName, {
+        type: file.type,
+        lastModified: file.lastModified
+      });
+    }
+    return file;
+  }, []);
 
+  const clearFilenameChange = useCallback((originalName: string) => {
+    setFilenameChanges(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(originalName);
+      return newMap;
+    });
+  }, []);
+
+  const validateFile = useCallback((file: File): string | null => {
     // Check file size
     const sizeError = validateFileSize(file, maxSize);
     if (sizeError) return sizeError;
@@ -79,22 +98,26 @@ export function useFileValidation(selectedTime: string) {
       return { validFiles: [], hasErrors: true };
     }
 
-    // Validate individual files
+    // Sanitize and validate individual files
     const validFiles: File[] = [];
     let hasErrors = false;
 
     files.forEach(file => {
-      const error = validateFile(file);
+      // First sanitize the file
+      const sanitizedFile = sanitizeFile(file);
+      
+      // Then validate the sanitized file
+      const error = validateFile(sanitizedFile);
       if (error) {
-        toast.error(`${file.name}: ${error}`);
+        toast.error(`${sanitizedFile.name}: ${error}`);
         hasErrors = true;
       } else {
-        validFiles.push(file);
+        validFiles.push(sanitizedFile);
       }
     });
 
     return { validFiles, hasErrors };
-  }, [validateFile, maxSize]);
+  }, [validateFile, sanitizeFile, maxSize]);
 
   const onFileReject = useCallback((file: File, message: string) => {
     toast.error(`${file.name}: ${message}`);
@@ -103,10 +126,13 @@ export function useFileValidation(selectedTime: string) {
   return {
     validateFile,
     validateFiles,
+    sanitizeFile,
     onFileReject,
     maxSize,
     activeSubscription,
-    isLoadingSubscriptions
+    isLoadingSubscriptions,
+    filenameChanges,
+    clearFilenameChange
   };
 }
 

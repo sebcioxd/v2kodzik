@@ -44,7 +44,7 @@ import { Turnstile } from "@/components/turnstile";
 import { useInfo } from "@/app/hooks/use-fetch";
 import { 
   Upload, X, ShieldPlus, Rss, Lock, 
-  Megaphone, EyeOff, Clock, Link as LinkIcon, Crown
+  Megaphone, EyeOff, Clock, Link as LinkIcon, Crown, CheckCircle2
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -55,6 +55,73 @@ import { uploadFormSchema, UploadFormData } from "./upload.types";
 import { formatBytes } from "./upload.utils";
 import { Progress } from "@/components/ui/progress";
 import { UploadProgressView } from "./ProgressComponent";
+
+// Custom component for file items with inline notifications
+const FileItemWithNotification = memo(({ 
+  file, 
+  index, 
+  filenameChanges, 
+  clearFilenameChange 
+}: {
+  file: File;
+  index: number;
+  filenameChanges: Map<string, string>;
+  clearFilenameChange: (originalName: string) => void;
+}) => {
+  const [showNotification, setShowNotification] = useState(false);
+  const originalName = Array.from(filenameChanges.keys()).find(key => 
+    filenameChanges.get(key) === file.name
+  );
+
+  useEffect(() => {
+    if (originalName) {
+      setShowNotification(true);
+      const timer = setTimeout(() => {
+        setShowNotification(false);
+        // Clear the change record after animation completes
+        setTimeout(() => clearFilenameChange(originalName), 500);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [originalName, clearFilenameChange]);
+
+  return (
+    <div className="space-y-1">
+      <FileUploadItem
+        value={file}
+        className="border-dashed py-2 border-zinc-800"
+      >
+        <FileUploadItemPreview className="bg-darken rounded-md text-zinc-300 border-zinc-950" />
+        <FileUploadItemMetadata className="text-zinc-400" />
+        <FileUploadItemDelete asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-600"
+          >
+            <X />
+          </Button>
+        </FileUploadItemDelete>
+      </FileUploadItem>
+      
+      {/* Inline filename change notification */}
+      {originalName && (
+        <div className={`ml-2 px-2 py-1 bg-emerald-950/30 border border-emerald-800/50 rounded text-xs text-emerald-300 animate-fade-in-01-text ${
+          showNotification 
+            ? 'opacity-100 translate-y-0 max-h-8' 
+            : 'opacity-0 -translate-y-1 max-h-0 overflow-hidden'
+        }`}>
+          <div className="flex items-center gap-1">
+            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+            <span>Zmieniono z "{originalName}"</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+FileItemWithNotification.displayName = 'FileItemWithNotification';
 
 export function UploadPage() {
   const { data: session } = useSession();
@@ -75,7 +142,17 @@ export function UploadPage() {
   });
   
   const selectedTime = form.watch("time");
-  const { validateFile, onFileReject, maxSize, activeSubscription, isLoadingSubscriptions } = useFileValidation(selectedTime);
+  const { 
+    validateFile, 
+    onFileReject, 
+    maxSize, 
+    activeSubscription, 
+    isLoadingSubscriptions, 
+    sanitizeFile,
+    filenameChanges,
+    clearFilenameChange
+  } = useFileValidation(selectedTime);
+  
   const { 
     uploadState, 
     uploadMutation, 
@@ -89,7 +166,8 @@ export function UploadPage() {
   const handleFileChange = useCallback((files: File[]) => {
     if (uploadState.isUploading) return;
 
-    const validFiles = files.filter(file => {
+    const sanitizedFiles = files.map(file => sanitizeFile(file));
+    const validFiles = sanitizedFiles.filter(file => {
       const validationResult = validateFile(file);
       if (validationResult) {
         onFileReject(file, validationResult);
@@ -102,7 +180,7 @@ export function UploadPage() {
     setTotalSize(newTotalSize);
     
     return validFiles;
-  }, [uploadState.isUploading, validateFile, onFileReject]);
+  }, [uploadState.isUploading, validateFile, onFileReject, sanitizeFile]);
 
   const handleTimeChange = useCallback((newTime: string) => {
     const currentFiles = form.getValues("files");
@@ -240,25 +318,42 @@ export function UploadPage() {
                     </FileUploadDropzone>
                     
                     <FileUploadList>
-                      {field.value?.map((file, index) => (
-                        <FileUploadItem
-                          key={index} 
-                          value={file}
-                          className="border-dashed py-2 border-zinc-800"
-                        >
-                          <FileUploadItemPreview className="bg-darken rounded-md text-zinc-300 border-zinc-950" />
-                          <FileUploadItemMetadata className="text-zinc-400" />
-                          <FileUploadItemDelete asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-600"
+                      {field.value?.map((file, index) => {
+                        const originalName = Array.from(filenameChanges.keys()).find(key => 
+                          filenameChanges.get(key) === file.name
+                        );
+                        
+                        return (
+                          <div key={index} className="space-y-1">
+                            <FileUploadItem
+                              value={file}
+                              className="border-dashed py-2 border-zinc-800"
                             >
-                              <X />
-                            </Button>
-                          </FileUploadItemDelete>
-                        </FileUploadItem>
-                      )) || []}
+                              <FileUploadItemPreview className="bg-darken rounded-md text-zinc-300 border-zinc-950" />
+                              <FileUploadItemMetadata className="text-zinc-400" />
+                              <FileUploadItemDelete asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="size-7 text-zinc-200 hover:bg-darken hover:text-zinc-600"
+                                >
+                                  <X />
+                                </Button>
+                              </FileUploadItemDelete>
+                            </FileUploadItem>
+                            
+                            {/* Inline filename change notification */}
+                            {originalName && (
+                              <div className=" px-2 py-1 bg-zinc-950/30 border border-dashed border-zinc-800 text-white rounded text-xs  animate-fade-in-01-text">
+                                <div className="flex items-center gap-1">
+                                  
+                                  <span>Automatycznie zmieniono nazwę pliku ze względu na kompatybilność.</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }) || []}
                     </FileUploadList>
 
                     {/* File Size Progress */}
