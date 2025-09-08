@@ -107,7 +107,7 @@ export default function ShareHistory({ user }: { user: User }) {
                         loader={isLoading ? <Loader /> : null}
                         endMessage={
                             <p className="text-left py-4 text-zinc-500 text-sm">
-                                To wszystkie dostępne pliki.
+                                To wszystkie wygenerowane pliki.
                             </p>
                         }
                     >
@@ -131,24 +131,19 @@ export default function ShareHistory({ user }: { user: User }) {
                                 return (
                                 <div 
                                     key={share.id}
-                                    className="bg-zinc-900/30 border border-zinc-900 rounded-md p-4 hover:bg-zinc-900/20 transition-colors animate-slide-in-bottom"
+                                    className="bg-zinc-900/30 border border-zinc-900 border-dashed rounded-md p-4 hover:bg-zinc-900/20 transition-colors animate-slide-in-bottom"
                                 >
                                     <div className="flex justify-between items-center mb-2 border-b border-zinc-900 pb-2">
                                         <div className="flex flex-col">
-                                            <span className="text-zinc-400 text-sm font-medium flex flex-row gap-2 items-center">
+                                            <span className="text-zinc-400 text-sm font-medium flex flex-row gap-1 items-center">
                                                 <LinkIcon className="h-4 w-4" /> 
-                                                Kod linku: <span className="text-zinc-200">{share.slug}</span> 
+                                                Kod linku:<span className="text-zinc-200">{share.slug}</span> 
                                                 {share.private && <Lock className="h-4 w-4 text-zinc-400" />}
-                                                {expired && (
-                                                    <span className="ml-2 inline-flex items-center gap-1 text-red-400">
-                                                        <Lock className="h-4 w-4" />
-                                                        Wygasł — link zablokowany
-                                                    </span>
-                                                )}
+                                                
                                             </span>
                                         </div>
                                         {expired ? (
-                                            <span className="text-red-400 bg-red-950/40 border border-red-900 rounded-md px-3 py-1 text-sm flex items-center gap-2">
+                                            <span className="text-red-200 bg-zinc-950/40 border border-zinc-900 rounded-md px-3 py-1 text-sm flex items-center gap-2">
                                                 <Lock className="h-4 w-4" />
                                                 Niedostępny
                                             </span>
@@ -167,7 +162,7 @@ export default function ShareHistory({ user }: { user: User }) {
                                             <CalendarArrowUp className="h-4 w-4 text-zinc-200" /> 
                                             Utworzono: {formatDate(share.createdAt)}
                                         </span>
-                                        <span className={`flex items-center gap-2 ${expired ? 'text-red-400' : ''}`}>
+                                        <span className={`flex items-center gap-2 ${expired ? 'text-red-300' : ''}`}>
                                             <CalendarArrowDown className="h-4 w-4 text-zinc-200" /> 
                                             {expired ? 'Wygasł:' : 'Wygasa:'} {formatDate(share.expiresAt)}
                                         </span>
