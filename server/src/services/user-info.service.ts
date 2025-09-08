@@ -1,14 +1,14 @@
 import type { GetUserHistoryServiceProps, GetUserHistoryCountServiceProps } from "../lib/types";
-import { shares, snippets } from "../db/schema";
+import { sharesHistory, snippets } from "../db/schema";
 import { db } from "../db/index";
 import { eq, desc } from "drizzle-orm";
 
 export async function getUserHistoryService({ offset, limit, userId }: GetUserHistoryServiceProps) {
     const history = await db
         .select()
-        .from(shares)
-        .where(eq(shares.userId, userId))
-        .orderBy(desc(shares.createdAt))
+        .from(sharesHistory)
+        .where(eq(sharesHistory.userId, userId))
+        .orderBy(desc(sharesHistory.createdAt))
         .limit(limit)
         .offset(offset);
 
@@ -17,9 +17,9 @@ export async function getUserHistoryService({ offset, limit, userId }: GetUserHi
 
 export async function getUserHistoryCountService({ userId }: GetUserHistoryCountServiceProps) {
     const distinctShares = await db
-        .selectDistinct({ id: shares.id })
-        .from(shares)
-        .where(eq(shares.userId, userId));
+        .selectDistinct({ id: sharesHistory.id })
+        .from(sharesHistory)
+        .where(eq(sharesHistory.userId, userId));
 
     const uniqueCount = distinctShares.length;
 

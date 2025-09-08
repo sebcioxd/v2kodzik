@@ -189,5 +189,30 @@ export const monthlyIPlimits = pgTable("monthly_ip_limits", {
   index("idx_monthly_ip_limits_reset_at").on(t.resetAt),
 ]);
 
+export const sharesHistory = pgTable('shares_history', {
+  id: text("id").primaryKey(),
+  slug: text('slug').notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  updatedAt: timestamp('updated_at').$defaultFn(() => sql`NOW()`).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
+  private: boolean('private').default(false),
+  code: text('code'),
+  visibility: boolean('visibility').default(true),
+  ipAddress: text('ip_address'),
+  userAgent: text('user_agent'),
+}, (t) => [
+  index('idx_shares_h_visibility_created')
+    .on(t.visibility, t.createdAt.desc()),
+  index('idx_shares_h_user_created')
+    .on(t.userId, t.createdAt.desc()),
+  index('idx_shares_h_expires_at')
+    .on(t.expiresAt),
+  index('idx_shares_h_slug_code')
+    .on(t.slug, t.code),
+  index('idx_shares_h_slug_private')
+    .on(t.slug, t.private),
+]);
+
   
 export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits };

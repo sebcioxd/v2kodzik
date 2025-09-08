@@ -69,6 +69,11 @@ export default function ShareHistory({ user }: { user: User }) {
 
     const allShares = data?.pages.flatMap(page => page.history) ?? [];
 
+    const isExpired = (expiresAt: string) => {
+        const exp = new Date(expiresAt).getTime();
+        return !Number.isNaN(exp) && exp <= Date.now();
+    };
+
     if (error) {
         return (
             <main className="flex items-center justify-center min-h-[400px]">
@@ -107,7 +112,7 @@ export default function ShareHistory({ user }: { user: User }) {
                         <div className="space-y-4">
                             {allShares.length === 0 && !isLoading && (
                                 <div className="text-zinc-400 text-sm">
-                                    Brak udostępnień. {" "}
+                                    Brak udostępnień.{" "}
                                     <Link 
                                         href="/upload" 
                                         className="text-zinc-200 hover:bg-zinc-800 rounded-md px-2 py-1 transition-colors inline-flex items-center gap-1"
@@ -118,7 +123,10 @@ export default function ShareHistory({ user }: { user: User }) {
                                 </div>
                             )}
                             
-                            {allShares.map((share) => (
+                            {allShares.map((share) => {
+                                const expired = isExpired(share.expiresAt);
+
+                                return (
                                 <div 
                                     key={share.id}
                                     className="bg-zinc-900/30 border border-zinc-900 rounded-md p-4 hover:bg-zinc-900/20 transition-colors animate-slide-in-bottom"
@@ -129,28 +137,42 @@ export default function ShareHistory({ user }: { user: User }) {
                                                 <LinkIcon className="h-4 w-4" /> 
                                                 Kod linku: <span className="text-zinc-200">{share.slug}</span> 
                                                 {share.private && <Lock className="h-4 w-4 text-zinc-400" />}
+                                                {expired && (
+                                                    <span className="ml-2 inline-flex items-center gap-1 text-red-400">
+                                                        <Lock className="h-4 w-4" />
+                                                        Wygasł — link zablokowany
+                                                    </span>
+                                                )}
                                             </span>
                                         </div>
-                                        <Link
-                                            href={`/${share.slug}`}
-                                            className="text-zinc-400 hover:text-zinc-200 bg-zinc-900/60 hover:bg-zinc-900/80 rounded-md px-3 py-1 flex items-center gap-2 transition-colors"
-                                        > 
-                                            <ExternalLink className="h-4 w-4" /> 
-                                            Odwiedź
-                                        </Link>
+                                        {expired ? (
+                                            <span className="text-red-400 bg-red-950/40 border border-red-900 rounded-md px-3 py-1 text-sm flex items-center gap-2">
+                                                <Lock className="h-4 w-4" />
+                                                Niedostępny
+                                            </span>
+                                        ) : (
+                                            <Link
+                                                href={`/${share.slug}`}
+                                                className="text-zinc-400 hover:text-zinc-200 bg-zinc-900/60 hover:bg-zinc-900/80 rounded-md px-3 py-1 flex items-center gap-2 transition-colors"
+                                            > 
+                                                <ExternalLink className="h-4 w-4" /> 
+                                                Odwiedź
+                                            </Link>
+                                        )}
                                     </div>
                                     <div className="flex flex-col gap-2 text-sm text-zinc-400 pt-2">
                                         <span className="flex items-center gap-2">
                                             <CalendarArrowUp className="h-4 w-4 text-zinc-200" /> 
                                             Utworzono: {formatDate(share.createdAt)}
                                         </span>
-                                        <span className="flex items-center gap-2">
+                                        <span className={`flex items-center gap-2 ${expired ? 'text-red-400' : ''}`}>
                                             <CalendarArrowDown className="h-4 w-4 text-zinc-200" /> 
-                                            Wygasa: {formatDate(share.expiresAt)}
+                                            {expired ? 'Wygasł:' : 'Wygasa:'} {formatDate(share.expiresAt)}
                                         </span>
                                     </div>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </InfiniteScroll>
                 </div>

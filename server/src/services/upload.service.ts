@@ -1,5 +1,5 @@
 import type { FinalizeUploadServiceProps, S3UploadServiceProps, CancelUploadServiceProps } from "../lib/types";
-import { shares, uploadedFiles, signatures, cancelSignatures } from "../db/schema";
+import { shares, uploadedFiles, signatures, cancelSignatures, sharesHistory } from "../db/schema";
 import { fixRequestProps } from "../utils/req-fixer";
 import { hashCode } from "../lib/hash";
 import { db } from "../db/index";
@@ -266,6 +266,8 @@ export class UploadService {
             }, 400);
         }
 
+        
+
         const signatureCheck = await db.select().from(signatures).where(eq(signatures.signature, signature));
 
         if (!signatureCheck || signatureCheck.length === 0 || signatureCheck[0].expiresAt < new Date()) {
@@ -300,7 +302,22 @@ export class UploadService {
                     expiresAt: sql.raw(`NOW() + INTERVAL '${expirationInterval}'`),
                     userAgent: c.req.header("user-agent") || null,
                     ipAddress: c.req.header("CF-Connecting-IP") || c.req.header("x-forwarded-for") || "127.0.0.1",
-                }).returning({ id: shares.id });
+                }).returning({ id: shares.id, slug: shares.slug, visibility: shares.visibility, code: shares.code, expiresAt: shares.expiresAt, userAgent: shares.userAgent, ipAdress: shares.ipAddress });
+
+                /*
+                ADD THE SHARE INFO ALSO TO THE HISTORY
+                */
+                await tx.insert(sharesHistory).values({
+                    id: shareResult[0].id, 
+                    slug: shareResult[0].slug,
+                    visibility: shareResult[0].visibility,
+                    private: isPrivate,
+                    userId: user ? user.id : null,
+                    code: shareResult[0].code,
+                    expiresAt: shareResult[0].expiresAt,
+                    userAgent: shareResult[0].userAgent,
+                    ipAddress: shareResult[0].ipAdress, 
+                });
 
                 const fileInserts = files.map((file: { fileName: string; size: number; contentType: string; lastModified: number }) => ({
                     shareId: shareResult[0].id,

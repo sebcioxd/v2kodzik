@@ -18,7 +18,7 @@ historyRoute.get("/", async (c) => {
     const history = await getUserHistoryService({ offset, limit, userId: user.id });
 
 
-    return c.json({ history, user }, 200)
+    return c.json({ history }, 200)
 });
 
 historyRoute.get("/count", async (c) => {
