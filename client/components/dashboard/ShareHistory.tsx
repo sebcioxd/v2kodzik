@@ -71,7 +71,16 @@ export default function ShareHistory({ user }: { user: User }) {
 
     const isExpired = (expiresAt: string) => {
         const exp = new Date(expiresAt).getTime();
-        return !Number.isNaN(exp) && exp <= Date.now();
+        const now = Date.now();
+        
+        console.log("ExpiresAt string:", expiresAt);
+        console.log("Parsed timestamp:", exp);
+        console.log("Current timestamp:", now);
+        console.log("Expiration date:", new Date(exp));
+        console.log("Current date:", new Date(now));
+        console.log("Is expired:", !Number.isNaN(exp) && exp <= now);
+        
+        return !Number.isNaN(exp) && exp <= now;
     };
 
     if (error) {
