@@ -70,15 +70,8 @@ export default function ShareHistory({ user }: { user: User }) {
     const allShares = data?.pages.flatMap(page => page.history) ?? [];
 
     const isExpired = (expiresAt: string) => {
-        const exp = new Date(expiresAt).getTime();
+        const exp = new Date(expiresAt).getTime() - (2 * 60 * 60 * 1000);
         const now = Date.now();
-        
-        console.log("ExpiresAt string:", expiresAt);
-        console.log("Parsed timestamp:", exp);
-        console.log("Current timestamp:", now);
-        console.log("Expiration date:", new Date(exp));
-        console.log("Current date:", new Date(now));
-        console.log("Is expired:", !Number.isNaN(exp) && exp <= now);
         
         return !Number.isNaN(exp) && exp <= now;
     };

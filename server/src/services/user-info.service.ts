@@ -10,7 +10,7 @@ export async function getUserHistoryService({ offset, limit, userId }: GetUserHi
         .where(eq(sharesHistory.userId, userId))
         .orderBy(desc(sharesHistory.createdAt))
         .limit(limit)
-        .offset(offset);
+        .offset(offset);    
 
     return history;
 }
