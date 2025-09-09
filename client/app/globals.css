@@ -200,6 +200,12 @@
     transform: translateY(10px); /* Start in initial position */
   }
 
+  .animate-slide-in-bottom-low-delay {
+    animation: slideInFromBottom 0.2s ease-out both;
+    opacity: 0; /* Start invisible */
+    transform: translateY(10px); /* Start in initial position */
+  }
+
   .animate-slide-in-right {
     animation: slideInFromRight 0.2s ease-out both;
     animation-delay: 0.2s;

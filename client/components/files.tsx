@@ -1,5 +1,5 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon, Info, Copy } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon, Info, Copy, FolderOpen, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import {
@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useQuery } from '@tanstack/react-query';
 
 interface File {
   id: string;
@@ -29,6 +30,20 @@ interface File {
   storagePath: string;
   lastModified: number;
   contentType: string;
+}
+
+interface FileDetail {
+  id: string;
+  fileName: string;
+  size: number;
+  contentType: string;
+  createdAt: string;
+}
+
+interface ExpandResponse {
+  history: FileDetail[];
+  totalSize: number;
+  totalFiles: number;
 }
 
 interface FilesProps {
@@ -137,6 +152,91 @@ function getFileIcon(fileName: string, fileType?: string) {
   return <FileIcon className="h-5 w-5 text-zinc-400" />;
 }
 
+function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['file-details', shareId],
+        queryFn: async () => {
+            const response = await axios.get<ExpandResponse>(
+                `${process.env.NEXT_PUBLIC_API_URL}/v1/history/expand/${shareId}`,
+                { withCredentials: true }
+            );
+            return response.data;
+        },
+        enabled: isExpanded,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    return (
+        <div className="mt-3">
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            >
+                <ChevronRight 
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                        isExpanded ? 'rotate-90' : 'rotate-0'
+                    }`} 
+                />
+                <FolderOpen className="h-4 w-4" />
+                Szczegóły plików
+            </button>
+
+            {isExpanded && !isLoading && (
+                <div className="mt-3 p-3 bg-zinc-900/20 border border-zinc-800 rounded-md animate-slide-in-bottom-low-delay">
+                    {error ? (
+                        <div className="text-red-400 text-sm">
+                            Błąd podczas ładowania szczegółów
+                        </div>
+                    ) : data ? (
+                        <div className="space-y-3">
+                            {data.totalFiles === 0 ? (
+                                <div className="text-zinc-400 text-sm flex items-center gap-2">
+                                    <FileIcon className="h-4 w-4" />
+                                    Brak plików lub zostały usunięte
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex items-center justify-between text-sm border-b border-zinc-800 pb-2 border-dashed">
+                                        <span className="text-zinc-400">
+                                            Plików: <span className="text-zinc-200 font-medium">{data.totalFiles}</span>
+                                        </span>
+                                        <span className="text-zinc-400">
+                                            Rozmiar: <span className="text-zinc-200 font-medium">{formatFileSize(data.totalSize)}</span>
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="space-y-2 max-h-32 overflow-y-auto ">
+                                        {data.history.map((file) => (
+                                            <div 
+                                                key={file.id}
+                                                className="flex items-center gap-2 px-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                                            >
+                                                <FileIcon className="h-4 w-4 text-zinc-500" />
+                                                <span className="truncate flex-1">{file.fileName}</span>
+                                                <span className="text-xs text-zinc-500">{formatFileSize(file.size)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ) : null}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function Files({ files, totalSize, createdAt, expiresAt, storagePath, slug, fileId, private: isPrivateAccess, autoVerified, verifiedByCookie, autoVerifiedPrivateStatus }: FilesProps) {
   const searchParams = useSearchParams();
   const [isDownloading, setIsDownloading] = useState(false);
@@ -222,7 +322,6 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
 
     return CONTENT_TYPES[contentType as keyof typeof CONTENT_TYPES] || contentType;
   }
-
 
   const handleDownload = async (path: string, fileId: string): Promise<void> => {
     setDownloadingFiles((prev) => ({ ...prev, [fileId]: true }));
@@ -603,47 +702,40 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
                 >
                   <InputOTPGroup>
                     <InputOTPSlot 
-                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                      className="bg-zinc-950/20 border-b border-t  border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={0}
                     />
                     <InputOTPSlot 
-                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                      className="bg-zinc-950/20 border-b border-t  border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={1}
                     />
                     <InputOTPSlot 
-                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                      className="bg-zinc-950/20 border-b border-t  border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={2}
                     />
                   </InputOTPGroup>
                   <InputOTPSeparator className="text-zinc-400"/>
                   <InputOTPGroup>
                     <InputOTPSlot 
-                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                      className="bg-zinc-950/20 border-b border-t  border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={3}
                     />
                     <InputOTPSlot 
-                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                      className="bg-zinc-950/20 border-b border-t  border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={4}
                     />
                     <InputOTPSlot 
-                      className="h-8 bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm text-zinc-200 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                      className="bg-zinc-950/20 border-b border-t  border-zinc-800 backdrop-blur-sm text-zinc-200" 
                       index={5}
                     />  
                   </InputOTPGroup>
                 </InputOTP>
-
-                <div className="flex flex-col my-4 border-t border-dashed border-zinc-800 pt-2">
-                  <p className="text-zinc-600 mb-1 text-xs">Informacje o udostępnionym linku:</p>
-                  <p className="text-zinc-700 text-xs">Link wygaśnie za: {formatTimeRemaining(createdAt, expiresAt)}</p>
-                  <p className="text-zinc-700 text-xs">Slug (link): {slug}</p>
-                  <p className="text-zinc-700 text-xs">ID linku: {fileId}</p>
-                  {remainingRequests > 0 && <p className="text-zinc-700 text-xs">Pozostałe żądania: {remainingRequests}</p>}
-                </div>
+                
                 {codeError && <p className="text-red-400 text-sm mt-2">{codeError}</p>}
               </div>
               
               <Button
-                className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-300"
+                className="container mx-auto w-full flex flex-col items-center  md:max-w-sm max-w-s justify-center bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-300"
                 onClick={verifyAccessCode}
                 disabled={isVerifying || accessCode.length !== 6}
                 size="sm"
@@ -660,14 +752,15 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
                   </div>
                 )}
               </Button>
+              
+              {/* Add accordion for private files inside the bordered div */}
+              <FileDetailsAccordion shareId={fileId} slug={slug} />
             </div>
           </div>
         </div>
       </main>
     );
   }
-
-
 
   const unixToDate = (unix: number | string) => {
     
@@ -760,8 +853,6 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               ></div>
             </div>
             
-            
-            
             <div className="grid gap-1">
                 {Object.entries(bulkDownloadState.filesProgress).map(([fileId, file]) => (
                     <div key={fileId} className="flex items-center justify-between text-xs">
@@ -852,6 +943,8 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
             )}
           </div>
         ))}
+
+        {/* Remove this accordion - it's now only in the private access screen */}
       </div>
       <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
         <DialogContent className="border border-dashed border-zinc-800 bg-zinc-950/70 backdrop-blur-sm text-zinc-200">

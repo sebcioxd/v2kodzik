@@ -1,5 +1,5 @@
 import type { GetUserHistoryServiceProps, GetUserHistoryCountServiceProps } from "../lib/types";
-import { sharesHistory, snippets } from "../db/schema";
+import { sharesHistory, snippets, uploadedFiles } from "../db/schema";
 import { db } from "../db/index";
 import { eq, desc } from "drizzle-orm";
 
@@ -26,6 +26,25 @@ export async function getUserHistoryCountService({ userId }: GetUserHistoryCount
     return uniqueCount;
 }
 
+export async function expandFileShareInfoService({ shareId }: { shareId: string } ) {
+    const history = await db
+    .select()
+    .from(uploadedFiles)
+    .where(eq(uploadedFiles.shareId, shareId))
+
+     const filteredHistory = history.map(file => ({
+        id: file.id,
+        fileName: file.fileName.length > 6 ? file.fileName.substring(0, 6) + '...' : file.fileName,
+        size: file.size,
+        contentType: file.contentType,
+        createdAt: file.createdAt,
+        updatedAt: file.updatedAt,
+        lastModified: file.lastModified
+    }));
+
+    return filteredHistory;
+
+}
 
 export async function getUserSnippetsService({ offset, limit, userId }: GetUserHistoryServiceProps) {
     const history = await db

@@ -1,6 +1,6 @@
 "use client";
 
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Loader } from './Loader';
 import { 
@@ -10,12 +10,17 @@ import {
   Link as LinkIcon, 
   CalendarArrowDown, 
   CalendarArrowUp,
-  History
+  History,
+  File,
+  FolderOpen,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDate } from '@/lib/date';
 import InfiniteScroll from './InfiniteScroll';
 import { User } from '@/lib/auth-client';
+import { useState } from 'react';
 
 export type Share = {
     id: string;
@@ -28,9 +33,108 @@ export type Share = {
     private: boolean;
 }
 
+type FileDetail = {
+    id: string;
+    fileName: string;
+    size: number;
+    contentType: string;
+    createdAt: string;
+}
+
+type ExpandResponse = {
+    history: FileDetail[];
+    totalSize: number;
+    totalFiles: number;
+}
+
 type APIResponse = {
     history: Share[];
     user: any;
+}
+
+function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['file-details', shareId],
+        queryFn: async () => {
+            const response = await axios.get<ExpandResponse>(
+                `${process.env.NEXT_PUBLIC_API_URL}/v1/history/expand/${shareId}`,
+                { withCredentials: true }
+            );
+            return response.data;
+        },
+        enabled: isExpanded,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+
+    const formatFileSize = (bytes: number) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    return (
+        <div className="mt-3">
+            <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            >
+                <ChevronRight 
+                    className={`h-4 w-4 transition-transform duration-200 ${
+                        isExpanded ? 'rotate-90' : 'rotate-0'
+                    }`} 
+                />
+                <FolderOpen className="h-4 w-4" />
+                Szczegóły plików
+            </button>
+
+            {isExpanded && !isLoading && (
+                <div className="mt-3 p-3 bg-zinc-900/20 border border-zinc-800 rounded-md animate-slide-in-bottom-low-delay">
+                    {error ? (
+                        <div className="text-red-400 text-sm">
+                            Błąd podczas ładowania szczegółów
+                        </div>
+                    ) : data ? (
+                        <div className="space-y-3">
+                            {data.totalFiles === 0 ? (
+                                <div className="text-zinc-400 text-sm flex items-center gap-2">
+                                    <File className="h-4 w-4" />
+                                    Brak plików lub zostały usunięte
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex items-center justify-between text-sm border-b border-zinc-800 pb-2 border-dashed">
+                                        <span className="text-zinc-400">
+                                            Plików: <span className="text-zinc-200 font-medium">{data.totalFiles}</span>
+                                        </span>
+                                        <span className="text-zinc-400">
+                                            Rozmiar: <span className="text-zinc-200 font-medium">{formatFileSize(data.totalSize)}</span>
+                                        </span>
+                                    </div>
+                                    
+                                    <div className="space-y-2 max-h-32 overflow-y-auto ">
+                                        {data.history.map((file) => (
+                                            <div 
+                                                key={file.id}
+                                                className="flex items-center gap-2 px-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                                            >
+                                                <File className="h-4 w-4 text-zinc-500" />
+                                                <span className="truncate flex-1">{file.fileName}</span>
+                                                <span className="text-xs text-zinc-500">{formatFileSize(file.size)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    ) : null}
+                </div>
+            )}
+        </div>
+    );
 }
 
 export default function ShareHistory({ user }: { user: User }) {
@@ -95,11 +199,6 @@ export default function ShareHistory({ user }: { user: User }) {
                 </div>
 
                 <div className="border-b border-zinc-800 pb-6">
-                    {/* <h3 className="text-sm text-zinc-400 flex items-center gap-2 mb-4">
-                        <Clock className="h-4 w-4" />
-                        Twoja historia udostępnień plików
-                    </h3> */}
-                    
                     <InfiniteScroll
                         dataLength={allShares.length}
                         next={fetchNextPage}
@@ -167,6 +266,8 @@ export default function ShareHistory({ user }: { user: User }) {
                                             {expired ? 'Wygasł:' : 'Wygasa:'} {formatDate(share.expiresAt)}
                                         </span>
                                     </div>
+                                    
+                                    <FileDetailsAccordion shareId={share.id} slug={share.slug} />
                                 </div>
                                 );
                             })}

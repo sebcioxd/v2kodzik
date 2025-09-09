@@ -1,6 +1,6 @@
 import type { AuthSession } from "../lib/types";
 import { Hono } from "hono";
-import { getUserHistoryService, getUserHistoryCountService, getUserSnippetsService, getUserSnippetsCountService } from "../services/user-info.service";
+import { getUserHistoryService, getUserHistoryCountService, getUserSnippetsService, getUserSnippetsCountService, expandFileShareInfoService } from "../services/user-info.service";
 
 const historyRoute = new Hono<AuthSession>();
 
@@ -20,6 +20,23 @@ historyRoute.get("/", async (c) => {
 
     return c.json({ history }, 200)
 });
+
+historyRoute.get("/expand/:id", async (c) => {
+    // const user = c.get("user");
+    const shareId = c.req.param("id");
+
+    // if (!user) {
+    //     return c.json(null, 401);
+    // }
+
+    const history = await expandFileShareInfoService({ shareId }); 
+    const totalSize = history.reduce((acc, file) => acc + file.size, 0);
+    const totalFiles = history.length;
+
+
+    return c.json({ history, totalSize, totalFiles }, 200)
+});
+
 
 historyRoute.get("/count", async (c) => {
     const user = c.get("user")
