@@ -1,17 +1,18 @@
 import type { GetShareFileServiceProps, VerifyShareCodeServiceProps, VerifyCookieServiceProps } from "../lib/types";
 import { db } from "../db/index";
-import { shares, uploadedFiles } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { shares, uploadedFiles, sharesHistory } from "../db/schema";
+import { eq, sql } from "drizzle-orm";
 import { verifyCode } from "../lib/hash";
 import { ENVIRONMENT } from "../lib/env";
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
 import { DOMAIN_WILDCARD } from "../lib/env";
 
 const getFiles = async (shareId: string) => {
-    const files = await db
-        .select()
-        .from(uploadedFiles)
-        .where(eq(uploadedFiles.shareId, shareId));
+    const [files] = await Promise.all([
+        db.select().from(uploadedFiles).where(eq(uploadedFiles.shareId, shareId)),
+        db.update(shares).set({ views: sql`${shares.views} + 1` }).where(eq(shares.id, shareId)),
+        db.update(sharesHistory).set({ views: sql`${sharesHistory.views} + 1` }).where(eq(sharesHistory.id, shareId))
+    ]);
     return files;
 }
 
@@ -32,6 +33,7 @@ export async function getShareFileService({ slug, c, user }: GetShareFileService
             createdAt: share.createdAt,
             expiresAt: share.expiresAt,
             private: true,
+            views: share.views,
         })
     }
 
@@ -49,6 +51,7 @@ export async function getShareFileService({ slug, c, user }: GetShareFileService
         createdAt: share.createdAt,
         updatedAt: share.updatedAt,
         expiresAt: share.expiresAt,
+        views: share.views,
         storagePath: files[0].storagePath,
         files: files,
         totalSize: files.reduce((acc, file) => acc + file.size, 0),
@@ -98,6 +101,7 @@ export async function verifyShareCodeService({ code, slug, c }: VerifyShareCodeS
         files: files,
         totalSize: files.reduce((acc, file) => acc + file.size, 0),
         storagePath: files[0].storagePath,
+        views: share.views,
     }, 200)
 
 }
@@ -142,5 +146,6 @@ export async function verifyCookieService({ slug, c }: VerifyCookieServiceProps)
         files: files,
         totalSize: files.reduce((acc, file) => acc + (file.size || 0), 0),
         storagePath: files[0].storagePath,
+        views: idToSlug.views,
       }, 200);
 }

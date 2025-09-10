@@ -2,7 +2,6 @@
 
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Loader } from './Loader';
 import { 
   Clock, 
   ExternalLink, 
@@ -14,7 +13,8 @@ import {
   File,
   FolderOpen,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Eye
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDate } from '@/lib/date';
@@ -31,6 +31,7 @@ export type Share = {
     userId: string;
     code: string;
     private: boolean;
+    views: number;
 }
 
 type FileDetail = {
@@ -180,6 +181,11 @@ export default function ShareHistory({ user }: { user: User }) {
         return !Number.isNaN(exp) && exp <= now;
     };
 
+    // Don't show anything while loading initially
+    if (isLoading && allShares.length === 0) {
+        return null;
+    }
+
     if (error) {
         return (
             <main className="flex items-center justify-center min-h-[400px]">
@@ -203,7 +209,7 @@ export default function ShareHistory({ user }: { user: User }) {
                         dataLength={allShares.length}
                         next={fetchNextPage}
                         hasMore={!!hasNextPage}
-                        loader={isLoading ? <Loader /> : null}
+                        isFetchingNextPage={isFetchingNextPage}
                         endMessage={
                             <p className="text-left py-4 text-zinc-500 text-sm">
                                 To wszystkie wygenerowane pliki.
@@ -264,6 +270,10 @@ export default function ShareHistory({ user }: { user: User }) {
                                         <span className={`flex items-center gap-2 ${expired ? 'text-red-300' : ''}`}>
                                             <CalendarArrowDown className="h-4 w-4 text-zinc-200" /> 
                                             {expired ? 'Wygasł:' : 'Wygasa:'} {formatDate(share.expiresAt)}
+                                        </span>
+                                        <span className="flex items-center gap-2">
+                                            <Eye className="h-4 w-4 text-zinc-200" /> 
+                                            Wyświetlenia: {share.views.toLocaleString('pl-PL')}
                                         </span>
                                     </div>
                                     

@@ -22,6 +22,7 @@ interface Share {
   autoVerified?: boolean;
   verifiedByCookie?: boolean;
   autoVerifiedPrivateStatus?: boolean;
+  views: number;
 }
 
 import Files from "@/components/files";
@@ -100,6 +101,7 @@ export default async function ShareSlugPage({ params }: { params: Promise<{ slug
         autoVerified={share.autoVerified}
         verifiedByCookie={share.verifiedByCookie}
         autoVerifiedPrivateStatus={share.autoVerifiedPrivateStatus}
+        views={share.views}
       />
     </div>
   );

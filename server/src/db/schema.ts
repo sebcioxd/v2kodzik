@@ -13,6 +13,7 @@ export const shares = pgTable('shares', {
   visibility: boolean('visibility').default(true),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
+  views: integer('views').default(0),
 }, (t) => [
   index('idx_shares_visibility_created')
     .on(t.visibility, t.createdAt.desc()),
@@ -201,6 +202,7 @@ export const sharesHistory = pgTable('shares_history', {
   visibility: boolean('visibility').default(true),
   ipAddress: text('ip_address'),
   userAgent: text('user_agent'),
+  views: integer('views').default(0),
 }, (t) => [
   index('idx_shares_h_visibility_created')
     .on(t.visibility, t.createdAt.desc()),

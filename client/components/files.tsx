@@ -1,5 +1,5 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon, Info, Copy, FolderOpen, ChevronDown, ChevronRight } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon, Info, Copy, FolderOpen, ChevronDown, ChevronRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import {
@@ -58,6 +58,7 @@ interface FilesProps {
   autoVerified?: boolean;
   verifiedByCookie?: boolean;
   autoVerifiedPrivateStatus?: boolean;
+  views: number;
 }
 
 interface DownloadingFiles {
@@ -90,6 +91,20 @@ interface RateLimitError {
     message: string;
     remaining_requests: number;
     retry_after: number;
+}
+
+interface ViewsDisplayProps {
+  views: number;
+  className?: string;
+}
+
+function ViewsDisplay({ views, className = "" }: ViewsDisplayProps) {
+  return (
+    <div className={`flex items-center justify-start gap-1 text-zinc-400 text-sm ${className}`}>
+      <Eye className="h-4 w-4 text-zinc-500" />
+      <span className="tracking-tight text-zinc-400">Wyświetlenia: {views.toLocaleString('pl-PL')}</span>
+    </div>
+  );
 }
 
 function getFileIcon(fileName: string, fileType?: string) {
@@ -237,7 +252,7 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
     );
 }
 
-export default function Files({ files, totalSize, createdAt, expiresAt, storagePath, slug, fileId, private: isPrivateAccess, autoVerified, verifiedByCookie, autoVerifiedPrivateStatus }: FilesProps) {
+export default function Files({ files, totalSize, createdAt, expiresAt, storagePath, slug, fileId, private: isPrivateAccess, autoVerified, verifiedByCookie, autoVerifiedPrivateStatus, views }: FilesProps) {
   const searchParams = useSearchParams();
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadingFiles, setDownloadingFiles] = useState<DownloadingFiles>({});
@@ -755,6 +770,9 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               
               {/* Add accordion for private files inside the bordered div */}
               <FileDetailsAccordion shareId={fileId} slug={slug} />
+              
+              {/* Add minimalist views display at bottom */}
+              <ViewsDisplay views={views} />
             </div>
           </div>
         </div>
@@ -817,6 +835,8 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
           <span>Link wygaśnie za:</span>
           <span className="font-medium text-zinc-200">{formatTimeRemaining(createdAt, expiresAt)}</span>
         </div>
+
+        {/* Remove the ViewsDisplay from here - it was duplicated */}
 
         <Button 
           className="w-full bg-zinc-900/20 border border-dashed border-zinc-800 backdrop-blur-sm hover:bg-zinc-800 text-zinc-300"
@@ -945,6 +965,11 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
         ))}
 
         {/* Remove this accordion - it's now only in the private access screen */}
+      </div>
+      
+      {/* Move ViewsDisplay outside the centered container */}
+      <div className="w-full px-2 py-3">
+        <ViewsDisplay views={views} />
       </div>
       <Dialog open={!!selectedFile} onOpenChange={() => setSelectedFile(null)}>
         <DialogContent className="border border-dashed border-zinc-800 bg-zinc-950/70 backdrop-blur-sm text-zinc-200">
