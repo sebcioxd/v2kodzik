@@ -2,9 +2,7 @@
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Loader } from './Loader';
 import { 
-  Clock, 
   ExternalLink, 
   Code, 
   CalendarArrowDown, 
@@ -97,7 +95,7 @@ export default function SnippetsHistory({ user }: { user: User }) {
                         dataLength={allSnippets.length}
                         next={fetchNextPage}
                         hasMore={!!hasNextPage}
-                        loader={isLoading ? <Loader /> : null}
+                        isFetchingNextPage={isFetchingNextPage}
                         endMessage={
                             <p className="text-left py-4 text-zinc-500 text-sm">
                                 To wszystkie dostępne schowki.
