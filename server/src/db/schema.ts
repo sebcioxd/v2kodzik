@@ -37,6 +37,7 @@ export const uploadedFiles = pgTable('uploaded_files', {
   lastModified: text('last_modified'),
   createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
   updatedAt: timestamp('updated_at').$defaultFn(() => sql`NOW()`).notNull(),
+  downloadCount: integer('download_count').default(0),
 }, (t) => [
   index('idx_uploaded_files_share_id')
     .on(t.shareId),

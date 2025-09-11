@@ -39,7 +39,8 @@ export async function expandFileShareInfoService({ shareId }: { shareId: string 
         contentType: file.contentType,
         createdAt: file.createdAt,
         updatedAt: file.updatedAt,
-        lastModified: file.lastModified
+        lastModified: file.lastModified,
+        downloadCount: file.downloadCount
     }));
 
     return filteredHistory;

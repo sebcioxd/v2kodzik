@@ -34,7 +34,7 @@ export async function getShareFileService({ slug, c, user }: GetShareFileService
             expiresAt: share.expiresAt,
             private: true,
             views: share.views,
-        })
+        }) 
     }
 
     const files = await getFiles(share.id);

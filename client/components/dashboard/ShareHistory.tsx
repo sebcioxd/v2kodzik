@@ -21,6 +21,7 @@ import { formatDate } from '@/lib/date';
 import InfiniteScroll from './InfiniteScroll';
 import { User } from '@/lib/auth-client';
 import { useState } from 'react';
+import { Download as DownloadIcon } from 'lucide-react';
 
 export type Share = {
     id: string;
@@ -40,6 +41,8 @@ type FileDetail = {
     size: number;
     contentType: string;
     createdAt: string;
+    downloadCount: number;
+
 }
 
 type ExpandResponse = {
@@ -114,6 +117,7 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
                                         <span className="text-zinc-400">
                                             Rozmiar: <span className="text-zinc-200 font-medium">{formatFileSize(data.totalSize)}</span>
                                         </span>
+
                                     </div>
                                     
                                     <div className="space-y-2 max-h-32 overflow-y-auto ">
@@ -124,7 +128,9 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
                                             >
                                                 <File className="h-4 w-4 text-zinc-500" />
                                                 <span className="truncate flex-1">{file.fileName}</span>
+                                                <span className="text-xs text-zinc-500 flex items-center gap-1"><DownloadIcon className="h-4 w-4" /> {file.downloadCount}</span>
                                                 <span className="text-xs text-zinc-500">{formatFileSize(file.size)}</span>
+                                               
                                             </div>
                                         ))}
                                     </div>

@@ -1,5 +1,5 @@
 "use client"
-import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon, Info, Copy, FolderOpen, ChevronDown, ChevronRight, Eye } from "lucide-react";
+import { FileIcon, Download, Archive, Loader2, FileVideoIcon, FileAudioIcon, FileTextIcon, FileCodeIcon, FileArchiveIcon, FileCogIcon, ImageIcon, Share2, Lock, Key, Link as LinkIcon, Info, Copy, FolderOpen, ChevronDown, ChevronRight, Eye, DownloadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import {
@@ -30,6 +30,7 @@ interface File {
   storagePath: string;
   lastModified: number;
   contentType: string;
+  downloadCount: number;
 }
 
 interface FileDetail {
@@ -38,6 +39,7 @@ interface FileDetail {
   size: number;
   contentType: string;
   createdAt: string;
+  downloadCount: number;
 }
 
 interface ExpandResponse {
@@ -238,7 +240,9 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
                                             >
                                                 <FileIcon className="h-4 w-4 text-zinc-500" />
                                                 <span className="truncate flex-1">{file.fileName}</span>
+                                                <span className="text-xs text-zinc-500 flex items-center gap-1"><DownloadIcon className="h-4 w-4" /> {file.downloadCount}</span>
                                                 <span className="text-xs text-zinc-500">{formatFileSize(file.size)}</span>
+                                                
                                             </div>
                                         ))}
                                     </div>
@@ -787,7 +791,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
     try {
       const unixNumber = typeof unix === 'string' ? parseInt(unix, 10) : unix;
       if (isNaN(unixNumber)) {
-        return "Nieprawidłowa data (błąd konwersji)";
+      return "Nieprawidłowa data (błąd konwersji)";
       }
       
       const date = new Date(unixNumber);
@@ -919,7 +923,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
                 <div className="flex flex-col">
                   <span className="text-zinc-200 text-sm">{file.fileName} </span>
                   <span className="text-zinc-500 text-xs">{formatBytes(file.size)}</span>
-                  
+                  <span className="text-zinc-500 text-xs">{file.downloadCount} {file.downloadCount === 0 ? 'razy pobrany' : 'razy pobranych'}</span>
                 </div>
               </div>
               <div className="flex items-center">
@@ -991,6 +995,10 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
                 <span className="text-zinc-400 text-sm">Rozmiar</span>
                 <span className="text-zinc-200 text-sm">{selectedFile && formatBytes(selectedFile.size)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
+                <span className="text-zinc-400 text-sm">Pobrania</span>
+                <span className="text-zinc-200 text-sm">{selectedFile?.downloadCount} {selectedFile?.downloadCount === 0 ? 'razy pobrany' : 'razy pobranych'}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
                 <span className="text-zinc-400 text-sm">ID pliku</span>

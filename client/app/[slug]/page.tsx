@@ -7,6 +7,7 @@ interface File {
   storagePath: string;
   lastModified: number;
   contentType: string;
+  downloadCount: number;
 }
 
 interface Share {
