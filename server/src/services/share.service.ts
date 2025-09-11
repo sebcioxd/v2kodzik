@@ -9,7 +9,9 @@ import { DOMAIN_WILDCARD } from "../lib/env";
 
 const getFiles = async (shareId: string) => {
     const [files] = await Promise.all([
-        db.select().from(uploadedFiles).where(eq(uploadedFiles.shareId, shareId)).orderBy(desc(uploadedFiles.createdAt))    ,
+        db.select().from(uploadedFiles)
+          .where(eq(uploadedFiles.shareId, shareId))
+          .orderBy(desc(uploadedFiles.size), desc(uploadedFiles.createdAt)),
         db.update(shares).set({ views: sql`${shares.views} + 1` }).where(eq(shares.id, shareId)),
         db.update(sharesHistory).set({ views: sql`${sharesHistory.views} + 1` }).where(eq(sharesHistory.id, shareId))
     ]);
