@@ -1,7 +1,7 @@
 import type { GetShareFileServiceProps, VerifyShareCodeServiceProps, VerifyCookieServiceProps } from "../lib/types";
 import { db } from "../db/index";
 import { shares, uploadedFiles, sharesHistory } from "../db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, desc } from "drizzle-orm";
 import { verifyCode } from "../lib/hash";
 import { ENVIRONMENT } from "../lib/env";
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie'
@@ -9,7 +9,7 @@ import { DOMAIN_WILDCARD } from "../lib/env";
 
 const getFiles = async (shareId: string) => {
     const [files] = await Promise.all([
-        db.select().from(uploadedFiles).where(eq(uploadedFiles.shareId, shareId)),
+        db.select().from(uploadedFiles).where(eq(uploadedFiles.shareId, shareId)).orderBy(desc(uploadedFiles.createdAt))    ,
         db.update(shares).set({ views: sql`${shares.views} + 1` }).where(eq(shares.id, shareId)),
         db.update(sharesHistory).set({ views: sql`${sharesHistory.views} + 1` }).where(eq(sharesHistory.id, shareId))
     ]);
