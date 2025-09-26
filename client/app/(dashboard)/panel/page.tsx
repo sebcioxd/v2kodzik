@@ -3,7 +3,8 @@
 import Overview from "@/components/dashboard/Overview";
 import { useSession } from "@/lib/auth-client";
 import { User } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
+
 export type Share = {
     id: string;
     slug: string;
@@ -23,9 +24,6 @@ type APIResponse = {
 export default function UserPanelPage() {
     const router = useRouter();
     const { data: session, isPending } = useSession();
-
-
-
 
     if (!session && !isPending) {
         router.push("/auth");

@@ -27,7 +27,7 @@ import {
 import { Upload, X, ShieldPlus , AlertCircle, Loader2, Rss, Lock, Megaphone, EyeOff, Clock, Link as LinkIcon, XCircle } from "lucide-react";
 import * as React from "react";
 import { Input } from "./ui/input";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import axios from "axios";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
