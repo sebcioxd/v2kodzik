@@ -13,6 +13,7 @@ lastpostsRoute.get("/", async (c) => {
       createdAt: shares.createdAt,
       expiresAt: shares.expiresAt,
       private: shares.private,
+      views: shares.views,
     })
     .from(shares)
     .where(eq(shares.visibility, true))

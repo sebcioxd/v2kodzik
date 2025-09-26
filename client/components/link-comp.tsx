@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Clock, Lock, FolderOpen, ChevronRight, FileIcon } from "lucide-react";
+import { ExternalLink, Clock, Lock, FolderOpen, ChevronRight, FileIcon, DownloadIcon, Eye, Calendar, CalendarDays } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
@@ -14,6 +14,7 @@ interface ShareCardProps {
   createdAt: string;
   expiresAt: string;
   private: boolean;
+  views: number;
   id: string;
 }
 
@@ -23,6 +24,7 @@ interface FileDetail {
   size: number;
   contentType: string;
   createdAt: string;
+  downloadCount: number;
 }
 
 interface ExpandResponse {
@@ -31,29 +33,42 @@ interface ExpandResponse {
   totalFiles: number;
 }
 
-// Add skeleton componentc
+// Custom date formatter for cards with numeric months
+const formatCardDate = (dateString: string) => {
+  try {
+    const date = new Date(dateString);
+    const localDate = new Date(date.getTime() - (2 * 60 * 60 * 1000));
+    return localDate.toLocaleDateString('pl-PL', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return 'Data niedostępna';
+  }
+};
+
+// Add skeleton component
 export function RecentSharesSkeleton() {
   return (
     <div className="w-full grid md:grid-cols-3 grid-cols-1 gap-4 animate-slide-in-bottom">
       {[1, 2, 3].map((i) => (
         <div 
           key={i}
-          className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 mt-5"
+          className="border border-dashed border-zinc-800 rounded-lg p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-all duration-200"
         >
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex">
-              <span className="flex items-center gap-2">
-                <Skeleton className="h-4 w-20 bg-zinc-800" /> 
-                <Skeleton className="h-4 w-4 rounded-full bg-zinc-800" />
-              </span>
+          <div className="flex justify-between items-start mb-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4 w-4 rounded bg-zinc-800" />
+              <Skeleton className="h-4 w-24 bg-zinc-800" />
             </div>
-            <div className="p-2 rounded-md">
-              <Skeleton className="h-4 w-4 bg-zinc-800" />
-            </div>
+            <Skeleton className="h-8 w-8 rounded-md bg-zinc-800" />
           </div>
-          <div className="flex flex-col items-start gap-2">
-            <Skeleton className="h-3 w-40 bg-zinc-800" /> 
-            <Skeleton className="h-3 w-40 bg-zinc-800" /> 
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-32 bg-zinc-800" />
+            <Skeleton className="h-3 w-28 bg-zinc-800" />
+            <Skeleton className="h-3 w-24 bg-zinc-800" />
           </div>
         </div>
       ))}
@@ -82,59 +97,68 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
         const k = 1024;
         const sizes = ['B', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     };
 
     return (
-        <div className="mt-3">
+        <div className="mt-2">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="flex items-center gap-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
             >
                 <ChevronRight 
-                    className={`h-4 w-4 transition-transform duration-200 ${
+                    className={`h-3 w-3 transition-transform duration-200 ${
                         isExpanded ? 'rotate-90' : 'rotate-0'
                     }`} 
                 />
-                <FolderOpen className="h-4 w-4" />
-                Szczegóły plików
+                <FolderOpen className="h-3 w-3" />
+                <span className="hover:text-zinc-300">Pliki</span>
             </button>
 
             {isExpanded && !isLoading && (
-                <div className="mt-3 p-3 bg-zinc-900/20 border border-zinc-800 rounded-md animate-slide-in-bottom-low-delay">
+                <div className="mt-1.5 p-2 bg-zinc-900/30 border border-zinc-800/50 rounded-md animate-slide-in-bottom-low-delay">
                     {error ? (
-                        <div className="text-red-400 text-sm">
-                            Błąd podczas ładowania szczegółów
+                        <div className="text-red-400 text-xs flex items-center gap-1">
+                            <FileIcon className="h-3 w-3" />
+                            Błąd ładowania
                         </div>
                     ) : data ? (
-                        <div className="space-y-3">
+                        <div className="space-y-1.5">
                             {data.totalFiles === 0 ? (
-                                <div className="text-zinc-400 text-sm flex items-center gap-2">
-                                    <FileIcon className="h-4 w-4" />
-                                    Brak plików lub zostały usunięte
+                                <div className="text-zinc-500 text-xs flex items-center gap-1">
+                                    <FileIcon className="h-3 w-3" />
+                                    Brak plików
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex items-center justify-between text-sm border-b border-zinc-800 pb-2 border-dashed">
-                                        <span className="text-zinc-400">
-                                            Plików: <span className="text-zinc-200 font-medium">{data.totalFiles}</span>
+                                    <div className="flex items-center justify-between text-xs border-b border-zinc-800/50 pb-1">
+                                        <span className="text-zinc-500">
+                                            {data.totalFiles} plików
                                         </span>
-                                        <span className="text-zinc-400">
-                                            Rozmiar: <span className="text-zinc-200 font-medium">{formatFileSize(data.totalSize)}</span>
+                                        <span className="text-zinc-500">
+                                            {formatFileSize(data.totalSize)}
                                         </span>
                                     </div>
                                     
-                                    <div className="space-y-2 max-h-32 overflow-y-auto ">
-                                        {data.history.map((file) => (
+                                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                                        {data.history.slice(0, 3).map((file) => (
                                             <div 
                                                 key={file.id}
-                                                className="flex items-center gap-2 px-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+                                                className="flex items-center gap-1.5 px-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
                                             >
-                                                <FileIcon className="h-4 w-4 text-zinc-500" />
-                                                <span className="truncate flex-1">{file.fileName}</span>
-                                                <span className="text-xs text-zinc-500">{formatFileSize(file.size)}</span>
+                                                <FileIcon className="h-3 w-3 text-zinc-600 flex-shrink-0" />
+                                                <span className="truncate flex-1 text-xs">{file.fileName}</span>
+                                                <div className="flex items-center gap-0.5 text-zinc-600">
+                                                    <DownloadIcon className="h-3 w-3" />
+                                                    <span className="text-xs">{file.downloadCount}</span>
+                                                </div>
                                             </div>
                                         ))}
+                                        {data.history.length > 3 && (
+                                            <div className="text-xs text-zinc-600 text-center pt-0.5">
+                                                +{data.history.length - 3} więcej
+                                            </div>
+                                        )}
                                     </div>
                                 </>
                             )}
@@ -146,28 +170,44 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
     );
 }
 
-export default function RecentShareCard({ slug, createdAt, expiresAt, private: isPrivate, id }: ShareCardProps) {
+export default function RecentShareCard({ slug, createdAt, expiresAt, private: isPrivate, id, views }: ShareCardProps) {
   return (
-    <div className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-colors w-full animate-slide-in-bottom mt-2 tracking-tight">
-      <div className="flex justify-between items-center">
-        <div className="flex">
-          <span className="text-zinc-400 text-md font-medium flex items-center ">
-            dajkodzik.pl/<span className="text-zinc-300 break-all whitespace-pre-wrap">{slug}</span> {isPrivate ? <Lock className="h-4 w-4 text-zinc-400 ml-2" /> : null}
-          </span> 
+    <div className="border border-dashed border-zinc-800 rounded-lg p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-all duration-200 w-full animate-slide-in-bottom group">
+      {/* Header with slug and external link */}
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          <div className="w-1.5 h-1.5 bg-zinc-600 rounded-full flex-shrink-0"></div>
+          <span className="text-zinc-400 text-sm truncate">
+            dajkodzik.pl/{slug}
+          </span>
+          {isPrivate && <Lock className="h-3 w-3 text-zinc-500 flex-shrink-0" />}
         </div>
         <Link
           href={`/${slug}`}
-          className="text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 p-2 rounded-md flex flex-row gap-1 items-center justify-center"
+          className="text-zinc-500 hover:text-zinc-300 text-sm hover:bg-zinc-800/50 p-1.5 rounded-md transition-all duration-200 flex-shrink-0 flex items-center gap-1"
         > 
+
           <ExternalLink className="h-4 w-4" /> 
         </Link>
       </div>
-      <div className="flex justify-between flex-col items-start gap-2 mt-2 text-sm text-zinc-400">
-        <span>Utworzono: {formatDate(createdAt)}</span>
-        <span>Wygasa: {formatDate(expiresAt)}</span>
+
+      {/* Stats in a clean grid - use justify-start to prevent spreading */}
+      <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center gap-1 text-xs text-zinc-500">
+          <Eye className="h-3 w-3" />
+          <span>{views}</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs text-zinc-500">
+          <Calendar className="h-3 w-3" />
+          <span>{formatCardDate(createdAt)}</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs text-zinc-500">
+          <CalendarDays className="h-3 w-3" />
+          <span>{formatCardDate(expiresAt)}</span>
+        </div>
       </div>
       
-      {/* Add accordion for file details */}
+      {/* File details accordion */}
       <FileDetailsAccordion shareId={id} slug={slug} />
     </div>
   );
@@ -213,6 +253,7 @@ export function RecentShares() {
           expiresAt={share.expiresAt}
           private={share.private}
           id={share.id}
+          views={share.views}
         />
       ))}
     </div>

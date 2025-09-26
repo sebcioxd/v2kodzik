@@ -6,6 +6,7 @@ export interface LastPosts {
     createdAt: string;
     expiresAt: string;
     private: boolean;
+    views: number;
 }
 
 export interface LastPostsResponse {

@@ -82,7 +82,7 @@ export default function Hero() {
       )}
 
       {/* Recent Shares Section with Enhanced Design */}
-      <div className="w-full mt-8 space-y-2 animate-slide-in-bottom">
+      <div className="w-full mt-8 space-y-4 animate-slide-in-bottom">
         <div className="flex items-center gap-2">
           <History className="w-5 h-5 text-zinc-400" />
           <h2 className="text-zinc-300 font-medium tracking-tight">Ostatnio wygenerowane linki</h2>
