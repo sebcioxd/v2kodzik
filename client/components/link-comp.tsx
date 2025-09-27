@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Clock, Lock, FolderOpen, ChevronRight, FileIcon, DownloadIcon, Eye, Calendar, CalendarDays } from "lucide-react";
+import { ExternalLink, Clock, Lock, FolderOpen, ChevronRight, FileIcon, DownloadIcon, Eye, Calendar, CalendarDays, Code2 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect } from "react";
@@ -16,6 +16,9 @@ interface ShareCardProps {
   private: boolean;
   views: number;
   id: string;
+  count?: number;
+  type?: "post" | "snippet";
+  language?: string;
 }
 
 interface FileDetail {
@@ -47,6 +50,94 @@ const formatCardDate = (dateString: string) => {
   } catch (error) {
     return 'Data niedostępna';
   }
+};
+
+// Smart date optimization functions
+const isToday = (dateString: string) => {
+  try {
+    const date = new Date(dateString);
+    const localDate = new Date(date.getTime() - (2 * 60 * 60 * 1000));
+    const today = new Date();
+    
+    return localDate.toDateString() === today.toDateString();
+  } catch (error) {
+    return false;
+  }
+};
+
+const isSameDay = (date1: string, date2: string) => {
+  try {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    const localD1 = new Date(d1.getTime() - (2 * 60 * 60 * 1000));
+    const localD2 = new Date(d2.getTime() - (2 * 60 * 60 * 1000));
+    
+    return localD1.toDateString() === localD2.toDateString();
+  } catch (error) {
+    return false;
+  }
+};
+
+const formatTimeOnly = (dateString: string) => {
+  try {
+    const date = new Date(dateString);
+    const localDate = new Date(date.getTime() - (2 * 60 * 60 * 1000));
+    return localDate.toLocaleTimeString('pl-PL', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return 'Czas niedostępny';
+  }
+};
+
+const formatDateOnly = (dateString: string) => {
+  try {
+    const date = new Date(dateString);
+    const localDate = new Date(date.getTime() - (2 * 60 * 60 * 1000));
+    return localDate.toLocaleDateString('pl-PL', {
+      month: '2-digit',
+      day: '2-digit'
+    });
+  } catch (error) {
+    return 'Data niedostępna';
+  }
+};
+
+// Smart date formatter that applies optimization when count === 3
+const formatSmartDate = (createdAt: string, expiresAt: string, count: number) => {
+  if (count !== 3) {
+    return {
+      created: formatCardDate(createdAt),
+      expires: formatCardDate(expiresAt)
+    };
+  }
+
+  const createdIsToday = isToday(createdAt);
+  const expiresIsToday = isToday(expiresAt);
+  const sameDay = isSameDay(createdAt, expiresAt);
+
+  // Algorithm 1: Cut time when dates are different
+  if (!sameDay) {
+    return {
+      created: formatDateOnly(createdAt),
+      expires: formatDateOnly(expiresAt)
+    };
+  }
+
+  // Algorithm 2: Cut dates when time is today (show only time)
+  if (createdIsToday && expiresIsToday) {
+    return {
+      created: formatTimeOnly(createdAt),
+      expires: formatTimeOnly(expiresAt)
+    };
+  }
+
+  // Fallback to normal formatting
+  return {
+    created: formatCardDate(createdAt),
+    expires: formatCardDate(expiresAt)
+  };
 };
 
 // Add skeleton component
@@ -104,34 +195,34 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
         <div className="mt-2">
             <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
             >
                 <ChevronRight 
                     className={`h-3 w-3 transition-transform duration-200 ${
                         isExpanded ? 'rotate-90' : 'rotate-0'
                     }`} 
                 />
-                <FolderOpen className="h-3 w-3" />
-                <span className="hover:text-zinc-300">Pliki</span>
-            </button>
+                <FolderOpen className="h-4 w-4" />
+                <span className="hover:text-zinc-300">Podgląd plików</span>
+            </button>   
 
             {isExpanded && !isLoading && (
                 <div className="mt-1.5 p-2 bg-zinc-900/30 border border-zinc-800/50 rounded-md animate-slide-in-bottom-low-delay">
                     {error ? (
-                        <div className="text-red-400 text-xs flex items-center gap-1">
+                        <div className="text-red-400 text-sm flex items-center gap-1">
                             <FileIcon className="h-3 w-3" />
                             Błąd ładowania
                         </div>
                     ) : data ? (
                         <div className="space-y-1.5">
                             {data.totalFiles === 0 ? (
-                                <div className="text-zinc-500 text-xs flex items-center gap-1">
+                                <div className="text-zinc-500 text-sm flex items-center gap-1">
                                     <FileIcon className="h-3 w-3" />
                                     Brak plików
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex items-center justify-between text-xs border-b border-zinc-800/50 pb-1">
+                                    <div className="flex items-center justify-between text-sm border-b border-zinc-800/50 pb-1">
                                         <span className="text-zinc-500">
                                             {data.totalFiles} plików
                                         </span>
@@ -140,22 +231,22 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
                                         </span>
                                     </div>
                                     
-                                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                                    <div className="space-y-1.5 max-h-24 overflow-y-auto">
                                         {data.history.slice(0, 3).map((file) => (
                                             <div 
                                                 key={file.id}
-                                                className="flex items-center gap-1.5 px-1 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+                                                className="flex items-center gap-1.5 px-1 text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
                                             >
                                                 <FileIcon className="h-3 w-3 text-zinc-600 flex-shrink-0" />
-                                                <span className="truncate flex-1 text-xs">{file.fileName}</span>
+                                                  <span className="truncate flex-1 text-sm">{file.fileName}</span>
                                                 <div className="flex items-center gap-0.5 text-zinc-600">
                                                     <DownloadIcon className="h-3 w-3" />
-                                                    <span className="text-xs">{file.downloadCount}</span>
+                                                    <span className="text-sm">{file.downloadCount}</span>
                                                 </div>
                                             </div>
                                         ))}
                                         {data.history.length > 3 && (
-                                            <div className="text-xs text-zinc-600 text-center pt-0.5">
+                                            <div className="text-sm text-zinc-600 text-center pt-0.5">
                                                 +{data.history.length - 3} więcej
                                             </div>
                                         )}
@@ -170,45 +261,76 @@ function FileDetailsAccordion({ shareId, slug }: { shareId: string; slug: string
     );
 }
 
-export default function RecentShareCard({ slug, createdAt, expiresAt, private: isPrivate, id, views }: ShareCardProps) {
+// Add language badge component
+const LanguageBadge = ({ language }: { language: string }) => {
   return (
-    <div className="border border-dashed border-zinc-800 rounded-lg p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-all duration-200 w-full animate-slide-in-bottom group">
+    <div className="px-2 py-1 text-xs rounded-md bg-zinc-900/50 text-zinc-400 border border-dashed border-zinc-700 w-full flex items-center gap-1.5 ">
+      <div className="w-2 h-2 rounded-full text-md bg-zinc-400" />
+      {language}  
+    </div>
+  );
+};
+
+export default function RecentShareCard({ 
+  slug, 
+  createdAt, 
+  expiresAt, 
+  private: isPrivate, 
+  id, 
+  views, 
+  count = 1, 
+  type = "post",
+  language 
+}: ShareCardProps) {
+  const smartDates = formatSmartDate(createdAt, expiresAt, count);
+  const isSnippet = type === "snippet";
+  
+  return (
+    <div className="border border-dashed border-zinc-800 rounded-sm p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-all duration-200 w-full animate-slide-in-bottom group">
       {/* Header with slug and external link */}
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">
           <div className="w-1.5 h-1.5 bg-zinc-600 rounded-full flex-shrink-0"></div>
-          <span className="text-zinc-400 text-sm truncate">
-            dajkodzik.pl/{slug}
+          <span className="text-zinc-300 text-md truncate">
+            {slug}
           </span>
-          {isPrivate && <Lock className="h-3 w-3 text-zinc-500 flex-shrink-0" />}
+          {isPrivate && <Lock className="h-4 w-4 text-zinc-400 flex-shrink-0" />}
+          {isSnippet && <Code2 className="h-5 w-5 text-zinc-400 flex-shrink-0" />}
         </div>
         <Link
-          href={`/${slug}`}
-          className="text-zinc-500 hover:text-zinc-300 text-sm hover:bg-zinc-800/50 p-1.5 rounded-md transition-all duration-200 flex-shrink-0 flex items-center gap-1"
+          href={isSnippet ? `/s/${slug}` : `/${slug}`}
+          className="text-zinc-500 hover:text-zinc-300 text-md hover:bg-zinc-800/50 p-1.5 rounded-md transition-all duration-200 flex-shrink-0 flex items-center gap-1"
         > 
-
           <ExternalLink className="h-4 w-4" /> 
         </Link>
       </div>
 
-      {/* Stats in a clean grid - use justify-start to prevent spreading */}
+      {/* Stats in a clean grid */}
       <div className="flex items-center gap-4 mb-2">
-        <div className="flex items-center gap-1 text-xs text-zinc-500">
-          <Eye className="h-3 w-3" />
-          <span>{views}</span>
-        </div>
-        <div className="flex items-center gap-1 text-xs text-zinc-500">
+        {!isSnippet && (
+          <div className="flex items-center gap-1 text-sm text-zinc-500">
+            <Eye className="h-3 w-3" />
+            <span>{views}</span>
+          </div>
+        )}
+        <div className="flex items-center gap-1 text-sm text-zinc-500">
           <Calendar className="h-3 w-3" />
-          <span>{formatCardDate(createdAt)}</span>
+          <span>{smartDates.created}</span>
         </div>
-        <div className="flex items-center gap-1 text-xs text-zinc-500">
+        <div className="flex items-center gap-1 text-sm text-zinc-500">
           <CalendarDays className="h-3 w-3" />
-          <span>{formatCardDate(expiresAt)}</span>
+          <span>{smartDates.expires}</span>
         </div>
       </div>
       
-      {/* File details accordion */}
-      <FileDetailsAccordion shareId={id} slug={slug} />
+      {/* Language badge for snippets or file details for posts */}
+      {isSnippet && language ? (
+        <div className="mt-2">
+          <LanguageBadge language={language} />
+        </div>
+      ) : !isSnippet ? (
+        <FileDetailsAccordion shareId={id} slug={slug} />
+      ) : null}
     </div>
   );
 }
@@ -254,6 +376,9 @@ export function RecentShares() {
           private={share.private}
           id={share.id}
           views={share.views}
+          count={count}
+          type={share.type}
+          language={share.language}
         />
       ))}
     </div>

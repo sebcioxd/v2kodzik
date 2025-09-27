@@ -96,7 +96,7 @@ export default function Overview({ user }: { user: User }) {
                                     <ArrowRight className="h-5 w-5 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all" />
                                 </div>
                                 <h3 className="text-zinc-200 font-medium mb-2 tracking-tight flex items-center">
-                                    Historia schowka <span className="text-zinc-400 text-sm font-normal bg-zinc-800/50 rounded-md px-2 py-0 ml-2">Nowość</span>
+                                    Historia schowka 
                                 </h3>
                                 <p className="text-zinc-400 text-sm leading-relaxed">
                                     Dostęp do wszystkich zapisanych fragmentów kodu i tekstów w schowku.

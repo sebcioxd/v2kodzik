@@ -7,6 +7,8 @@ export interface LastPosts {
     expiresAt: string;
     private: boolean;
     views: number;
+    type?: "post" | "snippet";
+    language?: string;
 }
 
 export interface LastPostsResponse {

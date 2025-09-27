@@ -285,6 +285,7 @@ export default function Limits({ user }: LimitsProps) {
             Informacje o limitach
           </h3>
           <div className="space-y-2 text-sm text-zinc-400">
+            <p>• Limity są indywidualne dla każdego użytkownika, każdy ma inny czas resetu i inne zużycie.</p>
             <p>• Limity są resetowane co miesiąc automatycznie</p>
             <p>• Po przekroczeniu limitu nie będziesz mógł przesyłać nowych plików</p>
             <p>• Możesz sprawdzić swoje zużycie w każdej chwili</p>
