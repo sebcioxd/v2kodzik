@@ -10,6 +10,7 @@ export default function Footer() {
                 <Link href="/terms" className="text-zinc-500 hover:text-zinc-100 mr-2">regulamin</Link>
                 <Link href="https://github.com/sebcioxd/v2kodzik" className="text-zinc-500 hover:text-zinc-100">kod źródłowy</Link>
             </p>
+            <p className="text-zinc-700 text-sm">build {process.env.VERCEL_GIT_PREVIOUS_SHA}</p>
         </footer>
     )
 }

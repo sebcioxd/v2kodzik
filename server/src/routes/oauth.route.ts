@@ -1,18 +1,8 @@
 import type { AuthSession } from "../lib/types";
 import { Hono } from "hono";
-import { addOAuthAccountPasswordService, getDiscordGuildsService, setOAuthStatusService } from "../services/oauth.service";
+import { addOAuthAccountPasswordService, getDiscordGuildsService } from "../services/oauth.service";
 
 const oauthRoute = new Hono<AuthSession>();
-
-oauthRoute.post("/set", async (c) => {
-    const user = c.get("user");
-
-    if (!user) {
-        return c.json(null, 401);
-    }
-
-    return await setOAuthStatusService({ c, user });
-});
 
 oauthRoute.post("/password-update", async (c) => {
     const user = c.get("user")

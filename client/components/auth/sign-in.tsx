@@ -75,7 +75,7 @@ export default function SignIn() {
             setRateLimited(false);
             setIsSubmitting(false);
             startRouting(() => {
-              router.push("/auth/oauth?redirect=panel");
+              router.push("/panel");
               refetch();
             });
           },

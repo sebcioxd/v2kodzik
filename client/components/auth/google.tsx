@@ -12,8 +12,8 @@ export default function Google() {
             setIsLoading(true);
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/oauth?redirect=panel&oauth=true`, 
-                newUserCallbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/oauth?redirect=oauth-password&oauth=true`,
+                callbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/panel`, 
+                newUserCallbackURL: `${process.env.NEXT_PUBLIC_SITE_URL}/panel`,
             });
         } catch (error) {
             console.error("Google sign in error:", error);

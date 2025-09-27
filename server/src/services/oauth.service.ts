@@ -5,40 +5,6 @@ import { account } from "../db/schema";
 import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 
-export async function setOAuthStatusService({ c, user }: SetOAuthStatusServiceProps) {
-    try {
-        const accounts = await auth.api.listUserAccounts({
-            headers: c.req.raw.headers
-        })
-
-        const hasPassword = accounts.find((account) => account.providerId === "credential");
-        
-        if (hasPassword) {
-            await auth.api.updateUser({
-                body: {
-                    oauth: false,
-                },
-                headers: c.req.raw.headers
-            })
-            return c.json({ message: "Konto ma już ustawione hasło lub jest powiązane z OAuth" }, 400);
-        }
-
-        await auth.api.updateUser({
-            body: {
-                oauth: true,
-            },
-            headers: c.req.raw.headers
-        })
-
-        return c.json({ message: "Status zaktualizowany" }, 200);
-
-    } catch (error) {
-        return c.json({ 
-            message: "Wystąpił błąd podczas ustawiania statusu OAuth", 
-            error: error instanceof Error ? error.message : String(error) 
-        }, 500);
-    }
-}
 
 export async function addOAuthAccountPasswordService({ c, user }: SetOAuthStatusServiceProps) {
     const userId = user.id;
