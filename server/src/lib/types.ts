@@ -5,8 +5,9 @@ import { uploadBodySchema, finalizeSchema, cancelBodySchema } from "./zod";
 import { z } from "zod";
 import { createMessage, type Attachment } from "@upyo/core";
 import { MailgunTransport } from "@upyo/mailgun";
+import { accountDeletionTemplate } from "../templates/account-deletion";
 
-export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation" | "data-request";
+export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation" | "data-request" | "account-deletion";
 
 export type EmailServiceProps = {
     to: string;

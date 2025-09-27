@@ -4,6 +4,7 @@ import { passwordForgetTemplate } from "../templates/password-forget";
 import { orderConfirmationTemplate } from "../templates/order-confirmation";
 import { cancellationTemplate } from "../templates/cancellation";
 import { dataRequestTemplate } from "../templates/data-request";
+import { accountDeletionTemplate } from "../templates/account-deletion";
 import { MAILGUN_API_KEY } from "../lib/env";
 import { createMessage, type Attachment } from "@upyo/core";
 import { MailgunTransport } from "@upyo/mailgun";
@@ -43,6 +44,13 @@ export async function sendEmailService({
     case "data-request":
       const userDetails = JSON.parse(text);
       emailTemplate = dataRequestTemplate(userDetails.customerName);
+      break;
+    case "account-deletion":
+      const deletionDetails = JSON.parse(text);
+      emailTemplate = accountDeletionTemplate(
+        deletionDetails.customerName,
+        deletionDetails.deletionUrl
+      );
       break;
     default:
       emailTemplate = "";

@@ -29,11 +29,11 @@ export default function Hero() {
           {/* Main Heading with Gradient Text */}
           <div className="text-center space-y-4">
             <h1 className="md:text-4xl text-3xl font-bold tracking-tighter animate-fade-in-01-text opacity-0 bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
-              Przesyłaj pliki w mgnieniu oka
+              Przesyłaj pliki i kod w mgnieniu oka
             </h1>
             <p className="text-zinc-400 text-lg tracking-tight text-wrap max-w-2xl text-center animate-slide-in-left opacity-0 leading-relaxed">
-              Dzięki wygodnemu interfejsowi, przesyłanie plików jest niezwykle proste. 
-              Użyj naszego serwisu do przesyłania plików i zyskaj wiele czasu. 
+              Dzięki wygodnemu interfejsowi, przesyłanie plików oraz kodu jest niezwykle proste. 
+              Użyj naszego serwisu do przesyłania plików, kodu i zyskaj wiele czasu. 
               Możesz w łatwy sposób generować linki niestandardowe, skracając czas drugiej osoby.
             </p>
           </div>

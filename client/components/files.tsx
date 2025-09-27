@@ -923,7 +923,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
                 <div className="flex flex-col">
                   <span className="text-zinc-200 text-sm">{file.fileName} </span>
                   <span className="text-zinc-500 text-xs">{formatBytes(file.size)}</span>
-                  <span className="text-zinc-500 text-xs">{file.downloadCount} {file.downloadCount === 0 ? 'razy pobrany' : 'razy pobranych'}</span>
+                  <span className="text-zinc-500 text-xs">{file.downloadCount} {file.downloadCount === 1 ? 'raz pobrany' : 'razy pobrano'}</span>
                 </div>
               </div>
               <div className="flex items-center">
@@ -998,7 +998,7 @@ export default function Files({ files, totalSize, createdAt, expiresAt, storageP
               </div>
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
                 <span className="text-zinc-400 text-sm">Pobrania</span>
-                <span className="text-zinc-200 text-sm">{selectedFile?.downloadCount} {selectedFile?.downloadCount === 0 ? 'razy pobrany' : 'razy pobranych'}</span>
+                <span className="text-zinc-200 text-sm">{selectedFile?.downloadCount} {selectedFile?.downloadCount === 1 ? 'raz pobrany' : 'razy pobrano'}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-dashed border-zinc-800">
                 <span className="text-zinc-400 text-sm">ID pliku</span>

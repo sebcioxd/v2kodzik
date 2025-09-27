@@ -14,7 +14,7 @@ export default function Terms() {
                 <section className="space-y-2">
                     <h2 className="text-xl text-zinc-200">2. Zasady korzystania</h2>
                     <ul className="text-sm space-y-2">
-                        <li>• Maksymalny rozmiar pojedynczego pliku: 40MB</li>
+                        <li>• Maksymalny rozmiar pojedynczego pliku: od 50MB do 2GB</li>
                         <li>• Maksymalna liczba plików w jednym przesłaniu: 20</li>
                         <li>• Nazwy plików nie mogą zawierać znaków specjalnych</li>
                         <li>• Pliki przechowywane są przez ograniczony czas</li>

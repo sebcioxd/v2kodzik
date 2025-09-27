@@ -9,6 +9,7 @@ import { createAuthMiddleware, emailOTP } from "better-auth/plugins"
 import { stripe } from "@better-auth/stripe"
 import Stripe from "stripe"
 import { eq } from "drizzle-orm";
+import { accountDeletionTemplate } from "../templates/account-deletion";
 
 async function getUserEmailByReferenceId(referenceId: string): Promise<string | null> {
     try {
@@ -58,6 +59,26 @@ export const auth = betterAuth({
                 required: false,
                 defaultValue: false,
                 input: true,
+            },
+        }, 
+        deleteUser: {
+            enabled: true,
+            sendDeleteAccountVerification: async (
+                {
+                    user,
+                    url,
+                }) => {
+                const deletionDetails = {
+                    customerName: user.name || user.email,
+                    deletionUrl: url
+                };
+                
+                await sendEmailService({
+                    to: user.email,
+                    subject: "Potwierdź usunięcie konta - dajkodzik.pl",
+                    text: JSON.stringify(deletionDetails),
+                    emailType: "account-deletion"
+                });
             },
         }
     },
@@ -135,6 +156,7 @@ export const auth = betterAuth({
         enabled: true,
         requireEmailVerification: true,
         resetPasswordTokenExpiresIn: 30 * 60,
+        
         password: {
             hash: async (password) => {
                 return await Bun.password.hash(password);
@@ -143,6 +165,7 @@ export const auth = betterAuth({
                 return await Bun.password.verify(data.password, data.hash);
             },
         },
+        
         sendResetPassword: async ({ user, token }) => {
             const callbackURL = `${BETTER_AUTH_URL}/v1/auth/reset-password/${token}?callbackURL=${SITE_URL}/auth/forget/password`
             await sendEmailService({
