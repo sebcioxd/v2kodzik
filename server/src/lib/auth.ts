@@ -101,12 +101,14 @@ export const auth = betterAuth({
                     }).where(eq(user.id, sessionUser.id));
                     ctx.redirect(`${SITE_URL}/panel`);
                 }
+                
+                if (!hasPassword) { 
+                    await db.update(user).set({
+                        oauth: true,
+                    }).where(eq(user.id, sessionUser.id));
+                    ctx.redirect(`${SITE_URL}/oauth-password`);
+                }
 
-                await db.update(user).set({
-                    oauth: true,
-                }).where(eq(user.id, sessionUser.id));
-
-                ctx.redirect(`${SITE_URL}/oauth-password`);
                 
 
                 const existingLimits = await db.select()
