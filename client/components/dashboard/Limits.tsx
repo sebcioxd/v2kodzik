@@ -9,6 +9,9 @@ import {
   Clock,
   TrendingUp,
   Calendar,
+  FileText,
+  Link as LinkIcon,
+  Activity,
 } from 'lucide-react';
 import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -36,6 +39,8 @@ type LimitsData = {
   megabytesLimit: number;
   message: string;
   resetAt?: string;
+  linksGenerated: number;
+  filesUploaded: number;
 };
 
 // Helper function to format bytes to human readable format
@@ -172,7 +177,6 @@ export default function Limits({ user }: LimitsProps) {
                 <div className={`text-2xl font-bold text-zinc-300 bg-zinc-800/50 rounded-md px-2 py-0`}>
                   {usagePercentage.toFixed(1)}%
                 </div>
-                
               </div>
             </div>
 
@@ -193,9 +197,6 @@ export default function Limits({ user }: LimitsProps) {
                 />
               </div>
             </div>
-
-            {/* Status Indicator */}
-            
           </div>
         )}
 
@@ -262,6 +263,89 @@ export default function Limits({ user }: LimitsProps) {
           </div>
         )}
 
+        {/* Lifetime Statistics Section */}
+        {!isLoading && limitsData && (
+          <div className="space-y-6">
+            {/* Lifetime Stats Header */}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+              <h2 className="text-lgxl text-zinc-200 font-medium tracking-tight flex items-center gap-2">
+                <Activity className="h-5 w-5 text-zinc-400" />
+                Statystyki lifetime
+              </h2>
+              <p className="text-zinc-400 text-sm">
+                Twoje całkowite statystyki od początku korzystania z platformy
+              </p>
+            </div>
+
+            {/* Lifetime Statistics Grid */}
+            <div className="grid md:grid-cols-1 gap-6">
+              {/* Files Uploaded Card */}
+              <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-lg p-4 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-zinc-800/50 rounded-lg">
+                    <FileText className="h-5 w-5 text-zinc-300" />
+                  </div>
+                  <div>
+                    <h4 className="text-zinc-200 font-medium">Przesłane pliki</h4>
+                    <p className="text-zinc-400 text-sm">
+                      Całkowita liczba przesłanych plików
+                    </p>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-zinc-200">
+                  {limitsData.filesUploaded.toLocaleString()}
+                </div>
+              </div>
+
+              {/* Links Generated Card */}
+              <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-lg p-4 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-zinc-800/50 rounded-lg">
+                    <LinkIcon className="h-5 w-5 text-zinc-300" />
+                  </div>
+                  <div>
+                    <h4 className="text-zinc-200 font-medium">Wygenerowane linki</h4>
+                    <p className="text-zinc-400 text-sm">
+                      Całkowita liczba wygenerowanych linków
+                    </p>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-zinc-200">
+                  {limitsData.linksGenerated.toLocaleString()}
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Stats Summary */}
+            <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-lg p-6">
+              <h3 className="text-zinc-200 font-medium mb-4 tracking-tight flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-zinc-400" />
+                Podsumowanie aktywności
+              </h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-zinc-200 mb-1">
+                    {limitsData.filesUploaded + limitsData.linksGenerated}
+                  </div>
+                  <p className="text-zinc-400 text-sm">Całkowita aktywność</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-zinc-200 mb-1">
+                    {limitsData.filesUploaded > 0 ? Math.round((limitsData.linksGenerated / limitsData.filesUploaded) * 100) : 0}%
+                  </div>
+                  <p className="text-zinc-400 text-sm">Stosunek linków do plików</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-zinc-200 mb-1">
+                    {limitsData.filesUploaded > 0 ? Math.round(limitsData.filesUploaded / Math.max(1, Math.floor((Date.now() - new Date('2024-01-01').getTime()) / (1000 * 60 * 60 * 24 * 30)))) : 0}
+                  </div>
+                  <p className="text-zinc-400 text-sm">Średnio plików/miesiąc</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6">
           <h3 className="text-zinc-200 font-medium mb-3 tracking-tight flex items-center gap-2">
             <HardDrive className="h-4 w-4 text-zinc-400" />
@@ -292,9 +376,6 @@ export default function Limits({ user }: LimitsProps) {
             <p>• Wszystkie pliki są liczone w limicie miesięcznym</p>
           </div>
         </div>
-
-        {/* Refresh Button */}
-       
       </div>
     </main>
   );

@@ -86,6 +86,8 @@ export const monthlyLimits = pgTable('monthly_limits', {
   userId: text('user_id').references(() => user.id, { onDelete: 'cascade' }),
   megabytesUsed: integer('megabytes_used').notNull().default(0),
   megabytesLimit: integer('megabytes_limit').notNull().default(1000),
+  linksGenerated: integer('links_generated').notNull().default(0),
+  filesUploaded: integer('files_uploaded').notNull().default(0),
   resetAt: timestamp('reset_at').notNull().default(sql`NOW() + INTERVAL '1 month'`),
 }, (t) => [
   index('idx_monthly_limits_user_id')

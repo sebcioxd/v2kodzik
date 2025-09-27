@@ -29,7 +29,7 @@ export default function FAQ() {
               Jakie są ograniczenia dotyczące plików?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Maksymalnie 20 plików, 100MB maksymalnie.
+              Maksymalnie 20 plików, od 50MB do nawet 2GB maksymalnie, w zależności od twojej subskrypcji.
             </AccordionContent>
         </AccordionItem>
         
@@ -38,13 +38,13 @@ export default function FAQ() {
               Jakie są limity dotyczące linków?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Nasze API ogranicza do 3 linków co 20 minut na jeden adres IP.
+              Nasze API ogranicza do 6 linków co 20 minut na jeden adres IP lub użytkownika. Linki plikowe i schowkowe są liczone osobno.
             </AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="item-4" className="border border-dashed border-zinc-800 rounded-md px-4 bg-zinc-950/10">
             <AccordionTrigger className="text-zinc-200 hover:text-zinc-100 hover:no-underline">
-              Jak skontaktować się z administratorem?
+              Jak skontaktować się z administratorem lub zgłosić link?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
               Napisz do mnie na discord: @niarde lub telegram: @niardeee, również możesz skontaktować się formularzem na stronie <Link href="https://niarde.xyz" className="text-zinc-300 hover:text-zinc-100 transition-colors underline underline-offset-4">niarde.xyz</Link>
@@ -65,7 +65,7 @@ export default function FAQ() {
               Czy prywatne linki są bezpieczne?
             </AccordionTrigger>
             <AccordionContent className="text-zinc-400 text-sm">
-              Tak, prywatne linki są bezpieczne. Jest to bardzo dopracowana funkcja, poza osobami z kodem dostępu, nikt nie jest w stanie otworzyć linku. Używamy hashowania kodu dostępu.
+              Tak, prywatne linki są bezpieczne. Jest to bardzo dopracowana funkcja, poza osobami z kodem dostępu, nikt nie jest w stanie otworzyć linku. Używamy hashowania kodu dostępu. Niestety lecz żeby zminejszyć transfer na naszej stronie, używamy CND'a przez co każdy użytkownik może pobrać plik jeśli zna DOKŁADNY URL linku, co jest cięzkie, bo staramy się maskować URL'e. Pracujemy nad funkcją która będzie pozwalała na mocniejsze ustawienia prywatności linków.
             </AccordionContent>
         </AccordionItem>
 

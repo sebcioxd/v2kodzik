@@ -88,6 +88,7 @@ export class UploadService {
 
             const validatedReq = result;
             const totalSizeInMB = fileSizes?.reduce((acc, size) => acc + (size / (1024 * 1024)), 0) || 0;
+            const totalFiles = fileSizes?.length || 0;
 
 
             if (user && fileSizes) {
@@ -95,7 +96,8 @@ export class UploadService {
                 const limitCheck = await this.monthlyService.updateMonthlyLimits({ 
                     c, 
                     user, 
-                    megabytesUsed: totalSizeInMB 
+                    megabytesUsed: totalSizeInMB,
+                    filesUploaded: totalFiles
                 });
 
                 if (limitCheck.status === 400) {
