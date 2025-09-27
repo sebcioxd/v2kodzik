@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/index"; 
-import { schema, user, account } from "../db/schema";
+import { schema, user, account, monthlyIPlimits } from "../db/schema";
 import { sendEmailService } from "../services/email.service";
 import { MonthlyUsageService } from "../services/monthly-limits.service";
 import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, STRIPE_SECRET_KEY, STRIPE_AUTH_WEBHOOK_SECRET, SANDBOX_STRIPE_AUTH_WEBHOOK_SECRET, SANDBOX_STRIPE_SECRET_KEY } from "../lib/env";
@@ -109,18 +109,23 @@ export const auth = betterAuth({
                     ctx.redirect(`${SITE_URL}/oauth-password`);
                 }
 
-                
-
                 const existingLimits = await db.select()
                     .from(schema.monthlyLimits)
                     .where(eq(schema.monthlyLimits.userId, sessionUser.id))
                     .limit(1);
                 
                 if (existingLimits.length === 0) {
+
+                    const [limits] = await db.select()
+                        .from(monthlyIPlimits)
+                        .where(eq(monthlyIPlimits.ipAddress, ipAddress))
+                        .limit(1);
+                                             
+
                     await db.insert(schema.monthlyLimits).values({
                         userId: sessionUser.id,
                         megabytesLimit: 1000,
-                        megabytesUsed: 0,
+                        megabytesUsed: limits.megabytesUsed,
                     })
                 }
             }
