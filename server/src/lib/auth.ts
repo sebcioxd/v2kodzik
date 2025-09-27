@@ -141,12 +141,13 @@ export const auth = betterAuth({
                         .from(monthlyIPlimits)
                         .where(eq(monthlyIPlimits.ipAddress, ipAddress))
                         .limit(1);
-                                             
+
+                    const usedFromIP = limits ? limits.megabytesUsed : 0;
 
                     await db.insert(schema.monthlyLimits).values({
                         userId: sessionUser.id,
                         megabytesLimit: 1000,
-                        megabytesUsed: limits.megabytesUsed !== undefined ? limits.megabytesUsed : 0,
+                        megabytesUsed: usedFromIP,
                     })
                 }
             }
