@@ -146,7 +146,7 @@ export const auth = betterAuth({
                     await db.insert(schema.monthlyLimits).values({
                         userId: sessionUser.id,
                         megabytesLimit: 1000,
-                        megabytesUsed: limits.megabytesUsed,
+                        megabytesUsed: limits.megabytesUsed !== undefined ? limits.megabytesUsed : 0,
                     })
                 }
             }
