@@ -4,12 +4,21 @@ import { useState } from 'react';
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useQuery } from '@tanstack/react-query';
 import { 
   Settings as SettingsIcon, 
   User, 
   Lock, 
   Eye, 
-  EyeOff
+  EyeOff,
+  Download,
+  Database,
+  FileText,
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
+  Mail,
+  Send
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +36,7 @@ import {
 import { authClient } from '@/lib/auth-client';
 import { User as UserType } from '@/lib/auth-client';
 import { toast } from "sonner";
+import axios from 'axios';
 
 // Custom Loading Spinner Component
 const LoadingSpinner = ({ size = "default" }: { size?: "small" | "default" | "large" }) => {
@@ -39,6 +49,21 @@ const LoadingSpinner = ({ size = "default" }: { size?: "small" | "default" | "la
   return (
     <div className={`${sizeClasses[size]} animate-spin rounded-full border-2 border-zinc-600 border-t-zinc-300`} />
   );
+};
+
+// Type for the API response
+type UserDataResponse = {
+  userData: any[];
+  accountData: any[];
+  subscriptionData: any[];
+  monthlyLimitsData: any[];
+  sharesHistoryData: any[];
+};
+
+// Type for email request response
+type EmailRequestResponse = {
+  message: string;
+  success: boolean;
 };
 
 // Form schemas
@@ -96,6 +121,34 @@ export default function Settings({ user }: SettingsProps) {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+
+  // User data query
+  const {
+    data: userData,
+    isLoading: isLoadingUserData,
+    error: userDataError,
+    refetch: refetchUserData
+  } = useQuery<UserDataResponse, Error>({
+    queryKey: ['user-data'],
+    queryFn: async (): Promise<UserDataResponse> => {
+      try {
+        const response = await axios.get<UserDataResponse>(
+          `${process.env.NEXT_PUBLIC_API_URL}/v1/user-data`,
+          {
+            withCredentials: true,
+          }
+        );
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        throw error;
+      }
+    },
+    enabled: false, // Only fetch when user explicitly requests it
+    staleTime: 0,
+  });
 
   const onUsernameSubmit = async (data: UsernameFormData) => {
     if (data.username.trim() === user?.name) {
@@ -147,6 +200,87 @@ export default function Settings({ user }: SettingsProps) {
     } finally {
       setIsChangingPassword(false);
     }
+  };
+
+  const handleDownloadUserData = async () => {
+    if (!userData) {
+      toast.error("Brak danych do pobrania");
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      // Create a comprehensive data object
+      const downloadData = {
+        requestDate: new Date().toISOString(),
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt,
+        },
+        data: userData,
+        metadata: {
+          totalRecords: {
+            userData: userData.userData.length,
+            accountData: userData.accountData.length,
+            subscriptionData: userData.subscriptionData.length,
+            monthlyLimitsData: userData.monthlyLimitsData.length,
+            sharesHistoryData: userData.sharesHistoryData.length,
+          }
+        }
+      };
+
+      // Convert to JSON string
+      const jsonString = JSON.stringify(downloadData, null, 2);
+      
+      // Create blob and download
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `user-data-${user.name}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Dane zostały pobrane pomyślnie!");
+    } catch (error) {
+      console.error('Error downloading data:', error);
+      toast.error("Wystąpił błąd podczas pobierania danych");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleSendDataByEmail = async () => {
+    setIsSendingEmail(true);
+
+    try {
+      const response = await axios.get<EmailRequestResponse>(
+        `${process.env.NEXT_PUBLIC_API_URL}/v1/user-data/request-email`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Dane zostały wysłane na Twój adres email!");
+      } else {
+        toast.error(response.data.message || "Wystąpił błąd podczas wysyłania danych");
+      }
+    } catch (error: any) {
+      console.error('Error sending data by email:', error);
+      toast.error(error?.response?.data?.message || "Wystąpił błąd podczas wysyłania danych");
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
+  const handleFetchUserData = () => {
+    refetchUserData();
   };
 
   return (
@@ -385,6 +519,113 @@ export default function Settings({ user }: SettingsProps) {
           </CardContent>
         </Card>
 
+        <Separator className="bg-zinc-800" />
+
+        {/* Request User Data - Enhanced with Email Option */}
+        <Card className="bg-zinc-900/20 border-zinc-800 border-dashed tracking-tight">
+          <CardHeader>
+            <CardTitle className="text-zinc-200 flex items-center gap-2">
+              <Database className="h-5 w-5 text-zinc-400" />
+              Pobierz dane użytkownika
+            </CardTitle>
+            <CardDescription className="text-zinc-400">
+              Pobierz swoje dane w formacie JSON zgodnie z RODO
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingUserData ? (
+              <div className="flex items-center py-6">
+                <LoadingSpinner size="default" />
+                <span className="ml-3 text-zinc-400">Ładowanie...</span>
+              </div>
+            ) : userDataError ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-zinc-400" />
+                  <p className="text-zinc-400 text-sm">Błąd podczas ładowania danych</p>
+                </div>
+                <Button 
+                  onClick={handleFetchUserData}
+                  className="bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100 border border-dashed border-zinc-800"
+                >
+                  Spróbuj ponownie
+                </Button>
+              </div>
+            ) : userData ? (
+              <div className="space-y-4 animate-fade-in-01-text">
+                <div className="flex items-center gap-2 text-sm text-zinc-400">
+                  <CheckCircle className="h-4 w-4 text-zinc-500" />
+                  <span>Dane gotowe do pobrania</span>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    onClick={handleDownloadUserData}
+                    disabled={isDownloading}
+                    className="bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100 border border-dashed border-zinc-800 text-sm py-2 px-4"
+                  >
+                    {isDownloading ? (
+                      <LoadingSpinner size="small" />
+                    ) : (
+                      <Download className="h-4 w-4 mr-2" />
+                    )}
+                    {isDownloading ? 'Pobieranie...' : 'Pobierz dane JSON'}
+                  </Button>
+
+                  <Button
+                    onClick={handleSendDataByEmail}
+                    disabled={isSendingEmail}
+                    className="bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100 border border-dashed border-zinc-800 text-sm py-2 px-4"
+                  >
+                    {isSendingEmail ? (
+                      <LoadingSpinner size="small" />
+                    ) : (
+                      <Mail className="h-4 w-4 mr-2" />
+                    )}
+                    {isSendingEmail ? 'Wysyłanie...' : 'Wyślij na email'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-zinc-400">
+                  Wybierz sposób pobierania swoich danych:
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    onClick={handleFetchUserData}
+                    disabled={isLoadingUserData}
+                    className="bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100 border border-dashed border-zinc-800 text-sm py-2 px-4"
+                  >
+                    <Database className="h-4 w-4 mr-2" />
+                    Załaduj i pobierz
+                  </Button>
+
+                  <Button
+                    onClick={handleSendDataByEmail}
+                    disabled={isSendingEmail}
+                    className="bg-zinc-900/80 text-zinc-200 hover:bg-zinc-800 hover:text-zinc-100 border border-dashed border-zinc-800 text-sm py-2 px-4"
+                  >
+                    {isSendingEmail ? (
+                      <LoadingSpinner size="small" />
+                    ) : (
+                      <Send className="h-4 w-4 mr-2" />
+                    )}
+                    {isSendingEmail ? 'Wysyłanie...' : 'Wyślij na email'}
+                  </Button>
+                </div>
+
+                <div className="mt-4 p-3 bg-zinc-900/50 border border-zinc-800 rounded-md">
+                  <p className="text-xs text-zinc-500">
+                    <strong>Email:</strong> Dane zostaną wysłane na adres {user.email} jako załącznik JSON z pięknym szablonem email.
+                  </p>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Security Info */}
         <Card className="bg-zinc-900/20 border-dashed border-zinc-800 tracking-tight">
           <CardHeader>
@@ -399,6 +640,11 @@ export default function Settings({ user }: SettingsProps) {
               <p>• Używaj silnego hasła z co najmniej 8 znakami</p>
               <p>• Nie udostępniaj swoich danych logowania</p>
               <p>• Regularnie aktualizuj swoje hasło</p>
+              <p>• Pobierane dane zawierają wszystkie informacje związane z Twoim kontem</p>
+              <p>• Plik JSON zawiera dane użytkownika, konta, subskrypcje, limity i historię</p>
+              <p>• Dane są pobierane zgodnie z RODO i przepisami o ochronie danych</p>
+              <p>• Plik jest generowany w czasie rzeczywistym i zawiera najnowsze dane</p>
+              <p>• Email z danymi zawiera piękny szablon i jest wysyłany na Twój adres email</p>
             </div>
           </CardContent>
         </Card>

@@ -3,14 +3,17 @@ import type { Context } from "hono";
 import { auth } from "../lib/auth";
 import { uploadBodySchema, finalizeSchema, cancelBodySchema } from "./zod";
 import { z } from "zod";
+import { createMessage, type Attachment } from "@upyo/core";
+import { MailgunTransport } from "@upyo/mailgun";
 
-export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation";
+export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation" | "data-request";
 
 export type EmailServiceProps = {
     to: string;
     subject: string;
     text: string;
     emailType: EmailType;
+    attachments?: File | File[] | Attachment | Attachment[];
 }
 
 export type InfoServiceResponse = {
@@ -139,6 +142,10 @@ export type SetOAuthStatusServiceProps = {
 
 export const Session = auth.$Infer.Session
 export const User = auth.$Infer.Session.user
+
+// export type ExtendedUser = typeof User & {
+//     stripeCustomerId?: string | null;
+// }
 
 export interface AuthSession extends Env {
     Variables: {

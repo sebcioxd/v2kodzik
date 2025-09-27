@@ -41,6 +41,10 @@ export const rateLimitConfigs = {
     cancel: {
         windowMs: minutes(20),
         limit: 3,
+    },
+    dataRequest: {
+        windowMs: minutes(60),
+        limit: 2,
     }
 } as const;
 

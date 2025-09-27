@@ -3,8 +3,9 @@ import { emailVerifyTemplate } from "../templates/email-verify";
 import { passwordForgetTemplate } from "../templates/password-forget";
 import { orderConfirmationTemplate } from "../templates/order-confirmation";
 import { cancellationTemplate } from "../templates/cancellation";
+import { dataRequestTemplate } from "../templates/data-request";
 import { MAILGUN_API_KEY } from "../lib/env";
-import { createMessage } from "@upyo/core";
+import { createMessage, type Attachment } from "@upyo/core";
 import { MailgunTransport } from "@upyo/mailgun";
 
 export async function sendEmailService({
@@ -12,6 +13,7 @@ export async function sendEmailService({
   subject,
   text,
   emailType,
+  attachments,
 }: EmailServiceProps) {
   let emailTemplate: string;
   
@@ -23,7 +25,6 @@ export async function sendEmailService({
       emailTemplate = passwordForgetTemplate(text);
       break;
     case "order-confirmation":
-      // For order confirmation, text should be JSON string with order details
       const orderDetails = JSON.parse(text);
       emailTemplate = orderConfirmationTemplate(
         orderDetails.planName,
@@ -33,12 +34,15 @@ export async function sendEmailService({
       );
       break;
     case "cancellation":
-      // For cancellation, text should be JSON string with cancellation details
       const cancellationDetails = JSON.parse(text);
       emailTemplate = cancellationTemplate(
         cancellationDetails.planName,
         cancellationDetails.customerName
       );
+      break;
+    case "data-request":
+      const userDetails = JSON.parse(text);
+      emailTemplate = dataRequestTemplate(userDetails.customerName);
       break;
     default:
       emailTemplate = "";
@@ -55,6 +59,7 @@ export async function sendEmailService({
     to: to,
     subject: subject,
     content: { html: emailTemplate || "" },
+    attachments: attachments,
   });
 
   try {
