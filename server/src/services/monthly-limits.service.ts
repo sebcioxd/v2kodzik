@@ -31,6 +31,7 @@ export class MonthlyUsageService {
                 success: true,
                 megabytesUsed: 0,
                 megabytesLimit: this.DEFAULT_USER_LIMIT,
+                lifetimeMegabytesUsed: 0,
             });
         }
 
@@ -41,6 +42,7 @@ export class MonthlyUsageService {
             megabytesLimit: limits[0].megabytesLimit,
             linksGenerated: limits[0].linksGenerated,
             filesUploaded: limits[0].filesUploaded,
+            lifetimeMegabytesUsed: limits[0].lifetimeMegabytesUsed,
             resetAt: limits[0].resetAt,
         });
     }
@@ -53,6 +55,7 @@ export class MonthlyUsageService {
        await db.insert(monthlyLimits).values({
             userId: user.id,
             megabytesUsed: megabytesUsed,
+            lifetimeMegabytesUsed: megabytesUsed + limits[0].lifetimeMegabytesUsed,
             filesUploaded: filesUploaded,
             linksGenerated: 1 + limits[0].linksGenerated,
             megabytesLimit: this.DEFAULT_USER_LIMIT,
@@ -62,6 +65,7 @@ export class MonthlyUsageService {
             message: "Limit miesięczny został utworzony",
             success: true,
             megabytesUsed: megabytesUsed,
+            lifetimeMegabytesUsed: megabytesUsed,
             filesUploaded: filesUploaded,
             linksGenerated: 1 + limits[0].linksGenerated,
             megabytesLimit: this.DEFAULT_USER_LIMIT,
@@ -71,6 +75,7 @@ export class MonthlyUsageService {
     if (limits[0].megabytesUsed === 0) {
         await db.update(monthlyLimits).set({
             megabytesUsed: megabytesUsed,
+            lifetimeMegabytesUsed: megabytesUsed + limits[0].lifetimeMegabytesUsed,
             filesUploaded: filesUploaded,
             linksGenerated: 1 + limits[0].linksGenerated,
             resetAt: sql`NOW() + INTERVAL '1 month'`,
@@ -80,6 +85,7 @@ export class MonthlyUsageService {
             message: "Limit miesięczny został zaktualizowany",
             success: true,
             megabytesUsed: megabytesUsed + limits[0].megabytesUsed,
+            lifetimeMegabytesUsed: megabytesUsed + limits[0].lifetimeMegabytesUsed,
             filesUploaded: filesUploaded + limits[0].filesUploaded,
             linksGenerated: 1 + limits[0].linksGenerated,
             megabytesLimit: limits[0].megabytesLimit,
@@ -96,6 +102,7 @@ export class MonthlyUsageService {
 
     await db.update(monthlyLimits).set({
         megabytesUsed: megabytesUsed + limits[0].megabytesUsed,
+        lifetimeMegabytesUsed: megabytesUsed + limits[0].lifetimeMegabytesUsed,
         filesUploaded: filesUploaded + limits[0].filesUploaded,
         linksGenerated: 1 + limits[0].linksGenerated,
     }).where(eq(monthlyLimits.userId, user.id));
@@ -105,6 +112,7 @@ export class MonthlyUsageService {
         success: true,
         megabytesUsed: megabytesUsed + limits[0].megabytesUsed,
         filesUploaded: filesUploaded + limits[0].filesUploaded,
+        lifetimeMegabytesUsed: megabytesUsed + limits[0].lifetimeMegabytesUsed,
         linksGenerated: 1 + limits[0].linksGenerated,
         megabytesLimit: limits[0].megabytesLimit,
     });

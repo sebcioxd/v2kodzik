@@ -12,6 +12,7 @@ import {
   FileText,
   Link as LinkIcon,
   Activity,
+  HardDriveUpload,
 } from 'lucide-react';
 import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ type LimitsData = {
   resetAt?: string;
   linksGenerated: number;
   filesUploaded: number;
+  lifetimeMegabytesUsed: number;
 };
 
 // Helper function to format bytes to human readable format
@@ -212,10 +214,11 @@ export default function Limits({ user }: LimitsProps) {
 
         {/* Usage Statistics */}
         {!isLoading && limitsData && (
-          <div className="grid md:grid-cols-3 gap-4">
+          <div>
+          <div className="grid md:grid-cols-2 gap-4 animate-slide-in-bottom">
             {/* Used Space Card */}
             <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-md p-4">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-2 mb-2">
                 <div className="p-2 bg-zinc-800/50 rounded-lg">
                   <TrendingUp className="h-4 w-4 text-zinc-300" />
                 </div>
@@ -231,7 +234,7 @@ export default function Limits({ user }: LimitsProps) {
 
             {/* Remaining Space Card */}
             <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-md p-4">
-              <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-2 mb-2">
                 <div className="p-2 bg-zinc-800/50 rounded-lg">
                   <Clock className="h-4 w-4 text-zinc-300" />
                 </div>
@@ -246,8 +249,11 @@ export default function Limits({ user }: LimitsProps) {
             </div>
 
             {/* Reset Date Card */}
-            <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-md p-4">
-              <div className="flex items-center gap-3 mb-3">
+
+          </div>
+
+          <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-md p-4 mt-4 animate-slide-in-bottom">
+              <div className="flex items-center gap-2 mb-2">
                 <div className="p-2 bg-zinc-800/50 rounded-lg">
                   <Calendar className="h-4 w-4 text-zinc-300" />
                 </div>
@@ -260,12 +266,14 @@ export default function Limits({ user }: LimitsProps) {
                 Następny reset miesięczny
               </p>
             </div>
+
           </div>
+          
         )}
 
         {/* Lifetime Statistics Section */}
         {!isLoading && limitsData && (
-          <div className="space-y-6">
+          <div className="space-y-6 animate-slide-in-bottom">
             {/* Lifetime Stats Header */}
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
               <h2 className="text-lgxl text-zinc-200 font-medium tracking-tight flex items-center gap-2">
@@ -278,7 +286,7 @@ export default function Limits({ user }: LimitsProps) {
             </div>
 
             {/* Lifetime Statistics Grid */}
-            <div className="grid md:grid-cols-1 gap-6">
+            <div className="grid md:grid-cols-1 gap-4">
               {/* Files Uploaded Card */}
               <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-lg p-4 flex justify-between items-center">
                 <div className="flex items-center gap-3">
@@ -314,6 +322,23 @@ export default function Limits({ user }: LimitsProps) {
                   {limitsData.linksGenerated.toLocaleString()}
                 </div>
               </div>
+
+              <div className="bg-zinc-900/20 border border-zinc-800 border-dashed rounded-lg p-4 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-zinc-800/50 rounded-lg">
+                    <HardDriveUpload className="h-5 w-5 text-zinc-300" />
+                  </div>
+                  <div>
+                    <h4 className="text-zinc-200 font-medium">Całkowite zużycie</h4>
+                    <p className="text-zinc-400 text-sm">
+                      Całkowite zużycie przestrzeni
+                    </p>
+                  </div>
+                </div>
+                <div className="text-2xl font-bold text-zinc-200">
+                  {formatBytes(limitsData.lifetimeMegabytesUsed * 1024 * 1024)}
+                </div>
+              </div>
             </div>
 
             {/* Additional Stats Summary */}
@@ -337,9 +362,9 @@ export default function Limits({ user }: LimitsProps) {
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-zinc-200 mb-1">
-                    {limitsData.filesUploaded > 0 ? Math.round(limitsData.filesUploaded / Math.max(1, Math.floor((Date.now() - new Date('2024-01-01').getTime()) / (1000 * 60 * 60 * 24 * 30)))) : 0}
+                    {limitsData.filesUploaded > limitsData.linksGenerated ? 'Pliki' : limitsData.linksGenerated > limitsData.filesUploaded ? 'Linki' : 'Równe'}
                   </div>
-                  <p className="text-zinc-400 text-sm">Średnio plików/miesiąc</p>
+                  <p className="text-zinc-400 text-sm">Dominująca aktywność</p>
                 </div>
               </div>
             </div>
