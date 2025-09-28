@@ -23,6 +23,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
 import Google from "./google";
 import Discord from "./discord";
+import { toast } from "sonner";
+import { useQueryState } from "nuqs";
 
 type FormData = {
   email: string;
@@ -49,14 +51,16 @@ export default function SignIn() {
   const [isRouting, startRouting] = useTransition();
   const { refetch } = useSession();
   const [showPassword, setShowPassword] = useState(false);
+  const [email] = useQueryState("email");
+  const [rememberMe] = useQueryState("rememberMe");
 
   const router = useRouter();
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      email: email || "",
       password: "",
-      rememberMe: false,
+      rememberMe: rememberMe === "true" ? true : false,
     },
   });
 
@@ -81,9 +85,15 @@ export default function SignIn() {
           },
 
           onError: (c) => {
-            setError(true);
-            setRateLimited(false);
-            setIsSubmitting(false);
+            if (c.response.status === 307) {
+              toast.info("Wykryliśmy zmianę urządzenia. Proszę wprowadzić kod 2FA.");
+              router.push(`/auth/2fa?token=${c.error.authToken}&email=${c.error.email}&rememberMe=${data.rememberMe}`);
+            } else {
+              setError(true);
+              setRateLimited(false);
+              setIsSubmitting(false);
+            }
+            
           },
 
           onRequest: () => {

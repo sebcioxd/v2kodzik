@@ -6,6 +6,7 @@ import Footer from "@/components/footer";
 import { QueryProvider } from "./hooks/query-provider";
 import { Toaster } from "@/components/ui/sonner"
 import Toploader from "@/components/Toploader";
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,9 @@ export default function RootLayout({
       >
         <Toploader />
         <Navbar />
+        <NuqsAdapter>
         {children}
+        </NuqsAdapter>
         <Toaster 
           position="top-center" 
           style={{ 

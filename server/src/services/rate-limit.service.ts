@@ -45,7 +45,11 @@ export const rateLimitConfigs = {
     dataRequest: {
         windowMs: minutes(60),
         limit: 2,
-    }
+    },
+    twoFactor: {
+        windowMs: minutes(5),
+        limit: 4,
+    },
 } as const;
 
 type RateLimitKey = keyof typeof rateLimitConfigs;

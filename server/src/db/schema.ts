@@ -220,5 +220,17 @@ export const sharesHistory = pgTable('shares_history', {
     .on(t.slug, t.private),
 ]);
 
+
+export const twoFactor = pgTable("two_factor", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+  secret: integer("secret").notNull(),
+  token: text("token").notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  expiresAt: timestamp('expires_at').notNull().default(sql`NOW() + INTERVAL '10 minutes'`),
+}, (t) => [
+  index("idx_two_factor_user_id").on(t.userId),
+]);
+
   
-export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits };
+export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits, twoFactor };

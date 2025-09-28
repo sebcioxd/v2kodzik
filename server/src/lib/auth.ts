@@ -1,7 +1,7 @@
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/index"; 
-import { schema, user, account, monthlyIPlimits } from "../db/schema";
+import { schema, user, account, monthlyIPlimits, twoFactor } from "../db/schema";
 import { sendEmailService } from "../services/email.service";
 import { MonthlyUsageService } from "../services/monthly-limits.service";
 import { BETTER_AUTH_URL, SITE_URL, DOMAIN_WILDCARD, ENVIRONMENT, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, STRIPE_SECRET_KEY, STRIPE_AUTH_WEBHOOK_SECRET, SANDBOX_STRIPE_AUTH_WEBHOOK_SECRET, SANDBOX_STRIPE_SECRET_KEY } from "../lib/env";
@@ -9,7 +9,7 @@ import { createAuthMiddleware, emailOTP } from "better-auth/plugins"
 import { stripe } from "@better-auth/stripe"
 import Stripe from "stripe"
 import { eq } from "drizzle-orm";
-import { accountDeletionTemplate } from "../templates/account-deletion";
+import crypto from "node:crypto"
 
 async function getUserEmailByReferenceId(referenceId: string): Promise<string | null> {
     try {
@@ -84,6 +84,57 @@ export const auth = betterAuth({
     },
     trustedOrigins: [SITE_URL],
     hooks: {
+        before: createAuthMiddleware(async (ctx) => {
+            if (ctx.path.startsWith("/sign-in/email")) {
+                const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
+                
+                const data = await db.select()
+                    .from(user)
+                    .where(eq(user.email, ctx.body?.email))
+                    .limit(1);
+
+                if (data.length > 0 && data[0].ipAddress !== ipAddress) {
+                    const accountData = await db.select()
+                        .from(account)
+                        .where(eq(account.userId, data[0].id));
+
+                    const credentialAccount = accountData.find(acc => acc.providerId === "credential");
+                    
+                    if (credentialAccount?.password) {
+                        const verify = await ctx.context.password.verify({
+                            hash: credentialAccount.password, 
+                            password: ctx.body?.password,
+                        });
+                        if (verify && ipAddress !== data[0].ipAddress) {
+                            const twoFactorData = await db.insert(twoFactor).values({
+                                userId: data[0].id,
+                                secret: crypto.randomInt(100000, 999999),
+                                token: Bun.randomUUIDv7(),
+                            }).returning();
+
+                            await sendEmailService({
+                                to: ctx.body?.email,
+                                subject: "Zweryfikuj swoją tożsamość - dajkodzik.pl",
+                                text: JSON.stringify({
+                                    text: twoFactorData[0].secret.toString(),
+                                    email: ctx.body?.email,
+                                    token: twoFactorData[0].token
+                                }),
+                                emailType: "2fa"
+                            });
+
+                            throw new APIError("TEMPORARY_REDIRECT", {
+                                message: "IP address changed",
+                                authToken: twoFactorData[0].token,
+                                email: ctx.body?.email,
+                            });
+                
+                        }
+                    }
+                }
+            }
+
+        }),
         after: createAuthMiddleware(async (ctx) => {       
             if (ctx.path.startsWith("/sign-up")) {
                 const user = ctx.context.newSession?.user;
@@ -141,7 +192,7 @@ export const auth = betterAuth({
                         .from(monthlyIPlimits)
                         .where(eq(monthlyIPlimits.ipAddress, ipAddress))
                         .limit(1);
-
+                        
                     const usedFromIP = limits ? limits.megabytesUsed : 0;
 
                     await db.insert(schema.monthlyLimits).values({

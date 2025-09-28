@@ -65,6 +65,15 @@ const setupCronJob = async () => {
             );
         `;
         console.log('🟢 Monthly IP limits cleanup cron pomyślnie ustawiony', monthlyIPLimitsCleanup);
+        
+        const twoFactorCleanup = await sql`
+            SELECT cron.schedule(
+                'two_factor_cleanup',                    
+                '*/5 * * * *',                      
+                'DELETE FROM two_factor WHERE created_at < NOW() - INTERVAL ''10 minutes'';'  
+            );
+        `;
+        console.log('🟢 Two factor cleanup cron pomyślnie ustawiony', twoFactorCleanup);
 
 
 
