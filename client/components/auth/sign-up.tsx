@@ -95,6 +95,7 @@ export default function SignUp() {
                 ipAddress: apiResponse.remoteAdress,
                 userAgent: apiResponse.userAgent,
                 oauth: false,
+                twofactorEnabled: true,
             },
             {
                 onSuccess: () => {
