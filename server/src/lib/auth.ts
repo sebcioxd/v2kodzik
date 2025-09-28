@@ -115,8 +115,6 @@ export const auth = betterAuth({
                         .where(eq(account.userId, data[0].id));
 
                     const credentialAccount = accountData.find(acc => acc.providerId === "credential");
-
-                    
                     
                     if (credentialAccount?.password) {
                         const verify = await ctx.context.password.verify({

@@ -4,10 +4,9 @@ import { useState, useTransition } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Loader2, KeyRound, Mail, XCircle, CheckCircle, Terminal } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import {
     Form,
     FormControl,
@@ -75,11 +74,11 @@ export default function TwoFactorComponent() {
             if (response.ok) {
                 setSuccess(true);
                 setIsSubmitting(false);
+                toast.info("Weryfikacja powiodła się. Przekierowanie...");
                 startRouting(() => {
                     refetch();
                     router.push(`/panel`);
                 });
-                toast.info("Weryfikacja powiodła się. Przekierowanie...");
             } else {
                 setError(true);
                 setIsSubmitting(false);

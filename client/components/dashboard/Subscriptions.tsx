@@ -46,7 +46,7 @@ type Subscription = {
   trialStart?: string;
   trialEnd?: string;
   seats?: number;
-  stripeCustomerId?: string; // Changed from customerId to stripeCustomerId
+  stripeCustomerId?: string;
 };
 
 // Plan definitions matching your auth.ts configuration
@@ -61,9 +61,6 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Star,
-    color: "text-zinc-400",
-    bgColor: "bg-zinc-400/10",
-    borderColor: "border-zinc-400/20",
   },
   {
     name: "plus",
@@ -75,9 +72,6 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Zap,
-    color: "text-zinc-400",
-    bgColor: "bg-zinc-400/10",
-    borderColor: "border-zinc-400/20",
   },
   {
     name: "pro",
@@ -89,9 +83,6 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Crown,
-    color: "text-zinc-400",
-    bgColor: "bg-zinc-400/10",
-    borderColor: "border-zinc-400/20",
   },
 ];
 
@@ -109,12 +100,10 @@ const getPlanDetails = (planName: string) => {
   return plans.find(plan => plan.name === planName) || plans[0];
 };
 
-// Helper function to get status color and text
+// Helper function to get status info
 const getStatusInfo = (status: string, cancelAtPeriodEnd: boolean) => {
   if (cancelAtPeriodEnd) {
     return {
-      color: 'text-orange-400',
-      bgColor: 'bg-orange-400/10',
       text: 'Anulowane (aktywne do końca okresu)',
       icon: AlertTriangle
     };
@@ -123,29 +112,21 @@ const getStatusInfo = (status: string, cancelAtPeriodEnd: boolean) => {
   switch (status) {
     case 'active':
       return {
-        color: 'text-green-400',
-        bgColor: 'bg-green-400/10',
         text: 'Aktywne',
         icon: CheckCircle
       };
     case 'trialing':
       return {
-        color: 'text-blue-400',
-        bgColor: 'bg-blue-400/10',
         text: 'Okres próbny',
         icon: Calendar
       };
     case 'canceled':
       return {
-        color: 'text-red-400',
-        bgColor: 'bg-red-400/10',
         text: 'Anulowane',
         icon: X
       };
     default:
       return {
-        color: 'text-zinc-400',
-        bgColor: 'bg-zinc-400/10',
         text: status,
         icon: AlertTriangle
       };
@@ -234,7 +215,7 @@ export default function Subscriptions({
   };
 
   const handleOpenBillingPortal = async () => {
-    if (!activeSubscription?.stripeCustomerId) { // Changed from customerId to stripeCustomerId
+    if (!activeSubscription?.stripeCustomerId) {
       toast.error('Nie można otworzyć portalu rozliczeniowego');
       return;
     }
@@ -269,7 +250,7 @@ export default function Subscriptions({
   if (error) {
     return (
       <main className="flex items-center justify-center min-h-[400px]">
-        <div className="text-red-400">{error}</div>
+        <div className="text-zinc-400">{error}</div>
       </main>
     );
   }
@@ -317,8 +298,8 @@ export default function Subscriptions({
                       const plan = getPlanDetails(activeSubscription.plan);
                       const Icon = plan.icon;
                       return (
-                        <div className={`p-3 bg-zinc-800/50 rounded-lg ${plan.color}`}>
-                          <Icon className="h-6 w-6" />
+                        <div className="p-3 bg-zinc-800/50 rounded-lg">
+                          <Icon className="h-6 w-6 text-zinc-300" />
                         </div>
                       );
                     })()}
@@ -337,7 +318,7 @@ export default function Subscriptions({
                       const statusInfo = getStatusInfo(activeSubscription.status, activeSubscription.cancelAtPeriodEnd);
                       const StatusIcon = statusInfo.icon;
                       return (
-                        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm ${statusInfo.bgColor} ${statusInfo.color}`}>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm bg-zinc-800/50 text-zinc-300">
                           <StatusIcon className="h-4 w-4" />
                           {statusInfo.text}
                         </div>
@@ -379,7 +360,7 @@ export default function Subscriptions({
                       disabled={isRestoring}
                       variant="outline"
                       size="sm"
-                      className="text-green-400 hover:text-green-300 bg-darken hover:bg-green-400/10 border-green-400/20"
+                      className="text-zinc-300 hover:text-zinc-200 bg-zinc-800/50 hover:bg-zinc-800 border-zinc-700"
                     >
                       {isRestoring ? (
                         <LoadingSpinner size="small" />
@@ -397,7 +378,7 @@ export default function Subscriptions({
                         disabled={isCanceling}
                         variant="outline"
                         size="sm"
-                        className="text-red-400 hover:text-red-300 bg-darken hover:bg-red-400/10 border-red-400/20"
+                        className="text-zinc-300 hover:text-zinc-200 bg-zinc-800/50 hover:bg-zinc-800 border-zinc-700"
                       >
                         {isCanceling ? (
                           <LoadingSpinner size="small" />
@@ -415,7 +396,7 @@ export default function Subscriptions({
                           disabled={isOpeningPortal}
                           variant="outline"
                           size="sm"
-                          className="text-blue-400 hover:text-blue-300 bg-darken hover:bg-blue-400/10 border-blue-400/20"
+                          className="text-zinc-300 hover:text-zinc-200 bg-zinc-800/50 hover:bg-zinc-800 border-zinc-700"
                         >
                           {isOpeningPortal ? (
                             <LoadingSpinner size="small" />
@@ -454,12 +435,12 @@ export default function Subscriptions({
                     key={plan.name}
                     className={`bg-zinc-900/20 border rounded-lg p-4 ${
                       isCurrentPlan 
-                        ? `${plan.borderColor} ${plan.bgColor}` 
+                        ? 'border-zinc-700 bg-zinc-800/20' 
                         : 'border-dashed border-zinc-800 hover:bg-zinc-800/20'
                     } transition-colors`}
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <Icon className={`h-5 w-5 ${plan.color}`} />
+                      <Icon className="h-5 w-5 text-zinc-300" />
                       <span className="text-lg font-medium text-zinc-200 tracking-tight">
                         {plan.displayName}
                       </span>
