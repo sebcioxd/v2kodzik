@@ -16,6 +16,7 @@ import limitsRoute from "./limits.route";
 import checkoutRoute from "./checkout.route";   
 import userDataRoute from "./user-data.route";
 import twoFactorRoute from "./2fa.route";
+import securityRoute from "./security.route";
 
 const routes = new Hono()
 
@@ -35,5 +36,6 @@ routes.route("/limits", limitsRoute)
 routes.route("/stripe", checkoutRoute)
 routes.route("/user-data", userDataRoute)
 routes.route("/2fa", twoFactorRoute)
+routes.route("/security", securityRoute)
 
 export default routes

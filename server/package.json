@@ -6,10 +6,10 @@
   },
   "dependencies": {
     "@better-auth/stripe": "latest",
-    "better-auth": "latest",
     "@hono/zod-validator": "^0.7.3",
     "@upyo/core": "^0.3.0",
     "@upyo/mailgun": "^0.3.0",
+    "better-auth": "latest",
     "drizzle-orm": "^0.44.5",
     "hono": "latest",
     "hono-rate-limiter": "^0.4.2",

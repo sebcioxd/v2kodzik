@@ -18,6 +18,9 @@ export const authClient = createAuthClient({
             },
             oauth: {
                 type: "boolean",
+            },
+            twofactorEnabled: {
+                type: "boolean",
             }
         }
     }),

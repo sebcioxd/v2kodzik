@@ -187,7 +187,7 @@ export default function DashboardSidebar() {
             onClick={() => setIsMobileOpen(false)}
           >
             <HardDrive className="w-4 h-4 " />
-            <span className="tracking-tight">Twój transfer</span>
+            <span className="tracking-tight">Transfer i statystyki</span>
           </Link>
           <Link
             href="/panel/subscription"
@@ -201,6 +201,20 @@ export default function DashboardSidebar() {
           >
             <CreditCard className="w-4 h-4 " />
             <span className="tracking-tight">Subskrypcje</span>
+          </Link>
+          
+           <Link
+            href="/panel/security"
+            className={cn(
+              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+              pathname === "/panel/security" && "bg-zinc-800 text-zinc-200"
+            )}
+            onClick={() => setIsMobileOpen(false)}
+          >
+            <Lock className="w-4 h-4 " />
+            <span className="tracking-tight">Bezpieczeństwo</span>
           </Link>
         </div>
 

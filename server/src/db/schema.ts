@@ -114,7 +114,8 @@ export const user = pgTable("user", {
   ipAddress: text('ip_address'),
   stripeCustomerId: text("stripe_customer_id"),
   userAgent: text('user_agent'),
-  oauth: boolean("oauth"),
+  oauth: boolean("oauth").default(false),
+  twofactorEnabled: boolean("twofactor_enabled").default(true),
 }, (t) => [
   index("idx_user_emails").on(t.email),
 ]);

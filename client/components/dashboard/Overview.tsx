@@ -150,7 +150,7 @@ export default function Overview({ user }: { user: User }) {
                                     <ArrowRight className="h-5 w-5 text-zinc-500 group-hover:text-zinc-300 group-hover:translate-x-1 transition-all" />
                                 </div>
                                 <h3 className="text-zinc-200 font-medium mb-2 tracking-tight flex items-center">
-                                    Twój transfer
+                                    Transfer i statystyki
                                 </h3>
                                 <p className="text-zinc-400 text-sm leading-relaxed">
                                     Zobacz i zarządzaj swoim miesięcznym transferem.
@@ -174,6 +174,8 @@ export default function Overview({ user }: { user: User }) {
                                 </p>
                             </div>
                         </Link>
+
+                        
                     </div>
                 </div>
 

@@ -11,6 +11,8 @@ import Stripe from "stripe"
 import { eq } from "drizzle-orm";
 import crypto from "node:crypto"
 
+// bunx --bun @better-auth/cli generate --config ./src/lib/auth.ts <-- to generate the schema
+
 async function getUserEmailByReferenceId(referenceId: string): Promise<string | null> {
     try {
         const user = await db.select({ email: schema.user.email })
@@ -73,6 +75,12 @@ export const auth = betterAuth({
                 defaultValue: false,
                 input: true,
             },
+            twofactorEnabled: {
+                type: "boolean",
+                required: false,
+                defaultValue: true,
+                input: true,
+            }
         }, 
         deleteUser: {
             enabled: true,
@@ -109,7 +117,7 @@ export const auth = betterAuth({
                     .limit(1);
                     
                     
-                if (data.length > 0 && data[0].ipAddress !== ipAddress) {
+                if (data.length > 0 && data[0].ipAddress !== ipAddress && data[0].twofactorEnabled) {
                     const accountData = await db.select()
                         .from(account)
                         .where(eq(account.userId, data[0].id));
