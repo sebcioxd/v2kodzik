@@ -1,6 +1,7 @@
 import AuthTabs from "@/components/auth-tabs"
 import getServerSession from "@/lib/server-session";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 const AuthenticationPage = async () => {
   // const session = await getServerSession();
@@ -10,7 +11,9 @@ const AuthenticationPage = async () => {
   // }
 
   return (
-    <AuthTabs />
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+      <AuthTabs />
+    </Suspense>
   )
 }
 
