@@ -15,6 +15,8 @@ Zabezpieczona technologią CAPTCHA **Cloudflare Turnstile**.
 
 Ważniejsze endpointy zabezpieczone **rate-limitem**.
 
+Autorskie 2FA dla użytkownichów e-mail, nikt nie ukradnie kont twoim użytkownikom.
+
 Całkowicie kompatybilna z Serverless. Brak stałych połączeń w backendzie.
 
 ## Jak maksymalizujemy szybkość wsyłania plików i kodu? (Bun)
@@ -45,10 +47,11 @@ Dzięki tym optymalizacjom, **Dajkodzik** może obsłużyć zaskakująco dużą 
 ## W planach
 
 - Refactor z Node.js do Deno lub Bun'a (Pełen support TypeScript'u) 🟢
-- Refactor Front-endu, dodanie lepszego supportu TS.
-- Wspieranie płatności aby zwiększyć maksymalny transfer pliku (z 100MB do 2GB).
+- Refactor Front-endu, dodanie lepszego supportu TS. 
+- Wspieranie płatności aby zwiększyć maksymalny transfer pliku (z 100MB do 2GB). 🟢
 - Zamienienie npm na pnpm w front-endzie. 🟢
 - Możliwość dodawania również kodu, nie tylko załączania plików 🟢
+- Dodanie 2FA dla użytkowników e-mail, żeby zwiększyć bezpieczeństwo użytkowników 🟢
 
 ## Contribute (Wesprzyj)
 
@@ -60,11 +63,17 @@ Dzięki tym optymalizacjom, **Dajkodzik** może obsłużyć zaskakująco dużą 
 
 - [Bun 1.2+](https://bun.com/) 
 - [Node.js 22+](https://nodejs.org), [pnpm](https://pnpm.io/)  
-- S3 API, PostgreSQL, Redis.
+- S3 API, PostgreSQL z pg-cron, Redis/Valkey, Serwer lub funkcja Edge na wykonywanie Cron job'a.
+
+## PosgreSQL z pg-cron'em, instalacja do wyboru:
+
+- [Docker Image (Autorski)](https://hub.docker.com/r/niarde/postgres-extensions) 
+- [Template Railway](https://railway.com/deploy/pgcron-railway)
+- [Docker Image z pliku](https://github.com/sebcioxd/v2kodzik/blob/main/image/Dockerfile)
 
 ## Zmienne środowiskowe
 
-### Backend Bun (`/server`)
+### Backend (`/server`)
 [Link do zmiennych środowiskowych dla serwera](https://github.com/sebcioxd/v2kodzik/blob/main/server/.env.example)
 
 ### Frontend (`/client`)
@@ -74,32 +83,16 @@ W każdym projekcie załączone są pliki **.env.example**
 
 ## Szybka instalacja
 
-Wybierz instalację Node czy Bun.
-
-Jeśli chcesz korzystać z Bun'a:
-- Usuń folder /__node-server
-
-Jeśli chcesz korzystać z Node'a:
-- Usuń folder /server
-- Zmień nazwę folderu __node-server na server
-
-Różnice:
-Serwer działający na Bun runtime jest o wiele szybszy pod wzgledem szybkosci. Używa on natywnych funkcji PostgreSQL i S3.
-Również obsługuję pełen support TypeScriptu.
-
-Node jest zostawiony ze względu na jego stabilność.
-Polecamy używać Bun'a.
-
 1. Sklonuj repozytorium
 ```bash
 git clone https://github.com/sebcioxd/dajkodzik-v2.git
 cd dajkodzik-v2
 ```
 
-2. Zainstaluj zależności back-endu
+2. Zainstaluj zależności (biblioteki) back-endu
 ```bash
 cd server
-bun install lub pnpm install jeśli korzystamy z serwera node
+bun install 
 ```
 
 3. Podłącz wszystkie zmienne środowiskowe (dla serwera i dla klienta)
@@ -110,44 +103,38 @@ bun install lub pnpm install jeśli korzystamy z serwera node
 > To connect to Postgres database - please install either of 'pg', 'postgres', '@neondatabase/serverless' or '@vercel/postgres' drivers
 W tym wypadku, koniecznie jest zainstalowanie drivera dla postgresa (Ponieważ drizzle korzysta z natywnego dla buna, lecz drizzle-kit tego nie obsługuję.)
 
-
-
 ```bash
 Dla bun:
 bunx drizzle-kit push
 bun i pg
-
-Dla node:
-pnpm exec drizzle-kit push # pnpm dlx drizzle-kit push
 ```
-
 
 5. Stwórz bucket w kompatybilnym z S3 Object Storage
 - Nazwa bucketu: `sharesbucket`
-- Bucket powinień być prywatny
+- Bucket powinień być prywatny, jeśli chcemy używać CDN'a to bucket musi być publiczny.
 
-6. Zainstaluj zależności front-endu
+6. Zainstaluj zależności (biblioteki) front-endu
 ```bash
 cd ../client
-npm install
+pnpm install
 ```
 
 7. Uruchom serwery developerskie
 ```bash
-# W /server
-pnpm dev
+# W /server (Backend)
+bun dev
 
-# W /client
-npm run dev
+# W /client (Frontend)
+pnpm run dev
 ```
 
 ## Deploy
 
 ### Frontend (Next.js)
 - Rekomendowane: Vercel
-- Alternatywa: VPS z Dokploy
+- Alternatywa: VPS z Dokploy, Netlify
 
-### Backend (Hono + Bun/Node.js)
+### Backend (Hono + Bun)
 - Serverless: Railway.app, fly.io
 - Server VPS: Dokploy
 - Kompilacja: zalecane użycie Railpack lub Nixpacks
@@ -178,7 +165,6 @@ await fetch("https://api.domena.pl/v1/cron", {
 });
 ```
 
-
 **bash**
 ```bash
 curl -s -X POST https://api.domena.pl/v1/cron \
@@ -189,6 +175,7 @@ curl -s -X POST https://api.domena.pl/v1/cron \
 Wystarczy jeden POST do /v1/cron co dobę lub co parę godzin z poprawnym kluczem autoryzacyjnym. (Lub wystarczy funkcja Edge)
 Nie jest to wymagane, lecz po jakimś czasie aplikacja może być przeciążona ilością danych.
 Czyszczyenie może być wykonane nawet manualnie co jakiś czas bo cała logika znajduję się w tym Endpoincie.
+**Uwaga, od ostatniej wersji aplikacji WYMAGANE jest używanie pg-cron, nie można polegać już tylko na funkcji Edge**
 
 Czyści:
 - Rekordy w bazie danych (Udostępnienia oraz snippety),

@@ -1,4 +1,4 @@
-import { APIError, betterAuth } from "better-auth";
+import { APIError, betterAuth, EndpointOptions, MiddlewareContext } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/index"; 
 import { schema, user, account, monthlyIPlimits, twoFactor } from "../db/schema";
@@ -23,6 +23,19 @@ async function getUserEmailByReferenceId(referenceId: string): Promise<string | 
         console.error("Error getting user email:", error);
         return null;
     }
+}
+
+async function createSessionCookie(ctx: MiddlewareContext<EndpointOptions>, userId: string) {
+    const session = await ctx.context.internalAdapter.createSession(
+        userId,
+        ctx,
+        !ctx.body?.rememberMe,
+    );
+    const { name: cookieName, attributes: cookieAttributes } = ctx.context.createAuthCookie("session_token");
+
+    const signedCookie = await ctx.setSignedCookie(cookieName, session.token, ctx.context.secret, cookieAttributes);
+
+    return signedCookie;
 }
 
 const stripeClient = new Stripe(ENVIRONMENT === "production" ? STRIPE_SECRET_KEY : SANDBOX_STRIPE_SECRET_KEY, {
@@ -85,6 +98,8 @@ export const auth = betterAuth({
     trustedOrigins: [SITE_URL],
     hooks: {
         before: createAuthMiddleware(async (ctx) => {
+            
+            
             if (ctx.path.startsWith("/sign-in/email")) {
                 const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
                 
@@ -92,13 +107,16 @@ export const auth = betterAuth({
                     .from(user)
                     .where(eq(user.email, ctx.body?.email))
                     .limit(1);
-
+                    
+                    
                 if (data.length > 0 && data[0].ipAddress !== ipAddress) {
                     const accountData = await db.select()
                         .from(account)
                         .where(eq(account.userId, data[0].id));
 
                     const credentialAccount = accountData.find(acc => acc.providerId === "credential");
+
+                    
                     
                     if (credentialAccount?.password) {
                         const verify = await ctx.context.password.verify({
@@ -110,7 +128,9 @@ export const auth = betterAuth({
                                 userId: data[0].id,
                                 secret: crypto.randomInt(100000, 999999),
                                 token: Bun.randomUUIDv7(),
+                                cookie: await createSessionCookie(ctx, data[0].id),
                             }).returning();
+
 
                             await sendEmailService({
                                 to: ctx.body?.email,
@@ -150,8 +170,6 @@ export const auth = betterAuth({
             if (ctx.path.startsWith("/callback") && ctx.context.newSession?.user) {
                 const sessionUser = ctx.context.newSession.user;
                 const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
-
-                // ctx.headers?.append("Cookie", `dajkodzik.session_token=${ctx.context.responseHeaders?.get("set-cookie")?.split(";")[0].split("=")[1]}`)
 
 
                 if (sessionUser.ipAddress !== ipAddress) {

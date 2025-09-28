@@ -226,6 +226,7 @@ export const twoFactor = pgTable("two_factor", {
   userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
   secret: integer("secret").notNull(),
   token: text("token").notNull(),
+  cookie: text("cookie").notNull(),
   createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
   expiresAt: timestamp('expires_at').notNull().default(sql`NOW() + INTERVAL '10 minutes'`),
 }, (t) => [

@@ -198,7 +198,7 @@ await authClient.signOut({
 
 ## Session
 
-Once a user is signed in, you'll want to access the user session. Better Auth allows you easily to access the session data from the server and client side.
+Once a user is signed in, you'll want to access the user session. Better Auth allows you to easily access the session data from both the server and client sides.
 
 ### Client Side
 
@@ -206,7 +206,7 @@ Once a user is signed in, you'll want to access the user session. Better Auth al
 
 Better Auth provides a `useSession` hook to easily access session data on the client side. This hook is implemented using nanostore and has support for each supported framework and vanilla client, ensuring that any changes to the session (such as signing out) are immediately reflected in your UI.
 
-<Tabs items={["React", "Vue","Svelte", "Solid", "Vanilla"]} defaultValue="React">
+<Tabs items={["React", "Vue","Svelte", "Solid", "Vanilla"]} defaultValue="react">
   <Tab value="React">
     ```tsx title="user.tsx"
     import { authClient } from "@/lib/auth-client" // import the auth client // [!code highlight] 
@@ -466,7 +466,7 @@ Below is an example of how to add two factor authentication using two factor plu
     const authClient = createAuthClient({
         plugins: [ // [!code highlight]
             twoFactorClient({ // [!code highlight]
-                twoFactorPage: "/two-factor" // the page to redirect if a user need to verify 2nd factor // [!code highlight]
+                twoFactorPage: "/two-factor" // the page to redirect if a user needs to verify 2nd factor // [!code highlight]
             }) // [!code highlight]
         ] // [!code highlight]
     })
@@ -577,31 +577,49 @@ description: Learn how to configure Better Auth in your project.
 
     Let's start by adding Better Auth to your project:
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install better-auth
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add better-auth
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add better-auth
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add better-auth
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
 
     <Callout type="info">
       If you're using a separate client and server setup, make sure to install Better Auth in both parts of your project.
@@ -626,7 +644,7 @@ description: Learn how to configure Better Auth in your project.
     2. **Set Base URL**
 
     ```txt title=".env"
-    BETTER_AUTH_URL=http://localhost:3000 #Base URL of your app
+    BETTER_AUTH_URL=http://localhost:3000 # Base URL of your app
     ```
   </Step>
 
@@ -787,15 +805,12 @@ description: Learn how to configure Better Auth in your project.
     import { betterAuth } from "better-auth";
 
     export const auth = betterAuth({
-      //...other options
-      emailAndPassword: {
-        // [!code highlight]
+      //...other options // [!code highlight]
+      emailAndPassword: { // [!code highlight]
         enabled: true, // [!code highlight]
       }, // [!code highlight]
-      socialProviders: {
-        // [!code highlight]
-        github: {
-          // [!code highlight]
+      socialProviders: { // [!code highlight]
+        github: { // [!code highlight]
           clientId: process.env.GITHUB_CLIENT_ID as string, // [!code highlight]
           clientSecret: process.env.GITHUB_CLIENT_SECRET as string, // [!code highlight]
         }, // [!code highlight]
@@ -885,7 +900,7 @@ description: Learn how to configure Better Auth in your project.
 
         const app = new Hono();
 
-        app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
+        app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
         serve(app);
         ```
@@ -1093,11 +1108,7 @@ title: Introduction
 description: Introduction to Better Auth.
 -----------------------------------------
 
-Better Auth is a framework-agnostic authentication and authorization framework for TypeScript. It provides a comprehensive set of features out of the box and includes a plugin ecosystem that simplifies adding advanced functionalities. Whether you need 2FA, multi-tenancy, multi-session support, or even enterprise features like SSO, it lets you focus on building your application instead of reinventing the wheel.
-
-## Why Better Auth?
-
-*Authentication in the TypeScript ecosystem has long been a half-solved problem. Other open-source libraries often require a lot of additional code for anything beyond basic authentication features. Rather than just pushing third-party services as the solution, I believe we can do better as a community—hence, Better Auth.*
+Better Auth is a framework-agnostic, universal authentication and authorization framework for TypeScript. It provides a comprehensive set of features out of the box and includes a plugin ecosystem that simplifies adding advanced functionalities. Whether you need 2FA, passkey, multi-tenancy, multi-session support, or even enterprise features like SSO, creating your own IDP, it lets you focus on building your application instead of reinventing the wheel.
 
 ## Features
 
@@ -1107,9 +1118,56 @@ Better Auth aims to be the most comprehensive auth library. It provides a wide r
 
 ...and much more!
 
-## LLMs.txt
+***
 
-Better Auth provides an LLMs.txt file that helps AI models understand how to interact with your authentication system. You can find it at [https://better-auth.com/llms.txt](https://better-auth.com/llms.txt).
+## AI tooling
+
+### LLMs.txt
+
+Better Auth exposes an `LLMs.txt` that helps AI models understand how to integrate and interact with your authentication system. See it at [https://better-auth.com/llms.txt](https://better-auth.com/llms.txt).
+
+### MCP
+
+Better Auth provides an MCP server so you can use it with any AI model that supports the Model Context Protocol (MCP).
+
+<AddToCursor />
+
+<Tabs items={["Claude Code", "Open Code", "Manual"]}>
+  <Tab value="Claude Code">
+    ```bash title="terminal"
+    claude mcp add --transport http better-auth https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp
+    ```
+  </Tab>
+
+  <Tab value="Open Code">
+    ```json title="opencode.json"
+      {
+          "$schema": "https://opencode.ai/config.json",
+          "mcp": {
+              "Better Auth": {
+                  "type": "remote",
+                  "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp",
+                  "enabled": true,
+              }
+          }
+      }
+    ```
+  </Tab>
+
+  <Tab value="Manual">
+    ```json title="mcp.json"
+    {
+       "Better Auth": {
+           "url": "https://mcp.chonkie.ai/better-auth/better-auth-builder/mcp"
+       }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Callout>
+  We provide a first‑party MCP, powered by [Chonkie](https://chonkie.ai). You can alternatively use [`context7`](https://context7.com/) and other MCP providers.
+</Callout>
 
 
 
@@ -1128,14 +1186,16 @@ description: Integrate Better Auth with community made database adapters.
 This page showcases a list of recommended community made database adapters.
 We encourage you to create any missing database adapters and maybe get added to the list!
 
-| Adapter                                                                                                 | Database Dialect                           | Author                                                                                                                                                            |
-| ------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [convex-better-auth](https://github.com/get-convex/better-auth)                                         | [Convex Database](https://www.convex.dev/) | <img src="https://github.com/erquhart.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [erquhart](https://github.com/erquhart)          |
-| [surrealdb-better-auth](https://github.com/Necmttn/surrealdb-better-auth)                               | [Surreal Database](https://surrealdb.com/) | <img src="https://github.com/Necmttn.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [Necmttn](https://github.com/Necmttn)             |
-| [payload-better-auth](https://github.com/ForrestDevs/payload-better-auth/tree/main/packages/db-adapter) | [Payload CMS](https://payloadcms.com/)     | <img src="https://github.com/forrestdevs.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [forrestdevs](https://github.com/forrestdevs) |
-| [@ronin/better-auth](https://github.com/ronin-co/better-auth)                                           | [RONIN](https://ronin.co)                  | <img src="https://github.com/ronin-co.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [ronin-co](https://github.com/ronin-co)          |
-| [better-auth-instantdb](https://github.com/daveyplate/better-auth-instantdb)                            | [InstantDB](https://www.instantdb.com/)    | <img src="https://github.com/daveycodez.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [daveycodez](https://github.com/daveycodez)    |
-| [@nerdfolio/remult-better-auth](https://github.com/nerdfolio/remult-better-auth)                        | [Remult](https://remult.dev/)              | <img src="https://github.com/taivo.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [Tai Vo](https://github.com/taivo)                  |
+| Adapter                                                                                                 | Database Dialect                           | Author                                                                                                                                                                                         |
+| ------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [convex-better-auth](https://github.com/get-convex/better-auth)                                         | [Convex Database](https://www.convex.dev/) | <img src="https://github.com/erquhart.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [erquhart](https://github.com/erquhart)                                       |
+| [surreal-better-auth](https://github.com/oskar-gmerek/surreal-better-auth)                              | [SurrealDB](https://surrealdb.com/)        | <img src="https://github.com/oskar-gmerek.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> <a href="https://oskargmerek.com" alt="Web Developer UK">Oskar Gmerek</a> |
+| [surrealdb-better-auth](https://github.com/Necmttn/surrealdb-better-auth)                               | [Surreal Database](https://surrealdb.com/) | <img src="https://github.com/Necmttn.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [Necmttn](https://github.com/Necmttn)                                          |
+| [better-auth-surrealdb](https://github.com/msanchezdev/better-auth-surrealdb)                           | [Surreal Database](https://surrealdb.com/) | <img src="https://github.com/msanchezdev.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [msanchezdev](https://github.com/msanchezdev)                              |
+| [payload-better-auth](https://github.com/ForrestDevs/payload-better-auth/tree/main/packages/db-adapter) | [Payload CMS](https://payloadcms.com/)     | <img src="https://github.com/forrestdevs.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [forrestdevs](https://github.com/forrestdevs)                              |
+| [@ronin/better-auth](https://github.com/ronin-co/better-auth)                                           | [RONIN](https://ronin.co)                  | <img src="https://github.com/ronin-co.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [ronin-co](https://github.com/ronin-co)                                       |
+| [better-auth-instantdb](https://github.com/daveyplate/better-auth-instantdb)                            | [InstantDB](https://www.instantdb.com/)    | <img src="https://github.com/daveycodez.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [daveycodez](https://github.com/daveycodez)                                 |
+| [@nerdfolio/remult-better-auth](https://github.com/nerdfolio/remult-better-auth)                        | [Remult](https://remult.dev/)              | <img src="https://github.com/taivo.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [Tai Vo](https://github.com/taivo)                                               |
 
 
 
@@ -1256,7 +1316,10 @@ const client = new MongoClient("mongodb://localhost:27017/database");
 const db = client.db();
 
 export const auth = betterAuth({
-  database: mongodbAdapter(db),
+  database: mongodbAdapter(db, {
+    // Optional: if you don't provide a client, database transactions won't be enabled.
+    client
+  }),
 });
 ```
 
@@ -1340,20 +1403,24 @@ The [Better Auth CLI](/docs/concepts/cli) allows you to generate or migrate
 your database schema based on your Better Auth configuration and plugins.
 
 <table>
-  <tr className="border-b">
-    <th>
-      <p className="font-bold text-[16px] mb-1">MS SQL Schema Generation</p>
-    </th>
+  <thead>
+    <tr className="border-b">
+      <th>
+        <p className="font-bold text-[16px] mb-1">MS SQL Schema Generation</p>
+      </th>
 
-    <th>
-      <p className="font-bold text-[16px] mb-1">MS SQL Schema Migration</p>
-    </th>
-  </tr>
+      <th>
+        <p className="font-bold text-[16px] mb-1">MS SQL Schema Migration</p>
+      </th>
+    </tr>
+  </thead>
 
-  <tr className="h-10">
-    <td>✅ Supported</td>
-    <td>✅ Supported</td>
-  </tr>
+  <tbody>
+    <tr className="h-10">
+      <td>✅ Supported</td>
+      <td>✅ Supported</td>
+    </tr>
+  </tbody>
 </table>
 
 ```bash title="Schema Generation"
@@ -1417,20 +1484,24 @@ The [Better Auth CLI](/docs/concepts/cli) allows you to generate or migrate
 your database schema based on your Better Auth configuration and plugins.
 
 <table>
-  <tr className="border-b">
-    <th>
-      <p className="font-bold text-[16px] mb-1">MySQL Schema Generation</p>
-    </th>
+  <thead>
+    <tr className="border-b">
+      <th>
+        <p className="font-bold text-[16px] mb-1">MySQL Schema Generation</p>
+      </th>
 
-    <th>
-      <p className="font-bold text-[16px] mb-1">MySQL Schema Migration</p>
-    </th>
-  </tr>
+      <th>
+        <p className="font-bold text-[16px] mb-1">MySQL Schema Migration</p>
+      </th>
+    </tr>
+  </thead>
 
-  <tr className="h-10">
-    <td>✅ Supported</td>
-    <td>✅ Supported</td>
-  </tr>
+  <tbody>
+    <tr className="h-10">
+      <td>✅ Supported</td>
+      <td>✅ Supported</td>
+    </tr>
+  </tbody>
 </table>
 
 ```bash title="Schema Generation"
@@ -1545,20 +1616,24 @@ The [Better Auth CLI](/docs/concepts/cli) allows you to generate or migrate
 your database schema based on your Better Auth configuration and plugins.
 
 <table>
-  <tr className="border-b">
-    <th>
-      <p className="font-bold text-[16px] mb-1">PostgreSQL Schema Generation</p>
-    </th>
+  <thead>
+    <tr className="border-b">
+      <th>
+        <p className="font-bold text-[16px] mb-1">PostgreSQL Schema Generation</p>
+      </th>
 
-    <th>
-      <p className="font-bold text-[16px] mb-1">PostgreSQL Schema Migration</p>
-    </th>
-  </tr>
+      <th>
+        <p className="font-bold text-[16px] mb-1">PostgreSQL Schema Migration</p>
+      </th>
+    </tr>
+  </thead>
 
-  <tr className="h-10">
-    <td>✅ Supported</td>
-    <td>✅ Supported</td>
-  </tr>
+  <tbody>
+    <tr className="h-10">
+      <td>✅ Supported</td>
+      <td>✅ Supported</td>
+    </tr>
+  </tbody>
 </table>
 
 ```bash title="Schema Generation"
@@ -1621,20 +1696,24 @@ The [Better Auth CLI](/docs/concepts/cli) allows you to generate or migrate
 your database schema based on your Better Auth configuration and plugins.
 
 <table>
-  <tr className="border-b">
-    <th>
-      <p className="font-bold text-[16px] mb-1">Prisma Schema Generation</p>
-    </th>
+  <thead>
+    <tr className="border-b">
+      <th>
+        <p className="font-bold text-[16px] mb-1">Prisma Schema Generation</p>
+      </th>
 
-    <th>
-      <p className="font-bold text-[16px] mb-1">Prisma Schema Migration</p>
-    </th>
-  </tr>
+      <th>
+        <p className="font-bold text-[16px] mb-1">Prisma Schema Migration</p>
+      </th>
+    </tr>
+  </thead>
 
-  <tr className="h-10">
-    <td>✅ Supported</td>
-    <td>❌ Not Supported</td>
-  </tr>
+  <tbody>
+    <tr className="h-10">
+      <td>✅ Supported</td>
+      <td>❌ Not Supported</td>
+    </tr>
+  </tbody>
 </table>
 
 ```bash title="Schema Generation"
@@ -1664,8 +1743,11 @@ Read more [here.](https://www.sqlite.org/)
 
 ## Example Usage
 
-Make sure you have SQLite installed and configured.
-Then, you can connect it straight into Better Auth.
+Better Auth supports multiple SQLite drivers. Choose the one that best fits your environment:
+
+### Better-SQLite3 (Recommended)
+
+The most popular and stable SQLite driver for Node.js:
 
 ```ts title="auth.ts"
 import { betterAuth } from "better-auth";
@@ -1681,26 +1763,65 @@ export const auth = betterAuth({
   [SqliteDialect](https://kysely-org.github.io/kysely-apidoc/classes/SqliteDialect.html).
 </Callout>
 
+### Node.js Built-in SQLite (Experimental)
+
+<Callout type="warning">
+  The `node:sqlite` module is still experimental and may change at any time. It requires Node.js 22.5.0 or later.
+</Callout>
+
+Starting from Node.js 22.5.0, you can use the built-in [SQLite](https://nodejs.org/api/sqlite.html) module:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { DatabaseSync } from "node:sqlite";
+
+export const auth = betterAuth({
+  database: new DatabaseSync("database.sqlite"),
+});
+```
+
+To run your application with Node.js SQLite:
+
+```bash
+node your-app.js
+```
+
+### Bun Built-in SQLite
+
+You can also use the built-in [SQLite](https://bun.com/docs/api/sqlite) module in Bun, which is similar to the Node.js version:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { Database } from "bun:sqlite";
+export const auth = betterAuth({
+  database: new Database("database.sqlite"),
+});
+```
+
 ## Schema generation & migration
 
 The [Better Auth CLI](/docs/concepts/cli) allows you to generate or migrate
 your database schema based on your Better Auth configuration and plugins.
 
 <table>
-  <tr className="border-b">
-    <th>
-      <p className="font-bold text-[16px] mb-1">SQLite Schema Generation</p>
-    </th>
+  <thead>
+    <tr className="border-b">
+      <th>
+        <p className="font-bold text-[16px] mb-1">SQLite Schema Generation</p>
+      </th>
 
-    <th>
-      <p className="font-bold text-[16px] mb-1">SQLite Schema Migration</p>
-    </th>
-  </tr>
+      <th>
+        <p className="font-bold text-[16px] mb-1">SQLite Schema Migration</p>
+      </th>
+    </tr>
+  </thead>
 
-  <tr className="h-10">
-    <td>✅ Supported</td>
-    <td>✅ Supported</td>
-  </tr>
+  <tbody>
+    <tr className="h-10">
+      <td>✅ Supported</td>
+      <td>✅ Supported</td>
+    </tr>
+  </tbody>
 </table>
 
 ```bash title="Schema Generation"
@@ -1861,6 +1982,174 @@ await authClient.signIn.social({
 
 
 
+# authentication: Atlassian
+URL: /docs/authentication/atlassian
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/atlassian.mdx
+
+Atlassian provider setup and usage.
+        
+***
+
+title: Atlassian
+description: Atlassian provider setup and usage.
+------------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your Credentials
+
+    1. Sign in to your Atlassian account and go to the [Atlassian Developer Console](https://developer.atlassian.com/console/myapps/)
+    2. Click "Create new app"
+    3. Fill out the app details
+    4. Configure your redirect URI (e.g., `https://yourdomain.com/api/auth/callback/atlassian`)
+    5. Note your Client ID and Client Secret
+
+    <Callout type="info">
+      * The default scope is `read:jira-user` and `offline_access`. For additional scopes, refer to the [Atlassian OAuth documentation](https://developer.atlassian.com/cloud/confluence/oauth-2-3lo-apps/).
+    </Callout>
+
+    Make sure to set the redirect URI to match your application's callback URL. If you change the base path of the auth routes, you should update the redirect URI accordingly.
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    To configure the provider, you need to import the provider and pass it to the `socialProviders` option of the auth instance.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+
+    export const auth = betterAuth({
+        socialProviders: {
+            atlassian: { // [!code highlight]
+                clientId: process.env.ATLASSIAN_CLIENT_ID as string, // [!code highlight]
+                clientSecret: process.env.ATLASSIAN_CLIENT_SECRET as string, // [!code highlight]
+            }, // [!code highlight]
+        },
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Sign In with Atlassian
+
+    To sign in with Atlassian, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
+
+    * `provider`: The provider to use. It should be set to `atlassian`.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    const authClient =  createAuthClient()
+
+    const signIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "atlassian"
+        })
+    }
+    ```
+
+    <Callout type="info">
+      For more information about Atlassian's OAuth scopes and API capabilities, refer to the [official Atlassian OAuth 2.0 (3LO) apps documentation](https://developer.atlassian.com/cloud/confluence/oauth-2-3lo-apps/).
+    </Callout>
+  </Step>
+</Steps>
+
+
+
+# authentication: Cognito
+URL: /docs/authentication/cognito
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/cognito.mdx
+
+Amazon Cognito provider setup and usage.
+        
+***
+
+title: Cognito
+description: Amazon Cognito provider setup and usage.
+-----------------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your Cognito Credentials
+
+    To integrate with Cognito, you need to set up a **User Pool** and an **App client** in the [Amazon Cognito Console](https://console.aws.amazon.com/cognito/).
+
+    Follow these steps:
+
+    1. Go to the **Cognito Console** and create a **User Pool**.
+    2. Under **App clients**, create a new **App client** (note the Client ID and Client Secret if enabled).
+    3. Go to **Domain** and set a Cognito Hosted UI domain (e.g., `your-app.auth.us-east-1.amazoncognito.com`).
+    4. In **App client settings**, enable:
+       * Allowed OAuth flows: `Authorization code grant`
+       * Allowed OAuth scopes: `openid`, `profile`, `email`
+    5. Add your callback URL (e.g., `http://localhost:3000/api/auth/callback/cognito`).
+
+    <Callout type="info">
+      * **User Pool is required** for Cognito authentication.
+      * Make sure the callback URL matches exactly what you configure in Cognito.
+    </Callout>
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    Configure the `cognito` key in `socialProviders` key of your `auth` instance.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth";
+
+    export const auth = betterAuth({
+      socialProviders: {
+        cognito: {
+          clientId: process.env.COGNITO_CLIENT_ID as string, // [!code highlight]
+          clientSecret: process.env.COGNITO_CLIENT_SECRET as string, // [!code highlight]
+          domain: process.env.COGNITO_DOMAIN as string, // e.g. "your-app.auth.us-east-1.amazoncognito.com" [!code highlight]
+          region: process.env.COGNITO_REGION as string, // e.g. "us-east-1" [!code highlight]
+          userPoolId: process.env.COGNITO_USERPOOL_ID as string, // [!code highlight]
+        },
+      },
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Sign In with Cognito
+
+    To sign in with Cognito, use the `signIn.social` function from the client.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+
+    const authClient = createAuthClient()
+
+    const signIn = async () => {
+      const data = await authClient.signIn.social({
+        provider: "cognito"
+      })
+    }
+    ```
+
+    ### Additional Options:
+
+    * `scope`: Additional OAuth2 scopes to request (combined with default permissions).
+      * Default: `"openid" "profile" "email"`
+      * Common Cognito scopes:
+        * `openid`: Required for OpenID Connect authentication
+        * `profile`: Access to basic profile info
+        * `email`: Access to user’s email
+        * `phone`: Access to user’s phone number
+        * `aws.cognito.signin.user.admin`: Grants access to Cognito-specific APIs
+    * Note: You must configure the scopes in your Cognito App Client settings. [available scopes](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html#token-endpoint-userinfo)
+    * `getUserInfo`: Custom function to retrieve user information from the Cognito UserInfo endpoint.
+
+    <Callout type="info">
+      For more information about Amazon Cognito's scopes and API capabilities, refer to the [official documentation](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-define-resource-servers.html?utm_source).
+    </Callout>
+  </Step>
+</Steps>
+
+
+
 # authentication: Discord
 URL: /docs/authentication/discord
 Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/discord.mdx
@@ -1900,26 +2189,50 @@ description: Discord provider setup and usage.
     })
     ```
   </Step>
-
-  <Step>
-    ### Sign In with Discord
-
-    To sign in with Discord, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
-
-    * `provider`: The provider to use. It should be set to `discord`.
-
-    ```ts title="auth-client.ts"
-    import { createAuthClient } from "better-auth/client"
-    const authClient =  createAuthClient()
-
-    const signIn = async () => {
-        const data = await authClient.signIn.social({
-            provider: "discord"
-        })
-    }
-    ```
-  </Step>
 </Steps>
+
+## Usage
+
+### Sign In with Discord
+
+To sign in with Discord, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
+
+* `provider`: The provider to use. It should be set to `discord`.
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client"
+const authClient =  createAuthClient()
+
+const signIn = async () => {
+    const data = await authClient.signIn.social({
+        provider: "discord"
+    })
+}
+```
+
+## Options
+
+For the full list of options supported by all social providers, check the [Provider Options](/docs/concepts/oauth#provider-options).
+
+### Bot Permissions (Optional)
+
+If you're using the `bot` scope with Discord OAuth, you can specify bot permissions using the `permissions` option. It can either be a bitwise value (e.g `2048 | 16384` for Send Messages and Embed Links) or a specific permission value (e.g `16384` for Embed Links).
+
+```ts title="auth.ts" 
+import { betterAuth } from "better-auth"
+
+export const auth = betterAuth({ 
+    socialProviders: {
+        discord: {
+            clientId: process.env.DISCORD_CLIENT_ID as string,
+            clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
+            permissions: 2048 | 16384, // Send Messages + Embed Links // [!code highlight]
+        }, 
+    },
+})
+```
+
+**Note:** The `permissions` parameter only works when the `bot` scope is included in your OAuth2 scopes. Read more about [Discord bot permissions](https://discord.com/developers/docs/topics/permissions).
 
 
 
@@ -2032,32 +2345,59 @@ export const auth = betterAuth({
 
 To sign a user up, you can use the `signUp.email` function provided by the client.
 
-<APIMethod path="/sign-up/email" method="POST">
-  ```ts
-  type signUpEmail = {
-      /**
-       * The name of the user.
-       */
-      name: string = "John Doe"
-      /**
-       * The email address of the user.
-       */
-      email: string = "john.doe@example.com"
-      /**
-       * The password of the user. It should be at least 8 characters long and max 128 by default.
-       */
-      password: string = "password1234"
-      /**
-       * An optional profile image of the user.
-       */
-      image?: string = "https://example.com/image.png"
-      /**
-       * An optional URL to redirect to after the user signs up.
-       */
-      callbackURL?: string = "https://example.com/callback"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signUp.email({
+    name: John Doe,
+    email: john.doe@example.com,
+    password: password1234,
+    image: https://example.com/image.png, // required
+    callbackURL: https://example.com/callback, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signUpEmail({
+    body: {
+        name: John Doe,
+        email: john.doe@example.com,
+        password: password1234,
+        image: https://example.com/image.png, // required
+        callbackURL: https://example.com/callback, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signUpEmail = {
+    /**
+     * The name of the user.
+     */
+    name: string = "John Doe"
+    /**
+     * The email address of the user.
+     */
+    email: string = "john.doe@example.com"
+    /**
+     * The password of the user. It should be at least 8 characters long and max 128 by default.
+     */
+    password: string = "password1234"
+    /**
+     * An optional profile image of the user.
+     */
+    image?: string = "https://example.com/image.png"
+    /**
+     * An optional URL to redirect to after the user signs up.
+     */
+    callbackURL?: string = "https://example.com/callback"
+
+}
+```
 
 <Callout>
   These are the default properties for the sign up email endpoint, however it's possible that with [additional fields](/docs/concepts/typescript#additional-fields) or special plugins you can pass more properties to the endpoint.
@@ -2067,28 +2407,55 @@ To sign a user up, you can use the `signUp.email` function provided by the clien
 
 To sign a user in, you can use the `signIn.email` function provided by the client.
 
-<APIMethod path="/sign-in/email" method="POST" requireSession>
-  ```ts
-  type signInEmail = {
-      /**
-       * The email address of the user.
-       */
-      email: string = "john.doe@example.com"
-      /**
-       * The password of the user. It should be at least 8 characters long and max 128 by default.
-       */
-      password: string = "password1234"
-      /**
-       * If false, the user will be signed out when the browser is closed. (optional) (default: true)
-       */
-      rememberMe?: boolean = true
-      /**
-       * An optional URL to redirect to after the user signs in. (optional)
-       */
-      callbackURL?: string = "https://example.com/callback"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signIn.email({
+    email: john.doe@example.com,
+    password: password1234,
+    rememberMe, // required
+    callbackURL: https://example.com/callback, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInEmail({
+    body: {
+        email: john.doe@example.com,
+        password: password1234,
+        rememberMe, // required
+        callbackURL: https://example.com/callback, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type signInEmail = {
+    /**
+     * The email address of the user.
+     */
+    email: string = "john.doe@example.com"
+    /**
+     * The password of the user. It should be at least 8 characters long and max 128 by default.
+     */
+    password: string = "password1234"
+    /**
+     * If false, the user will be signed out when the browser is closed. (optional) (default: true)
+     */
+    rememberMe?: boolean = true
+    /**
+     * An optional URL to redirect to after the user signs in. (optional)
+     */
+    callbackURL?: string = "https://example.com/callback"
+
+}
+```
 
 <Callout>
   These are the default properties for the sign in email endpoint, however it's possible that with [additional fields](/docs/concepts/typescript#additional-fields) or special plugins you can pass different properties to the endpoint.
@@ -2098,12 +2465,29 @@ To sign a user in, you can use the `signIn.email` function provided by the clien
 
 To sign a user out, you can use the `signOut` function provided by the client.
 
-<APIMethod path="/sign-out" method="POST" requireSession noResult>
-  ```ts
-  type signOut = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signOut({});
+```
+
+### Server Side
+
+```ts
+await auth.api.signOut({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type signOut = {
+
+}
+```
 
 you can pass `fetchOptions` to redirect onSuccess
 
@@ -2233,20 +2617,41 @@ Additionally, you can provide an `onPasswordReset` callback to execute logic aft
 
 Once you configured your server you can call `requestPasswordReset` function to send reset password link to user. If the user exists, it will trigger the `sendResetPassword` function you provided in the auth config.
 
-<APIMethod path="/request-password-reset" method="POST">
-  ```ts
-  type requestPasswordReset = {
-      /**
-       * The email address of the user to send a password reset email to 
-       */
-      email: string = "john.doe@example.com"
-      /**
-       * The URL to redirect the user to reset their password. If the token isn't valid or expired, it'll be redirected with a query parameter `?error=INVALID_TOKEN`. If the token is valid, it'll be redirected with a query parameter `?token=VALID_TOKEN 
-       */
-      redirectTo?: string = "https://example.com/reset-password"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.requestPasswordReset({
+    email: john.doe@example.com,
+    redirectTo: https://example.com/reset-password, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.requestPasswordReset({
+    body: {
+        email: john.doe@example.com,
+        redirectTo: https://example.com/reset-password, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type requestPasswordReset = {
+    /**
+     * The email address of the user to send a password reset email to 
+     */
+    email: string = "john.doe@example.com"
+    /**
+     * The URL to redirect the user to reset their password. If the token isn't valid or expired, it'll be redirected with a query parameter `?error=INVALID_TOKEN`. If the token is valid, it'll be redirected with a query parameter `?token=VALID_TOKEN 
+     */
+    redirectTo?: string = "https://example.com/reset-password"
+
+}
+```
 
 When a user clicks on the link in the email, they will be redirected to the reset password page. You can add the reset password page to your app. Then you can use `resetPassword` function to reset the password. It takes an object with the following properties:
 
@@ -2259,49 +2664,89 @@ const { data, error } = await authClient.resetPassword({
 });
 ```
 
-<APIMethod path="/reset-password" method="POST">
-  ```ts
-  const token = new URLSearchParams(window.location.search).get("token");
+### Client Side
 
-  if (!token) {
-    // Handle the error
-  }
+```ts
+const { data, error } = await authClient.resetPassword({
+    newPassword: password1234,
+    token,
+});
+```
 
-  type resetPassword = {
-      /**
-       * The new password to set 
-       */
-      newPassword: string = "password1234"
-      /**
-       * The token to reset the password 
-       */
-      token: string
-  }
-  ```
-</APIMethod>
+### Server Side
+
+```ts
+const data = await auth.api.resetPassword({
+    body: {
+        newPassword: password1234,
+        token,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type resetPassword = {
+    /**
+     * The new password to set 
+     */
+    newPassword: string = "password1234"
+    /**
+     * The token to reset the password 
+     */
+    token: string
+
+}
+```
 
 ### Update password
 
 A user's password isn't stored in the user table. Instead, it's stored in the account table. To change the password of a user, you can use one of the following approaches:
 
-<APIMethod path="/change-password" method="POST" requireSession>
-  ```ts
-  type changePassword = {
-      /**
-       * The new password to set 
-       */
-      newPassword: string = "newpassword1234"
-      /**
-       * The current user password 
-       */
-      currentPassword: string = "oldpassword1234"
-      /**
-       * When set to true, all other active sessions for this user will be invalidated
-       */
-      revokeOtherSessions?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.changePassword({
+    newPassword: newpassword1234,
+    currentPassword: oldpassword1234,
+    revokeOtherSessions, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.changePassword({
+    body: {
+        newPassword: newpassword1234,
+        currentPassword: oldpassword1234,
+        revokeOtherSessions, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type changePassword = {
+    /**
+     * The new password to set 
+     */
+    newPassword: string = "newpassword1234"
+    /**
+     * The current user password 
+     */
+    currentPassword: string = "oldpassword1234"
+    /**
+     * When set to true, all other active sessions for this user will be invalidated
+     */
+    revokeOtherSessions?: boolean = true
+
+}
+```
 
 ### Configuration
 
@@ -2511,6 +2956,81 @@ For a complete list of available permissions, refer to the [Permissions Referenc
 
 
 
+# authentication: Figma
+URL: /docs/authentication/figma
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/figma.mdx
+
+Figma provider setup and usage.
+        
+***
+
+title: Figma
+description: Figma provider setup and usage.
+--------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your Credentials
+
+    1. Sign in to your Figma account and go to the [Developer Apps page](https://www.figma.com/developers/apps)
+    2. Click "Create new app"
+    3. Fill out the app details (name, description, etc.)
+    4. Configure your redirect URI (e.g., `https://yourdomain.com/api/auth/callback/figma`)
+    5. Note your Client ID and Client Secret
+
+    <Callout type="info">
+      * The default scope is `file_read`. For additional scopes like `file_write`, refer to the [Figma OAuth documentation](https://www.figma.com/developers/api#oauth2).
+    </Callout>
+
+    Make sure to set the redirect URI to match your application's callback URL. If you change the base path of the auth routes, you should update the redirect URI accordingly.
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    To configure the provider, you need to import the provider and pass it to the `socialProviders` option of the auth instance.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+
+    export const auth = betterAuth({
+        socialProviders: {
+            figma: { // [!code highlight]
+                clientId: process.env.FIGMA_CLIENT_ID as string, // [!code highlight]
+                clientSecret: process.env.FIGMA_CLIENT_SECRET as string, // [!code highlight]
+                clientKey: process.env.FIGMA_CLIENT_KEY as string, // [!code highlight]
+            }, // [!code highlight]
+        },
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Sign In with Figma
+
+    To sign in with Figma, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
+
+    * `provider`: The provider to use. It should be set to `figma`.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    const authClient =  createAuthClient()
+
+    const signIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "figma"
+        })
+    }
+    ```
+
+    <Callout type="info">
+      For more information about Figma's OAuth scopes and API capabilities, refer to the [official Figma API documentation](https://www.figma.com/developers/api).
+    </Callout>
+  </Step>
+</Steps>
+
+
+
 # authentication: GitHub
 URL: /docs/authentication/github
 Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/github.mdx
@@ -2689,7 +3209,7 @@ description: Google provider setup and usage.
 
     To configure the provider, you need to pass the `clientId` and `clientSecret` to `socialProviders.google` in your auth configuration.
 
-    ```ts title="auth.ts"   
+    ```ts title="auth.ts"
     import { betterAuth } from "better-auth"
 
     export const auth = betterAuth({
@@ -2713,14 +3233,14 @@ To sign in with Google, you can use the `signIn.social` function provided by the
 * `provider`: The provider to use. It should be set to `google`.
 
 ```ts title="auth-client.ts"  /
-import { createAuthClient } from "better-auth/client"
-const authClient =  createAuthClient()
+import { createAuthClient } from "better-auth/client";
+const authClient = createAuthClient();
 
 const signIn = async () => {
-    const data = await authClient.signIn.social({
-        provider: "google"
-    })
-}
+  const data = await authClient.signIn.social({
+    provider: "google",
+  });
+};
 ```
 
 ### Sign In with Google With ID Token
@@ -2730,7 +3250,8 @@ To sign in with Google using the ID Token, you can use the `signIn.social` funct
 This is useful when you have the ID Token from Google on the client-side and want to use it to sign in on the server.
 
 <Callout>
-  If ID token is provided no redirection will happen, and the user will be signed in directly.
+  If ID token is provided no redirection will happen, and the user will be
+  signed in directly.
 </Callout>
 
 ```ts title="auth-client.ts"
@@ -2744,7 +3265,8 @@ const data = await authClient.signIn.social({
 ```
 
 <Callout>
-  If you want to use google one tap, you can use the [One Tap Plugin](/docs/plugins/one-tap) guide.
+  If you want to use google one tap, you can use the [One Tap
+  Plugin](/docs/plugins/one-tap) guide.
 </Callout>
 
 ### Always ask to select an account
@@ -2765,22 +3287,28 @@ socialProviders: {
 
 If your application needs additional Google scopes after the user has already signed up (e.g., for Google Drive, Gmail, or other Google services), you can request them using the `linkSocial` method with the same Google provider.
 
-```ts title="auth-client.ts"
+```tsx title="auth-client.ts"
 const requestGoogleDriveAccess = async () => {
-    await authClient.linkSocial({
-        provider: "google",
-        scopes: ["https://www.googleapis.com/auth/drive.file"],
-    });
+  await authClient.linkSocial({
+    provider: "google",
+    scopes: ["https://www.googleapis.com/auth/drive.file"],
+  });
 };
 
 // Example usage in a React component
-return <button onClick={requestGoogleDriveAccess}>Add Google Drive Permissions</button>;
+return (
+  <button onClick={requestGoogleDriveAccess}>
+    Add Google Drive Permissions
+  </button>
+);
 ```
 
 This will trigger a new OAuth flow that requests the additional scopes. After completion, your account will have the new scope in the database, and the access token will give you access to the requested Google APIs.
 
 <Callout>
-  Ensure you're using Better Auth version 1.2.7 or later to avoid "Social account already linked" errors when requesting additional scopes from the same provider.
+  Ensure you're using Better Auth version 1.2.7 or later to avoid "Social
+  account already linked" errors when requesting additional scopes from the same
+  provider.
 </Callout>
 
 ### Always get refresh token
@@ -2788,7 +3316,7 @@ This will trigger a new OAuth flow that requests the additional scopes. After co
 Google only issues a refresh token the first time a user consents to your app.
 If the user has already authorized your app, subsequent OAuth flows will only return an access token, not a refresh token.
 
-To always get a refresh token, you can set the `accessType` to `offline`, and `prompt` to `select_account+consent` in the provider options.
+To always get a refresh token, you can set the `accessType` to `offline`, and `prompt` to `select_account consent` in the provider options.
 
 ```ts
 socialProviders: {
@@ -2796,14 +3324,15 @@ socialProviders: {
         clientId: process.env.GOOGLE_CLIENT_ID as string,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         accessType: "offline", // [!code highlight]
-        prompt: "select_account+consent", // [!code highlight]
+        prompt: "select_account consent", // [!code highlight]
     },
 }
 ```
 
 <Callout>
-  **Revoking Access:** If you want to get a new refresh token for a user who has already authorized your app,
-  you must have them revoke your app's access in their Google account settings, then re-authorize.
+  **Revoking Access:** If you want to get a new refresh token for a user who has
+  already authorized your app, you must have them revoke your app's access in
+  their Google account settings, then re-authorize.
 </Callout>
 
 
@@ -2862,6 +3391,68 @@ description: Hugging Face provider setup and usage.
     const signIn = async () => {
         const data = await authClient.signIn.social({
             provider: "huggingface"
+        })
+    }
+    ```
+  </Step>
+</Steps>
+
+
+
+# authentication: Kakao
+URL: /docs/authentication/kakao
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/kakao.mdx
+
+Kakao provider setup and usage.
+        
+***
+
+title: Kakao
+description: Kakao provider setup and usage.
+--------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your Kakao Credentials
+
+    To use Kakao sign in, you need a client ID and client secret. You can get them from the [Kakao Developer Portal](https://developers.kakao.com).
+
+    Make sure to set the redirect URL to `http://localhost:3000/api/auth/callback/kakao` for local development. For production, you should set it to the URL of your application. If you change the base path of the auth routes, you should update the redirect URL accordingly.
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    To configure the provider, you need to import the provider and pass it to the `socialProviders` option of the auth instance.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+
+    export const auth = betterAuth({
+        socialProviders: {
+            kakao: { // [!code highlight]
+                clientId: process.env.KAKAO_CLIENT_ID as string, // [!code highlight]
+                clientSecret: process.env.KAKAO_CLIENT_SECRET as string, // [!code highlight]
+            }, // [!code highlight]
+        }
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Sign In with Kakao
+
+    To sign in with Kakao, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
+
+    * `provider`: The provider to use. It should be set to `kakao`.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    const authClient =  createAuthClient()
+
+    const signIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "kakao"
         })
     }
     ```
@@ -2929,6 +3520,92 @@ description: Kick provider setup and usage.
     ```
   </Step>
 </Steps>
+
+
+
+# authentication: LINE
+URL: /docs/authentication/line
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/line.mdx
+
+LINE provider setup and usage.
+        
+***
+
+title: LINE
+description: LINE provider setup and usage.
+-------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your LINE credentials
+
+    1. Create a channel in the LINE Developers Console.
+    2. Note your Channel ID (client\_id) and Channel secret (client\_secret).
+    3. In the channel settings, add your Redirect URI, e.g. `http://localhost:3000/api/auth/callback/line` for local development.
+    4. Enable required scopes (at least `openid`; add `profile`, `email` if you need name, avatar, email).
+
+    See LINE Login v2.1 reference for details: \[`https://developers.line.biz/en/reference/line-login/#issue-access-token`]
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    Add your LINE credentials to `socialProviders.line` in your auth configuration.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth";
+
+    export const auth = betterAuth({
+      socialProviders: {
+        line: {
+          clientId: process.env.LINE_CLIENT_ID as string,
+          clientSecret: process.env.LINE_CLIENT_SECRET as string,
+          // Optional: override redirect if needed
+          // redirectURI: "https://your.app/api/auth/callback/line",
+          // scopes are prefilled: ["openid","profile","email"]. Append if needed
+        },
+      },
+    });
+    ```
+  </Step>
+</Steps>
+
+## Usage
+
+### Sign In with LINE
+
+Use the client `signIn.social` with `provider: "line"`.
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client";
+const authClient = createAuthClient();
+
+async function signInWithLINE() {
+  const res = await authClient.signIn.social({ provider: "line" });
+}
+```
+
+### Sign In with LINE using ID Token (optional)
+
+If you obtain the LINE ID token on the client, you can sign in directly without redirection.
+
+```ts title="auth-client.ts"
+await authClient.signIn.social({
+  provider: "line",
+  idToken: {
+    token: "<LINE_ID_TOKEN>",
+    accessToken: "<LINE_ACCESS_TOKEN>",
+  },
+});
+```
+
+### Notes
+
+* Default scopes include `openid profile email`. Adjust as needed via provider options.
+* Verify redirect URI exactly matches the value configured in LINE Developers Console.
+* LINE ID token verification uses the official endpoint and checks audience and optional nonce per spec.
+
+Designing a login button? Follow LINE's button [guidelines](https://developers.line.biz/en/docs/line-login/login-button/).
 
 
 
@@ -3133,11 +3810,14 @@ Enabling OAuth with Microsoft Azure Entra ID (formerly Active Directory) allows 
                 clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string, // [!code highlight]
                 // Optional
                 tenantId: 'common', // [!code highlight]                
+                authority: "https://login.microsoftonline.com", // Authentication authority URL // [!code highlight]
                 prompt: "select_account", // Forces account selection // [!code highlight]
             }, // [!code highlight]
         },
     })
     ```
+
+    **Authority URL**: Use the default `https://login.microsoftonline.com` for standard Entra ID scenarios or `https://<tenant-id>.ciamlogin.com` for CIAM (Customer Identity and Access Management) scenarios.
   </Step>
 </Steps>
 
@@ -3159,6 +3839,68 @@ const signIn = async () => {
   });
 };
 ```
+
+
+
+# authentication: Naver
+URL: /docs/authentication/naver
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/naver.mdx
+
+Naver provider setup and usage.
+        
+***
+
+title: Naver
+description: Naver provider setup and usage.
+--------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your Naver Credentials
+
+    To use Naver sign in, you need a client ID and client secret. You can get them from the [Naver Developers](https://developers.naver.com/).
+
+    Make sure to set the redirect URL to `http://localhost:3000/api/auth/callback/naver` for local development. For production, you should set it to the URL of your application. If you change the base path of the auth routes, you should update the redirect URL accordingly.
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    To configure the provider, you need to import the provider and pass it to the `socialProviders` option of the auth instance.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+
+    export const auth = betterAuth({
+        socialProviders: {
+            naver: { // [!code highlight]
+                clientId: process.env.NAVER_CLIENT_ID as string, // [!code highlight]
+                clientSecret: process.env.NAVER_CLIENT_SECRET as string, // [!code highlight]
+            }, // [!code highlight]
+        }
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Sign In with Naver
+
+    To sign in with Naver, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
+
+    * `provider`: The provider to use. It should be set to `naver`.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    const authClient =  createAuthClient()
+
+    const signIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "naver"
+        })
+    }
+    ```
+  </Step>
+</Steps>
 
 
 
@@ -3396,6 +4138,134 @@ const response = await authClient.signIn.oauth2({
 
 
 
+# authentication: PayPal
+URL: /docs/authentication/paypal
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/paypal.mdx
+
+Paypal provider setup and usage.
+        
+***
+
+title: PayPal
+description: Paypal provider setup and usage.
+---------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your PayPal Credentials
+
+    To integrate with PayPal, you need to obtain API credentials by creating an application in the [PayPal Developer Portal](https://developer.paypal.com/dashboard).
+
+    Follow these steps:
+
+    1. Create an account on the PayPal Developer Portal
+    2. Create a new application, [official docs](https://developer.paypal.com/developer/applications/)
+    3. Configure Log in with PayPal under "Other features"
+    4. Set up your Return URL (redirect URL)
+    5. Configure user information permissions
+    6. Note your Client ID and Client Secret
+
+    <Callout type="info">
+      * PayPal has two environments: Sandbox (for testing) and Live (for production)
+      * For testing, create sandbox test accounts in the Developer Dashboard under "Sandbox" → "Accounts"
+      * You cannot use your real PayPal account to test in sandbox mode - you must use the generated test accounts
+      * The Return URL in your PayPal app settings must exactly match your redirect URI
+      * The PayPal API does not work with localhost. You need to use a public domain for the redirect URL and HTTPS for local testing. You can use [NGROK](https://ngrok.com/) or another similar tool for this.
+    </Callout>
+
+    Make sure to configure "Log in with PayPal" in your app settings:
+
+    1. Go to your app in the Developer Dashboard
+    2. Under "Other features", check "Log in with PayPal"
+    3. Click "Advanced Settings"
+    4. Enter your Return URL
+    5. Select the user information you want to access (email, name, etc.)
+    6. Enter Privacy Policy and User Agreement URLs
+
+    <Callout type="info">
+      * PayPal doesn't use traditional OAuth2 scopes in the authorization URL. Instead, you configure permissions directly in the Developer Dashboard
+      * For live apps, PayPal must review and approve your application before it can go live, which typically takes a few weeks
+    </Callout>
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    To configure the provider, you need to import the provider and pass it to the `socialProviders` option of the auth instance.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+
+    export const auth = betterAuth({
+        socialProviders: {
+            paypal: { // [!code highlight]
+                clientId: process.env.PAYPAL_CLIENT_ID as string, // [!code highlight]
+                clientSecret: process.env.PAYPAL_CLIENT_SECRET as string, // [!code highlight]
+                environment: "sandbox", // or "live" for production //, // [!code highlight]
+            }, // [!code highlight]
+        },
+    })
+    ```
+
+    #### Options
+
+    The PayPal provider accepts the following options:
+
+    * `environment`: `'sandbox' | 'live'` - PayPal environment to use (default: `'sandbox'`)
+    * `requestShippingAddress`: `boolean` - Whether to request shipping address information (default: `false`)
+
+    ```ts title="auth.ts"
+    export const auth = betterAuth({
+        socialProviders: {
+            paypal: {
+                clientId: process.env.PAYPAL_CLIENT_ID as string,
+                clientSecret: process.env.PAYPAL_CLIENT_SECRET as string,
+                environment: "live", // Use "live" for production
+                requestShippingAddress: true, // Request address info
+            },
+        },
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Sign In with PayPal
+
+    To sign in with PayPal, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
+
+    * `provider`: The provider to use. It should be set to `paypal`.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    const authClient =  createAuthClient()
+
+    const signIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "paypal"
+        })
+    }
+    ```
+
+    ### Additional Options:
+
+    * `environment`: PayPal environment to use.
+      * Default: `"sandbox"`
+      * Options: `"sandbox"` | `"live"`
+    * `requestShippingAddress`: Whether to request shipping address information.
+      * Default: `false`
+    * `scope`: Additional scopes to request (combined with default permissions).
+      * Default: Configured in PayPal Developer Dashboard
+      * Note: PayPal doesn't use traditional OAuth2 scopes - permissions are set in the Dashboard
+        For more details refer to the [Scopes Reference](https://developer.paypal.com/docs/log-in-with-paypal/integrate/reference/#scope-attributes)
+    * `mapProfileToUser`: Custom function to map PayPal profile data to user object.
+    * `getUserInfo`: Custom function to retrieve user information.
+      For more details refer to the [User Reference](https://developer.paypal.com/docs/api/identity/v1/#userinfo_get)
+    * `verifyIdToken`: Custom ID token verification function.
+  </Step>
+</Steps>
+
+
+
 # authentication: Reddit
 URL: /docs/authentication/reddit
 Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/reddit.mdx
@@ -3554,6 +4424,178 @@ description: Roblox provider setup and usage.
         })
     }
     ```
+  </Step>
+</Steps>
+
+
+
+# authentication: Salesforce
+URL: /docs/authentication/salesforce
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/authentication/salesforce.mdx
+
+Salesforce provider setup and usage.
+        
+***
+
+title: Salesforce
+description: Salesforce provider setup and usage.
+-------------------------------------------------
+
+<Steps>
+  <Step>
+    ### Get your Salesforce Credentials
+
+    1. Log into your Salesforce org (Production or Developer Edition)
+    2. Navigate to **Setup > App Manager**
+    3. Click **New Connected App**
+    4. Fill in the basic information:
+       * Connected App Name: Your app name
+       * API Name: Auto-generated from app name
+       * Contact Email: Your email address
+    5. Enable OAuth Settings:
+       * Check **Enable OAuth Settings**
+       * Set **Callback URL** to your redirect URI (e.g., `http://localhost:3000/api/auth/callback/salesforce` for development)
+       * Select Required OAuth Scopes:
+         * Access your basic information (id)
+         * Access your identity URL service (openid)
+         * Access your email address (email)
+         * Perform requests on your behalf at any time (refresh\_token, offline\_access)
+    6. Enable **Require Proof Key for Code Exchange (PKCE)** (required)
+    7. Save and note your **Consumer Key** (Client ID) and **Consumer Secret** (Client Secret)
+
+    <Callout type="info">
+      * For development, you can use `http://localhost:3000` URLs, but production requires HTTPS
+      * The callback URL must exactly match what's configured in Better Auth
+      * PKCE (Proof Key for Code Exchange) is required by Salesforce and is automatically handled by the provider
+    </Callout>
+
+    <Callout type="warning">
+      For sandbox testing, you can create the Connected App in your sandbox org, or use the same Connected App but specify `environment: "sandbox"` in the provider configuration.
+    </Callout>
+  </Step>
+
+  <Step>
+    ### Configure the provider
+
+    To configure the provider, you need to import the provider and pass it to the `socialProviders` option of the auth instance.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+
+    export const auth = betterAuth({
+        socialProviders: {
+            salesforce: { // [!code highlight]
+                clientId: process.env.SALESFORCE_CLIENT_ID as string, // [!code highlight]
+                clientSecret: process.env.SALESFORCE_CLIENT_SECRET as string, // [!code highlight]
+                environment: "production", // or "sandbox" // [!code highlight]
+            }, // [!code highlight]
+        },
+    })
+    ```
+
+    #### Configuration Options
+
+    * `clientId`: Your Connected App's Consumer Key
+    * `clientSecret`: Your Connected App's Consumer Secret
+    * `environment`: `"production"` (default) or `"sandbox"`
+    * `loginUrl`: Custom My Domain URL (without `https://`) - overrides environment setting
+    * `redirectURI`: Override the auto-generated redirect URI if needed
+
+    #### Advanced Configuration
+
+    ```ts title="auth.ts"
+    export const auth = betterAuth({
+        socialProviders: {
+            salesforce: {
+                clientId: process.env.SALESFORCE_CLIENT_ID as string,
+                clientSecret: process.env.SALESFORCE_CLIENT_SECRET as string,
+                environment: "sandbox", // [!code highlight]
+                loginUrl: "mycompany.my.salesforce.com", // Custom My Domain // [!code highlight]
+                redirectURI: "http://localhost:3000/api/auth/callback/salesforce", // Override if needed // [!code highlight]
+            },
+        },
+    })
+    ```
+
+    <Callout type="info">
+      * Use `environment: "sandbox"` for testing with Salesforce sandbox orgs
+      * The `loginUrl` option is useful for organizations with My Domain enabled
+      * The `redirectURI` option helps resolve redirect URI mismatch errors
+    </Callout>
+  </Step>
+
+  <Step>
+    ### Environment Variables
+
+    Add the following environment variables to your `.env.local` file:
+
+    ```bash title=".env.local"
+    SALESFORCE_CLIENT_ID=your_consumer_key_here
+    SALESFORCE_CLIENT_SECRET=your_consumer_secret_here
+    BETTER_AUTH_URL=http://localhost:3000 # Important for redirect URI generation
+    ```
+
+    For production:
+
+    ```bash title=".env"
+    SALESFORCE_CLIENT_ID=your_consumer_key_here
+    SALESFORCE_CLIENT_SECRET=your_consumer_secret_here
+    BETTER_AUTH_URL=https://yourdomain.com
+    ```
+  </Step>
+
+  <Step>
+    ### Sign In with Salesforce
+
+    To sign in with Salesforce, you can use the `signIn.social` function provided by the client. The `signIn` function takes an object with the following properties:
+
+    * `provider`: The provider to use. It should be set to `salesforce`.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    const authClient = createAuthClient()
+
+    const signIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "salesforce"
+        })
+    }
+    ```
+  </Step>
+
+  <Step>
+    ### Troubleshooting
+
+    #### Redirect URI Mismatch Error
+
+    If you encounter a `redirect_uri_mismatch` error:
+
+    1. **Check Callback URL**: Ensure the Callback URL in your Salesforce Connected App exactly matches your Better Auth callback URL
+    2. **Protocol**: Make sure you're using the same protocol (`http://` vs `https://`)
+    3. **Port**: Verify the port number matches (e.g., `:3000`)
+    4. **Override if needed**: Use the `redirectURI` option to explicitly set the redirect URI
+
+    ```ts
+    salesforce: {
+        clientId: process.env.SALESFORCE_CLIENT_ID as string,
+        clientSecret: process.env.SALESFORCE_CLIENT_SECRET as string,
+        redirectURI: "http://localhost:3000/api/auth/callback/salesforce", // [!code highlight]
+    }
+    ```
+
+    #### Environment Issues
+
+    * **Production**: Use `environment: "production"` (default) with `login.salesforce.com`
+    * **Sandbox**: Use `environment: "sandbox"` with `test.salesforce.com`
+    * **My Domain**: Use `loginUrl: "yourcompany.my.salesforce.com"` for custom domains
+
+    #### PKCE Requirements
+
+    Salesforce requires PKCE (Proof Key for Code Exchange) which is automatically handled by this provider. Make sure PKCE is enabled in your Connected App settings.
+
+    <Callout type="info">
+      The default scopes requested are `openid`, `email`, and `profile`. The provider will automatically include the `id` scope for accessing basic user information.
+    </Callout>
   </Step>
 </Steps>
 
@@ -3762,7 +4804,7 @@ description: TikTok provider setup and usage.
     2. Create a new application
     3. Set up a sandbox environment for testing
     4. Configure your redirect URL (must be HTTPS)
-    5. Note your Client ID, Client Secret and Client Key
+    5. Note your Client Secret and Client Key
 
     <Callout type="info">
       * The TikTok API does not work with localhost. You need to use a public domain for the redirect URL and HTTPS for local testing. You can use [NGROK](https://ngrok.com/) or another similar tool for this.
@@ -3789,7 +4831,6 @@ description: TikTok provider setup and usage.
     export const auth = betterAuth({
         socialProviders: {
             tiktok: { // [!code highlight]
-                clientId: process.env.TIKTOK_CLIENT_ID as string, // [!code highlight]
                 clientSecret: process.env.TIKTOK_CLIENT_SECRET as string, // [!code highlight]
                 clientKey: process.env.TIKTOK_CLIENT_KEY as string, // [!code highlight]
             }, // [!code highlight]
@@ -4112,7 +5153,7 @@ title: API
 description: Better Auth API.
 -----------------------------
 
-When you create a new Better Auth instance, it provides you with an `api` object. This object exposes every endpoint that exist in your Better Auth instance. And you can use this to interact with Better Auth server side.
+When you create a new Better Auth instance, it provides you with an `api` object. This object exposes every endpoint that exists in your Better Auth instance. And you can use this to interact with Better Auth server side.
 
 Any endpoint added to Better Auth, whether from plugins or the core, will be accessible through the `api` object.
 
@@ -4130,7 +5171,7 @@ export const auth = betterAuth({
 
 // calling get session on the server
 await auth.api.getSession({
-    headers: await headers() // some endpoint might require headers
+    headers: await headers() // some endpoints might require headers
 })
 ```
 
@@ -4159,14 +5200,14 @@ await auth.api.verifyEmail({
 ```
 
 <Callout>
-  Better auth API endpoints are built on top of [better-call](https://github.com/bekacru/better-call), a tiny web framework that lets you call REST API endpoints as if they were regular functions and allows us to easily infer client types from the server.
+  Better Auth API endpoints are built on top of [better-call](https://github.com/bekacru/better-call), a tiny web framework that lets you call REST API endpoints as if they were regular functions and allows us to easily infer client types from the server.
 </Callout>
 
 ### Getting `headers` and `Response` Object
 
 When you invoke an API endpoint on the server, it will return a standard JavaScript object or array directly as it's just a regular function call.
 
-But there are times where you might want to get the `headers` or the `Response` object instead. For example, if you need to get the cookies or the headers.
+But there are times when you might want to get the `headers` or the `Response` object instead. For example, if you need to get the cookies or the headers.
 
 #### Getting `headers`
 
@@ -4183,7 +5224,7 @@ const { headers, response } = await auth.api.signUpEmail({
 });
 ```
 
-The `headers` will be a `Headers` object. Which you can use to get the cookies or the headers.
+The `headers` will be a `Headers` object, which you can use to get the cookies or the headers.
 
 ```ts
 const cookies = headers.get("set-cookie");
@@ -4206,7 +5247,7 @@ const response = await auth.api.signInEmail({
 
 ### Error Handling
 
-When you call an API endpoint in the server, it will throw an error if the request fails. You can catch the error and handle it as you see fit. The error instance is an instance of `APIError`.
+When you call an API endpoint on the server, it will throw an error if the request fails. You can catch the error and handle it as you see fit. The error instance is an instance of `APIError`.
 
 ```ts title="server.ts"
 import { APIError } from "better-auth/api";
@@ -4239,7 +5280,7 @@ title: CLI
 description: Built-in CLI for managing your project.
 ----------------------------------------------------
 
-Better Auth comes with a built-in CLI to help you manage the database schemas, initialize your project, and generate a secret key for your application.
+Better Auth comes with a built-in CLI to help you manage the database schemas, initialize your project, generate a secret key for your application, and gather diagnostic information about your setup.
 
 ## Generate
 
@@ -4251,13 +5292,13 @@ npx @better-auth/cli@latest generate
 
 ### Options
 
-* `--output` - Where to save the generated schema. For Prisma, it will be saved in prisma/schema.prisma. For Drizzle, it goes to schema.ts in your project root. For Kysely, it’s an SQL file saved as schema.sql in your project root.
-* `--config` - The path to your Better Auth config file. By default, the CLI will search for a auth.ts file in **./**, **./utils**, **./lib**, or any of these directories under `src` directory.
+* `--output` - Where to save the generated schema. For Prisma, it will be saved in prisma/schema.prisma. For Drizzle, it goes to schema.ts in your project root. For Kysely, it's an SQL file saved as schema.sql in your project root.
+* `--config` - The path to your Better Auth config file. By default, the CLI will search for an auth.ts file in **./**, **./utils**, **./lib**, or any of these directories under the `src` directory.
 * `--yes` - Skip the confirmation prompt and generate the schema directly.
 
 ## Migrate
 
-The migrate command applies the Better Auth schema directly to your database. This is available if you’re using the built-in Kysely adapter. For other adapters, you'll need to apply the schema using your ORM's migration tool.
+The migrate command applies the Better Auth schema directly to your database. This is available if you're using the built-in Kysely adapter. For other adapters, you'll need to apply the schema using your ORM's migration tool.
 
 ```bash title="Terminal"
 npx @better-auth/cli@latest migrate
@@ -4265,7 +5306,7 @@ npx @better-auth/cli@latest migrate
 
 ### Options
 
-* `--config` - The path to your Better Auth config file. By default, the CLI will search for a auth.ts file in **./**, **./utils**, **./lib**, or any of these directories under `src` directory.
+* `--config` - The path to your Better Auth config file. By default, the CLI will search for an auth.ts file in **./**, **./utils**, **./lib**, or any of these directories under the `src` directory.
 * `--yes` - Skip the confirmation prompt and apply the schema directly.
 
 ## Init
@@ -4278,11 +5319,49 @@ npx @better-auth/cli@latest init
 
 ### Options
 
-* `--name` - The name of your application. (Defaults to your `package.json`'s `name` property.)
-* `--framework` - The framework your codebase is using. Currently, the only supported framework is `nextjs`.
+* `--name` - The name of your application. (defaults to the `name` property in your `package.json`).
+* `--framework` - The framework your codebase is using. Currently, the only supported framework is `Next.js`.
 * `--plugins` - The plugins you want to use. You can specify multiple plugins by separating them with a comma.
-* `--database` - The database you want to use. Currently, the only supported database is `sqlite`.
-* `--package-manager` - The package manager you want to use. Currently, the only supported package managers are `npm`, `pnpm`, `yarn`, `bun`. (Defaults to the manager you used to initialize the CLI.)
+* `--database` - The database you want to use. Currently, the only supported database is `SQLite`.
+* `--package-manager` - The package manager you want to use. Currently, the only supported package managers are `npm`, `pnpm`, `yarn`, `bun` (defaults to the manager you used to initialize the CLI).
+
+## Info
+
+The `info` command provides diagnostic information about your Better Auth setup and environment. Useful for debugging and sharing when seeking support.
+
+```bash title="Terminal"
+npx @better-auth/cli@latest info
+```
+
+### Output
+
+The command displays:
+
+* **System**: OS, CPU, memory, Node.js version
+* **Package Manager**: Detected manager and version
+* **Better Auth**: Version and configuration (sensitive data auto-redacted)
+* **Frameworks**: Detected frameworks (Next.js, React, Vue, etc.)
+* **Databases**: Database clients and ORMs (Prisma, Drizzle, etc.)
+
+### Options
+
+* `--config` - Path to your Better Auth config file
+* `--json` - Output as JSON for sharing or programmatic use
+
+### Examples
+
+```bash
+# Basic usage
+npx @better-auth/cli@latest info
+
+# Custom config path
+npx @better-auth/cli@latest info --config ./config/auth.ts
+
+# JSON output
+npx @better-auth/cli@latest info --json > auth-info.json
+```
+
+Sensitive data like secrets, API keys, and database URLs are automatically replaced with `[REDACTED]` for safe sharing.
 
 ## Secret
 
@@ -4296,7 +5375,7 @@ npx @better-auth/cli@latest secret
 
 **Error: Cannot find module X**
 
-If you see this error, it means the CLI can’t resolve imported modules in your Better Auth config file. We're working on a fix for many of these issues, but in the meantime, you can try the following:
+If you see this error, it means the CLI can't resolve imported modules in your Better Auth config file. We are working on a fix for many of these issues, but in the meantime, you can try the following:
 
 * Remove any import aliases in your config file and use relative paths instead. After running the CLI, you can revert to using aliases.
 
@@ -4320,31 +5399,49 @@ Better Auth offers a client library compatible with popular frontend frameworks 
 
 If you haven't already, install better-auth.
 
-<Tabs items={}>
-  <Tab value="npm">
+<CodeBlockTabs defaultValue="npm">
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="npm">
+      npm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="pnpm">
+      pnpm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="yarn">
+      yarn
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="bun">
+      bun
+    </CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+
+  <CodeBlockTab value="npm">
     ```bash
     npm i better-auth
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="pnpm">
+  <CodeBlockTab value="pnpm">
     ```bash
     pnpm add better-auth
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="yarn">
+  <CodeBlockTab value="yarn">
     ```bash
     yarn add better-auth
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="bun">
+  <CodeBlockTab value="bun">
     ```bash
     bun add better-auth
     ```
-  </Tab>
-</Tabs>
+  </CodeBlockTab>
+</CodeBlockTabs>
 
 ## Create Client Instance
 
@@ -4423,11 +5520,11 @@ await authClient.signIn.email({
 
 ### Hooks
 
-On top of normal methods, the client provides hooks to easily access different reactive data. Every hook is available in the root object of the client and they all start with `use`.
+In addition to the standard methods, the client provides hooks to easily access different reactive data. Every hook is available in the root object of the client and they all start with `use`.
 
 **Example: useSession**
 
-<Tabs items={["React", "Vue","Svelte", "Solid"]} defaultValue="React">
+<Tabs items={["React", "Vue","Svelte", "Solid"]} defaultValue="react">
   <Tab value="React">
     ```tsx title="user.tsx"
     //make sure you're using the react client
@@ -4492,7 +5589,7 @@ On top of normal methods, the client provides hooks to easily access different r
                 {$session?.data?.user.email}
             </p>
             <button
-                on:click={async () => {
+                onclick={async () => {
                 await authClient.signOut();
                 }}
             >
@@ -4501,7 +5598,7 @@ On top of normal methods, the client provides hooks to easily access different r
             </div>
         {:else}
             <button
-            on:click={async () => {
+            onclick={async () => {
                 await authClient.signIn.social({
                 provider: "github",
                 });
@@ -4585,7 +5682,7 @@ Most of the client functions return a response object with the following propert
 * `data`: The response data.
 * `error`: The error object if there was an error.
 
-the error object contains the following properties:
+The error object contains the following properties:
 
 * `message`: The error message. (e.g., "Invalid email or password")
 * `status`: The HTTP status code.
@@ -4601,7 +5698,7 @@ if (error) {
 }
 ```
 
-If the actions accepts a `fetchOptions` option, you can pass `onError` callback to handle errors.
+If the action accepts a `fetchOptions` option, you can pass an `onError` callback to handle errors.
 
 ```ts title="auth-client.ts"
 
@@ -4626,7 +5723,7 @@ await authClient.signIn.email({
 })
 ```
 
-Hooks like `useSession` also return an error object if there was an error fetching the session. On top of that, they also return a `isPending` property to indicate if the request is still pending.
+Hooks like `useSession` also return an error object if there was an error fetching the session. On top of that, they also return an `isPending` property to indicate if the request is still pending.
 
 ```ts title="auth-client.ts"
 const { data, error, isPending } = useSession()
@@ -4720,7 +5817,7 @@ Cookies are used to store data such as session tokens, OAuth state, and more. Al
 
 ### Cookie Prefix
 
-Better Auth cookies will follow `${prefix}.${cookie_name}` format by default. The prefix will be "better-auth" by default. You can change the prefix by setting `cookiePrefix` in the `advanced` object of the auth options.
+By default, Better Auth cookies follow the format `${prefix}.${cookie_name}`. The default prefix is "better-auth". You can change the prefix by setting `cookiePrefix` in the `advanced` object of the auth options.
 
 ```ts title="auth.ts"
 import { betterAuth } from "better-auth"
@@ -4734,7 +5831,7 @@ export const auth = betterAuth({
 
 ### Custom Cookies
 
-All cookies are `httpOnly` and `secure` if the server is running in production mode.
+All cookies are `httpOnly` and `secure` when the server is running in production mode.
 
 If you want to set custom cookie names and attributes, you can do so by setting `cookieOptions` in the `advanced` object of the auth options.
 
@@ -4742,7 +5839,7 @@ By default, Better Auth uses the following cookies:
 
 * `session_token` to store the session token
 * `session_data` to store the session data if cookie cache is enabled
-* `dont_remember` to store the `dont_remember` flag if remember me is disabled
+* `dont_remember` to store the flag when `rememberMe` is disabled
 
 Plugins may also use cookies to store data. For example, the Two Factor Authentication plugin uses the `two_factor` cookie to store the two-factor authentication state.
 
@@ -4765,10 +5862,11 @@ export const auth = betterAuth({
 
 ### Cross Subdomain Cookies
 
-Sometimes you may need to share cookies across subdomains. For example, if you have `app.example.com` and `auth.example.com`, and if you authenticate on `auth.example.com`, you may want to access the same session on `app.example.com`.
+Sometimes you may need to share cookies across subdomains.
+For example, if you authenticate on `auth.example.com`, you may also want to access the same session on `app.example.com`.
 
 <Callout type="warn">
-  The `domain` attribute controls which domains can access the cookie. Setting it to your root domain (e.g. `example.com`) makes the cookie accessible across all subdomains. For security, you should:
+  The `domain` attribute controls which domains can access the cookie. Setting it to your root domain (e.g. `example.com`) makes the cookie accessible across all subdomains. For security, follow these guidelines:
 
   1. Only enable cross-subdomain cookies if it's necessary
   2. Set the domain to the most specific scope needed (e.g. `app.example.com` instead of `.example.com`)
@@ -4866,7 +5964,7 @@ To use secondary storage, implement the `SecondaryStorage` interface:
 
 ```typescript
 interface SecondaryStorage {
-  get: (key: string) => Promise<string | null>;
+  get: (key: string) => Promise<unknown>; 
   set: (key: string, value: string, ttl?: number) => Promise<void>;
   delete: (key: string) => Promise<void>;
 }
@@ -4898,8 +5996,7 @@ export const auth = betterAuth({
 	// ... other options
 	secondaryStorage: {
 		get: async (key) => {
-			const value = await redis.get(key);
-			return value ? value : null;
+			return await redis.get(key);
 		},
 		set: async (key, value, ttl) => {
 			if (ttl) await redis.set(key, value, { EX: ttl });
@@ -5560,7 +6657,7 @@ await authClient.verifyEmail({
 })
 ```
 
-### Auto SignIn After Verification
+### Auto Sign In After Verification
 
 To sign in the user automatically after they successfully verify their email, set the `autoSignInAfterVerification` option to `true`:
 
@@ -6016,27 +7113,64 @@ const requestAdditionalScopes = async () => {
   Make sure you're running Better Auth version 1.2.7 or later. Earlier versions (like 1.2.2) may show a "Social account already linked" error when trying to link with an existing provider for additional scopes.
 </Callout>
 
-### Other Provider Configurations
+## Provider Options
 
-**scope** The scope of the access request. For example, `email` or `profile`.
+### scope
 
-**redirectURI** Custom redirect URI for the provider. By default, it uses `/api/auth/callback/${providerName}`.
+The scope of the access request. For example, `email` or `profile`.
 
-**disableImplicitSignUp:** Disables implicit sign-up. In order to sign up a user, `requestSignUp` needs to be set to `true` when signing in.
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
 
-**disableSignUp:** Disables sign-up for new users.
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      scope: ["email", "profile"],
+    },
+  },
+});
+```
 
-**disableIdTokenSignIn:** Disables the use of the ID token for sign-in. By default, it's enabled for some providers like Google and Apple.
+### redirectURI
 
-**verifyIdToken** A custom function to verify the ID token.
+Custom redirect URI for the provider. By default, it uses `/api/auth/callback/${providerName}`
 
-**getUserInfo** A custom function to fetch user information from the provider. Given the tokens returned from the provider, this function should return the user's information.
+```ts title="auth.ts"
 
-**overrideUserInfoOnSignIn**: A boolean value that determines whether to override the user information in the database when signing in. By default, it is set to `false`, meaning that the user information will not be overridden during sign-in. If you want to update the user information every time they sign in, set this to `true`.
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      redirectURI: "https://your-app.com/auth/callback",
+    },
+  },
+});
+```
 
-**refreshAccessToken**: A custom function to refresh the token. This feature is only supported for built-in social providers (Google, Facebook, GitHub, etc.) and is not currently supported for custom OAuth providers configured through the Generic OAuth Plugin. For built-in providers, you can provide a custom function to refresh the token if needed.
+### disableSignUp
 
-**mapProfileToUser** A custom function to map the user profile returned from the provider to the user object in your database.
+Disables sign-up for new users.
+
+### disableIdTokenSignIn
+
+Disables the use of the ID token for sign-in. By default, it's enabled for some providers like Google and Apple.
+
+### verifyIdToken
+
+A custom function to verify the ID token.
+
+### overrideUserInfoOnSignIn
+
+A boolean value that determines whether to override the user information in the database when signing in. By default, it is set to `false`, meaning that the user information will not be overridden during sign-in. If you want to update the user information every time they sign in, set this to `true`.
+
+### mapProfileToUser
+
+A custom function to map the user profile returned from the provider to the user object in your database.
 
 Useful, if you have additional fields in your user object you want to populate from the provider's profile. Or if you want to change how by default the user object is mapped.
 
@@ -6060,31 +7194,165 @@ export const auth = betterAuth({
 });
 ```
 
-## How OAuth Works in Better Auth
+### refreshAccessToken
 
-Here's what happens when a user selects a provider to authenticate with:
+A custom function to refresh the token. This feature is only supported for built-in social providers (Google, Facebook, GitHub, etc.) and is not currently supported for custom OAuth providers configured through the Generic OAuth Plugin. For built-in providers, you can provide a custom function to refresh the token if needed.
 
-1. **Configuration Check:** Ensure the necessary provider details (e.g., client ID, secret) are configured.
-2. **State Generation:** Generate and save a state token in your database for CSRF protection.
-3. **PKCE Support:** If applicable, create a PKCE code challenge and verifier for secure exchanges.
-4. **Authorization URL Construction:** Build the provider's authorization URL with parameters like client ID, redirect URI, state, etc. The callback URL usually follows the pattern `/api/auth/callback/${providerName}`.
-5. **User Redirection:**
-   * If redirection is enabled, users are redirected to the provider's login page.
-   * If redirection is disabled, the authorization URL is returned for the client to handle the redirection.
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
 
-### Post-Login Flow
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      refreshAccessToken: async (token) => {
+        return {
+          accessToken: "new-access-token",
+          refreshToken: "new-refresh-token",
+        };
+      },
+    },
+  },
+});
+```
 
-After the user completes the login process, the provider redirects them back to the callback URL with a code and state. Better Auth handles the rest:
+### clientKey
 
-1. **Token Exchange:** The code is exchanged for an access token and user information.
-2. **User Handling:**
-   * If the user doesn't exist, a new account is created.
-   * If the user exists, they are logged in.
-   * If the user has multiple accounts across providers, Better Auth links them based on your configuration. Learn more about [account linking](/docs/concepts/users-accounts#account-linking).
-3. **Session Creation:** A new session is created for the user.
-4. **Redirect:** Users are redirected to the specified URL provided during the initial request or `/`.
+The client key of your application. This is used by TikTok Social Provider instead of `clientId`.
 
-If any error occurs during the process, Better Auth handles it and redirects the user to the error URL (if provided) or the callbackURL. And it includes the error message in the query string `?error=...`.
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    tiktok: {
+      clientKey: "YOUR_TIKTOK_CLIENT_KEY",
+      clientSecret: "YOUR_TIKTOK_CLIENT_SECRET",
+    },
+  },
+});
+```
+
+### getUserInfo
+
+A custom function to get user info from the provider. This allows you to override the default user info retrieval process.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      getUserInfo: async (token) => {
+        // Custom implementation to get user info
+        const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+          headers: {
+            Authorization: `Bearer ${token.accessToken}`,
+          },
+        });
+        const profile = await response.json();
+        return {
+          user: {
+            id: profile.id,
+            name: profile.name,
+            email: profile.email,
+            image: profile.picture,
+            emailVerified: profile.verified_email,
+          },
+          data: profile,
+        };
+      },
+    },
+  },
+});
+```
+
+### disableImplicitSignUp
+
+Disables implicit sign up for new users. When set to true for the provider, sign-in needs to be called with `requestSignUp` as true to create new users.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      disableImplicitSignUp: true,
+    },
+  },
+});
+```
+
+### prompt
+
+The prompt to use for the authorization code request. This controls the authentication flow behavior.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      prompt: "select_account", // or "consent", "login", "none", "select_account+consent"
+    },
+  },
+});
+```
+
+### responseMode
+
+The response mode to use for the authorization code request. This determines how the authorization response is returned.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      responseMode: "query", // or "form_post"
+    },
+  },
+});
+```
+
+### disableDefaultScope
+
+Removes the default scopes of the provider. By default, providers include certain scopes like `email` and `profile`. Set this to `true` to remove these default scopes and use only the scopes you specify.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+  // Other configurations...
+  socialProviders: {
+    google: {
+      clientId: "YOUR_GOOGLE_CLIENT_ID",
+      clientSecret: "YOUR_GOOGLE_CLIENT_SECRET",
+      disableDefaultScope: true,
+      scope: ["https://www.googleapis.com/auth/userinfo.email"], // Only this scope will be used
+    },
+  },
+});
+```
+
+### Other Provider Configurations
+
+Each provider may have additional options, check the specific provider documentation for more details.
 
 
 
@@ -6755,6 +8023,21 @@ export const auth = betterAuth({
 })
 ```
 
+If you like to disable rate limiting for a specific path, you can set it to `false` or return `false` from the custom rule function.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+
+export const auth = betterAuth({
+    //...other options
+    rateLimit: {
+        customRules: {
+            "/get-session": false,
+        },
+    },
+})
+```
+
 ### Storage
 
 By default, rate limit data is stored in memory, which may not be suitable for many use cases, particularly in serverless environments. To address this, you can use a database, secondary storage, or custom storage for storing rate limit data.
@@ -7140,9 +8423,9 @@ const { data: sessionData } = await authClient.getSession();
 // data.user.newField
 ```
 
-**Some Caveats**:
+### Caveats on Customizing Session Response
 
-* The passed `session` object to the callback does not infer fields added by plugins.
+1. The passed `session` object to the callback does not infer fields added by plugins.
 
 However, as a workaround, you can pull up your auth options and pass it to the plugin to infer the fields.
 
@@ -7152,7 +8435,7 @@ import { betterAuth, BetterAuthOptions } from "better-auth";
 const options = {
   //...config options
   plugins: [
-    //...plugins
+    //...plugins 
   ]
 } satisfies BetterAuthOptions;
 
@@ -7171,8 +8454,30 @@ export const auth = betterAuth({
 })
 ```
 
-* If you cannot use the `auth` instance as a type, inference will not work on the client.
-* Session caching, including secondary storage or cookie cache, does not include custom fields. Each time the session is fetched, your custom session function will be called.
+2. When your server and client code are in separate projects or repositories, and you cannot import the `auth` instance as a type reference, type inference for custom session fields will not work on the client side.
+3. Session caching, including secondary storage or cookie cache, does not include custom fields. Each time the session is fetched, your custom session function will be called.
+
+**Mutating the list-device-sessions endpoint**
+The `/multi-session/list-device-sessions` endpoint from the [multi-session](/docs/plugins/multi-session) plugin is used to list the devices that the user is signed into.
+
+You can mutate the response of this endpoint by passing the `shouldMutateListDeviceSessionsEndpoint` option to the `customSession` plugin.
+
+By default, we do not mutate the response of this endpoint.
+
+```ts title="auth.ts"
+import { customSession } from "better-auth/plugins";
+
+export const auth = betterAuth({
+    plugins: [
+        customSession(async ({ user, session }, ctx) => {
+            return {
+                user,
+                session
+            }
+        }, {}, { shouldMutateListDeviceSessionsEndpoint: true }), // [!code highlight]
+    ],
+});
+```
 
 
 
@@ -7314,7 +8619,6 @@ export const authClient = createAuthClient({
 If your client and server are in separate projects, you'll need to manually specify the additional fields when creating the auth client.
 
 ```ts
-import type { auth } from "./auth";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
@@ -7413,24 +8717,49 @@ After verification, the new email is updated in the user table, and a confirmati
 
 A user's password isn't stored in the user table. Instead, it's stored in the account table. To change the password of a user, you can use one of the following approaches:
 
-<APIMethod path="/change-password" method="POST" requireSession>
-  ```ts
-  type changePassword = {
-      /**
-       * The new password to set 
-       */
-      newPassword: string = "newpassword1234"
-      /**
-       * The current user password 
-       */
-      currentPassword: string = "oldpassword1234"
-      /**
-       * When set to true, all other active sessions for this user will be invalidated
-       */
-      revokeOtherSessions?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.changePassword({
+    newPassword: newpassword1234,
+    currentPassword: oldpassword1234,
+    revokeOtherSessions, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.changePassword({
+    body: {
+        newPassword: newpassword1234,
+        currentPassword: oldpassword1234,
+        revokeOtherSessions, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type changePassword = {
+    /**
+     * The new password to set 
+     */
+    newPassword: string = "newpassword1234"
+    /**
+     * The current user password 
+     */
+    currentPassword: string = "oldpassword1234"
+    /**
+     * When set to true, all other active sessions for this user will be invalidated
+     */
+    revokeOtherSessions?: boolean = true
+
+}
+```
 
 ### Set Password
 
@@ -7642,7 +8971,7 @@ export const auth = betterAuth({
                         withEncryptedTokens.refreshToken = encryptedRefreshToken;
                     }
                     return {
-                        data: resultAccount
+                        data: withEncryptedTokens
                     }
                 },
             }
@@ -7782,7 +9111,7 @@ await authClient.unlinkAccount({
 });
 ```
 
-If the account doesn't exist, it will throw an error. Additionally, if the user only has one account, the unlinking process will fail to prevent account lockout unless `allowUnlinkingAll` is set to `true`.
+If the account doesn't exist, it will throw an error. Additionally, if the user only has one account, unlinking will be prevented to stop account lockout (unless `allowUnlinkingAll` is set to `true`).
 
 ```ts title="auth.ts"
 export const auth = betterAuth({
@@ -7813,10 +9142,10 @@ This is an example of how to use Better Auth with Astro. It uses Solid for build
 **Implements the following features:**
 Email & Password . Social Sign-in with Google . Passkeys . Email Verification . Password Reset . Two Factor Authentication . Profile Update . Session Management
 
-<ForkButton url="better-auth/better-auth/tree/main/examples/astro-example" />
+<ForkButton url="better-auth/examples/tree/main/astro-example" />
 
 <iframe
-  src="https://stackblitz.com/github/better-auth/better-auth/tree/main/examples/astro-example?codemirror=1&fontsize=14&hidenavigation=1&runonclick=1&hidedevtools=1"
+  src="https://stackblitz.com/github/better-auth/examples/tree/main/astro-example?codemirror=1&fontsize=14&hidenavigation=1&runonclick=1&hidedevtools=1"
   style={{
     width: "100%",
     height: "500px",
@@ -8034,6 +9363,727 @@ Email & Password . <u>Social Sign-in with Google</u> . Passkeys . Email Verifica
    pnpm dev
    ```
 4. Open the browser and navigate to `http://localhost:3000`
+
+
+
+# guides: Migrating from Auth0 to Better Auth
+URL: /docs/guides/auth0-migration-guide
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/guides/auth0-migration-guide.mdx
+
+A step-by-step guide to transitioning from Auth0 to Better Auth.
+        
+***
+
+title: Migrating from Auth0 to Better Auth
+description: A step-by-step guide to transitioning from Auth0 to Better Auth.
+-----------------------------------------------------------------------------
+
+In this guide, we'll walk through the steps to migrate a project from Auth0 to Better Auth — including email/password with proper hashing, social/external accounts, two-factor authentication, and more.
+
+<Callout type="warn">
+  This migration will invalidate all active sessions. This guide doesn't currently show you how to migrate Organizations but it should be possible with additional steps and the [Organization](/docs/plugins/organization) Plugin.
+</Callout>
+
+## Before You Begin
+
+Before starting the migration process, set up Better Auth in your project. Follow the [installation guide](/docs/installation) to get started.
+
+<Steps>
+  <Step>
+    ### Connect to your database
+
+    You'll need to connect to your database to migrate the users and accounts. You can use any database you want, but for this example, we'll use PostgreSQL.
+
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
+        ```bash
+        npm install pg
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="pnpm">
+        ```bash
+        pnpm add pg
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="yarn">
+        ```bash
+        yarn add pg
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="bun">
+        ```bash
+        bun add pg
+        ```
+      </CodeBlockTab>
+    </CodeBlockTabs>
+
+    And then you can use the following code to connect to your database.
+
+    ```ts title="auth.ts"
+    import { Pool } from "pg";
+
+    export const auth = betterAuth({
+        database: new Pool({ 
+            connectionString: process.env.DATABASE_URL 
+        }),
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Enable Email and Password (Optional)
+
+    Enable the email and password in your auth config and implement your own logic for sending verification emails, reset password emails, etc.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth";
+
+    export const auth = betterAuth({
+        database: new Pool({ 
+            connectionString: process.env.DATABASE_URL 
+        }),
+        emailAndPassword: { // [!code highlight]
+            enabled: true, // [!code highlight]
+        }, // [!code highlight]
+        emailVerification: {
+          sendVerificationEmail: async({ user, url })=>{
+            // implement your logic here to send email verification
+          }
+        },
+    })
+    ```
+
+    See [Email and Password](/docs/authentication/email-password) for more configuration options.
+  </Step>
+
+  <Step>
+    ### Setup Social Providers (Optional)
+
+    Add social providers you have enabled in your Auth0 project in your auth config.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth";
+
+    export const auth = betterAuth({
+        database: new Pool({ 
+            connectionString: process.env.DATABASE_URL 
+        }),
+        emailAndPassword: { 
+            enabled: true,
+        },
+        socialProviders: { // [!code highlight]
+            google: { // [!code highlight]
+                clientId: process.env.GOOGLE_CLIENT_ID, // [!code highlight]
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET, // [!code highlight]
+            }, // [!code highlight]
+            github: { // [!code highlight]
+                clientId: process.env.GITHUB_CLIENT_ID, // [!code highlight]
+                clientSecret: process.env.GITHUB_CLIENT_SECRET, // [!code highlight]
+            } // [!code highlight]
+        } // [!code highlight]
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Add Plugins (Optional)
+
+    You can add the following plugins to your auth config based on your needs.
+
+    [Admin](/docs/plugins/admin) Plugin will allow you to manage users, user impersonations and app level roles and permissions.
+
+    [Two Factor](/docs/plugins/2fa) Plugin will allow you to add two-factor authentication to your application.
+
+    [Username](/docs/plugins/username) Plugin will allow you to add username authentication to your application.
+
+    ```ts title="auth.ts"
+    import { Pool } from "pg";
+    import { betterAuth } from "better-auth";
+    import { admin, twoFactor, username } from "better-auth/plugins";
+
+    export const auth = betterAuth({
+        database: new Pool({ 
+            connectionString: process.env.DATABASE_URL 
+        }),
+        emailAndPassword: { 
+            enabled: true,
+            password: {
+                verify: (data) => {
+                    // this for an edgecase that you might run in to on verifying the password
+                }
+            }
+        },
+        socialProviders: {
+            google: {
+                clientId: process.env.GOOGLE_CLIENT_ID!,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            },
+            github: {
+                clientId: process.env.GITHUB_CLIENT_ID!,
+                clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+            }
+        },
+        plugins: [admin(), twoFactor(), username()], // [!code highlight]
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Generate Schema
+
+    If you're using a custom database adapter, generate the schema:
+
+    ```sh
+    npx @better-auth/cli generate
+    ```
+
+    or if you're using the default adapter, you can use the following command:
+
+    ```sh
+    npx @better-auth/cli migrate
+    ```
+  </Step>
+
+  <Step>
+    ### Install Dependencies
+
+    Install the required dependencies for the migration:
+
+    ```bash
+    npm install auth0
+    ```
+  </Step>
+
+  <Step>
+    ### Create the migration script
+
+    Create a new file called `migrate-auth0.ts` in the `scripts` folder and add the following code:
+
+    <Callout type="info">
+      Instead of using the Management API, you can use Auth0's bulk user export functionality and pass the exported JSON data directly to the `auth0Users` array. This is especially useful if you need to migrate password hashes and complete user data, which are not available through the Management API.
+
+      **Important Notes:**
+
+      * Password hashes export is only available for Auth0 Enterprise users
+      * Free plan users cannot export password hashes and will need to request a support ticket
+      * For detailed information about bulk user exports, see the [Auth0 Bulk User Export Documentation](https://auth0.com/docs/manage-users/user-migration/bulk-user-exports)
+      * For password hash export details, refer to [Exporting Password Hashes](https://auth0.com/docs/troubleshoot/customer-support/manage-subscriptions/export-data#user-passwords)
+
+      Example:
+
+      ```ts
+      // Replace this with your exported users JSON data
+      const auth0Users = [
+        {
+          "email": "helloworld@gmail.com",
+          "email_verified": false,
+          "name": "Hello world",
+          // Note: password_hash is only available for Enterprise users
+          "password_hash": "$2b$10$w4kfaZVjrcQ6ZOMiG.M8JeNvnVQkPKZV03pbDUHbxy9Ug0h/McDXi",
+          // ... other user data
+        }
+      ];
+      ```
+    </Callout>
+
+    ```ts title="scripts/migrate-auth0.ts"
+    import { ManagementClient } from 'auth0';
+    import { generateRandomString, symmetricEncrypt } from "better-auth/crypto";
+    import { auth } from '@/lib/auth';
+
+    const auth0Client = new ManagementClient({
+        domain: process.env.AUTH0_DOMAIN!,
+        clientId: process.env.AUTH0_CLIENT_ID!,
+        clientSecret: process.env.AUTH0_SECRET!,
+    });
+
+
+
+    function safeDateConversion(timestamp?: string | number): Date {
+        if (!timestamp) return new Date();
+
+        const numericTimestamp = typeof timestamp === 'string' ? Date.parse(timestamp) : timestamp;
+
+        const milliseconds = numericTimestamp < 1000000000000 ? numericTimestamp * 1000 : numericTimestamp;
+
+        const date = new Date(milliseconds);
+
+        if (isNaN(date.getTime())) {
+            console.warn(`Invalid timestamp: ${timestamp}, falling back to current date`);
+            return new Date();
+        }
+
+        // Check for unreasonable dates (before 2000 or after 2100)
+        const year = date.getFullYear();
+        if (year < 2000 || year > 2100) {
+            console.warn(`Suspicious date year: ${year}, falling back to current date`);
+            return new Date();
+        }
+
+        return date;
+    }
+
+    // Helper function to generate backup codes for 2FA
+    async function generateBackupCodes(secret: string) {
+        const key = secret;
+        const backupCodes = Array.from({ length: 10 })
+            .fill(null)
+            .map(() => generateRandomString(10, "a-z", "0-9", "A-Z"))
+            .map((code) => `${code.slice(0, 5)}-${code.slice(5)}`);
+
+        const encCodes = await symmetricEncrypt({
+            data: JSON.stringify(backupCodes),
+            key: key,
+        });
+        return encCodes;
+    }
+
+    function mapAuth0RoleToBetterAuthRole(auth0Roles: string[]) {
+        if (typeof auth0Roles === 'string') return auth0Roles;
+        if (Array.isArray(auth0Roles)) return auth0Roles.join(',');
+    }
+    // helper function to migrate password from auth0 to better auth for custom hashes and algs
+    async function migratePassword(auth0User: any) {
+        if (auth0User.password_hash) {
+            if (auth0User.password_hash.startsWith('$2a$') || auth0User.password_hash.startsWith('$2b$')) {
+                return auth0User.password_hash;
+            }
+        }
+
+        if (auth0User.custom_password_hash) {
+            const customHash = auth0User.custom_password_hash;
+
+            if (customHash.algorithm === 'bcrypt') {
+                const hash = customHash.hash.value;
+                if (hash.startsWith('$2a$') || hash.startsWith('$2b$')) {
+                    return hash;
+                }
+            }
+
+            return JSON.stringify({
+                algorithm: customHash.algorithm,
+                hash: {
+                    value: customHash.hash.value,
+                    encoding: customHash.hash.encoding || 'utf8',
+                    ...(customHash.hash.digest && { digest: customHash.hash.digest }),
+                    ...(customHash.hash.key && {
+                        key: {
+                            value: customHash.hash.key.value,
+                            encoding: customHash.hash.key.encoding || 'utf8'
+                        }
+                    })
+                },
+                ...(customHash.salt && {
+                    salt: {
+                        value: customHash.salt.value,
+                        encoding: customHash.salt.encoding || 'utf8',
+                        position: customHash.salt.position || 'prefix'
+                    }
+                }),
+                ...(customHash.password && {
+                    password: {
+                        encoding: customHash.password.encoding || 'utf8'
+                    }
+                }),
+                ...(customHash.algorithm === 'scrypt' && {
+                    keylen: customHash.keylen,
+                    cost: customHash.cost || 16384,
+                    blockSize: customHash.blockSize || 8,
+                    parallelization: customHash.parallelization || 1
+                })
+            });
+        }
+
+        return null;
+    }
+
+    async function migrateMFAFactors(auth0User: any, userId: string | undefined, ctx: any) {
+        if (!userId || !auth0User.mfa_factors || !Array.isArray(auth0User.mfa_factors)) {
+            return;
+        }
+
+        for (const factor of auth0User.mfa_factors) {
+            try {
+                if (factor.totp && factor.totp.secret) {
+                    await ctx.adapter.create({
+                        model: "twoFactor",
+                        data: {
+                            userId: userId,
+                            secret: factor.totp.secret,
+                            backupCodes: await generateBackupCodes(factor.totp.secret)
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error(`Failed to migrate MFA factor for user ${userId}:`, error);
+            }
+        }
+    }
+
+    async function migrateOAuthAccounts(auth0User: any, userId: string | undefined, ctx: any) {
+        if (!userId || !auth0User.identities || !Array.isArray(auth0User.identities)) {
+            return;
+        }
+
+        for (const identity of auth0User.identities) {
+            try {
+                const providerId = identity.provider === 'auth0' ? "credential" : identity.provider.split("-")[0];
+                await ctx.adapter.create({
+                    model: "account",
+                    data: {
+                        id: `${auth0User.user_id}|${identity.provider}|${identity.user_id}`,
+                        userId: userId,
+                        password: await migratePassword(auth0User),
+                        providerId: providerId || identity.provider,
+                        accountId: identity.user_id,
+                        accessToken: identity.access_token,
+                        tokenType: identity.token_type,
+                        refreshToken: identity.refresh_token,
+                        accessTokenExpiresAt: identity.expires_in ? new Date(Date.now() + identity.expires_in * 1000) : undefined,
+                        // if you are enterprise user, you can get the refresh tokens or all the tokensets - auth0Client.users.getAllTokensets 
+                        refreshTokenExpiresAt: identity.refresh_token_expires_in ? new Date(Date.now() + identity.refresh_token_expires_in * 1000) : undefined,
+
+                        scope: identity.scope,
+                        idToken: identity.id_token,
+                        createdAt: safeDateConversion(auth0User.created_at),
+                        updatedAt: safeDateConversion(auth0User.updated_at)
+                    },
+                    forceAllowId: true
+                }).catch((error: Error) => {
+                    console.error(`Failed to create OAuth account for user ${userId} with provider ${providerId}:`, error);
+                    return ctx.adapter.create({
+                        // Try creating without optional fields if the first attempt failed
+                        model: "account",
+                        data: {
+                            id: `${auth0User.user_id}|${identity.provider}|${identity.user_id}`,
+                            userId: userId,
+                            password: migratePassword(auth0User),
+                            providerId: providerId,
+                            accountId: identity.user_id,
+                            accessToken: identity.access_token,
+                            tokenType: identity.token_type,
+                            refreshToken: identity.refresh_token,
+                            accessTokenExpiresAt: identity.expires_in ? new Date(Date.now() + identity.expires_in * 1000) : undefined,
+                            refreshTokenExpiresAt: identity.refresh_token_expires_in ? new Date(Date.now() + identity.refresh_token_expires_in * 1000) : undefined,
+                            scope: identity.scope,
+                            idToken: identity.id_token,
+                            createdAt: safeDateConversion(auth0User.created_at),
+                            updatedAt: safeDateConversion(auth0User.updated_at)
+                        },
+                        forceAllowId: true
+                    });
+                });
+
+                console.log(`Successfully migrated OAuth account for user ${userId} with provider ${providerId}`);
+            } catch (error) {
+                console.error(`Failed to migrate OAuth account for user ${userId}:`, error);
+            }
+        }
+    }
+
+    async function migrateOrganizations(ctx: any) {
+        try {
+            const organizations = await auth0Client.organizations.getAll();
+            for (const org of organizations.data || []) {
+                try {
+                    await ctx.adapter.create({
+                        model: "organization",
+                        data: {
+                            id: org.id,
+                            name: org.display_name || org.id,
+                            slug: (org.display_name || org.id).toLowerCase().replace(/[^a-z0-9]/g, '-'),
+                            logo: org.branding?.logo_url,
+                            metadata: JSON.stringify(org.metadata || {}),
+                            createdAt: safeDateConversion(org.created_at),
+                        },
+                        forceAllowId: true
+                    });
+                    const members = await auth0Client.organizations.getMembers({ id: org.id });
+                    for (const member of members.data || []) {
+                        try {
+                            const userRoles = await auth0Client.organizations.getMemberRoles({
+                                id: org.id,
+                                user_id: member.user_id
+                            });
+                            const role = mapAuth0RoleToBetterAuthRole(userRoles.data?.map(r => r.name) || []);
+                            await ctx.adapter.create({
+                                model: "member",
+                                data: {
+                                    id: `${org.id}|${member.user_id}`,
+                                    organizationId: org.id,
+                                    userId: member.user_id,
+                                    role: role,
+                                    createdAt: new Date()
+                                },
+                                forceAllowId: true
+                            });
+
+                            console.log(`Successfully migrated member ${member.user_id} for organization ${org.display_name || org.id}`);
+                        } catch (error) {
+                            console.error(`Failed to migrate member ${member.user_id} for organization ${org.display_name || org.id}:`, error);
+                        }
+                    }
+
+                    console.log(`Successfully migrated organization: ${org.display_name || org.id}`);
+                } catch (error) {
+                    console.error(`Failed to migrate organization ${org.display_name || org.id}:`, error);
+                }
+            }
+            console.log('Organization migration completed');
+        } catch (error) {
+            console.error('Failed to migrate organizations:', error);
+        }
+    }
+
+    async function migrateFromAuth0() {
+        try {
+            const ctx = await auth.$context;
+            const isAdminEnabled = ctx.options?.plugins?.find(plugin => plugin.id === "admin");
+            const isUsernameEnabled = ctx.options?.plugins?.find(plugin => plugin.id === "username");
+            const isOrganizationEnabled = ctx.options?.plugins?.find(plugin => plugin.id === "organization");
+            const perPage = 100;
+            const auth0Users: any[] = [];
+            let pageNumber = 0;
+
+            while (true) {
+                try {
+                    const params = {
+                        per_page: perPage,
+                        page: pageNumber,
+                        include_totals: true,
+                    };
+                    const response = (await auth0Client.users.getAll(params)).data as any;
+                    const users = response.users || [];
+                    if (users.length === 0) break;
+                    auth0Users.push(...users);
+                    pageNumber++;
+
+                    if (users.length < perPage) break;
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                    break;
+                }
+            }
+
+
+            console.log(`Found ${auth0Users.length} users to migrate`);
+
+            for (const auth0User of auth0Users) {
+                try {
+                    // Determine if this is a password-based or OAuth user
+                    const isOAuthUser = auth0User.identities?.some((identity: any) => identity.provider !== 'auth0');
+                    // Base user data that's common for both types
+                    const baseUserData = {
+                        id: auth0User.user_id,
+                        email: auth0User.email,
+                        emailVerified: auth0User.email_verified || false,
+                        name: auth0User.name || auth0User.nickname,
+                        image: auth0User.picture,
+                        createdAt: safeDateConversion(auth0User.created_at),
+                        updatedAt: safeDateConversion(auth0User.updated_at),
+                        ...(isAdminEnabled ? {
+                            banned: auth0User.blocked || false,
+                            role: mapAuth0RoleToBetterAuthRole(auth0User.roles || []),
+                        } : {}),
+
+                        ...(isUsernameEnabled ? {
+                            username: auth0User.username || auth0User.nickname,
+                        } : {}),
+
+                    };
+
+                    const createdUser = await ctx.adapter.create({
+                        model: "user",
+                        data: {
+                            ...baseUserData,
+                        },
+                        forceAllowId: true
+                    });
+
+                    if (!createdUser?.id) {
+                        throw new Error('Failed to create user');
+                    }
+
+
+                    await migrateOAuthAccounts(auth0User, createdUser.id, ctx)
+                    console.log(`Successfully migrated user: ${auth0User.email}`);
+                } catch (error) {
+                    console.error(`Failed to migrate user ${auth0User.email}:`, error);
+                }
+            }
+            if (isOrganizationEnabled) {
+                await migrateOrganizations(ctx);
+            }
+            // the reset of migration will be here.
+            console.log('Migration completed successfully');
+        } catch (error) {
+            console.error('Migration failed:', error);
+            throw error;
+        }
+    }
+
+    migrateFromAuth0()
+        .then(() => {
+            console.log('Migration completed');
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error('Migration failed:', error);
+            process.exit(1);
+        }); 
+    ```
+
+    Make sure to replace the Auth0 environment variables with your own values:
+
+    * `AUTH0_DOMAIN`
+    * `AUTH0_CLIENT_ID`
+    * `AUTH0_SECRET`
+  </Step>
+
+  <Step>
+    ### Run the migration
+
+    Run the migration script:
+
+    ```sh
+    bun run scripts/migrate-auth0.ts # or use your preferred runtime
+    ```
+
+    <Callout type="warning">
+      Important considerations:
+
+      1. Test the migration in a development environment first
+      2. Monitor the migration process for any errors
+      3. Verify the migrated data in Better Auth before proceeding
+      4. Keep Auth0 installed and configured until the migration is complete
+      5. The script handles bcrypt password hashes by default. For custom password hashing algorithms, you'll need to modify the `migratePassword` function
+    </Callout>
+  </Step>
+
+  <Step>
+    ### Verify the migration
+
+    After running the migration, verify that:
+
+    1. All users have been properly migrated
+    2. Social connections are working
+    3. Password-based authentication is working
+    4. Two-factor authentication settings are preserved (if enabled)
+    5. User roles and permissions are correctly mapped
+  </Step>
+
+  <Step>
+    ### Update your components
+
+    Now that the data is migrated, update your components to use Better Auth. Here's an example for the sign-in component:
+
+    ```tsx title="components/auth/sign-in.tsx"
+    import { authClient } from "better-auth/client";
+
+    export const SignIn = () => {
+      const handleSignIn = async () => {
+        const { data, error } = await authClient.signIn.email({
+          email: "helloworld@gmail.com",
+          password: "helloworld",
+        });
+        
+        if (error) {
+          console.error(error);
+          return;
+        }
+        // Handle successful sign in
+      };
+
+      return (
+        <form onSubmit={handleSignIn}>
+          <button type="submit">Sign in</button>
+        </form>
+      );
+    };
+    ```
+  </Step>
+
+  <Step>
+    ### Update the middleware
+
+    Replace your Auth0 middleware with Better Auth's middleware:
+
+    ```ts title="middleware.ts"
+    import { NextRequest, NextResponse } from "next/server";
+    import { getSessionCookie } from "better-auth/cookies";
+
+    export async function middleware(request: NextRequest) {
+      const sessionCookie = getSessionCookie(request);
+      const { pathname } = request.nextUrl;
+
+      if (sessionCookie && ["/login", "/signup"].includes(pathname)) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+
+      if (!sessionCookie && pathname.startsWith("/dashboard")) {
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
+
+      return NextResponse.next();
+    }
+
+    export const config = {
+      matcher: ["/dashboard", "/login", "/signup"],
+    };
+    ```
+  </Step>
+
+  <Step>
+    ### Remove Auth0 Dependencies
+
+    Once you've verified everything is working correctly with Better Auth, remove Auth0:
+
+    ```bash
+    npm remove @auth0/auth0-react @auth0/auth0-spa-js @auth0/nextjs-auth0
+    ```
+  </Step>
+</Steps>
+
+## Additional Considerations
+
+### Password Migration
+
+The migration script handles bcrypt password hashes by default. If you're using custom password hashing algorithms in Auth0, you'll need to modify the `migratePassword` function in the migration script to handle your specific case.
+
+### Role Mapping
+
+The script includes a basic role mapping function (`mapAuth0RoleToBetterAuthRole`). Customize this function based on your Auth0 roles and Better Auth role requirements.
+
+### Rate Limiting
+
+The migration script includes pagination to handle large numbers of users. Adjust the `perPage` value based on your needs and Auth0's rate limits.
+
+## Wrapping Up
+
+Now! You've successfully migrated from Auth0 to Better Auth.
+
+Better Auth offers greater flexibility and more features—be sure to explore the [documentation](/docs) to unlock its full potential.
 
 
 
@@ -8287,31 +10337,49 @@ Before starting the migration process, set up Better Auth in your project. Follo
 
     You'll need to connect to your database to migrate the users and accounts. You can use any database you want, but for this example, we'll use PostgreSQL.
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install pg
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add pg
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add pg
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add pg
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
 
     And then you can use the following code to connect to your database.
 
@@ -9247,6 +11315,16 @@ const adapter = myAdapter({
 });
 ```
 
+### `transaction`
+
+Whether the adapter supports transactions. If `false`, operations run sequentially; otherwise provide a function that executes a callback with a `TransactionAdapter`.
+
+<Callout type="warn">
+  If your database does not support transactions, the error handling and rollback
+  will not be as robust. We recommend using a database that supports transactions
+  for better data integrity.
+</Callout>
+
 ### `debugLogs`
 
 Used to enable debug logs for the adapter. You can pass in a boolean, or an object with the following keys: `create`, `update`, `updateMany`, `findOne`, `findMany`, `delete`, `deleteMany`, `count`.
@@ -9596,7 +11674,7 @@ Caching is a powerful technique that can significantly improve the performance o
 
 ### Cookie Cache
 
-Calling your database every time `useSession` or `getSession` invoked isn’t ideal, especially if sessions don’t change frequently. Cookie caching handles this by storing session data in a short-lived, signed cookie similar to how JWT access tokens are used with refresh tokens.
+Calling your database every time `useSession` or `getSession` is invoked isn’t ideal, especially if sessions don’t change frequently. Cookie caching handles this by storing session data in a short-lived, signed cookie similar to how JWT access tokens are used with refresh tokens.
 
 To turn on cookie caching, just set `session.cookieCache` in your auth config:
 
@@ -9700,7 +11778,7 @@ Here are examples of how you can do caching in different frameworks and environm
 
 ## SSR Optimizations
 
-If you're using a framework that supports server-side rendering, it's usually best to pre-fetch user session on the server and use it as a fallback on the client.
+If you're using a framework that supports server-side rendering, it's usually best to pre-fetch the user session on the server and use it as a fallback on the client.
 
 ```ts
 const session = await auth.api.getSession({
@@ -9733,6 +11811,194 @@ Optimizing database performance is essential to get the best out of Better Auth.
 
 
 
+# guides: SAML SSO with Okta
+URL: /docs/guides/saml-sso-with-okta
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/guides/saml-sso-with-okta.mdx
+
+A guide to integrating SAML Single Sign-On (SSO) with Better Auth, featuring Okta
+        
+***
+
+title: SAML SSO with Okta
+description: A guide to integrating SAML Single Sign-On (SSO) with Better Auth, featuring Okta
+----------------------------------------------------------------------------------------------
+
+This guide walks you through setting up SAML Single Sign-On (SSO) with your Identity Provider (IdP), using Okta as an example. For advanced configuration details and the full API reference, check out the [SSO Plugin Documentation](/docs/plugins/sso).
+
+## What is SAML?
+
+SAML (Security Assertion Markup Language) is an XML-based standard for exchanging authentication and authorization data between an Identity Provider (IdP) (e.g., Okta, Azure AD, OneLogin) and a Service Provider (SP) (in this case, Better Auth).
+
+In this setup:
+
+* **IdP (Okta)**: Authenticates users and sends assertions about their identity.
+* **SP (Better Auth)**: Validates assertions and logs the user in.up.
+
+### Step 1: Create a SAML Application in Okta
+
+1. Log in to your Okta Admin Console
+
+2. Navigate to Applications > Applications
+
+3. Click "Create App Integration"
+
+4. Select "SAML 2.0" as the Sign-in method
+
+5. Configure the following settings:
+
+   * **Single Sign-on URL**: Your Better Auth ACS endpoint (e.g., `http://localhost:3000/api/auth/sso/saml2/sp/acs/sso`). while `sso` being your providerId
+   * **Audience URI (SP Entity ID)**: Your Better Auth metadata URL (e.g., `http://localhost:3000/api/auth/sso/saml2/sp/metadata`)
+   * **Name ID format**: Email Address or any of your choice.
+
+6. Download the IdP metadata XML file and certificate
+
+### Step 2: Configure Better Auth
+
+Here’s an example configuration for Okta in a dev environment:
+
+```typescript
+const ssoConfig = {
+  defaultSSO: [{
+    domain: "localhost:3000", // Your domain
+    providerId: "sso",
+    samlConfig: {
+      // SP Configuration
+      issuer: "http://localhost:3000/api/auth/sso/saml2/sp/metadata",
+      entryPoint: "https://trial-1076874.okta.com/app/trial-1076874_samltest_1/exktofb0a62hqLAUL697/sso/saml",
+      callbackUrl: "/dashboard", // Redirect after successful authentication
+      
+      // IdP Configuration
+      idpMetadata: {
+        entityID: "https://trial-1076874.okta.com/app/exktofb0a62hqLAUL697/sso/saml/metadata",
+        singleSignOnService: [{
+          Binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect",
+          Location: "https://trial-1076874.okta.com/app/trial-1076874_samltest_1/exktofb0a62hqLAUL697/sso/saml"
+        }],
+        cert: `-----BEGIN CERTIFICATE-----
+MIIDqjCCApKgAwIBAgIGAZhVGMeUMA0GCSqGSIb3DQEBCwUAMIGVMQswCQYDVQQGEwJVUzETMBEG
+...
+[Your Okta Certificate]
+...
+-----END CERTIFICATE-----`
+      },
+      
+      // SP Metadata
+      spMetadata: {
+        metadata: `<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" 
+          entityID="http://localhost:3000/api/sso/saml2/sp/metadata">
+          ...
+          [Your SP Metadata XML]
+          ...
+        </md:EntityDescriptor>`
+      }
+    }
+  }]
+}
+```
+
+### Step 3: Multiple Default Providers (Optional)
+
+You can configure multiple SAML providers for different domains:
+
+```typescript
+const ssoConfig = {
+  defaultSSO: [
+    {
+      domain: "company.com",
+      providerId: "company-okta",
+      samlConfig: {
+        // Okta SAML configuration for company.com
+      }
+    },
+    {
+      domain: "partner.com", 
+      providerId: "partner-adfs",
+      samlConfig: {
+        // ADFS SAML configuration for partner.com
+      }
+    },
+    {
+      domain: "contractor.org",
+      providerId: "contractor-azure",
+      samlConfig: {
+        // Azure AD SAML configuration for contractor.org
+      }
+    }
+  ]
+}
+```
+
+<Callout type="info">
+  **Explicit**: Pass providerId directly when signing in.
+  **Domain fallback:** Matches based on the user’s email domain. e.g. [user@company.com](mailto:user@company.com) → matches `company-okta` provider.
+</Callout>
+
+### Step 4: Initiating Sign-In
+
+You can start an SSO flow in three ways:
+
+**1. Explicitly by `providerId` (recommended):**
+
+```typescript
+// Explicitly specify which provider to use
+await authClient.signIn.sso({
+  providerId: "company-okta",
+  callbackURL: "/dashboard"
+});
+```
+
+**2. By email domain matching:**
+
+```typescript
+// Automatically matches provider based on email domain
+await authClient.signIn.sso({
+  email: "user@company.com",
+  callbackURL: "/dashboard"
+});
+```
+
+**3. By specifying domain:**
+
+```typescript
+// Explicitly specify domain for matching
+await authClient.signIn.sso({
+  domain: "partner.com",
+  callbackURL: "/dashboard"
+});
+```
+
+**Important Notes**:
+
+* DummyIDP should ONLY be used for development and testing
+* Never use these certificates in production
+* The example uses `localhost:3000` - adjust URLs for your environment
+* For production, always use proper IdP providers like Okta, Azure AD, or OneLogin
+
+### Step 5: Dynamically Registering SAML Providers
+
+For dynamic registration, you should register SAML providers using the API. See the [SSO Plugin Documentation](/docs/plugins/sso#register-a-saml-provider) for detailed registration instructions.
+
+Example registration:
+
+```typescript
+await authClient.sso.register({
+  providerId: "okta-prod",
+  issuer: "https://your-domain.com",
+  domain: "your-domain.com",
+  samlConfig: {
+    // Your production SAML configuration
+  }
+});
+```
+
+## Additional Resources
+
+* [SSO Plugin Documentation](/docs/plugins/sso)
+* [Okta SAML Documentation](https://developer.okta.com/docs/concepts/saml/)
+* [SAML 2.0 Specification](https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf)
+
+
+
 # guides: Migrating from Supabase Auth to Better Auth
 URL: /docs/guides/supabase-migration-guide
 Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/guides/supabase-migration-guide.mdx
@@ -9761,31 +12027,49 @@ Before starting the migration process, set up Better Auth in your project. Follo
 
     You'll need to connect to your database to migrate the users and accounts. Copy your `DATABASE_URL` from your Supabase project and use it to connect to your database. And for this example, we'll need to install `pg` to connect to the database.
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install pg
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add pg
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add pg
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add pg
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
 
     And then you can use the following code to connect to your database.
 
@@ -10487,6 +12771,567 @@ const session = () => {
 
 
 
+# integrations: Convex Integration
+URL: /docs/integrations/convex
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/integrations/convex.mdx
+
+Integrate Better Auth with Convex.
+        
+***
+
+title: Convex Integration
+description: Integrate Better Auth with Convex.
+-----------------------------------------------
+
+<Callout>
+  This documentation comes from the [Convex documentation](https://convex-better-auth.netlify.app/),
+  for more information, please refer to their documentation.
+</Callout>
+
+## Prerequisites
+
+<Steps>
+  <Step>
+    ### Create a Convex project
+
+    To use Convex + Better Auth, you'll first need a [Convex](https://www.convex.dev/) project.
+    If you don't have one, run the following command to get started.
+
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
+        ```bash
+        npm create convex@latest
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="pnpm">
+        ```bash
+        pnpm create convex
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="yarn">
+        ```bash
+        yarn create convex
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="bun">
+        ```bash
+        bunx create-convex
+        ```
+      </CodeBlockTab>
+    </CodeBlockTabs>
+
+    Check out the [Convex docs](https://docs.convex.dev/home) to learn more about Convex.
+  </Step>
+
+  <Step>
+    ### Run `convex dev`
+
+    Running the CLI during setup will initialize your Convex deployment
+    if it doesn't already exist, and keeps generated types current through the process. Keep it running.
+
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
+        ```bash
+        npx convex dev
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="pnpm">
+        ```bash
+        pnpm dlx convex dev
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="yarn">
+        ```bash
+        yarn dlx convex dev
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="bun">
+        ```bash
+        bun x convex dev
+        ```
+      </CodeBlockTab>
+    </CodeBlockTabs>
+  </Step>
+</Steps>
+
+## Installation of Convex + Better Auth
+
+The following documentation assumes you're using Next.js.
+
+If you're not using Next.js, please refer to the [installation guide by Convex](https://convex-better-auth.netlify.app/#select-your-framework).
+
+<Callout>
+  For a complete example, check out Convex + Better Auth example with Next.js in this [Github repository](https://github.com/get-convex/better-auth/tree/main/examples/next).
+</Callout>
+
+### Installation
+
+<Steps>
+  <Step>
+    #### Install packages
+
+    Install the component, a pinned version of Better Auth, and ensure the latest version of Convex.
+
+    <Callout>
+      This component requires Convex `1.25.0` or later.
+    </Callout>
+
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
+        ```bash
+        npm install better-auth@1.3.8 --save-exact
+        npm install convex@latest @convex-dev/better-auth
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="pnpm">
+        ```bash
+        pnpm add better-auth@1.3.8 --save-exact
+        pnpm add convex@latest @convex-dev/better-auth
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="yarn">
+        ```bash
+        yarn add better-auth@1.3.8 --exact
+        yarn add convex@latest @convex-dev/better-auth
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="bun">
+        ```bash
+        bun add better-auth@1.3.8 --exact
+        bun add convex@latest @convex-dev/better-auth
+        ```
+      </CodeBlockTab>
+    </CodeBlockTabs>
+  </Step>
+
+  <Step>
+    #### Register the component
+
+    Register the Better Auth component in your Convex project.
+
+    ```ts title="convex/convex.config.ts"
+    import { defineApp } from "convex/server";
+    import betterAuth from "@convex-dev/better-auth/convex.config";
+
+    const app = defineApp();
+    app.use(betterAuth);
+
+    export default app;
+    ```
+  </Step>
+
+  <Step>
+    #### Add Convex auth config
+
+    Add a `convex/auth.config.ts` file to configure Better Auth as an authentication provider.
+
+    ```ts title="convex/auth.config.ts"
+    export default {
+        providers: [
+            {
+                domain: process.env.CONVEX_SITE_URL,
+                applicationID: "convex",
+            },
+        ],
+    };
+    ```
+  </Step>
+
+  <Step>
+    #### Set environment variables
+
+    Generate a secret for encryption and generating hashes. Use the command below if you have openssl installed,
+    or use the button to generate a random value instead. Or generate your own however you like.
+
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
+        ```bash
+        npx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="pnpm">
+        ```bash
+        pnpm dlx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="yarn">
+        ```bash
+        yarn dlx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="bun">
+        ```bash
+        bun x convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)
+        ```
+      </CodeBlockTab>
+    </CodeBlockTabs>
+
+    Add your site URL to your Convex deployment.
+
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
+        ```bash
+        npx convex env set SITE_URL http://localhost:3000
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="pnpm">
+        ```bash
+        pnpm dlx convex env set SITE_URL http://localhost:3000
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="yarn">
+        ```bash
+        yarn dlx convex env set SITE_URL http://localhost:3000
+        ```
+      </CodeBlockTab>
+
+      <CodeBlockTab value="bun">
+        ```bash
+        bun x convex env set SITE_URL http://localhost:3000
+        ```
+      </CodeBlockTab>
+    </CodeBlockTabs>
+
+    Add environment variables to the `.env.local` file created by `npx convex dev`.
+    It will be picked up by your framework dev server.
+
+    ```shell title=".env.local" tab="Cloud"
+    # Deployment used by \`npx convex dev\`
+    CONVEX_DEPLOYMENT=dev:adjective-animal-123 # team: team-name, project: project-name
+
+    NEXT_PUBLIC_CONVEX_URL=https://adjective-animal-123.convex.cloud
+
+    # Same as NEXT_PUBLIC_CONVEX_URL but ends in .site // [!code ++]
+    NEXT_PUBLIC_CONVEX_SITE_URL=https://adjective-animal-123.convex.site # [!code ++]
+
+    # Your local site URL // [!code ++]
+    SITE_URL=http://localhost:3000 # [!code ++]
+    ```
+
+    ```shell title=".env.local" tab="Self hosted"
+    # Deployment used by \`npx convex dev\`
+    CONVEX_DEPLOYMENT=dev:adjective-animal-123 # team: team-name, project: project-name
+
+    NEXT_PUBLIC_CONVEX_URL=http://127.0.0.1:3210
+
+    # Will generally be one number higher than NEXT_PUBLIC_CONVEX_URL,
+    # so if your convex url is :3212, your site url will be :3213
+    NEXT_PUBLIC_CONVEX_SITE_URL=http://127.0.0.1:3211 # [!code ++]
+
+    # Your local site URL // [!code ++]
+    SITE_URL=http://localhost:3000 # [!code ++]
+    ```
+  </Step>
+
+  <Step>
+    ### Create a Better Auth instance
+
+    Create a Better Auth instance and initialize the component.
+
+    <Callout>Some TypeScript errors will show until you save the file.</Callout>
+
+    ```ts title="convex/auth.ts"
+    import { createClient, type GenericCtx } from "@convex-dev/better-auth";
+    import { convex } from "@convex-dev/better-auth/plugins";
+    import { components } from "./_generated/api";
+    import { DataModel } from "./_generated/dataModel";
+    import { query } from "./_generated/server";
+    import { betterAuth } from "better-auth";
+
+    const siteUrl = process.env.SITE_URL!;
+
+    // The component client has methods needed for integrating Convex with Better Auth,
+    // as well as helper methods for general use.
+    export const authComponent = createClient<DataModel>(components.betterAuth);
+
+    export const createAuth = (
+        ctx: GenericCtx<DataModel>,
+            { optionsOnly } = { optionsOnly: false },
+        ) => {
+          return betterAuth({
+            // disable logging when createAuth is called just to generate options.
+            // this is not required, but there's a lot of noise in logs without it.
+            logger: {
+                disabled: optionsOnly,
+            },
+            baseURL: siteUrl,
+            database: authComponent.adapter(ctx),
+            // Configure simple, non-verified email/password to get started
+            emailAndPassword: {
+                enabled: true,
+                requireEmailVerification: false,
+            },
+            plugins: [
+                // The Convex plugin is required for Convex compatibility
+                convex(),
+            ],
+        });
+    };
+
+    // Example function for getting the current user
+    // Feel free to edit, omit, etc.
+    export const getCurrentUser = query({
+        args: {},
+        handler: async (ctx) => {
+            return authComponent.getAuthUser(ctx);
+        },
+    });
+    ```
+  </Step>
+
+  <Step>
+    ### Create a Better Auth client instance
+
+    Create a Better Auth client instance for interacting with the Better Auth server from your client.
+
+    ```ts title="src/lib/auth-client.ts"
+    import { createAuthClient } from "better-auth/react";
+    import { convexClient } from "@convex-dev/better-auth/client/plugins";
+
+    export const authClient = createAuthClient({
+        plugins: [convexClient()],
+    });
+    ```
+  </Step>
+
+  <Step>
+    ### Mount handlers
+
+    Register Better Auth route handlers on your Convex deployment.
+
+    ```ts title="convex/http.ts"
+    import { httpRouter } from "convex/server";
+    import { authComponent, createAuth } from "./auth";
+
+    const http = httpRouter();
+
+    authComponent.registerRoutes(http, createAuth);
+
+    export default http;
+    ```
+
+    Set up route handlers to proxy auth requests from your framework server to your Convex deployment.
+
+    ```ts title="app/api/auth/[...all]/route.ts"
+    import { nextJsHandler } from "@convex-dev/better-auth/nextjs";
+
+    export const { GET, POST } = nextJsHandler();
+    ```
+  </Step>
+
+  <Step>
+    ### Set up Convex client provider
+
+    Wrap your app with the `ConvexBetterAuthProvider` component.
+
+    ```ts title="app/ConvexClientProvider.tsx"
+    "use client";
+
+    import { ReactNode } from "react";
+    import { ConvexReactClient } from "convex/react";
+    import { authClient } from "@/lib/auth-client"; // [!code ++]
+    import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react"; // [!code ++]
+
+    const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
+      // Optionally pause queries until the user is authenticated // [!code ++]
+      expectAuth: true, // [!code ++]
+    });
+
+    export function ConvexClientProvider({ children }: { children: ReactNode }) {
+      return (
+        <ConvexBetterAuthProvider client={convex} authClient={authClient}> // [!code ++]
+          {children}
+        </ConvexBetterAuthProvider> // [!code ++]
+      );
+    }
+    ```
+  </Step>
+</Steps>
+
+### You're done!
+
+You're now ready to start using Better Auth with Convex.
+
+## Usage
+
+### Using Better Auth from the server
+
+To use Better Auth's [server
+methods](https://www.better-auth.com/docs/concepts/api) in server rendering,
+server functions, or any other Next.js server code, use Convex functions
+and call the function from your server code.
+
+First, a token helper for calling Convex functions from your server code.
+
+```ts title="src/lib/auth-server.ts"
+import { createAuth } from "convex/auth";
+import { getToken as getTokenNextjs } from "@convex-dev/better-auth/nextjs";
+
+export const getToken = () => {
+  return getTokenNextjs(createAuth);
+};
+```
+
+Here's an example Convex function that uses Better Auth's server methods, and
+a server action that calls the Convex function.
+
+```ts title="convex/users.ts"
+import { mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { createAuth, authComponent } from "./auth";
+
+export const updateUserPassword = mutation({
+  args: {
+    currentPassword: v.string(),
+    newPassword: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await createAuth(ctx).api.changePassword({
+      body: {
+        currentPassword: args.currentPassword,
+        newPassword: args.newPassword,
+      },
+      headers: await authComponent.getHeaders(ctx),
+    });
+  },
+});
+```
+
+```ts title="app/actions.ts"
+"use server";
+
+import { fetchMutation } from "convex/nextjs";
+import { api } from "../convex/_generated/api";
+import { getToken } from "../lib/auth-server";
+
+// Authenticated mutation via server function
+export async function updatePassword({
+  currentPassword,
+  newPassword,
+}: {
+  currentPassword: string;
+  newPassword: string;
+}) {
+  const token = await getToken();
+  await fetchMutation(
+    api.users.updatePassword,
+    { currentPassword, newPassword },
+    { token }
+  );
+}
+```
+
+<Callout>
+  This documentation comes from the [Convex documentation](https://convex-better-auth.netlify.app/),
+  for more information, please refer to their documentation.
+</Callout>
+
+
+
 # integrations: Elysia Integration
 URL: /docs/integrations/elysia
 Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/integrations/elysia.mdx
@@ -10611,7 +13456,7 @@ Expo is a popular framework for building cross-platform apps with React Native. 
 
     Before using Better Auth with Expo, make sure you have a Better Auth backend set up. You can either use a separate server or leverage Expo's new [API Routes](https://docs.expo.dev/router/reference/api-routes) feature to host your Better Auth instance.
 
-    To get started, check out our [installation](/docs/installation) guide for setting up Better Auth on your server. If you prefer to check out the full example, you can find it [here](https://github.com/better-auth/better-auth/tree/main/examples/expo-example).
+    To get started, check out our [installation](/docs/installation) guide for setting up Better Auth on your server. If you prefer to check out the full example, you can find it [here](https://github.com/better-auth/examples/tree/main/expo-example).
 
     To use the new API routes feature in Expo to host your Better Auth instance you can create a new API route in your Expo app and mount the Better Auth handler.
 
@@ -10628,31 +13473,49 @@ Expo is a popular framework for building cross-platform apps with React Native. 
 
     Install both the Better Auth package and Expo plugin into your server application.
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install better-auth @better-auth/expo
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add better-auth @better-auth/expo
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add better-auth @better-auth/expo
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add better-auth @better-auth/expo
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
   </Step>
 
   <Step>
@@ -10660,63 +13523,99 @@ Expo is a popular framework for building cross-platform apps with React Native. 
 
     You also need to install both the Better Auth package and Expo plugin into your Expo application.
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install better-auth @better-auth/expo 
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add better-auth @better-auth/expo
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add better-auth @better-auth/expo
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add better-auth @better-auth/expo
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
 
     If you plan on using our social integrations (Google, Apple etc.) then there are a few more dependencies that are required in your Expo app. In the default Expo template these are already installed so you may be able to skip this step if you have these dependencies already.
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install expo-linking expo-web-browser expo-constants
 
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add expo-linking expo-web-browser expo-constants
 
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add expo-linking expo-web-browser expo-constants
 
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add expo-linking expo-web-browser expo-constants
 
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
   </Step>
 
   <Step>
@@ -10744,31 +13643,49 @@ Expo is a popular framework for building cross-platform apps with React Native. 
 
     Make sure you install the `expo-secure-store` package into your Expo app. This is used to store the session data and cookies securely.
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install expo-secure-store
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add expo-secure-store
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add expo-secure-store
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add expo-secure-store
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
 
     You need to also import client plugin from `@better-auth/expo/client` and pass it to the `plugins` array when initializing the auth client.
 
@@ -11051,7 +13968,11 @@ const makeAuthenticatedRequest = async () => {
   const headers = {
     "Cookie": cookies, // [!code highlight]
   };
-  const response = await fetch("http://localhost:8081/api/secure-endpoint", { headers });
+  const response = await fetch("http://localhost:8081/api/secure-endpoint", { 
+    headers,
+    // 'include' can interfere with the cookies we just set manually in the headers
+    credentials: "omit" // [!code highlight]
+  });
   const data = await response.json();
   return data;
 };
@@ -11261,31 +14182,49 @@ Verify the following requirements before integration:
   * `package.json`: `{ "type": "module" }`
   * TypeScript `tsconfig.json`: `{ "module": "ESNext" }`
 * **Fastify Dependencies**:
-  <Tabs items={}>
-    <Tab value="npm">
+  <CodeBlockTabs defaultValue="npm">
+    <CodeBlockTabsList>
+      <CodeBlockTabsTrigger value="npm">
+        npm
+      </CodeBlockTabsTrigger>
+
+      <CodeBlockTabsTrigger value="pnpm">
+        pnpm
+      </CodeBlockTabsTrigger>
+
+      <CodeBlockTabsTrigger value="yarn">
+        yarn
+      </CodeBlockTabsTrigger>
+
+      <CodeBlockTabsTrigger value="bun">
+        bun
+      </CodeBlockTabsTrigger>
+    </CodeBlockTabsList>
+
+    <CodeBlockTab value="npm">
       ```bash
       npm install fastify @fastify/cors
       ```
-    </Tab>
+    </CodeBlockTab>
 
-    <Tab value="pnpm">
+    <CodeBlockTab value="pnpm">
       ```bash
       pnpm add fastify @fastify/cors
       ```
-    </Tab>
+    </CodeBlockTab>
 
-    <Tab value="yarn">
+    <CodeBlockTab value="yarn">
       ```bash
       yarn add fastify @fastify/cors
       ```
-    </Tab>
+    </CodeBlockTab>
 
-    <Tab value="bun">
+    <CodeBlockTab value="bun">
       ```bash
       bun add fastify @fastify/cors
       ```
-    </Tab>
-  </Tabs>
+    </CodeBlockTab>
+  </CodeBlockTabs>
 
 <Callout type="tip"> For TypeScript: Ensure your `tsconfig.json` includes `"esModuleInterop": true` for optimal compatibility. </Callout>
 
@@ -11409,7 +14348,6 @@ We need to mount the handler to Hono endpoint.
 import { Hono } from "hono";
 import { auth } from "./auth";
 import { serve } from "@hono/node-server";
-import { cors } from "hono/cors";
 
 const app = new Hono();
 
@@ -11563,12 +14501,9 @@ import { hc } from "hono/client";
 import type { AppType } from "./server"; // Your Hono app type
 
 const client = hc<AppType>("http://localhost:8787/", {
-  fetch: ((input, init) => {
-    return fetch(input, { 
-      ...init, 
-      credentials: "include" // Required for sending cookies cross-origin
-    });
-  }) satisfies typeof fetch,
+  init: {
+    credentials: "include", // Required for sending cookies cross-origin
+  },
 });
 
 // Now your client requests will include credentials
@@ -11584,6 +14519,268 @@ This configuration is necessary when:
 The `credentials: "include"` option tells the fetch client to send cookies even for cross-origin requests. This works in conjunction with the CORS configuration on your server that has `credentials: true`.
 
 > **Note:** Make sure your CORS configuration on the server matches your client's domain, and that `credentials: true` is set in both the server's CORS config and the client's fetch config.
+
+
+
+# integrations: Lynx Integration
+URL: /docs/integrations/lynx
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/integrations/lynx.mdx
+
+Integrate Better Auth with Lynx cross-platform framework.
+        
+***
+
+title: Lynx Integration
+description: Integrate Better Auth with Lynx cross-platform framework.
+----------------------------------------------------------------------
+
+This integration guide is for using Better Auth with [Lynx](https://lynxjs.org), a cross-platform rendering framework that enables developers to build applications for Android, iOS, and Web platforms with native rendering performance.
+
+Before you start, make sure you have a Better Auth instance configured. If you haven't done that yet, check out the [installation](/docs/installation).
+
+## Installation
+
+Install Better Auth and the Lynx React dependency:
+
+<CodeBlockTabs defaultValue="npm">
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="npm">
+      npm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="pnpm">
+      pnpm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="yarn">
+      yarn
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="bun">
+      bun
+    </CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+
+  <CodeBlockTab value="npm">
+    ```bash
+    npm install better-auth @lynx-js/react
+    ```
+  </CodeBlockTab>
+
+  <CodeBlockTab value="pnpm">
+    ```bash
+    pnpm add better-auth @lynx-js/react
+    ```
+  </CodeBlockTab>
+
+  <CodeBlockTab value="yarn">
+    ```bash
+    yarn add better-auth @lynx-js/react
+    ```
+  </CodeBlockTab>
+
+  <CodeBlockTab value="bun">
+    ```bash
+    bun add better-auth @lynx-js/react
+    ```
+  </CodeBlockTab>
+</CodeBlockTabs>
+
+## Create Client Instance
+
+Import `createAuthClient` from `better-auth/lynx` to create your client instance:
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/lynx"
+
+export const authClient = createAuthClient({
+    baseURL: "http://localhost:3000" // The base URL of your auth server
+})
+```
+
+## Usage
+
+The Lynx client provides the same API as other Better Auth clients, with optimized integration for Lynx's reactive system.
+
+### Authentication Methods
+
+```ts
+import { authClient } from "./lib/auth-client"
+
+// Sign in with email and password
+await authClient.signIn.email({
+    email: "test@user.com",
+    password: "password1234"
+})
+
+// Sign up
+await authClient.signUp.email({
+    email: "test@user.com", 
+    password: "password1234",
+    name: "John Doe"
+})
+
+// Sign out
+await authClient.signOut()
+```
+
+### Hooks
+
+The Lynx client includes reactive hooks that integrate seamlessly with Lynx's component system:
+
+#### useSession
+
+```tsx title="components/user.tsx"
+import { authClient } from "../lib/auth-client"
+
+export function User() {
+    const {
+        data: session,
+        isPending, // loading state
+        error // error object 
+    } = authClient.useSession()
+
+    if (isPending) return <div>Loading...</div>
+    if (error) return <div>Error: {error.message}</div>
+
+    return (
+        <div>
+            {session ? (
+                <div>
+                    <p>Welcome, {session.user.name}!</p>
+                    <button onClick={() => authClient.signOut()}>
+                        Sign Out
+                    </button>
+                </div>
+            ) : (
+                <button onClick={() => authClient.signIn.social({
+                    provider: 'github'
+                })}>
+                    Sign In with GitHub
+                </button>
+            )}
+        </div>
+    )
+}
+```
+
+### Store Integration
+
+The Lynx client uses [nanostores](https://github.com/nanostores/nanostores) for state management and provides a `useStore` hook for accessing reactive state:
+
+```tsx title="components/session-info.tsx"
+import { useStore } from "better-auth/lynx"
+import { authClient } from "../lib/auth-client"
+
+export function SessionInfo() {
+    // Access the session store directly
+    const session = useStore(authClient.$store.session)
+    
+    return (
+        <div>
+            {session && (
+                <pre>{JSON.stringify(session, null, 2)}</pre>
+            )}
+        </div>
+    )
+}
+```
+
+### Advanced Store Usage
+
+You can use the store with selective key watching for optimized re-renders:
+
+```tsx title="components/optimized-user.tsx"
+import { useStore } from "better-auth/lynx"
+import { authClient } from "../lib/auth-client"
+
+export function OptimizedUser() {
+    // Only re-render when specific keys change
+    const session = useStore(authClient.$store.session, {
+        keys: ['user.name', 'user.email'] // Only watch these specific keys
+    })
+    
+    return (
+        <div>
+            {session?.user && (
+                <div>
+                    <h2>{session.user.name}</h2>
+                    <p>{session.user.email}</p>
+                </div>
+            )}
+        </div>
+    )
+}
+```
+
+## Plugin Support
+
+The Lynx client supports all Better Auth plugins:
+
+```ts title="lib/auth-client.ts"
+import { createAuthClient } from "better-auth/lynx"
+import { magicLinkClient } from "better-auth/client/plugins"
+
+const authClient = createAuthClient({
+    plugins: [
+        magicLinkClient()
+    ]
+})
+
+// Use plugin methods
+await authClient.signIn.magicLink({
+    email: "test@email.com"
+})
+```
+
+## Error Handling
+
+Error handling works the same as other Better Auth clients:
+
+```tsx title="components/login-form.tsx"
+import { authClient } from "../lib/auth-client"
+
+export function LoginForm() {
+    const signIn = async (email: string, password: string) => {
+        const { data, error } = await authClient.signIn.email({
+            email,
+            password
+        })
+        
+        if (error) {
+            console.error('Login failed:', error.message)
+            return
+        }
+        
+        console.log('Login successful:', data)
+    }
+    
+    return (
+        <form onSubmit={(e) => {
+            e.preventDefault()
+            const formData = new FormData(e.target)
+            signIn(formData.get('email'), formData.get('password'))
+        }}>
+            <input name="email" type="email" placeholder="Email" />
+            <input name="password" type="password" placeholder="Password" />
+            <button type="submit">Sign In</button>
+        </form>
+    )
+}
+```
+
+## Features
+
+The Lynx client provides:
+
+* **Cross-Platform Support**: Works across Android, iOS, and Web platforms
+* **Optimized Performance**: Built specifically for Lynx's reactive system
+* **Nanostores Integration**: Uses nanostores for efficient state management
+* **Selective Re-rendering**: Watch specific store keys to minimize unnecessary updates
+* **Full API Compatibility**: All Better Auth methods and plugins work seamlessly
+* **TypeScript Support**: Full type safety with TypeScript inference
+
+The Lynx integration maintains all the features and benefits of Better Auth while providing optimal performance and developer experience within Lynx's cross-platform ecosystem.
 
 
 
@@ -11611,31 +14808,49 @@ Before you start, make sure you have a Better Auth instance configured. If you h
 
 Install the NestJS integration library:
 
-<Tabs items={}>
-  <Tab value="npm">
+<CodeBlockTabs defaultValue="npm">
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="npm">
+      npm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="pnpm">
+      pnpm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="yarn">
+      yarn
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="bun">
+      bun
+    </CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+
+  <CodeBlockTab value="npm">
     ```bash
     npm install @thallesp/nestjs-better-auth
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="pnpm">
+  <CodeBlockTab value="pnpm">
     ```bash
     pnpm add @thallesp/nestjs-better-auth
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="yarn">
+  <CodeBlockTab value="yarn">
     ```bash
     yarn add @thallesp/nestjs-better-auth
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="bun">
+  <CodeBlockTab value="bun">
     ```bash
     bun add @thallesp/nestjs-better-auth
     ```
-  </Tab>
-</Tabs>
+  </CodeBlockTab>
+</CodeBlockTabs>
 
 ## Basic Setup
 
@@ -12029,59 +15244,95 @@ This will create the `nitro-app` directory and install all the dependencies. You
 
 For this guide, we will be using the Prisma adapter. You can install prisma client by running the following command:
 
-<Tabs items={}>
-  <Tab value="npm">
+<CodeBlockTabs defaultValue="npm">
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="npm">
+      npm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="pnpm">
+      pnpm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="yarn">
+      yarn
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="bun">
+      bun
+    </CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+
+  <CodeBlockTab value="npm">
     ```bash
     npm install @prisma/client
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="pnpm">
+  <CodeBlockTab value="pnpm">
     ```bash
     pnpm add @prisma/client
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="yarn">
+  <CodeBlockTab value="yarn">
     ```bash
     yarn add @prisma/client
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="bun">
+  <CodeBlockTab value="bun">
     ```bash
     bun add @prisma/client
     ```
-  </Tab>
-</Tabs>
+  </CodeBlockTab>
+</CodeBlockTabs>
 
 `prisma` can be installed as a dev dependency using the following command:
 
-<Tabs items={}>
-  <Tab value="npm">
+<CodeBlockTabs defaultValue="npm">
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="npm">
+      npm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="pnpm">
+      pnpm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="yarn">
+      yarn
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="bun">
+      bun
+    </CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+
+  <CodeBlockTab value="npm">
     ```bash
     npm install -D prisma
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="pnpm">
+  <CodeBlockTab value="pnpm">
     ```bash
     pnpm add -D prisma
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="yarn">
+  <CodeBlockTab value="yarn">
     ```bash
     yarn add --dev prisma
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="bun">
+  <CodeBlockTab value="bun">
     ```bash
     bun add --dev prisma
     ```
-  </Tab>
-</Tabs>
+  </CodeBlockTab>
+</CodeBlockTabs>
 
 Generate a `schema.prisma` file in the `prisma` directory by running the following command:
 
@@ -12110,7 +15361,7 @@ model Test {
 
 Ensure that you update the `DATABASE_URL` in your `.env` file to point to the location of your database.
 
-```env title=".env"
+```txt title=".env"
 DATABASE_URL="file:./dev.db"
 ```
 
@@ -12174,31 +15425,49 @@ You can configure CORS for your Nitro app by creating a plugin.
 
 Start by installing the cors package:
 
-<Tabs items={}>
-  <Tab value="npm">
+<CodeBlockTabs defaultValue="npm">
+  <CodeBlockTabsList>
+    <CodeBlockTabsTrigger value="npm">
+      npm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="pnpm">
+      pnpm
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="yarn">
+      yarn
+    </CodeBlockTabsTrigger>
+
+    <CodeBlockTabsTrigger value="bun">
+      bun
+    </CodeBlockTabsTrigger>
+  </CodeBlockTabsList>
+
+  <CodeBlockTab value="npm">
     ```bash
     npm install cors
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="pnpm">
+  <CodeBlockTab value="pnpm">
     ```bash
     pnpm add cors
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="yarn">
+  <CodeBlockTab value="yarn">
     ```bash
     yarn add cors
     ```
-  </Tab>
+  </CodeBlockTab>
 
-  <Tab value="bun">
+  <CodeBlockTab value="bun">
     ```bash
     bun add cors
     ```
-  </Tab>
-</Tabs>
+  </CodeBlockTab>
+</CodeBlockTabs>
 
 You can now create a new file `server/plugins/cors.ts` and add the following code:
 
@@ -12497,7 +15766,7 @@ Once you have created the client, you can use it to sign up, sign in, and perfor
 ```ts title="app/routes/signup.tsx"
 import { Form } from "@remix-run/react"
 import { useState } from "react"
-import { authClient } from "~/lib/auth.client"
+import { authClient } from "~/lib/auth-client"
 
 export default function SignUp() {
   const [email, setEmail] = useState("")
@@ -12568,7 +15837,7 @@ export default function SignUp() {
 ```ts title="app/routes/signin.tsx"
 import { Form } from "@remix-run/react"
 import { useState } from "react"
-import { authClient } from "~/services/auth.client"
+import { authClient } from "~/services/auth-client"
 
 export default function SignIn() {
   const [email, setEmail] = useState("")
@@ -12678,6 +15947,31 @@ export async function handle({ event, resolve }) {
 }
 ```
 
+### Populate session data in the event (`event.locals`)
+
+The `svelteKitHandler` does not automatically populate `event.locals.user` or `event.locals.session`. If you want to access the current session in your server code (e.g., in `+layout.server.ts`, actions, or endpoints), populate `event.locals` in your `handle` hook:
+
+```ts title="hooks.server.ts"
+import { auth } from "$lib/auth";
+import { svelteKitHandler } from "better-auth/svelte-kit";
+import { building } from "$app/environment";
+
+export async function handle({ event, resolve }) {
+  // Fetch current session from Better Auth
+  const session = await auth.api.getSession({
+    headers: event.request.headers,
+  });
+
+  // Make session and user available on server
+  if (session) {
+    event.locals.session = session.session;
+    event.locals.user = session.user;
+  }
+
+  return svelteKitHandler({ event, resolve, auth, building });
+}
+```
+
 ### Server Action Cookies
 
 To ensure cookies are properly set when you call functions like `signInEmail` or `signUpEmail` in a server action, you should use the `sveltekitCookies` plugin. This plugin will automatically handle setting cookies for you in SvelteKit.
@@ -12685,7 +15979,7 @@ To ensure cookies are properly set when you call functions like `signInEmail` or
 You need to add it as a plugin to your Better Auth instance.
 
 <Callout>
-  The `getRequestEvent` function is available in SvelteKit `2.2.0` and later.
+  The `getRequestEvent` function is available in SvelteKit `2.20.0` and later.
   Make sure you are using a compatible version.
 </Callout>
 
@@ -12696,7 +15990,7 @@ import { getRequestEvent } from "$app/server";
 
 export const auth = betterAuth({
   // ... your config
-  plugins: [sveltekitCookies(getRequestEvent)],
+  plugins: [sveltekitCookies(getRequestEvent)], // make sure this is the last plugin in the array
 });
 ```
 
@@ -12774,15 +16068,19 @@ We need to mount the handler to a TanStack API endpoint/Server Route.
 Create a new file: `/src/routes/api/auth/$.ts`
 
 ```ts title="src/routes/api/auth/$.ts"
-import { auth } from '@/lib/auth' // import your auth instance
-import { createServerFileRoute } from '@tanstack/react-start/server'
+import { auth } from '@/lib/auth'
+import { createFileRoute } from '@tanstack/react-router'
 
-export const ServerRoute = createServerFileRoute('/api/auth/$').methods({
-  GET: ({ request }) => {
-    return auth.handler(request)
-  },
-  POST: ({ request }) => {
-    return auth.handler(request)
+export const Route = createFileRoute('/api/auth/$')({
+  server: {
+    handlers: {
+      GET: ({ request }) => {
+        return auth.handler(request)
+      },
+      POST: ({ request }) => {
+        return auth.handler(request)
+      },
+    },
   },
 })
 ```
@@ -12928,20 +16226,43 @@ This plugin offers two main methods to do a second factor verification:
 
 To enable two-factor authentication, call `twoFactor.enable` with the user's password and issuer (optional):
 
-<APIMethod path="/two-factor/enable" method="POST" requireSession>
-  ```ts
-  type enableTwoFactor = {
-      /**
-       * The user's password
-       */
-      password: string = "secure-password"
-      /**
-       * An optional custom issuer for the TOTP URI. Defaults to app-name defined in your auth config.
-       */
-      issuer?: string = "my-app-name"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.twoFactor.enable({
+    password: secure-password,
+    issuer: my-app-name, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.enableTwoFactor({
+    body: {
+        password: secure-password,
+        issuer: my-app-name, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type enableTwoFactor = {
+    /**
+     * The user's password
+     */
+    password: string = "secure-password"
+    /**
+     * An optional custom issuer for the TOTP URI. Defaults to app-name defined in your auth config.
+     */
+    issuer?: string = "my-app-name"
+
+}
+```
 
 When 2FA is enabled:
 
@@ -13015,16 +16336,37 @@ const authClient = createAuthClient({
 
 To disable two-factor authentication, call `twoFactor.disable` with the user's password:
 
-<APIMethod path="/two-factor/disable" method="POST" requireSession>
-  ```ts
-  type disableTwoFactor = {
-      /**
-       * The user's password
-       */
-      password: string
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.twoFactor.disable({
+    password,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.disableTwoFactor({
+    body: {
+        password,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type disableTwoFactor = {
+    /**
+     * The user's password
+     */
+    password: string
+
+}
+```
 
 ### TOTP
 
@@ -13036,16 +16378,37 @@ TOTP, however, generates codes offline, making it both secure and convenient. Yo
 
 After enabling 2FA, you can get the TOTP URI to display to the user. This URI is generated by the server using the `secret` and `issuer` and can be used to generate a QR code for the user to scan with their authenticator app.
 
-<APIMethod path="/two-factor/get-totp-uri" method="POST" requireSession>
-  ```ts
-  type getTOTPURI = {
-      /**
-       * The user's password
-       */
-      password: string
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.twoFactor.getTotpUri({
+    password,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.getTOTPURI({
+    body: {
+        password,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type getTOTPURI = {
+    /**
+     * The user's password
+     */
+    password: string
+
+}
+```
 
 **Example: Using React**
 
@@ -13076,22 +16439,43 @@ export default function UserCard({ password }: { password: string }){
 
 #### Verifying TOTP
 
-After the user has entered their 2FA code, you can verify it using `twoFactor.verifyTotp` method.
+After the user has entered their 2FA code, you can verify it using `twoFactor.verifyTotp` method. `Better Auth` follows standard practice by accepting TOTP codes from one period before and one after the current code, ensuring users can authenticate even with minor time delays on their end.
 
-<APIMethod path="/two-factor/verify-totp" method="POST">
-  ```ts
-  type verifyTOTP = {
-      /**
-       * The otp code to verify. 
-       */
-      code: string = "012345"
-      /**
-       * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
-       */
-      trustDevice?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.twoFactor.verifyTotp({
+    code: 012345,
+    trustDevice, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.verifyTOTP({
+    body: {
+        code: 012345,
+        trustDevice, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type verifyTOTP = {
+    /**
+     * The otp code to verify. 
+     */
+    code: string = "012345"
+    /**
+     * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
+     */
+    trustDevice?: boolean = true
+
+}
+```
 
 ### OTP
 
@@ -13120,39 +16504,75 @@ export const auth = betterAuth({
 
 Sending an OTP is done by calling the `twoFactor.sendOtp` function. This function will trigger your sendOTP implementation that you provided in the Better Auth configuration.
 
-<APIMethod path="/two-factor/send-otp" method="POST">
-  ```ts
-  type send2FaOTP = {
-      /**
-       * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
-       */
-      trustDevice?: boolean = true
-  }
+### Client Side
 
-  if (data) {
-      // redirect or show the user to enter the code
-  }
-  ```
-</APIMethod>
+```ts
+const { data, error } = await authClient.twoFactor.sendOtp({
+    trustDevice, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.send2FaOTP({
+    body: {
+        trustDevice, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type send2FaOTP = {
+    /**
+     * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
+     */
+    trustDevice?: boolean = true
+
+}
+```
 
 #### Verifying OTP
 
 After the user has entered their OTP code, you can verify it
 
-<APIMethod path="/two-factor/verify-otp" method="POST">
-  ```ts
-  type verifyOTP = {
-      /**
-       * The otp code to verify. 
-       */
-      code: string = "012345"
-      /**
-       * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
-       */
-      trustDevice?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.twoFactor.verifyOtp({
+    code: 012345,
+    trustDevice, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.verifyOTP({
+    body: {
+        code: 012345,
+        trustDevice, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type verifyOTP = {
+    /**
+     * The otp code to verify. 
+     */
+    code: string = "012345"
+    /**
+     * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
+     */
+    trustDevice?: boolean = true
+
+}
+```
 
 ### Backup Codes
 
@@ -13162,20 +16582,37 @@ Backup codes are generated and stored in the database. This can be used to recov
 
 Generate backup codes for account recovery:
 
-<APIMethod path="/two-factor/generate-backup-codes" method="POST" requireSession>
-  ```ts
-  type generateBackupCodes = {
-      /**
-       * The users password. 
-       */
-      password: string
-  }
+### Client Side
 
-  if (data) {
-      // Show the backup codes to the user
-  }
-  ```
-</APIMethod>
+```ts
+const { data, error } = await authClient.twoFactor.generateBackupCodes({
+    password,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.generateBackupCodes({
+    body: {
+        password,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type generateBackupCodes = {
+    /**
+     * The users password. 
+     */
+    password: string
+
+}
+```
 
 <Callout type="warn">
   When you generate backup codes, the old backup codes will be deleted and new ones will be generated.
@@ -13185,24 +16622,47 @@ Generate backup codes for account recovery:
 
 You can now allow users to provider backup code as account recover method.
 
-<APIMethod path="/two-factor/verify-backup-code" method="POST">
-  ```ts
-  type verifyBackupCode = {
-      /**
-       * A backup code to verify. 
-       */
-      code: string = "123456"
-      /**
-       * If true, the session cookie will not be set. 
-       */
-      disableSession?: boolean = false
-      /**
-       * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
-       */
-      trustDevice?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.twoFactor.verifyBackupCode({
+    code: 123456,
+    disableSession, // required
+    trustDevice, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.verifyBackupCode({
+    body: {
+        code: 123456,
+        disableSession, // required
+        trustDevice, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type verifyBackupCode = {
+    /**
+     * A backup code to verify. 
+     */
+    code: string = "123456"
+    /**
+     * If true, the session cookie will not be set. 
+     */
+    disableSession?: boolean = false
+    /**
+     * If true, the device will be trusted for 30 days. It'll be refreshed on every sign in request within this time. 
+     */
+    trustDevice?: boolean = true
+
+}
+```
 
 <Callout>
   Once a backup code is used, it will be removed from the database and can't be used again.
@@ -13212,16 +16672,35 @@ You can now allow users to provider backup code as account recover method.
 
 To display the backup codes to the user, you can call `viewBackupCodes` on the server. This will return the backup codes in the response. You should only this if the user has a fresh session - a session that was just created.
 
-<APIMethod path="/two-factor/view-backup-codes" method="GET" isServerOnly forceAsBody>
-  ```ts
-  type viewBackupCodes = {
-      /**
-       * The user ID to view all backup codes. 
-       */
-      userId?: string | null = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.twoFactor.viewBackupCodes({
+    userId: user-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.viewBackupCodes({
+    body: {
+        userId: user-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type viewBackupCodes = {
+    /**
+     * The user ID to view all backup codes. 
+     */
+    userId?: string | null = "user-id"
+
+}
+```
 
 ### Trusted Devices
 
@@ -13259,6 +16738,8 @@ twoFactor({
 ## Schema
 
 The plugin requires 1 additional fields in the `user` table and 1 additional table to store the two factor authentication data.
+
+Table: `user`
 
 <DatabaseTable
   fields={[
@@ -13465,83 +16946,154 @@ Before performing any admin operations, the user must be authenticated with an a
 
 Allows an admin to create a new user.
 
-<APIMethod path="/admin/create-user" method="POST" resultVariable="newUser">
-  ```ts
-  type createUser = {
-      /**
-       * The email of the user. 
-       */
-      email: string = "user@example.com"
-      /**
-       * The password of the user. 
-       */
-      password: string = "some-secure-password"
-      /**
-       * The name of the user. 
-       */
-      name: string = "James Smith"
-      /**
-       * A string or array of strings representing the roles to apply to the new user. 
-       */
-      role?: string | string[] = "user"
-      /**
-       * Extra fields for the user. Including custom additional fields. 
-       */
-      data?: Record<string, any> = { customField: "customValue" }
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.createUser({
+    email: user@example.com,
+    password: some-secure-password,
+    name: James Smith,
+    role: user, // required
+    data, // required
+});
+```
+
+### Server Side
+
+```ts
+const newUser = await auth.api.createUser({
+    body: {
+        email: user@example.com,
+        password: some-secure-password,
+        name: James Smith,
+        role: user, // required
+        data, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type createUser = {
+    /**
+     * The email of the user. 
+     */
+    email: string = "user@example.com"
+    /**
+     * The password of the user. 
+     */
+    password: string = "some-secure-password"
+    /**
+     * The name of the user. 
+     */
+    name: string = "James Smith"
+    /**
+     * A string or array of strings representing the roles to apply to the new user. 
+     */
+    role?: string | string[] = "user"
+    /**
+     * Extra fields for the user. Including custom additional fields. 
+     */
+    data?: Record<string, any> = { customField: "customValue" 
+}
+```
 
 ### List Users
 
 Allows an admin to list all users in the database.
 
-<APIMethod path="/admin/list-users" method="GET" requireSession note={"All properties are optional to configure. By default, 100 rows are returned, you can configure this by the `limit` property."} resultVariable={"users"}>
-  ```ts
-  type listUsers = {
-      /**
-       * The value to search for. 
-       */
-      searchValue?: string = "some name"
-      /**
-       * The field to search in, defaults to email. Can be `email` or `name`. 
-       */
-      searchField?: "email" | "name" = "name"
-      /**
-       * The operator to use for the search. Can be `contains`, `starts_with` or `ends_with`. 
-       */
-      searchOperator?: "contains" | "starts_with" | "ends_with" = "contains"
-      /**
-       * The number of users to return. Defaults to 100.
-       */
-      limit?: string | number = 100
-      /**
-       * The offset to start from. 
-       */
-      offset?: string | number = 100
-      /**
-       * The field to sort by. 
-       */
-      sortBy?: string = "name"
-      /**
-       * The direction to sort by. 
-       */
-      sortDirection?: "asc" | "desc" = "desc"
-      /**
-       * The field to filter by. 
-       */
-      filterField?: string = "email"
-      /**
-       * The value to filter by. 
-       */
-      filterValue?: string | number | boolean = "hello@example.com"
-      /**
-       * The operator to use for the filter. 
-       */
-      filterOperator?: "eq" | "ne" | "lt" | "lte" | "gt" | "gte" = "eq"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.listUsers({
+    query, // required
+    searchValue: some name, // required
+    searchField: name, // required
+    searchOperator: contains, // required
+    limit, // required
+    offset, // required
+    sortBy: name, // required
+    sortDirection: desc, // required
+    filterField: email, // required
+    filterValue: hello@example.com, // required
+    filterOperator: eq, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listUsers({
+    query: {
+        query, // required
+        searchValue: some name, // required
+        searchField: name, // required
+        searchOperator: contains, // required
+        limit, // required
+        offset, // required
+        sortBy: name, // required
+        sortDirection: desc, // required
+        filterField: email, // required
+        filterValue: hello@example.com, // required
+        filterOperator: eq, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listUsers = {
+    /**
+     * Query parameters for filtering, searching, and pagination.
+     */
+    query?: {
+        /**
+         * The value to search for. 
+         */
+        searchValue?: string = "some name"
+        /**
+         * The field to search in, defaults to email. Can be `email` or `name`. 
+         */
+        searchField?: "email" | "name" = "name"
+        /**
+         * The operator to use for the search. Can be `contains`, `starts_with` or `ends_with`. 
+         */
+        searchOperator?: "contains" | "starts_with" | "ends_with" = "contains"
+        /**
+         * The number of users to return. Defaults to 100.
+         */
+        limit?: string | number = 100
+        /**
+         * The offset to start from. 
+         */
+        offset?: string | number = 100
+        /**
+         * The field to sort by. 
+         */
+        sortBy?: string = "name"
+        /**
+         * The direction to sort by. 
+         */
+        sortDirection?: "asc" | "desc" = "desc"
+        /**
+         * The field to filter by. 
+         */
+        filterField?: string = "email"
+        /**
+         * The value to filter by. 
+         */
+        filterValue?: string | number | boolean = "hello@example.com"
+        /**
+         * The operator to use for the filter. 
+         */
+        filterOperator?: "eq" | "ne" | "lt" | "lte" | "gt" | "gte" = "eq"
+    
+}
+```
 
 #### Query Filtering
 
@@ -13585,170 +17137,425 @@ const users = await authClient.admin.listUsers({
 });
 
 const totalUsers = users.total;
-const totalPages = Math.ceil(totalUsers / limit)
+const totalPages = Math.ceil(totalUsers / pageSize)
 ```
 
 ### Set User Role
 
 Changes the role of a user.
 
-<APIMethod path="/admin/set-role" method="POST" requireSession>
-  ```ts
-  type setRole = {
-      /**
-       * The user id which you want to set the role for.
-       */
-      userId?: string = "user-id"
-      /**
-       * The role to set, this can be a string or an array of strings. 
-       */
-      role: string | string[] = "admin"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.setRole({
+    userId: user-id, // required
+    role: admin,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.setRole({
+    body: {
+        userId: user-id, // required
+        role: admin,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type setRole = {
+    /**
+     * The user id which you want to set the role for.
+     */
+    userId?: string = "user-id"
+    /**
+     * The role to set, this can be a string or an array of strings. 
+     */
+    role: string | string[] = "admin"
+
+}
+```
 
 ### Set User Password
 
 Changes the password of a user.
 
-<APIMethod path="/admin/set-user-password" method="POST" requireSession>
-  ```ts
-  type setUserPassword = {
-      /**
-       * The new password. 
-       */
-      newPassword: string = 'new-password'
-      /**
-       * The user id which you want to set the password for.
-       */
-      userId: string = 'user-id'
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.setUserPassword({
+    newPassword: new-password,
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.setUserPassword({
+    body: {
+        newPassword: new-password,
+        userId: user-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type setUserPassword = {
+    /**
+     * The new password. 
+     */
+    newPassword: string = 'new-password'
+    /**
+     * The user id which you want to set the password for.
+     */
+    userId: string = 'user-id'
+
+}
+```
+
+### Update user
+
+Update a user's details.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.updateUser({
+    userId: user-id,
+    data,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.adminUpdateUser({
+    body: {
+        userId: user-id,
+        data,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type adminUpdateUser = {
+    /**
+     * The user id which you want to update.
+     */
+    userId: string = "user-id"
+    /**
+     * The data to update.
+     */
+    data: Record<string, any> = { name: "John Doe" 
+}
+```
 
 ### Ban User
 
 Bans a user, preventing them from signing in and revokes all of their existing sessions.
 
-<APIMethod path="/admin/ban-user" method="POST" requireSession noResult>
-  ```ts
-  type banUser = {
-      /**
-       * The user id which you want to ban.
-       */
-      userId: string = "user-id"
-      /**
-       * The reason for the ban. 
-       */
-      banReason?: string = "Spamming"
-      /**
-       * The number of seconds until the ban expires. If not provided, the ban will never expire. 
-       */
-      banExpiresIn?: number = 60 * 60 * 24 * 7
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.banUser({
+    userId: user-id,
+    banReason: Spamming, // required
+    banExpiresIn, // required
+});
+```
+
+### Server Side
+
+```ts
+await auth.api.banUser({
+    body: {
+        userId: user-id,
+        banReason: Spamming, // required
+        banExpiresIn, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type banUser = {
+    /**
+     * The user id which you want to ban.
+     */
+    userId: string = "user-id"
+    /**
+     * The reason for the ban. 
+     */
+    banReason?: string = "Spamming"
+    /**
+     * The number of seconds until the ban expires. If not provided, the ban will never expire. 
+     */
+    banExpiresIn?: number = 60 * 60 * 24 * 7
+
+}
+```
 
 ### Unban User
 
 Removes the ban from a user, allowing them to sign in again.
 
-<APIMethod path="/admin/unban-user" method="POST" requireSession noResult>
-  ```ts
-  type unbanUser = {
-      /**
-       * The user id which you want to unban.
-       */
-      userId: string = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.unbanUser({
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+await auth.api.unbanUser({
+    body: {
+        userId: user-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type unbanUser = {
+    /**
+     * The user id which you want to unban.
+     */
+    userId: string = "user-id"
+
+}
+```
 
 ### List User Sessions
 
 Lists all sessions for a user.
 
-<APIMethod path="/admin/list-user-sessions" method="POST" requireSession>
-  ```ts
-  type listUserSessions = {
-      /**
-       * The user id. 
-       */
-      userId: string = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.listUserSessions({
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listUserSessions({
+    body: {
+        userId: user-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listUserSessions = {
+    /**
+     * The user id. 
+     */
+    userId: string = "user-id"
+
+}
+```
 
 ### Revoke User Session
 
 Revokes a specific session for a user.
 
-<APIMethod path="/admin/revoke-user-session" method="POST" requireSession>
-  ```ts
-  type revokeUserSession = {
-      /**
-       * The session token which you want to revoke. 
-       */
-      sessionToken: string = "session_token_here"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.revokeUserSession({
+    sessionToken: session_token_here,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.revokeUserSession({
+    body: {
+        sessionToken: session_token_here,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type revokeUserSession = {
+    /**
+     * The session token which you want to revoke. 
+     */
+    sessionToken: string = "session_token_here"
+
+}
+```
 
 ### Revoke All Sessions for a User
 
 Revokes all sessions for a user.
 
-<APIMethod path="/admin/revoke-user-sessions" method="POST" requireSession>
-  ```ts
-  type revokeUserSessions = {
-      /**
-       * The user id which you want to revoke all sessions for. 
-       */
-      userId: string = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.revokeUserSessions({
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.revokeUserSessions({
+    body: {
+        userId: user-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type revokeUserSessions = {
+    /**
+     * The user id which you want to revoke all sessions for. 
+     */
+    userId: string = "user-id"
+
+}
+```
 
 ### Impersonate User
 
 This feature allows an admin to create a session that mimics the specified user. The session will remain active until either the browser session ends or it reaches 1 hour. You can change this duration by setting the `impersonationSessionDuration` option.
 
-<APIMethod path="/admin/impersonate-user" method="POST" requireSession>
-  ```ts
-  type impersonateUser = {
-      /**
-       * The user id which you want to impersonate. 
-       */
-      userId: string = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.impersonateUser({
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.impersonateUser({
+    body: {
+        userId: user-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type impersonateUser = {
+    /**
+     * The user id which you want to impersonate. 
+     */
+    userId: string = "user-id"
+
+}
+```
 
 ### Stop Impersonating User
 
 To stop impersonating a user and continue with the admin account, you can use `stopImpersonating`
 
-<APIMethod path="/admin/stop-impersonating" method="POST" noResult requireSession>
-  ```ts
-  type stopImpersonating = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.stopImpersonating({});
+```
+
+### Server Side
+
+```ts
+await auth.api.stopImpersonating({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type stopImpersonating = {
+
+}
+```
 
 ### Remove User
 
 Hard deletes a user from the database.
 
-<APIMethod path="/admin/remove-user" method="POST" requireSession resultVariable="deletedUser">
-  ```ts
-  type removeUser = {
-      /**
-       * The user id which you want to remove. 
-       */
-      userId: string = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.removeUser({
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+const deletedUser = await auth.api.removeUser({
+    body: {
+        userId: user-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type removeUser = {
+    /**
+     * The user id which you want to remove. 
+     */
+    userId: string = "user-id"
+
+}
+```
 
 ## Access Control
 
@@ -13903,29 +17710,47 @@ The plugin provides an easy way to define your own set of permissions for each r
 
 To check a user's permissions, you can use the `hasPermission` function provided by the client.
 
-<APIMethod path="/admin/has-permission" method="POST">
-  ```ts
-  type userHasPermission = {
-      /**
-       * The user id which you want to check the permissions for. 
-       */
-      userId?: string = "user-id"
-      /**
-       * Check role permissions.
-       * @serverOnly
-       */
-      role?: string = "admin"
-      /**
-       * Optionally check if a single permission is granted. Must use this, or permissions. 
-       */
-      permission?: Record<string, string[]> = { "project": ["create", "update"] } /* Must use this, or permissions */,
-      /**
-       * Optionally check if multiple permissions are granted. Must use this, or permission. 
-       */
-      permissions?: Record<string, string[]>
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.admin.hasPermission({
+    userId: user-id, // required
+    role: admin, // required
+    permission, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.userHasPermission({
+    body: {
+        userId: user-id, // required
+        role: admin, // required
+        permission, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type userHasPermission = {
+    /**
+     * The user id which you want to check the permissions for. 
+     */
+    userId?: string = "user-id"
+    /**
+     * Check role permissions.
+     * @serverOnly
+     */
+    role?: string = "admin"
+    /**
+     * Optionally check if a single permission is granted. Must use this, or permissions. 
+     */
+    permission?: Record<string, string[]> = { "project": ["create", "update"] 
+}
+```
 
 Example usage:
 
@@ -14364,67 +18189,66 @@ You can view the list of API Key plugin options [here](/docs/plugins/api-key#api
 
 ### Create an API key
 
-<APIMethod path="/api-key/create" method="POST" serverOnlyNote="If you're creating an API key on the server, without access to headers, you must pass the `userId` property. This is the ID of the user that the API key is associated with." clientOnlyNote="You can adjust more specific API key configurations by using the server method instead.">
-  ```ts
-  type createApiKey = {
-      /**
-       * Name of the Api Key. 
-       */
-      name?: string = 'project-api-key'
-      /**
-       * Expiration time of the Api Key in seconds. 
-       */
-      expiresIn?: number = 60 * 60 * 24 * 7
-      /**
-       * User Id of the user that the Api Key belongs to. server-only. 
-       * @serverOnly
-       */
-      userId?: string = "user-id"
-      /**
-       * Prefix of the Api Key. 
-       */
-      prefix?: string = 'project-api-key'
-      /**
-       * Remaining number of requests. server-only. 
-       * @serverOnly
-       */
-      remaining?: number = 100
-      /**
-       * Metadata of the Api Key. 
-       */
-      metadata?: any | null = { someKey: 'someValue' }
-      /**
-       * Amount to refill the remaining count of the Api Key. server-only. 
-       * @serverOnly
-       */
-      refillAmount?: number = 100
-      /**
-       * Interval to refill the Api Key in milliseconds. server-only. 
-       * @serverOnly
-       */
-      refillInterval?: number = 1000
-      /**
-       * The duration in milliseconds where each request is counted. Once the `maxRequests` is reached, the request will be rejected until the `timeWindow` has passed, at which point the `timeWindow` will be reset. server-only. 
-       * @serverOnly
-       */
-      rateLimitTimeWindow?: number = 1000
-      /**
-       * Maximum amount of requests allowed within a window. Once the `maxRequests` is reached, the request will be rejected until the `timeWindow` has passed, at which point the `timeWindow` will be reset. server-only. 
-       * @serverOnly
-       */
-      rateLimitMax?: number = 100
-      /**
-       * Whether the key has rate limiting enabled. server-only. 
-       * @serverOnly
-       */
-      rateLimitEnabled?: boolean = true
-      /**
-       * Permissions of the Api Key. 
-       */
-      permissions?: Record<string, string[]>
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.apiKey.create({
+    name: project-api-key, // required
+    expiresIn, // required
+    userId: user-id, // required
+    prefix: project-api-key, // required
+    remaining, // required
+    metadata, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.createApiKey({
+    body: {
+        name: project-api-key, // required
+        expiresIn, // required
+        userId: user-id, // required
+        prefix: project-api-key, // required
+        remaining, // required
+        metadata, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type createApiKey = {
+    /**
+     * Name of the Api Key. 
+     */
+    name?: string = 'project-api-key'
+    /**
+     * Expiration time of the Api Key in seconds. 
+     */
+    expiresIn?: number = 60 * 60 * 24 * 7
+    /**
+     * User Id of the user that the Api Key belongs to. server-only. 
+     * @serverOnly
+     */
+    userId?: string = "user-id"
+    /**
+     * Prefix of the Api Key. 
+     */
+    prefix?: string = 'project-api-key'
+    /**
+     * Remaining number of requests. server-only. 
+     * @serverOnly
+     */
+    remaining?: number = 100
+    /**
+     * Metadata of the Api Key. 
+     */
+    metadata?: any | null = { someKey: 'someValue' 
+}
+```
 
 <Callout>API keys are assigned to a user.</Callout>
 
@@ -14437,24 +18261,41 @@ Otherwise if it throws, it will throw an `APIError`.
 
 ### Verify an API key
 
-<APIMethod path="/api-key/verify" method="POST" isServerOnly>
-  ```ts
-  const permissions = { // Permissions to check are optional.
-    projects: ["read", "read-write"],
-  }
+### Client Side
 
-  type verifyApiKey = {
-      /**
-       * The key to verify. 
-       */
-      key: string = "your_api_key_here"
-      /**
-       * The permissions to verify. Optional.
-       */
-      permissions?: Record<string, string[]>
-  }
-  ```
-</APIMethod>
+```ts
+const { data, error } = await authClient.apiKey.verify({
+    key: your_api_key_here,
+    permissions, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.verifyApiKey({
+    body: {
+        key: your_api_key_here,
+        permissions, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type verifyApiKey = {
+    /**
+     * The key to verify. 
+     */
+    key: string = "your_api_key_here"
+    /**
+     * The permissions to verify. Optional.
+     */
+    permissions?: Record<string, string[]>
+
+}
+```
 
 #### Result
 
@@ -14470,16 +18311,37 @@ type Result = {
 
 ### Get an API key
 
-<APIMethod path="/api-key/get" method="GET" requireSession>
-  ```ts
-  type getApiKey = {
-      /**
-       * The id of the Api Key. 
-       */
-      id: string = "some-api-key-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.apiKey.get({
+    id: some-api-key-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.getApiKey({
+    query: {
+        id: some-api-key-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type getApiKey = {
+    /**
+     * The id of the Api Key. 
+     */
+    id: string = "some-api-key-id"
+
+}
+```
 
 #### Result
 
@@ -14494,75 +18356,82 @@ type Result = Omit<ApiKey, "key">;
 
 ### Update an API key
 
-<APIMethod path="/api-key/update" method="POST">
-  ```ts
-  type updateApiKey = {
-      /**
-       * The id of the Api Key to update. 
-       */
-      keyId: string = "some-api-key-id"
-      /**
-       * The id of the user which the api key belongs to. server-only. 
-       * @serverOnly
-       */
-      userId?: string = "some-user-id"
-      /**
-       * The name of the key. 
-       */
-      name?: string = "some-api-key-name"
-      /**
-       * Whether the Api Key is enabled or not. server-only. 
-       * @serverOnly
-       */
-      enabled?: boolean = true
-      /**
-       * The number of remaining requests. server-only. 
-       * @serverOnly
-       */
-      remaining?: number = 100
-      /**
-       * The refill amount. server-only. 
-       * @serverOnly
-       */
-      refillAmount?: number = 100
-      /**
-       * The refill interval in milliseconds. server-only. 
-       * @serverOnly
-       */
-      refillInterval?: number = 1000
-      /**
-       * The metadata of the Api Key. server-only. 
-       * @serverOnly
-       */
-      metadata?: any | null = { "key": "value" }
-      /**
-       * Expiration time of the Api Key in seconds. server-only. 
-       * @serverOnly
-       */
-      expiresIn?: number = 60 * 60 * 24 * 7
-      /**
-       * Whether the key has rate limiting enabled. server-only. 
-       * @serverOnly
-       */
-      rateLimitEnabled?: boolean = true
-      /**
-       * The duration in milliseconds where each request is counted. server-only. 
-       * @serverOnly
-       */
-      rateLimitTimeWindow?: number = 1000
-      /**
-       * Maximum amount of requests allowed within a window. Once the `maxRequests` is reached, the request will be rejected until the `timeWindow` has passed, at which point the `timeWindow` will be reset. server-only. 
-       * @serverOnly
-       */
-      rateLimitMax?: number = 100
-      /**
-       * Update the permissions on the API Key. server-only. 
-       * @serverOnly
-       */
-      permissions?: Record<string, string[]>
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.apiKey.update({
+    keyId: some-api-key-id,
+    userId: some-user-id, // required
+    name: some-api-key-name, // required
+    enabled, // required
+    remaining, // required
+    refillAmount, // required
+    refillInterval, // required
+    metadata, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.updateApiKey({
+    body: {
+        keyId: some-api-key-id,
+        userId: some-user-id, // required
+        name: some-api-key-name, // required
+        enabled, // required
+        remaining, // required
+        refillAmount, // required
+        refillInterval, // required
+        metadata, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type updateApiKey = {
+    /**
+     * The id of the Api Key to update. 
+     */
+    keyId: string = "some-api-key-id"
+    /**
+     * The id of the user which the api key belongs to. server-only. 
+     * @serverOnly
+     */
+    userId?: string = "some-user-id"
+    /**
+     * The name of the key. 
+     */
+    name?: string = "some-api-key-name"
+    /**
+     * Whether the Api Key is enabled or not. server-only. 
+     * @serverOnly
+     */
+    enabled?: boolean = true
+    /**
+     * The number of remaining requests. server-only. 
+     * @serverOnly
+     */
+    remaining?: number = 100
+    /**
+     * The refill amount. server-only. 
+     * @serverOnly
+     */
+    refillAmount?: number = 100
+    /**
+     * The refill interval in milliseconds. server-only. 
+     * @serverOnly
+     */
+    refillInterval?: number = 1000
+    /**
+     * The metadata of the Api Key. server-only. 
+     * @serverOnly
+     */
+    metadata?: any | null = { "key": "value" 
+}
+```
 
 #### Result
 
@@ -14573,16 +18442,37 @@ Otherwise, you'll receive the API Key details, except for the `key` value itself
 
 ### Delete an API Key
 
-<APIMethod path="/api-key/delete" method="POST" requireSession note="This endpoint is attempting to delete the API key from the perspective of the user. It will check if the user's ID matches the key owner to be able to delete it. If you want to delete a key without these checks, we recommend you use an ORM to directly mutate your DB instead.">
-  ```ts
-  type deleteApiKey = {
-      /**
-       * The id of the Api Key to delete. 
-       */
-      keyId: string = "some-api-key-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.apiKey.delete({
+    keyId: some-api-key-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deleteApiKey({
+    body: {
+        keyId: some-api-key-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type deleteApiKey = {
+    /**
+     * The id of the Api Key to delete. 
+     */
+    keyId: string = "some-api-key-id"
+
+}
+```
 
 #### Result
 
@@ -14599,12 +18489,29 @@ type Result = {
 
 ### List API keys
 
-<APIMethod path="/api-key/list" method="GET" requireSession>
-  ```ts
-  type listApiKeys = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.apiKey.list({});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listApiKeys({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listApiKeys = {
+
+}
+```
 
 #### Result
 
@@ -14621,12 +18528,25 @@ type Result = ApiKey[];
 
 This function will delete all API keys that have an expired expiration date.
 
-<APIMethod path="/api-key/delete-all-expired-api-keys" method="POST" isServerOnly>
-  ```ts
-  type deleteAllExpiredApiKeys = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.apiKey.deleteAllExpiredApiKeys({});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deleteAllExpiredApiKeys({});
+```
+
+### Type Definition
+
+```ts
+type deleteAllExpiredApiKeys = {
+
+}
+```
 
 <Callout>
   We automatically delete expired API keys every time any apiKey plugin
@@ -15154,7 +19074,7 @@ Table: `apiKey`
   {
     name: "userId",
     type: "string",
-    description: "The ID of the user who created the API key.",
+    description: "The ID of the user associated with the API key.",
     isForeignKey: true,
   },
   {
@@ -15288,31 +19208,49 @@ import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
   <Step>
     ### Install Autumn SDK
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install autumn-js
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add autumn-js
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add autumn-js
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add autumn-js
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
 
     <Callout>
       If you're using a separate client and server setup, make sure to install the plugin in both parts of your project.
@@ -15332,18 +19270,74 @@ import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
   <Step>
     ### Add the Autumn plugin to your `auth` config
 
-    ```ts title="auth.ts"
-    import { autumn } from "autumn-js/better-auth";
+    <Tabs items={["User", "Organization", "User & Organization", "Custom"]}>
+      <Tab value="User">
+        ```ts title="auth.ts"
+        import { autumn } from "autumn-js/better-auth";
 
-    export const auth = betterAuth({
-      // ...
-      plugins: [autumn()],
-    });
-    ```
+        export const auth = betterAuth({
+          // ...
+          plugins: [autumn()],
+        });
+        ```
+      </Tab>
+
+      <Tab value="Organization">
+        ```ts title="auth.ts"
+        import { autumn } from "autumn-js/better-auth";
+        import { organization } from "better-auth/plugins";
+
+        export const auth = betterAuth({
+          // ...
+          plugins: [organization(), autumn({ customerScope: "organization" })],
+        });
+        ```
+      </Tab>
+
+      <Tab value="User & Organization">
+        ```ts title="auth.ts"
+        import { autumn } from "autumn-js/better-auth";
+        import { organization } from "better-auth/plugins";
+
+        export const auth = betterAuth({
+          // ...
+          plugins: [
+            organization(),
+            autumn({ customerScope: "user_and_organization" })
+          ],
+        });
+        ```
+      </Tab>
+
+      <Tab value="Custom">
+        ```ts title="auth.ts"
+        import { autumn } from "autumn-js/better-auth";
+        import { organization } from "better-auth/plugins";
+
+        export const auth = betterAuth({
+          // ...
+          plugins: [
+            organization(),
+            autumn({
+              identify: async ({ session, organization }) => {
+                return {
+                  customerId: "your_customer_id",
+                  customerData: {
+                    name: "Customer Name",
+                    email: "customer@gmail.com",
+                  },
+                };
+              },
+            }),
+          ],
+        });
+        ```
+      </Tab>
+    </Tabs>
 
     <Callout>
       Autumn will auto-create your customers when they sign up, and assign them any
-      default plans you created (eg your Free plan)
+      default plans you created (eg your Free plan). You can choose who becomes a customer: individual users, organizations, both, or something custom like workspaces.
     </Callout>
   </Step>
 
@@ -15464,7 +19458,7 @@ Server-side, you can access Autumn's functions through the `auth` object.
     const { allowed } = await auth.api.check({
       headers: await headers(), // pass the request headers
       body: {
-        feature_id: "messages",
+        featureId: "messages",
       },
     });
 
@@ -15474,7 +19468,7 @@ Server-side, you can access Autumn's functions through the `auth` object.
     await auth.api.track({
       headers: await headers(),
       body: {
-        feature_id: "messages",
+        featureId: "messages",
         value: 2,
       },
     });
@@ -15813,13 +19807,765 @@ This page showcases a list of recommended community made plugins.
 
 We encourage you to create custom plugins and maybe get added to the list!
 
-To create your own custom plugin, get started by reading our [plugins documentation](https://www.better-auth.com/docs/concepts/plugins). And if you want to share your plugin with the community, please open a pull request to add it to this list.
+To create your own custom plugin, get started by reading our [plugins documentation](/docs/concepts/plugins). And if you want to share your plugin with the community, please open a pull request to add it to this list.
 
-| <div className="w-[200px]">Plugin</div>                                             | Description                                                                                          | <div className="w-[150px]">Author</div>                                                                                                                           |
-| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [better-auth-harmony](https://github.com/gekorm/better-auth-harmony/)               | Email & phone normalization and additional validation, blocking over 55,000 temporary email domains. | <img src="https://github.com/GeKorm.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [GeKorm](https://github.com/GeKorm)                |
-| [validation-better-auth](https://github.com/Daanish2003/validation-better-auth)     | Validate API request using any validation library (e.g., Zod, Yup)                                   | <img src="https://github.com/Daanish2003.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [Daanish2003](https://github.com/Daanish2003) |
-| [better-auth-localization](https://github.com/marcellosso/better-auth-localization) | Localize and customize better-auth messages with easy translation and message override support.      | <img src="https://github.com/marcellosso.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [marcellosso](https://github.com/marcellosso) |
+| <div className="w-[200px]">Plugin</div>                                             | Description                                                                                                                                                                                                                                    | <div className="w-[150px]">Author</div>                                                                                                                           |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [better-auth-harmony](https://github.com/gekorm/better-auth-harmony/)               | Email & phone normalization and additional validation, blocking over 55,000 temporary email domains.                                                                                                                                           | <img src="https://github.com/GeKorm.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [GeKorm](https://github.com/GeKorm)                |
+| [validation-better-auth](https://github.com/Daanish2003/validation-better-auth)     | Validate API request using any validation library (e.g., Zod, Yup)                                                                                                                                                                             | <img src="https://github.com/Daanish2003.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [Daanish2003](https://github.com/Daanish2003) |
+| [better-auth-localization](https://github.com/marcellosso/better-auth-localization) | Localize and customize better-auth messages with easy translation and message override support.                                                                                                                                                | <img src="https://github.com/marcellosso.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [marcellosso](https://github.com/marcellosso) |
+| [better-auth-attio-plugin](https://github.com/tobimori/better-auth-attio-plugin)    | Sync your products Better Auth users & workspaces with Attio                                                                                                                                                                                   | <img src="https://github.com/tobimori.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [tobimori](https://github.com/tobimori)          |
+| [better-auth-cloudflare](https://github.com/zpg6/better-auth-cloudflare)            | Seamlessly integrate with Cloudflare Workers, D1, Hyperdrive, KV, R2, and geolocation services. Includes CLI for project generation, automated resource provisioning on Cloudflare, and database migrations. Supports Next.js, Hono, and more! | <img src="https://github.com/zpg6.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [zpg6](https://github.com/zpg6)                      |
+| [expo-better-auth-passkey](https://github.com/kevcube/expo-better-auth-passkey)     | Better-auth client plugin for using passkeys on mobile platforms in expo apps. Supports iOS, macOS, Android (and web!) by wrapping the existing better-auth passkey client plugin.                                                             | <img src="https://github.com/kevcube.png" className="rounded-full w-6 h-6 border opacity-70 m-0 inline mr-1" /> [kevcube](https://github.comkevcube)              |
+
+
+
+# plugins: Device Authorization
+URL: /docs/plugins/device-authorization
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/plugins/device-authorization.mdx
+
+OAuth 2.0 Device Authorization Grant for limited-input devices
+        
+***
+
+title: Device Authorization
+description: OAuth 2.0 Device Authorization Grant for limited-input devices
+---------------------------------------------------------------------------
+
+`RFC 8628` `CLI` `Smart TV` `IoT`
+
+The Device Authorization plugin implements the OAuth 2.0 Device Authorization Grant ([RFC 8628](https://datatracker.ietf.org/doc/html/rfc8628)), enabling authentication for devices with limited input capabilities such as smart TVs, CLI applications, IoT devices, and gaming consoles.
+
+## Try It Out
+
+You can test the device authorization flow right now using the Better Auth CLI:
+
+```bash
+npx @better-auth/cli login
+```
+
+This will demonstrate the complete device authorization flow by:
+
+1. Requesting a device code from the Better Auth demo server
+2. Displaying a user code for you to enter
+3. Opening your browser to the verification page
+4. Polling for authorization completion
+
+<Callout type="info">
+  The CLI login command is a demo feature that connects to the Better Auth demo server to showcase the device authorization flow in action.
+</Callout>
+
+## Installation
+
+<Steps>
+  <Step>
+    ### Add the plugin to your auth config
+
+    Add the device authorization plugin to your server configuration.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth";
+    import { deviceAuthorization } from "better-auth/plugins"; // [!code highlight]
+
+    export const auth = betterAuth({
+      // ... other config
+      plugins: [ // [!code highlight]
+        deviceAuthorization({ // [!code highlight]
+          // Optional configuration
+          expiresIn: "30m", // Device code expiration time // [!code highlight]
+          interval: "5s",    // Minimum polling interval // [!code highlight]
+        }), // [!code highlight]
+      ], // [!code highlight]
+    });
+    ```
+  </Step>
+
+  <Step>
+    ### Migrate the database
+
+    Run the migration or generate the schema to add the necessary tables to the database.
+
+    <Tabs items={["migrate", "generate"]}>
+      <Tab value="migrate">
+        ```bash
+        npx @better-auth/cli migrate
+        ```
+      </Tab>
+
+      <Tab value="generate">
+        ```bash
+        npx @better-auth/cli generate
+        ```
+      </Tab>
+    </Tabs>
+
+    See the [Schema](#schema) section to add the fields manually.
+  </Step>
+
+  <Step>
+    ### Add the client plugin
+
+    Add the device authorization plugin to your client.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client";
+    import { deviceAuthorizationClient } from "better-auth/client/plugins"; // [!code highlight]
+
+    export const authClient = createAuthClient({
+      plugins: [ // [!code highlight]
+        deviceAuthorizationClient(), // [!code highlight]
+      ], // [!code highlight]
+    });
+    ```
+  </Step>
+</Steps>
+
+## How It Works
+
+The device flow follows these steps:
+
+1. **Device requests codes**: The device requests a device code and user code from the authorization server
+2. **User authorizes**: The user visits a verification URL and enters the user code
+3. **Device polls for token**: The device polls the server until the user completes authorization
+4. **Access granted**: Once authorized, the device receives an access token
+
+## Basic Usage
+
+### Requesting Device Authorization
+
+To initiate device authorization, call `device.code` with the client ID:
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.device.code({
+    client_id,
+    scope, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deviceCode({
+    body: {
+        client_id,
+        scope, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type deviceCode = {
+    /**
+     * The OAuth client identifier
+     */
+    client_id: string;
+    /**
+     * Space-separated list of requested scopes (optional)
+     */
+    scope?: string;
+
+}
+```
+
+Example usage:
+
+```ts
+const { data } = await authClient.device.code({
+  client_id: "your-client-id",
+  scope: "openid profile email",
+});
+
+if (data) {
+  console.log(`Please visit: ${data.verification_uri}`);
+  console.log(`And enter code: ${data.user_code}`);
+}
+```
+
+### Polling for Token
+
+After displaying the user code, poll for the access token:
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.device.token({
+    grant_type,
+    device_code,
+    client_id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deviceToken({
+    body: {
+        grant_type,
+        device_code,
+        client_id,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type deviceToken = {
+    /**
+     * Must be "urn:ietf:params:oauth:grant-type:device_code"
+     */
+    grant_type: string;
+    /**
+     * The device code from the initial request
+     */
+    device_code: string;
+    /**
+     * The OAuth client identifier
+     */
+    client_id: string;
+
+}
+```
+
+Example polling implementation:
+
+```ts
+let pollingInterval = 5; // Start with 5 seconds
+const pollForToken = async () => {
+  const { data, error } = await authClient.device.token({
+    grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+    device_code,
+    client_id: yourClientId,
+    fetchOptions: {
+      headers: {
+        "user-agent": `My CLI`,
+      },
+    },
+  });
+
+  if (data?.access_token) {
+    console.log("Authorization successful!");
+  } else if (error) {
+    switch (error.error) {
+      case "authorization_pending":
+        // Continue polling
+        break;
+      case "slow_down":
+        pollingInterval += 5;
+        break;
+      case "access_denied":
+        console.error("Access was denied by the user");
+        return;
+      case "expired_token":
+        console.error("The device code has expired. Please try again.");
+        return;
+      default:
+        console.error(`Error: ${error.error_description}`);
+        return;
+    }
+    setTimeout(pollForToken, pollingInterval * 1000);
+  }
+};
+
+pollForToken();
+```
+
+### User Authorization Flow
+
+The user authorization flow requires two steps:
+
+1. **Code Verification**: Check if the entered user code is valid
+2. **Authorization**: User must be authenticated to approve/deny the device
+
+<Callout type="warn">
+  Users must be authenticated before they can approve or deny device authorization requests. If not authenticated, redirect them to the login page with a return URL.
+</Callout>
+
+Create a page where users can enter their code:
+
+```tsx title="app/device/page.tsx"
+export default function DeviceAuthorizationPage() {
+  const [userCode, setUserCode] = useState("");
+  const [error, setError] = useState(null);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      // Format the code: remove dashes and convert to uppercase
+      const formattedCode = userCode.trim().replace(/-/g, "").toUpperCase();
+
+      // Check if the code is valid using GET /device endpoint
+      const response = await authClient.device({
+        query: { user_code: formattedCode },
+      });
+      
+      if (response.data) {
+        // Redirect to approval page
+        window.location.href = `/device/approve?user_code=${formattedCode}`;
+      }
+    } catch (err) {
+      setError("Invalid or expired code");
+    }
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        value={userCode}
+        onChange={(e) => setUserCode(e.target.value)}
+        placeholder="Enter device code (e.g., ABCD-1234)"
+        maxLength={12}
+      />
+      <button type="submit">Continue</button>
+      {error && <p>{error}</p>}
+    </form>
+  );
+}
+```
+
+### Approving or Denying Device
+
+Users must be authenticated to approve or deny device authorization requests:
+
+#### Approve Device
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.device.approve({
+    userCode,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deviceApprove({
+    body: {
+        userCode,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type deviceApprove = {
+    /**
+     * The user code to approve
+     */
+    userCode: string;
+
+}
+```
+
+#### Deny Device
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.device.deny({
+    userCode,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deviceDeny({
+    body: {
+        userCode,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type deviceDeny = {
+    /**
+     * The user code to deny
+     */
+    userCode: string;
+
+}
+```
+
+#### Example Approval Page
+
+```tsx title="app/device/approve/page.tsx"
+export default function DeviceApprovalPage() {
+  const { user } = useAuth(); // Must be authenticated
+  const searchParams = useSearchParams();
+  const userCode = searchParams.get("userCode");
+  const [isProcessing, setIsProcessing] = useState(false);
+  
+  const handleApprove = async () => {
+    setIsProcessing(true);
+    try {
+      await authClient.device.approve({
+        userCode: userCode,
+      });
+      // Show success message
+      alert("Device approved successfully!");
+      window.location.href = "/";
+    } catch (error) {
+      alert("Failed to approve device");
+    }
+    setIsProcessing(false);
+  };
+  
+  const handleDeny = async () => {
+    setIsProcessing(true);
+    try {
+      await authClient.device.deny({
+        userCode: userCode,
+      });
+      alert("Device denied");
+      window.location.href = "/";
+    } catch (error) {
+      alert("Failed to deny device");
+    }
+    setIsProcessing(false);
+  };
+
+  if (!user) {
+    // Redirect to login if not authenticated
+    window.location.href = `/login?redirect=/device/approve?user_code=${userCode}`;
+    return null;
+  }
+  
+  return (
+    <div>
+      <h2>Device Authorization Request</h2>
+      <p>A device is requesting access to your account.</p>
+      <p>Code: {userCode}</p>
+      
+      <button onClick={handleApprove} disabled={isProcessing}>
+        Approve
+      </button>
+      <button onClick={handleDeny} disabled={isProcessing}>
+        Deny
+      </button>
+    </div>
+  );
+}
+```
+
+## Advanced Configuration
+
+### Client Validation
+
+You can validate client IDs to ensure only authorized applications can use the device flow:
+
+```ts
+deviceAuthorization({
+  validateClient: async (clientId) => {
+    // Check if client is authorized
+    const client = await db.oauth_clients.findOne({ id: clientId });
+    return client && client.allowDeviceFlow;
+  },
+  
+  onDeviceAuthRequest: async (clientId, scope) => {
+    // Log device authorization requests
+    await logDeviceAuthRequest(clientId, scope);
+  },
+})
+```
+
+### Custom Code Generation
+
+Customize how device and user codes are generated:
+
+```ts
+deviceAuthorization({
+  generateDeviceCode: async () => {
+    // Custom device code generation
+    return crypto.randomBytes(32).toString("hex");
+  },
+  
+  generateUserCode: async () => {
+    // Custom user code generation
+    // Default uses: ABCDEFGHJKLMNPQRSTUVWXYZ23456789
+    // (excludes 0, O, 1, I to avoid confusion)
+    const charset = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+    for (let i = 0; i < 8; i++) {
+      code += charset[Math.floor(Math.random() * charset.length)];
+    }
+    return code;
+  },
+})
+```
+
+## Error Handling
+
+The device flow defines specific error codes:
+
+| Error Code              | Description                                 |
+| ----------------------- | ------------------------------------------- |
+| `authorization_pending` | User hasn't approved yet (continue polling) |
+| `slow_down`             | Polling too frequently (increase interval)  |
+| `expired_token`         | Device code has expired                     |
+| `access_denied`         | User denied the authorization               |
+| `invalid_grant`         | Invalid device code or client ID            |
+
+## Example: CLI Application
+
+Here's a complete example for a CLI application based on the actual demo:
+
+```ts title="cli-auth.ts"
+import { createAuthClient } from "better-auth/client";
+import { deviceAuthorizationClient } from "better-auth/client/plugins";
+import open from "open";
+
+const authClient = createAuthClient({
+  baseURL: "http://localhost:3000",
+  plugins: [deviceAuthorizationClient()],
+});
+
+async function authenticateCLI() {
+  console.log("🔐 Better Auth Device Authorization Demo");
+  console.log("⏳ Requesting device authorization...");
+  
+  try {
+    // Request device code
+    const { data, error } = await authClient.device.code({
+      client_id: "demo-cli",
+      scope: "openid profile email",
+    });
+    
+    if (error || !data) {
+      console.error("❌ Error:", error?.error_description);
+      process.exit(1);
+    }
+    
+    const {
+      device_code,
+      user_code,
+      verification_uri,
+      verification_uri_complete,
+      interval = 5,
+    } = data;
+    
+    console.log("\n📱 Device Authorization in Progress");
+    console.log(`Please visit: ${verification_uri}`);
+    console.log(`Enter code: ${user_code}\n`);
+    
+    // Open browser with the complete URL
+    const urlToOpen = verification_uri_complete || verification_uri;
+    if (urlToOpen) {
+      console.log("🌐 Opening browser...");
+      await open(urlToOpen);
+    }
+    
+    console.log(`⏳ Waiting for authorization... (polling every ${interval}s)`);
+    
+    // Poll for token
+    await pollForToken(device_code, interval);
+  } catch (err) {
+    console.error("❌ Error:", err.message);
+    process.exit(1);
+  }
+}
+
+async function pollForToken(deviceCode: string, interval: number) {
+  let pollingInterval = interval;
+  
+  return new Promise<void>((resolve) => {
+    const poll = async () => {
+      try {
+        const { data, error } = await authClient.device.token({
+          grant_type: "urn:ietf:params:oauth:grant-type:device_code",
+          device_code: deviceCode,
+          client_id: "demo-cli",
+        });
+        
+        if (data?.access_token) {
+          console.log("\nAuthorization Successful!");
+          console.log("Access token received!");
+          
+          // Get user session
+          const { data: session } = await authClient.getSession({
+            fetchOptions: {
+              headers: {
+                Authorization: `Bearer ${data.access_token}`,
+              },
+            },
+          });
+          
+          console.log(`Hello, ${session?.user?.name || "User"}!`);
+          resolve();
+          process.exit(0);
+        } else if (error) {
+          switch (error.error) {
+            case "authorization_pending":
+              // Continue polling silently
+              break;
+            case "slow_down":
+              pollingInterval += 5;
+              console.log(`⚠️  Slowing down polling to ${pollingInterval}s`);
+              break;
+            case "access_denied":
+              console.error("❌ Access was denied by the user");
+              process.exit(1);
+              break;
+            case "expired_token":
+              console.error("❌ The device code has expired. Please try again.");
+              process.exit(1);
+              break;
+            default:
+              console.error("❌ Error:", error.error_description);
+              process.exit(1);
+          }
+        }
+      } catch (err) {
+        console.error("❌ Network error:", err.message);
+        process.exit(1);
+      }
+      
+      // Schedule next poll
+      setTimeout(poll, pollingInterval * 1000);
+    };
+    
+    // Start polling
+    setTimeout(poll, pollingInterval * 1000);
+  });
+}
+
+// Run the authentication flow
+authenticateCLI().catch((err) => {
+  console.error("❌ Fatal error:", err);
+  process.exit(1);
+});
+```
+
+## Security Considerations
+
+1. **Rate Limiting**: The plugin enforces polling intervals to prevent abuse
+2. **Code Expiration**: Device and user codes expire after the configured time (default: 30 minutes)
+3. **Client Validation**: Always validate client IDs in production to prevent unauthorized access
+4. **HTTPS Only**: Always use HTTPS in production for device authorization
+5. **User Code Format**: User codes use a limited character set (excluding similar-looking characters like 0/O, 1/I) to reduce typing errors
+6. **Authentication Required**: Users must be authenticated before they can approve or deny device requests
+
+## Options
+
+### Server
+
+**expiresIn**: The expiration time for device codes. Default: `"30m"` (30 minutes).
+
+**interval**: The minimum polling interval. Default: `"5s"` (5 seconds).
+
+**userCodeLength**: The length of the user code. Default: `8`.
+
+**deviceCodeLength**: The length of the device code. Default: `40`.
+
+**generateDeviceCode**: Custom function to generate device codes. Returns a string or `Promise<string>`.
+
+**generateUserCode**: Custom function to generate user codes. Returns a string or `Promise<string>`.
+
+**validateClient**: Function to validate client IDs. Takes a clientId and returns boolean or `Promise<boolean>`.
+
+**onDeviceAuthRequest**: Hook called when device authorization is requested. Takes clientId and optional scope.
+
+### Client
+
+No client-specific configuration options. The plugin adds the following methods:
+
+* **device()**: Verify user code validity
+* **device.code()**: Request device and user codes
+* **device.token()**: Poll for access token
+* **device.approve()**: Approve device (requires authentication)
+* **device.deny()**: Deny device (requires authentication)
+
+## Schema
+
+The plugin requires a new table to store device authorization data.
+
+Table Name: `deviceCode`
+
+<DatabaseTable
+  fields={[
+      { 
+          name: "id", 
+          type: "string", 
+          description: "Unique identifier for the device authorization request",
+          isPrimaryKey: true
+      },
+      {
+          name: "deviceCode",
+          type: "string",
+          description: "The device verification code",
+      },
+      {
+          name: "userCode",
+          type: "string",
+          description: "The user-friendly code for verification",
+      },
+      { 
+          name: "userId", 
+          type: "string", 
+          description: "The ID of the user who approved/denied",
+          isOptional: true,
+          isForeignKey: true
+      },
+      {
+          name: "clientId",
+          type: "string",
+          description: "The OAuth client identifier",
+          isOptional: true
+      },
+      {
+          name: "scope",
+          type: "string",
+          description: "Requested OAuth scopes",
+          isOptional: true
+      },
+      {
+          name: "status",
+          type: "string",
+          description: "Current status: pending, approved, or denied",
+      },
+      {
+          name: "expiresAt",
+          type: "Date",
+          description: "When the device code expires",
+      },
+      {
+          name: "lastPolledAt",
+          type: "Date",
+          description: "Last time the device polled for status",
+          isOptional: true
+      },
+      {
+          name: "pollingInterval",
+          type: "number",
+          description: "Minimum seconds between polls",
+          isOptional: true
+      },
+      {
+          name: "createdAt",
+          type: "Date",
+          description: "When the request was created",
+      },
+      {
+          name: "updatedAt",
+          type: "Date",
+          description: "When the request was last updated",
+      }
+  ]}
+/>
 
 
 
@@ -15867,7 +20613,7 @@ description: Better Auth Plugin for Dodo Payments
   <Step title="Configure environment variables">
     Add these to your `.env` file:
 
-    ```env
+    ```txt
     DODO_PAYMENTS_API_KEY=your_api_key_here
     DODO_PAYMENTS_WEBHOOK_SECRET=your_webhook_secret_here
     ```
@@ -16007,7 +20753,7 @@ const { data: payments, error } = await authClient.dodopayments.customer.payment
   <Step title="Generate and set webhook secret">
     Generate a webhook secret for your endpoint URL (e.g., `https://your-domain.com/api/auth/dodopayments/webhooks`) in the Dodo Payments Dashboard and set it in your .env file:
 
-    ```env
+    ```txt
     DODO_PAYMENTS_WEBHOOK_SECRET=your_webhook_secret_here
     ```
   </Step>
@@ -16068,31 +20814,49 @@ This plugins allows you to track leads when a user signs up using a Dub link. It
 
     First, install the plugin:
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install @dub/better-auth
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add @dub/better-auth
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add @dub/better-auth
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add @dub/better-auth
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
   </Step>
 
   <Step>
@@ -16100,31 +20864,49 @@ This plugins allows you to track leads when a user signs up using a Dub link. It
 
     Next, install the Dub SDK on your server:
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install dub
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add dub
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add dub
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add dub
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
   </Step>
 
   <Step>
@@ -16202,17 +20984,38 @@ const authClient = createAuthClient({
 
 To link account with Dub, you need to use the `dub.link`.
 
-<APIMethod path="/dub/link" method="POST" requireSession>
-  ```ts
-  type dubLink = {
-    /**
-     * URL to redirect to after linking
-     * @clientOnly
-    */
-    callbackURL: string = "/dashboard"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.dub.link({
+    callbackURL: /dashboard,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.dubLink({
+    body: {
+        callbackURL: /dashboard,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type dubLink = {
+  /**
+   * URL to redirect to after linking
+   * @clientOnly
+  */
+  callbackURL: string = "/dashboard"
+
+}
+```
 
 ## Options
 
@@ -16272,7 +21075,7 @@ The Email OTP plugin allows user to sign in, verify their email, or reset their 
   <Step>
     ### Add the plugin to your auth config
 
-    To enable email otp in your app, you need to add the `emailOTP` plugin to your auth config.
+    Add the `emailOTP` plugin to your auth config and implement the `sendVerificationOTP()` method.
 
     ```ts title="auth.ts"
     import { betterAuth } from "better-auth"
@@ -16282,9 +21085,15 @@ The Email OTP plugin allows user to sign in, verify their email, or reset their 
         // ... other config options
         plugins: [
             emailOTP({ // [!code highlight]
-                    async sendVerificationOTP({ email, otp, type}) { // [!code highlight]
-    					// Implement the sendVerificationOTP method to send the OTP to the user's email address // [!code highlight]
-    				}, // [!code highlight]
+                async sendVerificationOTP({ email, otp, type }) { // [!code highlight]
+                    if (type === "sign-in") { // [!code highlight]
+                        // Send the OTP for sign in // [!code highlight]
+                    } else if (type === "email-verification") { // [!code highlight]
+                        // Send the OTP for email verification // [!code highlight]
+                    } else { // [!code highlight]
+                        // Send the OTP for password reset // [!code highlight]
+                    } // [!code highlight]
+                }, // [!code highlight]
             }) // [!code highlight]
         ]
     })
@@ -16309,102 +21118,373 @@ The Email OTP plugin allows user to sign in, verify their email, or reset their 
 
 ## Usage
 
-### Send OTP
+### Send an OTP
 
-First, send an OTP to the user's email address.
+Use the `sendVerificationOtp()` method to send an OTP to the user's email address.
 
-<APIMethod path="/email-otp/send-verification-otp" method="POST">
-  ```ts
-  type sendVerificationOTP = {
-      /**
-       * Email address to send the OTP. 
-       */
-      email: string = "user@example.com"
-      /**
-       * Type of the OTP. `sign-in`, `email-verification`, or `forget-password`. 
-       */
-      type: "email-verification" | "sign-in" | "forget-password" = "sign-in"
-  }
-  ```
-</APIMethod>
+### Client Side
 
-### Sign in with OTP
+```ts
+const { data, error } = await authClient.emailOtp.sendVerificationOtp({
+    email: user@example.com,
+    type: sign-in,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.sendVerificationOTP({
+    body: {
+        email: user@example.com,
+        type: sign-in,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type sendVerificationOTP = {
+    /**
+     * Email address to send the OTP. 
+     */
+    email: string = "user@example.com"
+    /**
+     * Type of the OTP. `sign-in`, `email-verification`, or `forget-password`. 
+     */
+    type: "email-verification" | "sign-in" | "forget-password" = "sign-in"
+
+}
+```
+
+### Check an OTP (optional)
+
+Use the `checkVerificationOtp()` method to check if an OTP is valid.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.emailOtp.checkVerificationOtp({
+    email: user@example.com,
+    type: sign-in,
+    otp: 123456,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.checkVerificationOTP({
+    body: {
+        email: user@example.com,
+        type: sign-in,
+        otp: 123456,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type checkVerificationOTP = {
+    /**
+     * Email address to send the OTP. 
+     */
+    email: string = "user@example.com"
+    /**
+     * Type of the OTP. `sign-in`, `email-verification`, or `forget-password`. 
+     */
+    type: "email-verification" | "sign-in" | "forget-password" = "sign-in"
+    /**
+     * OTP sent to the email. 
+     */
+    otp: string = "123456"
+
+}
+```
+
+### Sign In with OTP
+
+To sign in with OTP, use the `sendVerificationOtp()` method to send a "sign-in" OTP to the user's email address.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.emailOtp.sendVerificationOtp({
+    email: user@example.com,
+    type: sign-in,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.sendVerificationOTP({
+    body: {
+        email: user@example.com,
+        type: sign-in,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type sendVerificationOTP = {
+    /**
+     * Email address to send the OTP. 
+     */
+    email: string = "user@example.com"
+    /**
+     * Type of the OTP.
+     */
+    type: "sign-in" = "sign-in"
+
+}
+```
 
 Once the user provides the OTP, you can sign in the user using the `signIn.emailOtp()` method.
 
-<APIMethod path="/sign-in/email-otp" method="POST">
-  ```ts
-  type signInEmailOTP = {
-      /**
-       * Email address to sign in. 
-       */
-      email: string = "user@example.com"
-      /**
-       * OTP sent to the email. 
-       */
-      otp: string = "123456"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signIn.emailOtp({
+    email: user@example.com,
+    otp: 123456,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInEmailOTP({
+    body: {
+        email: user@example.com,
+        otp: 123456,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signInEmailOTP = {
+    /**
+     * Email address to sign in. 
+     */
+    email: string = "user@example.com"
+    /**
+     * OTP sent to the email. 
+     */
+    otp: string = "123456"
+
+}
+```
 
 <Callout>
-  If the user is not registered, they'll be automatically registered. If you want to prevent this, you can pass `disableSignUp` as `true` in the options.
+  If the user is not registered, they'll be automatically registered. If you want to prevent this, you can pass `disableSignUp` as `true` in the [options](#options).
 </Callout>
 
-### Verify Email
+### Verify Email with OTP
 
-To verify the user's email address, use the `verifyEmail()` method.
+To verify the user's email address with OTP, use the `sendVerificationOtp()` method to send an "email-verification" OTP to the user's email address.
 
-<APIMethod path="/email-otp/verify-email" method="POST">
-  ```ts
-  type verifyEmailOTP = {
-      /**
-       * Email address to verify. 
-       */
-      email: string = "user@example.com"
-      /**
-       * OTP to verify. 
-       */
-      otp: string = "123456"
-  }
-  ```
-</APIMethod>
+### Client Side
 
-### Forgot & Reset Password
+```ts
+const { data, error } = await authClient.emailOtp.sendVerificationOtp({
+    email: user@example.com,
+    type: email-verification,
+});
+```
 
-To reset the user's password, you must use the `forgotPassword` method:
+### Server Side
 
-<APIMethod path="/forget-password/email-otp" method="POST">
-  ```ts
-  type forgetPasswordEmailOTP = {
-      /**
-       * Email address to send the OTP. 
-       */
-      email: string = "user@example.com"
-  }
-  ```
-</APIMethod>
+```ts
+const data = await auth.api.sendVerificationOTP({
+    body: {
+        email: user@example.com,
+        type: email-verification,
+    }
+});
+```
 
-After that, you may use the `resetPassword()` method to apply the password reset.
+### Type Definition
 
-<APIMethod path="/email-otp/reset-password" method="POST">
-  ```ts
-  type resetPasswordEmailOTP = {
-      /**
-       * Email address to reset the password. 
-       */
-      email: string = "user@example.com"
-      /**
-       * OTP sent to the email. 
-       */
-      otp: string = "123456"
-      /**
-       * New password. 
-       */
-      password: string = "new-secure-password"
-  }
-  ```
-</APIMethod>
+```ts
+type sendVerificationOTP = {
+    /**
+     * Email address to send the OTP. 
+     */
+    email: string = "user@example.com"
+    /**
+     * Type of the OTP.
+     */
+    type: "email-verification" = "email-verification"
+
+}
+```
+
+Once the user provides the OTP, use the `verifyEmail()` method to complete email verification.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.emailOtp.verifyEmail({
+    email: user@example.com,
+    otp: 123456,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.verifyEmailOTP({
+    body: {
+        email: user@example.com,
+        otp: 123456,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type verifyEmailOTP = {
+    /**
+     * Email address to verify. 
+     */
+    email: string = "user@example.com"
+    /**
+     * OTP to verify. 
+     */
+    otp: string = "123456"
+
+}
+```
+
+### Reset Password with OTP
+
+To reset the user's password with OTP, use the `forgetPassword.emailOTP()` method to send a "forget-password" OTP to the user's email address.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.forgetPassword.emailOtp({
+    email: user@example.com,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.forgetPasswordEmailOTP({
+    body: {
+        email: user@example.com,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type forgetPasswordEmailOTP = {
+    /**
+     * Email address to send the OTP. 
+     */
+    email: string = "user@example.com"
+
+}
+```
+
+Once the user provides the OTP, use the `checkVerificationOtp()` method to check if it's valid (optional).
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.emailOtp.checkVerificationOtp({
+    email: user@example.com,
+    type: forget-password,
+    otp: 123456,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.checkVerificationOTP({
+    body: {
+        email: user@example.com,
+        type: forget-password,
+        otp: 123456,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type checkVerificationOTP = {
+    /**
+     * Email address to send the OTP. 
+     */
+    email: string = "user@example.com"
+    /**
+     * Type of the OTP.
+     */
+    type: "forget-password" = "forget-password"
+    /**
+     * OTP sent to the email. 
+     */
+    otp: string = "123456"
+
+}
+```
+
+Then, use the `resetPassword()` method to reset the user's password.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.emailOtp.resetPassword({
+    email: user@example.com,
+    otp: 123456,
+    password: new-secure-password,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.resetPasswordEmailOTP({
+    body: {
+        email: user@example.com,
+        otp: 123456,
+        password: new-secure-password,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type resetPasswordEmailOTP = {
+    /**
+     * Email address to reset the password. 
+     */
+    email: string = "user@example.com"
+    /**
+     * OTP sent to the email. 
+     */
+    otp: string = "123456"
+    /**
+     * New password. 
+     */
+    password: string = "new-secure-password"
+
+}
+```
 
 ### Override Default Email Verification
 
@@ -16432,33 +21512,8 @@ export const auth = betterAuth({
   * `otp`: The OTP to send.
   * `type`: The type of OTP to send. Can be "sign-in", "email-verification", or "forget-password".
 
-### Example
-
-```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-
-export const auth = betterAuth({
-    plugins: [
-        emailOTP({
-            async sendVerificationOTP({
-                email,
-                otp,
-                type
-            }) {
-                if (type === "sign-in") {
-                    // Send the OTP for sign-in
-                } else if (type === "email-verification") {
-                    // Send the OTP for email verification
-                } else {
-                    // Send the OTP for password reset
-                }
-            },
-        })
-    ]
-})
-```
-
 * `otpLength`: The length of the OTP. Defaults to `6`.
+
 * `expiresIn`: The expiry time of the OTP in seconds. Defaults to `300` seconds.
 
 ```ts title="auth.ts"
@@ -16495,7 +21550,7 @@ export const auth = betterAuth({
 })
 ```
 
-When the maximum attempts are exceeded, the `verifyOTP`, `signIn.emailOtp`, `verifyEmail`, and `resetPassword` methods will return an error with code `MAX_ATTEMPTS_EXCEEDED`.
+When the maximum attempts are exceeded, the `verifyOTP`, `signIn.emailOtp`, `verifyEmail`, and `resetPassword` methods will return an error with code `TOO_MANY_ATTEMPTS`.
 
 * `storeOTP`: The method to store the OTP in your database, wether `encrypted`, `hashed` or `plain` text. Default is `plain` text.
 
@@ -16606,59 +21661,113 @@ The Generic OAuth plugin provides endpoints for initiating the OAuth flow and ha
 
 To start the OAuth sign-in process:
 
-<APIMethod path="/sign-in/oauth2" method="POST">
-  ```ts
-  type signInWithOAuth2 = {
-      /**
-       * The provider ID for the OAuth provider. 
-       */
-      providerId: string = "provider-id"
-      /**
-       * The URL to redirect to after sign in. 
-       */
-      callbackURL?: string = "/dashboard"
-      /**
-       * The URL to redirect to if an error occurs. 
-       */
-      errorCallbackURL?: string = "/error-page"
-      /**
-       * The URL to redirect to after login if the user is new. 
-       */
-      newUserCallbackURL?: string = "/welcome"
-      /**
-       * Disable redirect. 
-       */
-      disableRedirect?: boolean = false
-      /**
-       * Scopes to be passed to the provider authorization request. 
-       */
-      scopes?: string[] = ["my-scope"]
-      /**
-       * Explicitly request sign-up. Useful when disableImplicitSignUp is true for this provider. 
-       */
-      requestSignUp?: boolean = false
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signIn.oauth2({
+    providerId: provider-id,
+    callbackURL: /dashboard, // required
+    errorCallbackURL: /error-page, // required
+    newUserCallbackURL: /welcome, // required
+    disableRedirect, // required
+    scopes, // required
+    requestSignUp, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInWithOAuth2({
+    body: {
+        providerId: provider-id,
+        callbackURL: /dashboard, // required
+        errorCallbackURL: /error-page, // required
+        newUserCallbackURL: /welcome, // required
+        disableRedirect, // required
+        scopes, // required
+        requestSignUp, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signInWithOAuth2 = {
+    /**
+     * The provider ID for the OAuth provider. 
+     */
+    providerId: string = "provider-id"
+    /**
+     * The URL to redirect to after sign in. 
+     */
+    callbackURL?: string = "/dashboard"
+    /**
+     * The URL to redirect to if an error occurs. 
+     */
+    errorCallbackURL?: string = "/error-page"
+    /**
+     * The URL to redirect to after login if the user is new. 
+     */
+    newUserCallbackURL?: string = "/welcome"
+    /**
+     * Disable redirect. 
+     */
+    disableRedirect?: boolean = false
+    /**
+     * Scopes to be passed to the provider authorization request. 
+     */
+    scopes?: string[] = ["my-scope"]
+    /**
+     * Explicitly request sign-up. Useful when disableImplicitSignUp is true for this provider. 
+     */
+    requestSignUp?: boolean = false
+
+}
+```
 
 ### Linking OAuth Accounts
 
 To link an OAuth account to an existing user:
 
-<APIMethod path="/oauth2/link" method="POST" requireSession>
-  ```ts
-  type oAuth2LinkAccount = {
-      /**
-       * The OAuth provider ID. 
-       */
-      providerId: string = "my-provider-id"
-      /**
-       * The URL to redirect to once the account linking was complete. 
-       */
-      callbackURL: string = "/successful-link"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.oauth2.link({
+    providerId: my-provider-id,
+    callbackURL: /successful-link,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.oAuth2LinkAccount({
+    body: {
+        providerId: my-provider-id,
+        callbackURL: /successful-link,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type oAuth2LinkAccount = {
+    /**
+     * The OAuth provider ID. 
+     */
+    providerId: string = "my-provider-id"
+    /**
+     * The URL to redirect to once the account linking was complete. 
+     */
+    callbackURL: string = "/successful-link"
+
+}
+```
 
 ### Handle OAuth Callback
 
@@ -16914,7 +22023,39 @@ Once you've installed the plugin, you can start using the JWT & JWKS plugin to g
 
 ### Retrieve the token
 
-1. Using your session token
+There are multiple ways to retrieve JWT tokens:
+
+1. **Using the client plugin (recommended)**
+
+Add the `jwtClient` plugin to your auth client configuration:
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client"
+import { jwtClient } from "better-auth/client/plugins" // [!code highlight]
+
+export const authClient = createAuthClient({
+  plugins: [
+    jwtClient() // [!code highlight]
+  ]
+})
+```
+
+Then use the client to get JWT tokens:
+
+```ts
+const { data, error } = await authClient.token()
+if (error) {
+  // handle error
+}
+if (data) {
+  const jwtToken = data.token
+  // Use this token for authenticated requests to external services
+}
+```
+
+This is the recommended approach for client applications that need JWT tokens for external API authentication.
+
+2. **Using your session token**
 
 To get the token, call the `/token` endpoint. This will return the following:
 
@@ -16924,7 +22065,7 @@ To get the token, call the `/token` endpoint. This will return the following:
   }
 ```
 
-Make sure to include the token in the `Authorization` header of your requests and the `bearer` plugin is added in your auth configuration.
+Make sure to include the token in the `Authorization` header of your requests if the `bearer` plugin is added in your auth configuration.
 
 ```ts
 await fetch("/api/auth/token", {
@@ -16934,7 +22075,7 @@ await fetch("/api/auth/token", {
 })
 ```
 
-2. From `set-auth-jwt` header
+3. **From `set-auth-jwt` header**
 
 When you call `getSession` method, a JWT is returned in the `set-auth-jwt` header, which you can use to send to your services directly.
 
@@ -16968,6 +22109,21 @@ In case a JWT with a different `kid` is received, it is recommended to fetch the
         }
     ]
   }
+```
+
+### OAuth Provider Mode
+
+If you are making your system oAuth compliant (such as when utilizing the OIDC or MCP plugins), you **MUST** disable the `/token` endpoint (oAuth equivalent `/oauth2/token`) and disable setting the jwt header (oAuth equivalent `/oauth2/userinfo`).
+
+```ts title="auth.ts"
+betterAuth({
+  disabledPaths: [
+    "/token",
+  ],
+  plugins: [jwt({
+    disableSettingJwtHeader: true,
+  })]
+})
 ```
 
 #### Example using jose with remote JWKS
@@ -17030,6 +22186,93 @@ async function validateToken(token: string) {
 // Usage example
 const token = 'your.jwt.token' // this is the token you get from the /api/auth/token endpoint
 const payload = await validateToken(token)
+```
+
+### Remote JWKS Url
+
+Disables the `/jwks` endpoint and uses this endpoint in any discovery such as OIDC.
+
+Useful if your JWKS are not managed at `/jwks` or if your jwks are signed with a certificate and placed on your CDN.
+
+NOTE: you **MUST** specify which asymmetric algorithm is used for signing.
+
+```ts title="auth.ts"
+jwt({
+  jwks: {
+    remoteUrl: "https://example.com/.well-known/jwks.json",
+    keyPairConfig: {
+      alg: 'ES256',
+    },
+  }
+})
+```
+
+### Custom Signing
+
+This is an advanced feature. Configuration outside of this plugin **MUST** be provided.
+
+Implementers:
+
+* `remoteUrl` must be defined if using the `sign` function. This shall store all active keys, not just the current one.
+* If using localized approach, ensure server uses the latest private key when rotated. Depending on deployment, the server may need to be restarted.
+* When using remote approach, verify the payload is unchanged after transit. Use integrity validation like CRC32 or SHA256 checks if available.
+
+#### Localized Signing
+
+```ts title="auth.ts"
+jwt({
+  jwks: {
+    remoteUrl: "https://example.com/.well-known/jwks.json",
+    keyPairConfig: {
+      alg: 'EdDSA',
+    },
+  },
+  jwt: {
+    sign: async (jwtPayload: JWTPayload) => {
+      // this is pseudocode
+      return await new SignJWT(jwtPayload)
+        .setProtectedHeader({
+          alg: "EdDSA",
+          kid: process.env.currentKid,
+          typ: "JWT",
+        })
+        .sign(process.env.clientPrivateKey);
+    },
+  },
+})
+```
+
+#### Remote Signing
+
+Useful if you are using a remote Key Management Service such as [Google KMS](https://cloud.google.com/kms/docs/encrypt-decrypt-rsa#kms-encrypt-asymmetric-nodejs), [Amazon KMS](https://docs.aws.amazon.com/kms/latest/APIReference/API_Sign.html), or [Azure Key Vault](https://learn.microsoft.com/en-us/rest/api/keyvault/keys/sign/sign?view=rest-keyvault-keys-7.4\&tabs=HTTP).
+
+```ts title="auth.ts"
+jwt({
+  jwks: {
+    remoteUrl: "https://example.com/.well-known/jwks.json",
+    keyPairConfig: {
+      alg: 'ES256',
+    },
+  },
+  jwt: {
+    sign: async (jwtPayload: JWTPayload) => {
+      // this is pseudocode
+      const headers = JSON.stringify({ kid: '123', alg: 'ES256', typ: 'JWT' })
+      const payload = JSON.stringify(jwtPayload)
+      const encodedHeaders = Buffer.from(headers).toString('base64url')
+      const encodedPayload = Buffer.from(payload).toString('base64url')
+      const hash = createHash('sha256')
+      const data = `${encodedHeaders}.${encodedPayload}`
+      hash.update(Buffer.from(data))
+      const digest = hash.digest()
+      const sig = await remoteSign(digest)
+      // integrityCheck(sig)
+      const jwt = `${data}.${sig}`
+      // verifyJwt(jwt)
+      return jwt
+    },
+  },
+})
 ```
 
 ## Schema
@@ -17172,6 +22415,389 @@ jwt({
 
 
 
+# plugins: Last Login Method
+URL: /docs/plugins/last-login-method
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/plugins/last-login-method.mdx
+
+Track and display the last authentication method used by users
+        
+***
+
+title: Last Login Method
+description: Track and display the last authentication method used by users
+---------------------------------------------------------------------------
+
+The last login method plugin tracks the most recent authentication method used by users (email, OAuth providers, etc.). This enables you to display helpful indicators on login pages, such as "Last signed in with Google" or prioritize certain login methods based on user preferences.
+
+## Installation
+
+<Steps>
+  <Step>
+    ### Add the plugin to your auth config
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+    import { lastLoginMethod } from "better-auth/plugins" // [!code highlight]
+
+    export const auth = betterAuth({
+        // ... other config options
+        plugins: [
+            lastLoginMethod() // [!code highlight]
+        ]
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Add the client plugin to your auth client
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    import { lastLoginMethodClient } from "better-auth/client/plugins" // [!code highlight]
+
+    export const authClient = createAuthClient({
+        plugins: [
+            lastLoginMethodClient() // [!code highlight]
+        ]
+    })
+    ```
+  </Step>
+</Steps>
+
+## Usage
+
+Once installed, the plugin automatically tracks the last authentication method used by users. You can then retrieve and display this information in your application.
+
+### Getting the Last Used Method
+
+The client plugin provides several methods to work with the last login method:
+
+```ts title="app.tsx"
+import { authClient } from "@/lib/auth-client"
+
+// Get the last used login method
+const lastMethod = authClient.getLastUsedLoginMethod()
+console.log(lastMethod) // "google", "email", "github", etc.
+
+// Check if a specific method was last used
+const wasGoogle = authClient.isLastUsedLoginMethod("google")
+
+// Clear the stored method
+authClient.clearLastUsedLoginMethod()
+```
+
+### UI Integration Example
+
+Here's how to use the plugin to enhance your login page:
+
+```tsx title="sign-in.tsx"
+import { authClient } from "@/lib/auth-client"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+
+export function SignInPage() {
+    const lastMethod = authClient.getLastUsedLoginMethod()
+    
+    return (
+        <div className="space-y-4">
+            <h1>Sign In</h1>
+            
+            {/* Email sign in */}
+            <div className="relative">
+                <Button 
+                    onClick={() => authClient.signIn.email({...})}
+                    variant={lastMethod === "email" ? "default" : "outline"}
+                    className="w-full"
+                >
+                    Sign in with Email
+                    {lastMethod === "email" && (
+                        <Badge className="ml-2">Last used</Badge>
+                    )}
+                </Button>
+            </div>
+            
+            {/* OAuth providers */}
+            <div className="relative">
+                <Button 
+                    onClick={() => authClient.signIn.social({ provider: "google" })}
+                    variant={lastMethod === "google" ? "default" : "outline"}
+                    className="w-full"
+                >
+                    Continue with Google
+                    {lastMethod === "google" && (
+                        <Badge className="ml-2">Last used</Badge>
+                    )}
+                </Button>
+            </div>
+            
+            <div className="relative">
+                <Button 
+                    onClick={() => authClient.signIn.social({ provider: "github" })}
+                    variant={lastMethod === "github" ? "default" : "outline"}
+                    className="w-full"
+                >
+                    Continue with GitHub
+                    {lastMethod === "github" && (
+                        <Badge className="ml-2">Last used</Badge>
+                    )}
+                </Button>
+            </div>
+        </div>
+    )
+}
+```
+
+## Database Persistence
+
+By default, the last login method is stored only in cookies. For more persistent tracking and analytics, you can enable database storage.
+
+<Steps>
+  <Step>
+    ### Enable database storage
+
+    Set `storeInDatabase` to `true` in your plugin configuration:
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth"
+    import { lastLoginMethod } from "better-auth/plugins"
+
+    export const auth = betterAuth({
+        plugins: [
+            lastLoginMethod({
+                storeInDatabase: true // [!code highlight]
+            })
+        ]
+    })
+    ```
+  </Step>
+
+  <Step>
+    ### Run database migration
+
+    The plugin will automatically add a `lastLoginMethod` field to your user table. Run the migration to apply the changes:
+
+    <Tabs items={["migrate", "generate"]}>
+      <Tab value="migrate">
+        ```bash
+        npx @better-auth/cli migrate
+        ```
+      </Tab>
+
+      <Tab value="generate">
+        ```bash
+        npx @better-auth/cli generate
+        ```
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step>
+    ### Access database field
+
+    When database storage is enabled, the `lastLoginMethod` field becomes available in user objects:
+
+    ```ts title="user-profile.tsx"
+    import { auth } from "@/lib/auth"
+
+    // Server-side access
+    const session = await auth.api.getSession({ headers })
+    console.log(session?.user.lastLoginMethod) // "google", "email", etc.
+
+    // Client-side access via session
+    const { data: session } = authClient.useSession()
+    console.log(session?.user.lastLoginMethod)
+    ```
+  </Step>
+</Steps>
+
+### Database Schema
+
+When `storeInDatabase` is enabled, the plugin adds the following field to the `user` table:
+
+Table: `user`
+
+<DatabaseTable
+  fields={[
+      { name: "lastLoginMethod", type: "string", description: "The last authentication method used by the user", isOptional: true },
+  ]}
+/>
+
+### Custom Schema Configuration
+
+You can customize the database field name:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { lastLoginMethod } from "better-auth/plugins"
+
+export const auth = betterAuth({
+    plugins: [
+        lastLoginMethod({
+            storeInDatabase: true,
+            schema: {
+                user: {
+                    lastLoginMethod: "last_auth_method" // Custom field name
+                }
+            }
+        })
+    ]
+})
+```
+
+## Configuration Options
+
+The last login method plugin accepts the following options:
+
+### Server Options
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { lastLoginMethod } from "better-auth/plugins"
+
+export const auth = betterAuth({
+    plugins: [
+        lastLoginMethod({
+            // Cookie configuration
+            cookieName: "better-auth.last_used_login_method", // Default: "better-auth.last_used_login_method"
+            maxAge: 60 * 60 * 24 * 30, // Default: 30 days in seconds
+            
+            // Database persistence
+            storeInDatabase: false, // Default: false
+            
+            // Custom method resolution
+            customResolveMethod: (ctx) => {
+                // Custom logic to determine the login method
+                if (ctx.path === "/oauth/callback/custom-provider") {
+                    return "custom-provider"
+                }
+                // Return null to use default resolution
+                return null
+            },
+            
+            // Schema customization (when storeInDatabase is true)
+            schema: {
+                user: {
+                    lastLoginMethod: "custom_field_name"
+                }
+            }
+        })
+    ]
+})
+```
+
+**cookieName**: `string`
+
+* The name of the cookie used to store the last login method
+* Default: `"better-auth.last_used_login_method"`
+* **Note**: This cookie is `httpOnly: false` to allow client-side JavaScript access for UI features
+
+**maxAge**: `number`
+
+* Cookie expiration time in seconds
+* Default: `2592000` (30 days)
+
+**storeInDatabase**: `boolean`
+
+* Whether to store the last login method in the database
+* Default: `false`
+* When enabled, adds a `lastLoginMethod` field to the user table
+
+**customResolveMethod**: `(ctx: GenericEndpointContext) => string | null`
+
+* Custom function to determine the login method from the request context
+* Return `null` to use the default resolution logic
+* Useful for custom OAuth providers or authentication flows
+
+**schema**: `object`
+
+* Customize database field names when `storeInDatabase` is enabled
+* Allows mapping the `lastLoginMethod` field to a custom column name
+
+### Client Options
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client"
+import { lastLoginMethodClient } from "better-auth/client/plugins"
+
+export const authClient = createAuthClient({
+    plugins: [
+        lastLoginMethodClient({
+            cookieName: "better-auth.last_used_login_method" // Default: "better-auth.last_used_login_method"
+        })
+    ]
+})
+```
+
+**cookieName**: `string`
+
+* The name of the cookie to read the last login method from
+* Must match the server-side `cookieName` configuration
+* Default: `"better-auth.last_used_login_method"`
+
+### Default Method Resolution
+
+By default, the plugin tracks these authentication methods:
+
+* **Email authentication**: `"email"`
+* **OAuth providers**: Provider ID (e.g., `"google"`, `"github"`, `"discord"`)
+* **OAuth2 callbacks**: Provider ID from URL path
+* **Sign up methods**: Tracked the same as sign in methods
+
+The plugin automatically detects the method from these endpoints:
+
+* `/callback/:id` - OAuth callback with provider ID
+* `/oauth2/callback/:id` - OAuth2 callback with provider ID
+* `/sign-in/email` - Email sign in
+* `/sign-up/email` - Email sign up
+
+## Cross-Domain Support
+
+The plugin automatically inherits cookie settings from Better Auth's centralized cookie system. This solves the problem where the last login method wouldn't persist across:
+
+* **Cross-subdomain setups**: `auth.example.com` → `app.example.com`
+* **Cross-origin setups**: `api.company.com` → `app.different.com`
+
+When you enable `crossSubDomainCookies` or `crossOriginCookies` in your Better Auth config, the plugin will automatically use the same domain, secure, and sameSite settings as your session cookies, ensuring consistent behavior across your application.
+
+## Advanced Examples
+
+### Custom Provider Tracking
+
+If you have custom OAuth providers or authentication methods, you can use the `customResolveMethod` option:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { lastLoginMethod } from "better-auth/plugins"
+
+export const auth = betterAuth({
+    plugins: [
+        lastLoginMethod({
+            customResolveMethod: (ctx) => {
+                // Track custom SAML provider
+                if (ctx.path === "/saml/callback") {
+                    return "saml"
+                }
+                
+                // Track magic link authentication
+                if (ctx.path === "/verify-magic-link") {
+                    return "magic-link"
+                }
+                
+                // Track phone authentication
+                if (ctx.path === "/sign-in/phone") {
+                    return "phone"
+                }
+                
+                // Return null to use default logic
+                return null
+            }
+        })
+    ]
+})
+```
+
+
+
 # plugins: Magic link
 URL: /docs/plugins/magic-link
 Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/plugins/magic-link.mdx
@@ -17233,34 +22859,63 @@ Magic link or email link is a way to authenticate users without a password. When
 
 To sign in with a magic link, you need to call `signIn.magicLink` with the user's email address. The `sendMagicLink` function is called to send the magic link to the user's email.
 
-<APIMethod path="/sign-in/magic-link" method="POST" requireSession>
-  ```ts
-  type signInMagicLink = {
-      /**
-       * Email address to send the magic link. 
-       */
-      email: string = "user@email.com"
-      /**
-       * User display name. Only used if the user is registering for the first time. 
-       */
-      name?: string = "my-name"
-      /**
-       * URL to redirect after magic link verification. 
-       */
-      callbackURL?: string = "/dashboard"
-      /**
-       * URL to redirect after new user signup
-       */
-      newUserCallbackURL?: string = "/welcome"
-      /**
-       * URL to redirect if an error happen on verification
-       * If only callbackURL is provided but without an `errorCallbackURL` then they will be 
-       * redirected to the callbackURL with an `error` query parameter.
-       */
-      errorCallbackURL?: string = "/error"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signIn.magicLink({
+    email: user@email.com,
+    name: my-name, // required
+    callbackURL: /dashboard, // required
+    newUserCallbackURL: /welcome, // required
+    errorCallbackURL: /error, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInMagicLink({
+    body: {
+        email: user@email.com,
+        name: my-name, // required
+        callbackURL: /dashboard, // required
+        newUserCallbackURL: /welcome, // required
+        errorCallbackURL: /error, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type signInMagicLink = {
+    /**
+     * Email address to send the magic link. 
+     */
+    email: string = "user@email.com"
+    /**
+     * User display name. Only used if the user is registering for the first time. 
+     */
+    name?: string = "my-name"
+    /**
+     * URL to redirect after magic link verification. 
+     */
+    callbackURL?: string = "/dashboard"
+    /**
+     * URL to redirect after new user signup
+     */
+    newUserCallbackURL?: string = "/welcome"
+    /**
+     * URL to redirect if an error happen on verification
+     * If only callbackURL is provided but without an `errorCallbackURL` then they will be 
+     * redirected to the callbackURL with an `error` query parameter.
+     */
+    errorCallbackURL?: string = "/error"
+
+}
+```
 
 <Callout>
   If the user has not signed up, unless `disableSignUp` is set to `true`, the user will be signed up automatically.
@@ -17276,20 +22931,43 @@ When you send the URL generated by the `sendMagicLink` function to a user, click
 
 If you want to handle the verification manually, (e.g, if you send the user a different URL), you can use the `verify` function.
 
-<APIMethod path="/magic-link/verify" method="GET" requireSession>
-  ```ts
-  type magicLinkVerify = {
-      /**
-       * Verification token. 
-       */
-      token: string = "123456"
-      /**
-       * URL to redirect after magic link verification, if not provided will return the session. 
-       */
-      callbackURL?: string = "/dashboard"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.magicLink.verify({
+    token: 123456,
+    callbackURL: /dashboard, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.magicLinkVerify({
+    query: {
+        token: 123456,
+        callbackURL: /dashboard, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type magicLinkVerify = {
+    /**
+     * Verification token. 
+     */
+    token: string = "123456"
+    /**
+     * URL to redirect after magic link verification, if not provided will return the session. 
+     */
+    callbackURL?: string = "/dashboard"
+
+}
+```
 
 ## Configuration Options
 
@@ -17394,13 +23072,24 @@ The **MCP** plugin lets your app act as an OAuth provider for MCP clients. It ha
 
 ### OAuth Discovery Metadata
 
-Add a route to expose OAuth metadata for MCP clients:
+Better Auth already handles the `/api/auth/.well-known/oauth-authorization-server` route automatically but some client may fail to parse the `WWW-Authenticate` header and default to `/.well-known/oauth-authorization-server` (this can happen, for example, if your CORS configuration doesn't expose the `WWW-Authenticate`). For this reason it's better to add a route to expose OAuth metadata for MCP clients:
 
 ```ts title=".well-known/oauth-authorization-server/route.ts"
 import { oAuthDiscoveryMetadata } from "better-auth/plugins";
 import { auth } from "../../../lib/auth";
 
 export const GET = oAuthDiscoveryMetadata(auth);
+```
+
+### OAuth Protected Resource Metadata
+
+Better Auth already handles the `/api/auth/.well-known/oauth-protected-resource` route automatically but some client may fail to parse the `WWW-Authenticate` header and default to `/.well-known/oauth-protected-resource` (this can happen, for example, if your CORS configuration doesn't expose the `WWW-Authenticate`). For this reason it's better to add a route to expose OAuth metadata for MCP clients:
+
+```ts title="/.well-known/oauth-protected-resource/route.ts"
+import { oAuthProtectedResourceMetadata } from "better-auth/plugins";
+import { auth } from "@/lib/auth";
+
+export const GET = oAuthProtectedResourceMetadata(auth);
 ```
 
 ### MCP Session Handling
@@ -17512,6 +23201,11 @@ The MCP plugin accepts the following configuration options:
       type: "string",
       required: true
   },
+  resource: {
+      description: "The resource that should be returned by the protected resource metadata endpoint",
+      type: "string",
+      required: false
+  },
   oidcConfig: {
       description: "Optional OIDC configuration options",
       type: "object",
@@ -17618,42 +23312,101 @@ Whenever a user logs in, the plugin will add additional cookie to the browser. T
 
 To list all active sessions for the current user, you can call the `listDeviceSessions` method.
 
-<APIMethod path="/multi-session/list-device-sessions" method="GET" requireSession>
-  ```ts
-  type listDeviceSessions = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.multiSession.listDeviceSessions({});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listDeviceSessions({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listDeviceSessions = {
+
+}
+```
 
 ### Set active session
 
 To set the active session, you can call the `setActive` method.
 
-<APIMethod path="/multi-session/set-active" method="POST" requireSession>
-  ```ts
-  type setActiveSession = {
-      /**
-       * The session token to set as active. 
-       */
-      sessionToken: string = "some-session-token"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.multiSession.setActive({
+    sessionToken: some-session-token,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.setActiveSession({
+    body: {
+        sessionToken: some-session-token,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type setActiveSession = {
+    /**
+     * The session token to set as active. 
+     */
+    sessionToken: string = "some-session-token"
+
+}
+```
 
 ### Revoke a session
 
 To revoke a session, you can call the `revoke` method.
 
-<APIMethod path="/multi-session/revoke" method="POST" requireSession>
-  ```ts
-  type revokeDeviceSession = {
-      /**
-       * The session token to revoke. 
-       */
-      sessionToken: string = "some-session-token"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.multiSession.revoke({
+    sessionToken: some-session-token,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.revokeDeviceSession({
+    body: {
+        sessionToken: some-session-token,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type revokeDeviceSession = {
+    /**
+     * The session token to revoke. 
+     */
+    sessionToken: string = "some-session-token"
+
+}
+```
 
 ### Signout and Revoke all sessions
 
@@ -17703,7 +23456,7 @@ A proxy plugin, that allows you to proxy OAuth requests. Useful for development 
 
     export const auth = betterAuth({
         plugins: [ // [!code highlight]
-            oAuthProxy({
+            oAuthProxy({ // [!code highlight]
                 productionURL: "https://my-main-app.com", // Optional - if the URL isn't inferred correctly // [!code highlight]
                 currentURL: "http://localhost:3000", // Optional - if the URL isn't inferred correctly // [!code highlight] 
             }), // [!code highlight]
@@ -17868,88 +23621,112 @@ const application = await client.oauth2.register({
 
 #### Full Method
 
-<APIMethod path="/oauth2/register" method="POST">
-  ```ts
-  type registerOAuthApplication = {
-      /**
-       * A list of redirect URIs. 
-       */
-      redirect_uris: string[] = ["https://client.example.com/callback"]
-      /**
-       * The authentication method for the token endpoint. 
-       */
-      token_endpoint_auth_method?: "none" | "client_secret_basic" | "client_secret_post" = "client_secret_basic"
-      /**
-       * The grant types supported by the application. 
-       */
-      grant_types?: ("authorization_code" | "implicit" | "password" | "client_credentials" | "refresh_token" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] = ["authorization_code"]
-      /**
-       * The response types supported by the application. 
-       */
-      response_types?: ("code" | "token")[] = ["code"]
-      /**
-       * The name of the application. 
-       */
-      client_name?: string = "My App"
-      /**
-       * The URI of the application. 
-       */
-      client_uri?: string = "https://client.example.com"
-      /**
-       * The URI of the application logo. 
-       */
-      logo_uri?: string = "https://client.example.com/logo.png"
-      /**
-       * The scopes supported by the application. Separated by spaces. 
-       */
-      scope?: string = "profile email"
-      /**
-       * The contact information for the application. 
-       */
-      contacts?: string[] = ["admin@example.com"]
-      /**
-       * The URI of the application terms of service. 
-       */
-      tos_uri?: string = "https://client.example.com/tos"
-      /**
-       * The URI of the application privacy policy. 
-       */
-      policy_uri?: string = "https://client.example.com/policy"
-      /**
-       * The URI of the application JWKS. 
-       */
-      jwks_uri?: string = "https://client.example.com/jwks"
-      /**
-       * The JWKS of the application. 
-       */
-      jwks?: Record<string, any> = {"keys": [{"kty": "RSA", "alg": "RS256", "use": "sig", "n": "...", "e": "..."}]}
-      /**
-       * The metadata of the application. 
-       */
-      metadata?: Record<string, any> = {"key": "value"}
-      /**
-       * The software ID of the application. 
-       */
-      software_id?: string = "my-software"
-      /**
-       * The software version of the application. 
-       */
-      software_version?: string = "1.0.0"
-      /**
-       * The software statement of the application. 
-       */
-      software_statement?: string
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.oauth2.register({
+    redirect_uris, // client.example.com/callback"]
+    token_endpoint_auth_method: client_secret_basic, // required
+    grant_types, // required
+    response_types, // required
+    client_name: My App, // required
+    client_uri: https://client.example.com, // required
+    logo_uri: https://client.example.com/logo.png, // required
+    scope: profile email, // required
+    contacts, // required
+    tos_uri: https://client.example.com/tos, // required
+    policy_uri: https://client.example.com/policy, // required
+    jwks_uri: https://client.example.com/jwks, // required
+    jwks, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.registerOAuthApplication({
+    body: {
+        redirect_uris, // client.example.com/callback"]
+        token_endpoint_auth_method: client_secret_basic, // required
+        grant_types, // required
+        response_types, // required
+        client_name: My App, // required
+        client_uri: https://client.example.com, // required
+        logo_uri: https://client.example.com/logo.png, // required
+        scope: profile email, // required
+        contacts, // required
+        tos_uri: https://client.example.com/tos, // required
+        policy_uri: https://client.example.com/policy, // required
+        jwks_uri: https://client.example.com/jwks, // required
+        jwks, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type registerOAuthApplication = {
+    /**
+     * A list of redirect URIs. 
+     */
+    redirect_uris: string[] = ["https://client.example.com/callback"]
+    /**
+     * The authentication method for the token endpoint. 
+     */
+    token_endpoint_auth_method?: "none" | "client_secret_basic" | "client_secret_post" = "client_secret_basic"
+    /**
+     * The grant types supported by the application. 
+     */
+    grant_types?: ("authorization_code" | "implicit" | "password" | "client_credentials" | "refresh_token" | "urn:ietf:params:oauth:grant-type:jwt-bearer" | "urn:ietf:params:oauth:grant-type:saml2-bearer")[] = ["authorization_code"]
+    /**
+     * The response types supported by the application. 
+     */
+    response_types?: ("code" | "token")[] = ["code"]
+    /**
+     * The name of the application. 
+     */
+    client_name?: string = "My App"
+    /**
+     * The URI of the application. 
+     */
+    client_uri?: string = "https://client.example.com"
+    /**
+     * The URI of the application logo. 
+     */
+    logo_uri?: string = "https://client.example.com/logo.png"
+    /**
+     * The scopes supported by the application. Separated by spaces. 
+     */
+    scope?: string = "profile email"
+    /**
+     * The contact information for the application. 
+     */
+    contacts?: string[] = ["admin@example.com"]
+    /**
+     * The URI of the application terms of service. 
+     */
+    tos_uri?: string = "https://client.example.com/tos"
+    /**
+     * The URI of the application privacy policy. 
+     */
+    policy_uri?: string = "https://client.example.com/policy"
+    /**
+     * The URI of the application JWKS. 
+     */
+    jwks_uri?: string = "https://client.example.com/jwks"
+    /**
+     * The JWKS of the application. 
+     */
+    jwks?: Record<string, any> = {"keys": [{"kty": "RSA", "alg": "RS256", "use": "sig", "n": "...", "e": "..."
+}
+```
 
 <Callout>
   This endpoint supports [RFC7591](https://datatracker.ietf.org/doc/html/rfc7591) compliant client registration.
 </Callout>
 
 Once the application is created, you will receive a `client_id` and `client_secret` that you can display to the user.
-
-This Endpoint support [RFC7591](https://datatracker.ietf.org/doc/html/rfc7591) compliant client registration.
 
 ### Trusted Clients
 
@@ -18013,7 +23790,7 @@ The UserInfo endpoint returns different claims based on the scopes that were gra
 * With `profile` scope: Returns name, picture, given\_name, family\_name
 * With `email` scope: Returns email and email\_verified
 
-The `getAdditionalUserInfoClaim` function receives the user object and the requested scopes array, allowing you to conditionally include claims based on the scopes granted during authorization. These additional claims will be included in both the UserInfo endpoint response and the ID token.
+The `getAdditionalUserInfoClaim` function receives the user object, requested scopes array, and the client, allowing you to conditionally include claims based on the scopes granted during authorization. These additional claims will be included in both the UserInfo endpoint response and the ID token.
 
 ### Consent Screen
 
@@ -18031,17 +23808,42 @@ export const auth = betterAuth({
 })
 ```
 
-The plugin will redirect the user to the specified path with a `client_id` and `scope` query parameter. You can use this information to display a custom consent screen. Once the user consents, you can call `oauth2.consent` to complete the authorization.
+The plugin will redirect the user to the specified path with `consent_code`, `client_id` and `scope` query parameters. You can use this information to display a custom consent screen. Once the user consents, you can call `oauth2.consent` to complete the authorization.
 
 <Endpoint path="/oauth2/consent" method="POST" />
 
-```ts title="server.ts"
+The consent endpoint supports two methods for passing the consent code:
+
+**Method 1: URL Parameter**
+
+```ts title="consent-page.ts"
+// Get the consent code from the URL
+const params = new URLSearchParams(window.location.search);
+
+// Submit consent with the code in the request body
+const consentCode = params.get('consent_code');
+if (!consentCode) {
+	throw new Error('Consent code not found in URL parameters');
+}
+
 const res = await client.oauth2.consent({
 	accept: true, // or false to deny
+	consent_code: consentCode,
 });
 ```
 
-The `client_id` and other necessary information are stored in the browser cookie, so you don't need to pass them in the request. If they don't exist in the cookie, the consent method will return an error.
+**Method 2: Cookie-Based**
+
+```ts title="consent-page.ts"
+// The consent code is automatically stored in a signed cookie
+// Just submit the consent decision
+const res = await client.oauth2.consent({
+	accept: true, // or false to deny
+	// consent_code not needed when using cookie-based flow
+});
+```
+
+Both methods are fully supported. The URL parameter method works well with mobile apps and third-party contexts, while the cookie-based method provides a simpler implementation for web applications.
 
 ### Handling Login
 
@@ -18083,7 +23885,9 @@ export const auth = betterAuth({
 
 ### JWKS Endpoint
 
-The OIDC Provider plugin can integrate with the JWT plugin to provide proper asymmetric key signing for ID tokens. When enabled, ID tokens will be signed using RSA/EdDSA keys and can be verified using the JWKS endpoint.
+The OIDC Provider plugin can integrate with the JWT plugin to provide asymmetric key signing for ID tokens verifiable at a JWKS endpoint.
+
+To make your plugin OIDC compliant, you **MUST** disable the `/token` endpoint, the OAuth equivalent is located at `/oauth2/token` instead.
 
 ```ts title="auth.ts"
 import { betterAuth } from "better-auth";
@@ -18091,6 +23895,9 @@ import { oidcProvider } from "better-auth/plugins";
 import { jwt } from "better-auth/plugins";
 
 export const auth = betterAuth({
+    disabledPaths: [
+        "/token",
+    ],
     plugins: [
         jwt(), // Make sure to add the JWT plugin
         oidcProvider({
@@ -18182,7 +23989,8 @@ Table Name: `oauthApplication`
     name: "userId", 
     type: "string", 
     description: "ID of the user who owns the client. (optional)",
-    isOptional: true
+    isOptional: true,
+    references: { model: "user", field: "id" }
   },
   { 
     name: "createdAt", 
@@ -18237,7 +24045,7 @@ Table Name: `oauthAccessToken`
     type: "string", 
     description: "ID of the OAuth client",
     isForeignKey: true,
-    references: { model: "oauthClient", field: "clientId" }
+    references: { model: "oauthApplication", field: "clientId" }
   },
   { 
     name: "userId", 
@@ -18289,7 +24097,7 @@ Table Name: `oauthConsent`
     type: "string", 
     description: "ID of the OAuth client",
     isForeignKey: true,
-    references: { model: "oauthClient", field: "clientId" }
+    references: { model: "oauthApplication", field: "clientId" }
   },
   { 
     name: "scopes", 
@@ -18328,9 +24136,11 @@ Table Name: `oauthConsent`
 
 **trustedClients**: `(Client & { skipConsent?: boolean })[]` - Array of trusted clients that are configured directly in the provider options. These clients bypass database lookups and can optionally skip consent screens.
 
-**getAdditionalUserInfoClaim**: `(user: User, scopes: string[]) => Record<string, any>` - Function to get additional user info claims.
+**getAdditionalUserInfoClaim**: `(user: User, scopes: string[], client: Client) => Record<string, any>` - Function to get additional user info claims.
 
 **useJWTPlugin**: `boolean` - When `true`, ID tokens are signed using the JWT plugin's asymmetric keys. When `false` (default), ID tokens are signed with HMAC-SHA256 using the application secret.
+
+**schema**: `AuthPluginSchema` - Customize the OIDC provider schema.
 
 
 
@@ -18481,17 +24291,42 @@ The One-Time Token (OTT) plugin provides functionality to generate and verify se
 
 ## Installation
 
-```ts title="auth.ts"
-import { betterAuth } from "better-auth";
-import { oneTimeToken } from "better-auth/plugins/one-time-token";
+<Steps>
+  <Step>
+    ### Add the plugin to your auth config
 
-export const auth = betterAuth({
-    plugins: [
-      oneTimeToken()
-    ]
-    // ... other auth config
-});
-```
+    To use the One-Time Token plugin, add it to your auth config.
+
+    ```ts title="auth.ts"
+    import { betterAuth } from "better-auth";
+    import { oneTimeToken } from "better-auth/plugins/one-time-token";
+
+    export const auth = betterAuth({
+        plugins: [
+          oneTimeToken()
+        ]
+        // ... other auth config
+    });
+    ```
+  </Step>
+
+  <Step>
+    ### Add the client plugin
+
+    Next, include the one-time-token client plugin in your authentication client instance.
+
+    ```ts title="auth-client.ts"
+    import { createAuthClient } from "better-auth/client"
+    import { oneTimeTokenClient } from "better-auth/client/plugins"
+
+    export const authClient = createAuthClient({
+        plugins: [
+            oneTimeTokenClient()
+        ]
+    })
+    ```
+  </Step>
+</Steps>
 
 ## Usage
 
@@ -18499,12 +24334,29 @@ export const auth = betterAuth({
 
 Generate a token using `auth.api.generateOneTimeToken` or `authClient.oneTimeToken.generate`
 
-<APIMethod path="/one-time-token/generate" method="GET" requireSession>
-  ```ts
-  type generateOneTimeToken = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.oneTimeToken.generate({});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.generateOneTimeToken({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type generateOneTimeToken = {
+
+}
+```
 
 This will return a `token` that is attached to the current session which can be used to verify the one-time token. By default, the token will expire in 3 minutes.
 
@@ -18512,16 +24364,35 @@ This will return a `token` that is attached to the current session which can be 
 
 When the user clicks the link or submits the token, use the `auth.api.verifyOneTimeToken` or `authClient.oneTimeToken.verify` method in another API route to validate it.
 
-<APIMethod path="/one-time-token/verify" method="POST">
-  ```ts
-  type verifyOneTimeToken = {
-      /**
-       * The token to verify. 
-       */
-      token: string = "some-token"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.oneTimeToken.verify({
+    token: some-token,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.verifyOneTimeToken({
+    body: {
+        token: some-token,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type verifyOneTimeToken = {
+    /**
+     * The token to verify. 
+     */
+    token: string = "some-token"
+
+}
+```
 
 This will return the session that was attached to the token.
 
@@ -18641,11 +24512,32 @@ const openAPISchema = await auth.api.generateOpenAPISchema()
 console.log(openAPISchema)
 ```
 
+### Using Scalar with Multiple Sources
+
+If you're using Scalar for your API documentation, you can add Better Auth as an additional source alongside your main API:
+
+When using Hono with Scalar for OpenAPI documentation, you can integrate Better Auth by adding it as a source:
+
+```ts
+app.get("/docs", Scalar({
+  pageTitle: "API Documentation", 
+  sources: [
+    { url: "/api/open-api", title: "API" },
+    // Better Auth schema generation endpoint
+    { url: "/api/auth/open-api/generate-schema", title: "Auth" },
+  ],
+}));
+```
+
 ## Configuration
 
 `path` - The path where the Open API reference is served. Default is `/api/auth/reference`. You can change it to any path you like, but keep in mind that it will be appended to the base path of your auth server.
 
 `disableDefaultReference` - If set to `true`, the default Open API reference UI by Scalar will be disabled. Default is `false`.
+
+This allows you to display both your application's API and Better Auth's authentication endpoints in a unified documentation interface.
+
+`theme` - Allows you to change the theme of the OpenAPI reference page. Default is `default`.
 
 
 
@@ -18721,149 +24613,516 @@ Organizations simplifies user access and permissions management. Assign roles an
 
 ## Usage
 
-Once you've installed the plugin, you can start using the organization plugin to manage your organization's members and teams. The client plugin will provide you methods under the `organization` namespace. And the server `api` will provide you with the necessary endpoints to manage your organization and gives you easier way to call the functions on your own backend.
+Once you've installed the plugin, you can start using the organization plugin to manage your organization's members and teams. The client plugin will provide you with methods under the `organization` namespace, and the server `api` will provide you with the necessary endpoints to manage your organization and give you an easier way to call the functions on your own backend.
 
 ## Organization
 
 ### Create an organization
 
-<APIMethod path="/organization/create" method="POST" requireSession>
-  ```ts
-  const metadata = { someKey: "someValue" };
+### Client Side
 
-  type createOrganization = {
-    /**
-     * The organization name.
-    */
-    name: string = "My Organization"
-    /**
-     * The organization slug.
-    */
-    slug: string = "my-org"
-    /**
-     * The organization logo.
-    */
-    logo?: string = "https://example.com/logo.png"
-    /**
-    * The metadata of the organization.
-    */
-    metadata?: Record<string, any>
-    /**
-    * The user id of the organization creator. If not provided, the current user will be used. Should only be used by admins or when called by the server.
-    * @serverOnly
-    */
-    userId?: string = "some_user_id"
-    /**
-    * Whether to keep the current active organization active after creating a new one.
-    */
-    keepCurrentActiveOrganization?: boolean = false
-  }
-  ```
-</APIMethod>
+```ts
+const { data, error } = await authClient.organization.create({
+    name: My Organization,
+    slug: my-org,
+    logo: https://example.com/logo.png, // required
+    metadata, // required
+    userId: some_user_id, // required
+    keepCurrentActiveOrganization, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.createOrganization({
+    body: {
+        name: My Organization,
+        slug: my-org,
+        logo: https://example.com/logo.png, // required
+        metadata, // required
+        userId: some_user_id, // required
+        keepCurrentActiveOrganization, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type createOrganization = {
+  /**
+  * The organization name.
+  */
+  name: string = "My Organization"
+  /**
+  * The organization slug.
+  */
+  slug: string = "my-org"
+  /**
+  * The organization logo.
+  */
+  logo?: string = "https://example.com/logo.png"
+  /**
+  * The metadata of the organization.
+  */
+  metadata?: Record<string, any>
+  /**
+  * The user ID of the organization creator. If not provided, the current user will be used. Should only be used by admins or when called by the server.
+  * @serverOnly
+  */
+  userId?: string = "some_user_id"
+  /**
+  * Whether to keep the current active organization active after creating a new one.
+  */
+  keepCurrentActiveOrganization?: boolean = false
+
+}
+```
 
 #### Restrict who can create an organization
 
 By default, any user can create an organization. To restrict this, set the `allowUserToCreateOrganization` option to a function that returns a boolean, or directly to `true` or `false`.
 
 ```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { organization } from "better-auth/plugins"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
 
 const auth = betterAuth({
-    //...
-    plugins: [
-        organization({
-            allowUserToCreateOrganization: async (user) => { // [!code highlight]
-                const subscription = await getSubscription(user.id) // [!code highlight]
-                return subscription.plan === "pro" // [!code highlight]
-            } // [!code highlight]
-        })
-    ]
-})
+  //...
+  plugins: [
+    organization({
+      allowUserToCreateOrganization: async (user) => {
+        // [!code highlight]
+        const subscription = await getSubscription(user.id); // [!code highlight]
+        return subscription.plan === "pro"; // [!code highlight]
+      }, // [!code highlight]
+    }),
+  ],
+});
 ```
 
 #### Check if organization slug is taken
 
 To check if an organization slug is taken or not you can use the `checkSlug` function provided by the client. The function takes an object with the following properties:
 
-<APIMethod path="/organization/check-slug" method="POST">
-  ```ts
-  type checkOrganizationSlug = {
-      /**
-       * The organization slug to check.  
-       */
-      slug: string = "my-org"
-  }
-  ```
-</APIMethod>
+### Client Side
 
-#### Organization Creation Hooks
-
-You can customize the organization creation process using hooks that run before and after an organization is created.
-
-```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { organization } from "better-auth/plugins"
-
-export const auth = betterAuth({
-    plugins: [
-        organization({
-            organizationCreation: {
-                disabled: false, // Set to true to disable organization creation
-                beforeCreate: async ({ organization, user }, request) => {
-                    // Run custom logic before organization is created
-                    // Optionally modify the organization data
-                    return {
-                        data: {
-                            ...organization,
-                            metadata: {
-                                customField: "value"
-                            }
-                        }
-                    }
-                },
-                afterCreate: async ({ organization, member, user }, request) => {
-                    // Run custom logic after organization is created
-                    // e.g., create default resources, send notifications
-                    await setupDefaultResources(organization.id)
-                }
-            }
-        })
-    ]
-})
+```ts
+const { data, error } = await authClient.organization.checkSlug({
+    slug: my-org,
+});
 ```
 
-The `beforeCreate` hook runs before an organization is created. It receives:
+### Server Side
 
-* `organization`: The organization data (without ID)
-* `user`: The user creating the organization
-* `request`: The HTTP request object (optional)
+```ts
+const data = await auth.api.checkOrganizationSlug({
+    body: {
+        slug: my-org,
+    }
+});
+```
 
-Return an object with `data` property to modify the organization data that will be created.
+### Type Definition
 
-The `afterCreate` hook runs after an organization is successfully created. It receives:
+```ts
+type checkOrganizationSlug = {
+    /**
+     * The organization slug to check.  
+     */
+    slug: string = "my-org"
 
-* `organization`: The created organization (with ID)
-* `member`: The member record for the creator
-* `user`: The user who created the organization
-* `request`: The HTTP request object (optional)
+}
+```
+
+### Organization Hooks
+
+You can customize organization operations using hooks that run before and after various organization-related activities. Better Auth provides two ways to configure hooks:
+
+1. **Legacy organizationCreation hooks** (deprecated, use `organizationHooks` instead)
+2. **Modern organizationHooks** (recommended) - provides comprehensive control over all organization-related activities
+
+#### Organization Creation and Management Hooks
+
+Control organization lifecycle operations:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      organizationHooks: {
+        // Organization creation hooks
+        beforeCreateOrganization: async ({ organization, user }) => {
+          // Run custom logic before organization is created
+          // Optionally modify the organization data
+          return {
+            data: {
+              ...organization,
+              metadata: {
+                customField: "value",
+              },
+            },
+          };
+        },
+
+        afterCreateOrganization: async ({ organization, member, user }) => {
+          // Run custom logic after organization is created
+          // e.g., create default resources, send notifications
+          await setupDefaultResources(organization.id);
+        },
+
+        // Organization update hooks
+        beforeUpdateOrganization: async ({ organization, user, member }) => {
+          // Validate updates, apply business rules
+          return {
+            data: {
+              ...organization,
+              name: organization.name?.toLowerCase(),
+            },
+          };
+        },
+
+        afterUpdateOrganization: async ({ organization, user, member }) => {
+          // Sync changes to external systems
+          await syncOrganizationToExternalSystems(organization);
+        },
+      },
+    }),
+  ],
+});
+```
+
+<Callout type="info">
+  The legacy `organizationCreation` hooks are still supported but deprecated.
+  Use `organizationHooks.beforeCreateOrganization` and
+  `organizationHooks.afterCreateOrganization` instead for new projects.
+</Callout>
+
+#### Member Hooks
+
+Control member operations within organizations:
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      organizationHooks: {
+        // Before a member is added to an organization
+        beforeAddMember: async ({ member, user, organization }) => {
+          // Custom validation or modification
+          console.log(`Adding ${user.email} to ${organization.name}`);
+
+          // Optionally modify member data
+          return {
+            data: {
+              ...member,
+              role: "custom-role", // Override the role
+            },
+          };
+        },
+
+        // After a member is added
+        afterAddMember: async ({ member, user, organization }) => {
+          // Send welcome email, create default resources, etc.
+          await sendWelcomeEmail(user.email, organization.name);
+        },
+
+        // Before a member is removed
+        beforeRemoveMember: async ({ member, user, organization }) => {
+          // Cleanup user's resources, send notification, etc.
+          await cleanupUserResources(user.id, organization.id);
+        },
+
+        // After a member is removed
+        afterRemoveMember: async ({ member, user, organization }) => {
+          await logMemberRemoval(user.id, organization.id);
+        },
+
+        // Before updating a member's role
+        beforeUpdateMemberRole: async ({
+          member,
+          newRole,
+          user,
+          organization,
+        }) => {
+          // Validate role change permissions
+          if (newRole === "owner" && !hasOwnerUpgradePermission(user)) {
+            throw new Error("Cannot upgrade to owner role");
+          }
+
+          // Optionally modify the role
+          return {
+            data: {
+              role: newRole,
+            },
+          };
+        },
+
+        // After updating a member's role
+        afterUpdateMemberRole: async ({
+          member,
+          previousRole,
+          user,
+          organization,
+        }) => {
+          await logRoleChange(user.id, previousRole, member.role);
+        },
+      },
+    }),
+  ],
+});
+```
+
+#### Invitation Hooks
+
+Control invitation lifecycle:
+
+```ts title="auth.ts"
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      organizationHooks: {
+        // Before creating an invitation
+        beforeCreateInvitation: async ({
+          invitation,
+          inviter,
+          organization,
+        }) => {
+          // Custom validation or expiration logic
+          const customExpiration = new Date(
+            Date.now() + 1000 * 60 * 60 * 24 * 7
+          ); // 7 days
+
+          return {
+            data: {
+              ...invitation,
+              expiresAt: customExpiration,
+            },
+          };
+        },
+
+        // After creating an invitation
+        afterCreateInvitation: async ({
+          invitation,
+          inviter,
+          organization,
+        }) => {
+          // Send custom invitation email, track metrics, etc.
+          await sendCustomInvitationEmail(invitation, organization);
+        },
+
+        // Before accepting an invitation
+        beforeAcceptInvitation: async ({ invitation, user, organization }) => {
+          // Additional validation before acceptance
+          await validateUserEligibility(user, organization);
+        },
+
+        // After accepting an invitation
+        afterAcceptInvitation: async ({
+          invitation,
+          member,
+          user,
+          organization,
+        }) => {
+          // Setup user account, assign default resources
+          await setupNewMemberResources(user, organization);
+        },
+
+        // Before/after rejecting invitations
+        beforeRejectInvitation: async ({ invitation, user, organization }) => {
+          // Log rejection reason, send notification to inviter
+        },
+
+        afterRejectInvitation: async ({ invitation, user, organization }) => {
+          await notifyInviterOfRejection(invitation.inviterId, user.email);
+        },
+
+        // Before/after cancelling invitations
+        beforeCancelInvitation: async ({
+          invitation,
+          cancelledBy,
+          organization,
+        }) => {
+          // Verify cancellation permissions
+        },
+
+        afterCancelInvitation: async ({
+          invitation,
+          cancelledBy,
+          organization,
+        }) => {
+          await logInvitationCancellation(invitation.id, cancelledBy.id);
+        },
+      },
+    }),
+  ],
+});
+```
+
+#### Team Hooks
+
+Control team operations (when teams are enabled):
+
+```ts title="auth.ts"
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      teams: { enabled: true },
+      organizationHooks: {
+        // Before creating a team
+        beforeCreateTeam: async ({ team, user, organization }) => {
+          // Validate team name, apply naming conventions
+          return {
+            data: {
+              ...team,
+              name: team.name.toLowerCase().replace(/\s+/g, "-"),
+            },
+          };
+        },
+
+        // After creating a team
+        afterCreateTeam: async ({ team, user, organization }) => {
+          // Create default team resources, channels, etc.
+          await createDefaultTeamResources(team.id);
+        },
+
+        // Before updating a team
+        beforeUpdateTeam: async ({ team, updates, user, organization }) => {
+          // Validate updates, apply business rules
+          return {
+            data: {
+              ...updates,
+              name: updates.name?.toLowerCase(),
+            },
+          };
+        },
+
+        // After updating a team
+        afterUpdateTeam: async ({ team, user, organization }) => {
+          await syncTeamChangesToExternalSystems(team);
+        },
+
+        // Before deleting a team
+        beforeDeleteTeam: async ({ team, user, organization }) => {
+          // Backup team data, notify members
+          await backupTeamData(team.id);
+        },
+
+        // After deleting a team
+        afterDeleteTeam: async ({ team, user, organization }) => {
+          await cleanupTeamResources(team.id);
+        },
+
+        // Team member operations
+        beforeAddTeamMember: async ({
+          teamMember,
+          team,
+          user,
+          organization,
+        }) => {
+          // Validate team membership limits, permissions
+          const memberCount = await getTeamMemberCount(team.id);
+          if (memberCount >= 10) {
+            throw new Error("Team is full");
+          }
+        },
+
+        afterAddTeamMember: async ({
+          teamMember,
+          team,
+          user,
+          organization,
+        }) => {
+          await grantTeamAccess(user.id, team.id);
+        },
+
+        beforeRemoveTeamMember: async ({
+          teamMember,
+          team,
+          user,
+          organization,
+        }) => {
+          // Backup user's team-specific data
+          await backupTeamMemberData(user.id, team.id);
+        },
+
+        afterRemoveTeamMember: async ({
+          teamMember,
+          team,
+          user,
+          organization,
+        }) => {
+          await revokeTeamAccess(user.id, team.id);
+        },
+      },
+    }),
+  ],
+});
+```
+
+#### Hook Error Handling
+
+All hooks support error handling. Throwing an error in a `before` hook will prevent the operation from proceeding:
+
+```ts title="auth.ts"
+import { APIError } from "better-auth/api";
+
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      organizationHooks: {
+        beforeAddMember: async ({ member, user, organization }) => {
+          // Check if user has pending violations
+          const violations = await checkUserViolations(user.id);
+          if (violations.length > 0) {
+            throw new APIError("BAD_REQUEST", {
+              message:
+                "User has pending violations and cannot join organizations",
+            });
+          }
+        },
+
+        beforeCreateTeam: async ({ team, user, organization }) => {
+          // Validate team name uniqueness
+          const existingTeam = await findTeamByName(team.name, organization.id);
+          if (existingTeam) {
+            throw new APIError("BAD_REQUEST", {
+              message: "Team name already exists in this organization",
+            });
+          }
+        },
+      },
+    }),
+  ],
+});
+```
 
 ### List User's Organizations
 
 To list the organizations that a user is a member of, you can use `useListOrganizations` hook. It implements a reactive way to get the organizations that the user is a member of.
 
-<Tabs items={["React", "Vue", "Svelte"]} defaultValue="React">
+<Tabs items={["React", "Vue", "Svelte"]} default="React">
   <Tab value="React">
     ```tsx title="client.tsx"
     import { authClient } from "@/lib/auth-client"
 
     function App(){
-        const { data: organizations } = authClient.useListOrganizations()
-        return (
-            <div>
-                {organizations.map(org => <p>{org.name}</p>)}
-            </div>
-        )
+    const { data: organizations } = authClient.useListOrganizations()
+    return (
+      <div>
+        {organizations.map((org) => (
+          <p>{org.name}</p>
+        ))}
+      </div>)
     }
     ```
   </Tab>
@@ -18875,11 +25134,12 @@ To list the organizations that a user is a member of, you can use `useListOrgani
       const organizations = authClient.useListOrganizations();
     </script>
 
-    <h1>Organizations</h1>s
+    <h1>Organizations</h1>
 
     {#if $organizations.isPending}
+
       <p>Loading...</p>
-    {:else if $organizations.data === null}
+    {:else if !$organizations.data?.length}
       <p>No organizations found.</p>
     {:else}
       <ul>
@@ -18920,19 +25180,38 @@ To list the organizations that a user is a member of, you can use `useListOrgani
 
 Or alternatively, you can call `organization.list` if you don't want to use a hook.
 
-<APIMethod path="/organization/list" method="GET">
-  ```ts
-  type listOrganizations = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.list({});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listOrganizations({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listOrganizations = {
+  
+}
+```
 
 ### Active Organization
 
 Active organization is the workspace the user is currently working on. By default when the user is signed in the active organization is set to `null`. You can set the active organization to the user session.
 
 <Callout type="info">
-  It's not always you want to persist the active organization in the session. You can manage the active organization in the client side only. For example, multiple tabs can have different active organizations.
+  It's not always you want to persist the active organization in the session.
+  You can manage the active organization in the client side only. For example,
+  multiple tabs can have different active organizations.
 </Callout>
 
 #### Set Active Organization
@@ -18940,45 +25219,67 @@ Active organization is the workspace the user is currently working on. By defaul
 You can set the active organization by calling the `organization.setActive` function. It'll set the active organization for the user session.
 
 <Callout>
-  In some applications, you may want the ability to un-set an active organization.
-  In this case, you can call this endpoint with `organizationId` set to `null`.
+  In some applications, you may want the ability to unset an active
+  organization. In this case, you can call this endpoint with `organizationId`
+  set to `null`.
 </Callout>
 
-<APIMethod path="/organization/set-active" method="POST">
-  ```ts
-  type setActiveOrganization = {
-      /**
-       * The organization id to set as active. It can be null to unset the active organization.  
-       */
-      organizationId?: string | null = "org-id"
-      /**
-       * The organization slug to set as active. It can be null to unset the active organization if organizationId is not provided.  
-       */
-      organizationSlug?: string = "org-slug"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.setActive({
+    organizationId: org-id, // required
+    organizationSlug: org-slug, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.setActiveOrganization({
+    body: {
+        organizationId: org-id, // required
+        organizationSlug: org-slug, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type setActiveOrganization = {
+    /**
+     * The organization ID to set as active. It can be null to unset the active organization.  
+     */
+    organizationId?: string | null = "org-id"
+    /**
+     * The organization slug to set as active. It can be null to unset the active organization if organizationId is not provided.  
+     */
+    organizationSlug?: string = "org-slug"
+
+}
+```
 
 To set active organization when a session is created you can use [database hooks](/docs/concepts/database#database-hooks).
 
 ```ts title="auth.ts"
 export const auth = betterAuth({
   databaseHooks: {
-      session: {
-          create: {
-              before: async(session)=>{
-                  const organization = await getActiveOrganization(session.userId)
-                  return {
-                    data: {
-                      ...session,
-                      activeOrganizationId: organization.id
-                    }
-                  }
-              }
-          }
-      }
-  }
-})
+    session: {
+      create: {
+        before: async (session) => {
+          const organization = await getActiveOrganization(session.userId);
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: organization.id,
+            },
+          };
+        },
+      },
+    },
+  },
+});
 ```
 
 #### Use Active Organization
@@ -19050,75 +25351,144 @@ To retrieve the active organization for the user, you can call the `useActiveOrg
 To get the full details of an organization, you can use the `getFullOrganization` function.
 By default, if you don't pass any properties, it will use the active organization.
 
-<APIMethod path="/organization/get-full-organization" method="GET" requireSession>
-  ```ts
-  type getFullOrganization = {
-      /**
-       * The organization id to get. By default, it will use the active organization.  
-       */
-      organizationId?: string = "org-id"
-      /**
-       * The organization slug to get.  
-       */
-      organizationSlug?: string = "org-slug"
-      /**
-       * The limit of members to get. By default, it uses the membershipLimit option which defaults to 100.
-       */
-      membersLimit?: number = 100
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.getFullOrganization({
+    organizationId: org-id, // required
+    organizationSlug: org-slug, // required
+    membersLimit, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.getFullOrganization({
+    query: {
+        organizationId: org-id, // required
+        organizationSlug: org-slug, // required
+        membersLimit, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type getFullOrganization = {
+    /**
+     * The organization ID to get. By default, it will use the active organization.  
+     */
+    organizationId?: string = "org-id"
+    /**
+     * The organization slug to get.  
+     */
+    organizationSlug?: string = "org-slug"
+    /**
+     * The limit of members to get. By default, it uses the membershipLimit option which defaults to 100.
+     */
+    membersLimit?: number = 100
+
+}
+```
 
 ### Update Organization
 
 To update organization info, you can use `organization.update`
 
-<APIMethod path="/organization/update" method="POST" requireSession>
-  ```ts
-  type updateOrganization = {
-      /**
-       * A partial list of data to update the organization. 
-       */
-      data: {
-          /**
-           * The name of the organization. 
-           */
-          name?: string = "updated-name"
-          /**
-           * The slug of the organization. 
-           */
-          slug?: string = "updated-slug"
-          /**
-           * The logo of the organization. 
-           */
-          logo?: string = "new-logo.url"
-          /**
-           * The metadata of the organization. 
-           */
-          metadata?: Record<string, any> | null = { customerId: "test" }
-      }
-      /**
-       * The organization ID. to update.
-       */
-      organizationId?: string = "org-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.update({
+    data,
+    name: updated-name, // required
+    slug: updated-slug, // required
+    logo: new-logo.url, // required
+    metadata, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.updateOrganization({
+    body: {
+        data,
+        name: updated-name, // required
+        slug: updated-slug, // required
+        logo: new-logo.url, // required
+        metadata, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type updateOrganization = {
+    /**
+     * A partial list of data to update the organization. 
+     */
+    data: {
+        /**
+         * The name of the organization. 
+         */
+        name?: string = "updated-name"
+        /**
+         * The slug of the organization. 
+         */
+        slug?: string = "updated-slug"
+        /**
+         * The logo of the organization. 
+         */
+        logo?: string = "new-logo.url"
+        /**
+         * The metadata of the organization. 
+         */
+        metadata?: Record<string, any> | null = { customerId: "test" 
+}
+```
 
 ### Delete Organization
 
 To remove user owned organization, you can use `organization.delete`
 
-<APIMethod path="/organization/delete" method="POST" requireSession>
-  ```ts
-  type deleteOrganization = {
-      /*
-      * The organization id to delete.
-      */
-      organizationId: string = "org-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.delete({
+    organizationId: org-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deleteOrganization({
+    body: {
+        organizationId: org-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type deleteOrganization = {
+    /*
+    * The organization ID to delete.
+    */
+    organizationId: string = "org-id"
+
+}
+```
 
 If the user has the necessary permissions (by default: role is owner) in the specified organization, all members, invitations and organization information will be removed.
 
@@ -19128,12 +25498,12 @@ You can configure how organization deletion is handled through `organizationDele
 const auth = betterAuth({
   plugins: [
     organization({
-      organizationDeletion: {
-        disabled: true, //to disable it altogether
-        beforeDelete: async (data, request) => {
+      disableOrganizationDeletion: true, //to disable it altogether
+      organizationHooks: {
+        beforeDeleteOrganization: async (data, request) => {
           // a callback to run before deleting org
         },
-        afterDelete: async (data, request) => {
+        afterDeleteOrganization: async (data, request) => {
           // a callback to run after deleting org
         },
       },
@@ -19153,24 +25523,24 @@ For member invitation to work we first need to provide `sendInvitationEmail` to 
 You'll need to construct and send the invitation link to the user. The link should include the invitation ID, which will be used with the acceptInvitation function when the user clicks on it.
 
 ```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { organization } from "better-auth/plugins"
-import { sendOrganizationInvitation } from "./email"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+import { sendOrganizationInvitation } from "./email";
 export const auth = betterAuth({
-	plugins: [
-		organization({
-			async sendInvitationEmail(data) {
-        const inviteLink = `https://example.com/accept-invitation/${data.id}`
-				sendOrganizationInvitation({
-					  email: data.email,
-						invitedByUsername: data.inviter.user.name,
-						invitedByEmail: data.inviter.user.email,
-						teamName: data.organization.name,
-						inviteLink
-				})
-			},
-		}),
-	],
+  plugins: [
+    organization({
+      async sendInvitationEmail(data) {
+        const inviteLink = `https://example.com/accept-invitation/${data.id}`;
+        sendOrganizationInvitation({
+          email: data.email,
+          invitedByUsername: data.inviter.user.name,
+          invitedByEmail: data.inviter.user.email,
+          teamName: data.organization.name,
+          inviteLink,
+        });
+      },
+    }),
+  ],
 });
 ```
 
@@ -19178,37 +25548,67 @@ export const auth = betterAuth({
 
 To invite users to an organization, you can use the `invite` function provided by the client. The `invite` function takes an object with the following properties:
 
-<APIMethod path="/organization/invite-member" method="POST">
-  ```ts
-  type createInvitation = {
-      /**
-       * The email address of the user to invite.  
-       */
-      email: string = "example@gmail.com"
-      /**
-       * The role(s) to assign to the user. It can be `admin`, `member`, or `guest`.  
-       */
-      role: string | string[] = "member"
-      /**
-       * The organization ID to invite the user to. Defaults to the active organization.  
-       */
-      organizationId?: string = "org-id"
-      /**
-       * Resend the invitation email, if the user is already invited.  
-       */
-      resend?: boolean = true
-      /**
-       * The team ID to invite the user to.  
-       */
-      teamId?: string = "team-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.inviteMember({
+    email: example@gmail.com,
+    role: member,
+    organizationId: org-id, // required
+    resend, // required
+    teamId: team-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.createInvitation({
+    body: {
+        email: example@gmail.com,
+        role: member,
+        organizationId: org-id, // required
+        resend, // required
+        teamId: team-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type createInvitation = {
+    /**
+     * The email address of the user to invite.  
+     */
+    email: string = "example@gmail.com"
+    /**
+     * The role(s) to assign to the user. It can be `admin`, `member`, or `guest`.  
+     */
+    role: string | string[] = "member"
+    /**
+     * The organization ID to invite the user to. Defaults to the active organization.  
+     */
+    organizationId?: string = "org-id"
+    /**
+     * Resend the invitation email, if the user is already invited.  
+     */
+    resend?: boolean = true
+    /**
+     * The team ID to invite the user to.  
+     */
+    teamId?: string = "team-id"
+
+}
+```
 
 <Callout>
-  * If the user is already a member of the organization, the invitation will be canceled.
-  * If the user is already invited to the organization, unless `resend` is set to `true`, the invitation will not be sent again.
-  * If `cancelPendingInvitationsOnReInvite` is set to `true`, the invitation will be canceled if the user is already invited to the organization and a new invitation is sent.
+  * If the user is already a member of the organization, the invitation will be
+    canceled. - If the user is already invited to the organization, unless
+    `resend` is set to `true`, the invitation will not be sent again. - If
+    `cancelPendingInvitationsOnReInvite` is set to `true`, the invitation will be
+    canceled if the user is already invited to the organization and a new
+    invitation is sent.
 </Callout>
 
 ### Accept Invitation
@@ -19217,16 +25617,86 @@ When a user receives an invitation email, they can click on the invitation link 
 
 Make sure to call the `acceptInvitation` function after the user is logged in.
 
-<APIMethod path="/organization/accept-invitation" method="POST">
-  ```ts
-  type acceptInvitation = {
-      /**
-       * The ID of the invitation to accept.  
-       */
-      invitationId: string = "invitation-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.acceptInvitation({
+    invitationId: invitation-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.acceptInvitation({
+    body: {
+        invitationId: invitation-id,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type acceptInvitation = {
+    /**
+     * The ID of the invitation to accept.  
+     */
+    invitationId: string = "invitation-id"
+
+}
+```
+
+#### Email Verification Requirement
+
+If the `requireEmailVerificationOnInvitation` option is enabled in your organization configuration, users must verify their email address before they can accept invitations. This adds an extra security layer to ensure that only verified users can join your organization.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      requireEmailVerificationOnInvitation: true, // [!code highlight]
+      async sendInvitationEmail(data) {
+        // ... your email sending logic
+      },
+    }),
+  ],
+});
+```
+
+### Invitation Accepted Callback
+
+You can configure Better Auth to execute a callback function when an invitation is accepted. This is useful for logging events, updating analytics, sending notifications, or any other custom logic you need to run when someone joins your organization.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+
+export const auth = betterAuth({
+  plugins: [
+    organization({
+      async sendInvitationEmail(data) {
+        // ... your invitation email logic
+      },
+      async onInvitationAccepted(data) {
+        // This callback gets triggered when an invitation is accepted
+      },
+    }),
+  ],
+});
+```
+
+The callback receives the following data:
+
+* `id`: The invitation ID
+* `role`: The role assigned to the user
+* `organization`: The organization the user joined
+* `invitation`: The invitation object
+* `inviter`: The member who sent the invitation (including user details)
+* `acceptedUser`: The user who accepted the invitation
 
 ### Cancel Invitation
 
@@ -19234,82 +25704,168 @@ If a user has sent out an invitation, you can use this method to cancel it.
 
 If you're looking for how a user can reject an invitation, you can find that [here](#reject-invitation).
 
-<APIMethod path="/organization/cancel-invitation" method="POST" noResult>
-  ```ts
-  type cancelInvitation = {
-      /**
-       * The ID of the invitation to cancel.  
-       */
-      invitationId: string = "invitation-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.cancelInvitation({
+    invitationId: invitation-id,
+});
+```
+
+### Server Side
+
+```ts
+await auth.api.cancelInvitation({
+    body: {
+        invitationId: invitation-id,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type cancelInvitation = {
+    /**
+     * The ID of the invitation to cancel.  
+     */
+    invitationId: string = "invitation-id"
+
+}
+```
 
 ### Reject Invitation
 
 If this user has received an invitation, but wants to decline it, this method will allow you to do so by rejecting it.
 
-<APIMethod path="/organization/reject-invitation" method="POST" noResult>
-  ```ts
-  type rejectInvitation = {
-      /**
-       * The ID of the invitation to reject.  
-       */
-      invitationId: string = "invitation-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.rejectInvitation({
+    invitationId: invitation-id,
+});
+```
+
+### Server Side
+
+```ts
+await auth.api.rejectInvitation({
+    body: {
+        invitationId: invitation-id,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type rejectInvitation = {
+    /**
+     * The ID of the invitation to reject.  
+     */
+    invitationId: string = "invitation-id"
+
+}
+```
+
+<Callout type="info">
+  Like accepting invitations, rejecting invitations also requires email
+  verification when the `requireEmailVerificationOnInvitation` option is
+  enabled. Users with unverified emails will receive an error when attempting to
+  reject invitations.
+</Callout>
 
 ### Get Invitation
 
 To get an invitation you can use the `organization.getInvitation` function provided by the client. You need to provide the invitation id as a query parameter.
 
-<APIMethod path="/organization/get-invitation" method="GET" requireSession>
-  ```ts
-  type getInvitation = {
-      /**
-       * The ID of the invitation to get.  
-       */
-      id: string = "invitation-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.getInvitation({
+    id: invitation-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.getInvitation({
+    query: {
+        id: invitation-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type getInvitation = {
+    /**
+     * The ID of the invitation to get.  
+     */
+    id: string = "invitation-id"
+
+}
+```
 
 ### List Invitations
 
 To list all invitations for a given organization you can use the `listInvitations` function provided by the client.
 
-<APIMethod path="/organization/list-invitations" method="GET">
-  ```ts
-  type listInvitations = {
-      /**
-       * An optional ID of the organization to list invitations for. If not provided, will default to the users active organization. 
-       */
-      organizationId?: string = "organization-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.listInvitations({
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listInvitations({
+    query: {
+        organizationId: organization-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type listInvitations = {
+    /**
+     * An optional ID of the organization to list invitations for. If not provided, will default to the user's active organization. 
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
 
 ### List user invitations
 
 To list all invitations for a given user you can use the `listUserInvitations` function provided by the client.
 
 ```ts title="auth-client.ts"
-const invitations = await authClient.organization.listUserInvitations()
+const invitations = await authClient.organization.listUserInvitations();
 ```
 
 On the server, you can pass the user ID as a query parameter.
 
 ```ts title="api.ts"
 const invitations = await auth.api.listUserInvitations({
-    query: {
-        email: "user@example.com"
-    }
-})
+  query: {
+    email: "user@example.com",
+  },
+});
 ```
 
 <Callout type="warn">
-  The `email` query parameter is only available on the server to query for invitations for a specific user.
+  The `email` query parameter is only available on the server to query for
+  invitations for a specific user.
 </Callout>
 
 ## Members
@@ -19318,144 +25874,311 @@ const invitations = await auth.api.listUserInvitations({
 
 To list all members of an organization you can use the `listMembers` function.
 
-<APIMethod path="/organization/list-members" method="GET">
-  ```ts
-  type listMembers = {
-      /**
-       * An optional organization ID to list members for. If not provided, will default to the user's active organization. 
-       */
-      organizationId?: string = "organization-id"
-      /**
-       * The limit of members to return.
-       */
-      limit?: number = 100
-      /**
-       * The offset to start from.
-       */
-      offset?: number = 0
-      /**
-       * The field to sort by.
-       */
-      sortBy?: string = "createdAt"
-      /**
-       * The direction to sort by.
-       */
-      sortDirection?: "asc" | "desc" = "desc"
-      /**
-       * The field to filter by.
-       */
-      filterField?: string = "createdAt"
-      /**
-       * The operator to filter by.
-       */
-      filterOperator?: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "in" | "nin" | "contains" = "eq"
-      /**
-       * The value to filter by.
-       */
-      filterValue?: string = "value"
-      /**
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.listMembers({
+    organizationId: organization-id, // required
+    limit, // required
+    offset, // required
+    sortBy: createdAt, // required
+    sortDirection: desc, // required
+    filterField: createdAt, // required
+    filterOperator: eq, // required
+    filterValue: value, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listMembers({
+    query: {
+        organizationId: organization-id, // required
+        limit, // required
+        offset, // required
+        sortBy: createdAt, // required
+        sortDirection: desc, // required
+        filterField: createdAt, // required
+        filterOperator: eq, // required
+        filterValue: value, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type listMembers = {
+    /**
+     * An optional organization ID to list members for. If not provided, will default to the user's active organization.
+     */
+    organizationId?: string = "organization-id"
+    /**
+     * The limit of members to return.
+     */
+    limit?: number = 100
+    /**
+     * The offset to start from.
+     */
+    offset?: number = 0
+    /**
+     * The field to sort by.
+     */
+    sortBy?: string = "createdAt"
+    /**
+     * The direction to sort by.
+     */
+    sortDirection?: "asc" | "desc" = "desc"
+    /**
+     * The field to filter by.
+     */
+    filterField?: string = "createdAt"
+    /**
+     * The operator to filter by.
+     */
+    filterOperator?: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "in" | "nin" | "contains" = "eq"
+    /**
+     * The value to filter by.
+     */
+    filterValue?: string = "value"
+
+}
+```
 
 ### Remove Member
 
 To remove you can use `organization.removeMember`
 
-<APIMethod path="/organization/remove-member" method="POST">
-  ```ts
-  type removeMember = {
-      /**
-       * The ID or email of the member to remove. 
-       */
-      memberIdOrEmail: string = "user@example.com"
-      /**
-       * The ID of the organization to remove the member from. If not provided, the active organization will be used. 
-       */
-      organizationId?: string = "org-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.removeMember({
+    memberIdOrEmail: user@example.com,
+    organizationId: org-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.removeMember({
+    body: {
+        memberIdOrEmail: user@example.com,
+        organizationId: org-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type removeMember = {
+    /**
+     * The ID or email of the member to remove. 
+     */
+    memberIdOrEmail: string = "user@example.com"
+    /**
+     * The ID of the organization to remove the member from. If not provided, the active organization will be used. 
+     */
+    organizationId?: string = "org-id"
+
+}
+```
 
 ### Update Member Role
 
 To update the role of a member in an organization, you can use the `organization.updateMemberRole`. If the user has the permission to update the role of the member, the role will be updated.
 
-<APIMethod path="/organization/update-member-role" method="POST" noResult>
-  ```ts
-  type updateMemberRole = {
-      /**
-       * The new role to be applied. This can be a string or array of strings representing the roles. 
-       */
-      role: string | string[] = ["admin", "sale"]
-      /**
-       * The member id to apply the role update to. 
-       */
-      memberId: string = "member-id"
-      /**
-       * An optional organization ID which the member is a part of to apply the role update. If not provided, you must provide session headers to get the active organization. 
-       */
-      organizationId?: string = "organization-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.updateMemberRole({
+    role,
+    memberId: member-id,
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+await auth.api.updateMemberRole({
+    body: {
+        role,
+        memberId: member-id,
+        organizationId: organization-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type updateMemberRole = {
+    /**
+     * The new role to be applied. This can be a string or array of strings representing the roles. 
+     */
+    role: string | string[] = ["admin", "sale"]
+    /**
+     * The member id to apply the role update to. 
+     */
+    memberId: string = "member-id"
+    /**
+     * An optional organization ID which the member is a part of to apply the role update. If not provided, you must provide session headers to get the active organization. 
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
 
 ### Get Active Member
 
 To get the current member of the active organization you can use the `organization.getActiveMember` function. This function will return the user's member details in their active organization.
 
-<APIMethod path="/organization/get-active-member" method="GET" requireSession resultVariable="member">
-  ```ts
-  type getActiveMember = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.getActiveMember({});
+```
+
+### Server Side
+
+```ts
+const member = await auth.api.getActiveMember({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type getActiveMember = {
+  
+}
+```
+
+### Get Active Member Role
+
+To get the current role member of the active organization you can use the `organization.getActiveMemberRole` function. This function will return the user's member role in their active organization.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.getActiveMemberRole({});
+```
+
+### Server Side
+
+```ts
+const { role } = await auth.api.getActiveMemberRole({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type getActiveMemberRole = {
+  
+}
+```
 
 ### Add Member
 
 If you want to add a member directly to an organization without sending an invitation, you can use the `addMember` function which can only be invoked on the server.
 
-<APIMethod path="/organization/add-member" method="POST" isServerOnly>
-  ```ts
-  type addMember = {
-      /**
-       * The user Id which represents the user to be added as a member. If `null` is provided, then it's expected to provide session headers. 
-       */
-      userId?: string | null = "user-id"
-      /**
-       * The role(s) to assign to the new member. 
-       */
-      role: string | string[] = ["admin", "sale"]
-      /**
-       * An optional organization ID to pass. If not provided, will default to the user's active organization. 
-       */
-      organizationId?: string = "org-id"
-      /**
-       * An optional team ID to add the member to. 
-       */
-      teamId?: string = "team-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.addMember({
+    userId: user-id, // required
+    role,
+    organizationId: org-id, // required
+    teamId: team-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.addMember({
+    body: {
+        userId: user-id, // required
+        role,
+        organizationId: org-id, // required
+        teamId: team-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type addMember = {
+    /**
+     * The user ID which represents the user to be added as a member. If `null` is provided, then it's expected to provide session headers. 
+     */
+    userId?: string | null = "user-id"
+    /**
+     * The role(s) to assign to the new member. 
+     */
+    role: string | string[] = ["admin", "sale"]
+    /**
+     * An optional organization ID to pass. If not provided, will default to the user's active organization. 
+     */
+    organizationId?: string = "org-id"
+    /**
+     * An optional team ID to add the member to. 
+     */
+    teamId?: string = "team-id"
+
+}
+```
 
 ### Leave Organization
 
 To leave organization you can use `organization.leave` function. This function will remove the current user from the organization.
 
-<APIMethod path="/organization/leave" method="POST" requireSession noResult>
-  ```ts
-  type leaveOrganization = {
-      /**
-       * The organization Id for the member to leave. 
-       */
-      organizationId: string = "organization-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.leave({
+    organizationId: organization-id,
+});
+```
+
+### Server Side
+
+```ts
+await auth.api.leaveOrganization({
+    body: {
+        organizationId: organization-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type leaveOrganization = {
+    /**
+     * The organization ID for the member to leave. 
+     */
+    organizationId: string = "organization-id"
+
+}
+```
 
 ## Access Control
 
-The organization plugin providers a very flexible access control system. You can control the access of the user based on the role they have in the organization. You can define your own set of permissions based on the role of the user.
+The organization plugin provides a very flexible access control system. You can control the access of the user based on the role they have in the organization. You can define your own set of permissions based on the role of the user.
 
 ### Roles
 
@@ -19468,7 +26191,8 @@ By default, there are three roles in the organization:
 `member`: Users with the member role have limited control over the organization. They can create projects, invite users, and manage projects they have created.
 
 <Callout>
-  A user can have multiple roles. Multiple roles are stored as string separated by comma (",").
+  A user can have multiple roles. Multiple roles are stored as string separated
+  by comma (",").
 </Callout>
 
 ### Permissions
@@ -19625,22 +26349,22 @@ import { auth } from "@/auth";
 
 await auth.api.hasPermission({
   headers: await headers(),
-    body: {
-      permissions: {
-        project: ["create"] // This must match the structure in your access control
-      }
-    }
+  body: {
+    permissions: {
+      project: ["create"], // This must match the structure in your access control
+    },
+  },
 });
 
 // You can also check multiple resource permissions at the same time
 await auth.api.hasPermission({
   headers: await headers(),
-    body: {
-      permissions: {
-        project: ["create"], // This must match the structure in your access control
-        sale: ["create"]
-      }
-    }
+  body: {
+    permissions: {
+      project: ["create"], // This must match the structure in your access control
+      sale: ["create"],
+    },
+  },
 });
 ```
 
@@ -19648,18 +26372,19 @@ If you want to check the permission of the user on the client from the server yo
 
 ```ts title="auth-client.ts"
 const canCreateProject = await authClient.organization.hasPermission({
-    permissions: {
-        project: ["create"]
-    }
-})
+  permissions: {
+    project: ["create"],
+  },
+});
 
 // You can also check multiple resource permissions at the same time
-const canCreateProjectAndCreateSale = await authClient.organization.hasPermission({
+const canCreateProjectAndCreateSale =
+  await authClient.organization.hasPermission({
     permissions: {
-        project: ["create"],
-        sale: ["create"]
-    }
-})
+      project: ["create"],
+      sale: ["create"],
+    },
+  });
 ```
 
 **Check Role Permission**:
@@ -19668,21 +26393,441 @@ Once you have defined the roles and permissions to avoid checking the permission
 
 ```ts title="auth-client.ts"
 const canCreateProject = authClient.organization.checkRolePermission({
-	permissions: {
-		organization: ["delete"],
-	},
-	role: "admin",
+  permissions: {
+    organization: ["delete"],
+  },
+  role: "admin",
 });
 
 // You can also check multiple resource permissions at the same time
-const canCreateProjectAndCreateSale = authClient.organization.checkRolePermission({
-	permissions: {
-		organization: ["delete"],
-    member: ["delete"]
-	},
-	role: "admin",
+const canCreateProjectAndCreateSale =
+  authClient.organization.checkRolePermission({
+    permissions: {
+      organization: ["delete"],
+      member: ["delete"],
+    },
+    role: "admin",
+  });
+```
+
+<Callout type="warn">
+  This will not include any dynamic roles as everything is ran syncronously on the client side.
+  Please use the [hasPermission](#access-control-usage) APIs to include checks for any dynamic roles & permissions.
+</Callout>
+
+***
+
+## Dynamic Access Control
+
+Dynamic access control allows you to create roles at runtime for organizations. This is achieved by storing the
+created roles and permissions associated with an organization in a database table.
+
+### Enabling Dynamic Access Control
+
+To enable dynamic access control, pass the `dynamicAccessControl` configuration option with `enabled` set to `true` to both server and client plugins.
+
+Ensure you have pre-defined an `ac` instance on the server auth plugin.
+This is important as this is how we can infer the permissions that are available for use.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
+import { ac } from "@/auth/permissions";
+
+export const auth = betterAuth({
+    plugins: [ // [!code highlight]
+        organization({ // [!code highlight]
+            ac, // Must be defined in order for dynamic access control to work // [!code highlight]
+            dynamicAccessControl: { // [!code highlight]
+              enabled: true, // [!code highlight]
+            }, // [!code highlight]
+        }) // [!code highlight]
+    ] // [!code highlight]
+})
+```
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client";
+import { organizationClient } from "better-auth/client/plugins";
+
+export const authClient = createAuthClient({
+    plugins: [ // [!code highlight]
+        organizationClient({ // [!code highlight]
+            dynamicAccessControl: { // [!code highlight]
+              enabled: true, // [!code highlight]
+            }, // [!code highlight]
+        }) // [!code highlight]
+    ] // [!code highlight]
+})
+```
+
+<Callout>
+  This will require you to run migrations to add the new `organizationRole` table to the database.
+</Callout>
+
+<Callout type="warn">
+  The `authClient.organization.checkRolePermission` function will not include any dynamic roles as everything is ran syncronously on the client side.
+  Please use the [hasPermission](#access-control-usage) APIs to include checks for any dynamic roles.
+</Callout>
+
+### Creating a role
+
+To create a new role for an organization at runtime, you can use the `createRole` function.
+
+Only users with roles which contain the `ac` resource with the `create` permission can create a new role.
+By default, only the `admin` and `owner` roles have this permission. You also cannot add permissions that your
+current role in that organization can't already access.
+
+<Callout>
+  TIP: You can validate role names by using the `dynamicAccessControl.validateRoleName` option in the organization plugin config.
+  Learn more [here](#validaterolename).
+</Callout>
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.createRole({
+    role: my-unique-role,
+    permission, // required
+    organizationId: organization-id, // required
 });
 ```
+
+### Server Side
+
+```ts
+await auth.api.createOrgRole({
+    body: {
+        role: my-unique-role,
+        permission, // required
+        organizationId: organization-id, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type createOrgRole = {
+    /**
+     * A unique name of the role to create.
+     */
+    role: string = "my-unique-role"
+    /**
+     * The permissions to assign to the role.
+     */
+    permission?: Record<string, string[]> = permission,
+    /**
+     * The organization ID which the role will be created in. Defaults to the active organization.
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
+
+Now you can freely call [`updateMemberRole`](#updating-a-member-role) to update the role of a member with your newly created role!
+
+### Deleting a role
+
+To delete a role, you can use the `deleteRole` function, then provide either a `roleName` or `roleId` parameter along
+with the `organizationId` parameter.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.deleteRole({
+    roleName: my-role, // required
+    roleId: role-id, // required
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+await auth.api.deleteOrgRole({
+    body: {
+        roleName: my-role, // required
+        roleId: role-id, // required
+        organizationId: organization-id, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type deleteOrgRole = {
+    /**
+     * The name of the role to delete. Alternatively, you can pass a `roleId` parameter instead.
+     */
+    roleName?: string = "my-role"
+    /**
+     * The id of the role to delete. Alternatively, you can pass a `roleName` parameter instead.
+     */
+    roleId?: string = "role-id"
+    /**
+     * The organization ID which the role will be deleted in. Defaults to the active organization.
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
+
+### Listing roles
+
+To list roles, you can use the `listOrgRoles` function.
+This requires the `ac` resource with the `read` permission for the member to be able to list roles.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.listRoles({
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const roles = await auth.api.listOrgRoles({
+    query: {
+        organizationId: organization-id, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listOrgRoles = {
+    /**
+     * The organization ID which the roles are under to list. Defaults to the user's active organization. 
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
+
+### Getting a specific role
+
+To get a specific role, you can use the `getOrgRole` function and pass either a `roleName` or `roleId` parameter.
+This requires the `ac` resource with the `read` permission for the member to be able to get a role.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.getRole({
+    roleName: my-role, // required
+    roleId: role-id, // required
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const role = await auth.api.getOrgRole({
+    query: {
+        roleName: my-role, // required
+        roleId: role-id, // required
+        organizationId: organization-id, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type getOrgRole = {
+    /**
+     * The name of the role to get. Alternatively, you can pass a `roleId` parameter instead.
+     */
+    roleName?: string = "my-role"
+    /**
+     * The id of the role to get. Alternatively, you can pass a `roleName` parameter instead.
+     */
+    roleId?: string = "role-id"
+    /**
+     * The organization ID which the role will be deleted in. Defaults to the active organization.
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
+
+### Updating a role
+
+To update a role, you can use the `updateOrgRole` function and pass either a `roleName` or `roleId` parameter.
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.updateRole({
+    roleName: my-role, // required
+    roleId: role-id, // required
+    organizationId: organization-id, // required
+    data,
+    permission, // required
+});
+```
+
+### Server Side
+
+```ts
+const updatedRole = await auth.api.updateOrgRole({
+    body: {
+        roleName: my-role, // required
+        roleId: role-id, // required
+        organizationId: organization-id, // required
+        data,
+        permission, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type updateOrgRole = {
+    /**
+     * The name of the role to update. Alternatively, you can pass a `roleId` parameter instead.
+     */
+    roleName?: string = "my-role"
+    /**
+     * The id of the role to update. Alternatively, you can pass a `roleName` parameter instead.
+     */
+    roleId?: string = "role-id"
+    /**
+     * The organization ID which the role will be updated in. Defaults to the active organization.
+     */
+    organizationId?: string = "organization-id"
+    /**
+     * The data which will be updated
+    */
+    data: {
+      /**
+       * Optionally update the permissions of the role.
+       */
+      permission?: Record<string, string[]> = { project: ["create", "update", "delete"] 
+}
+```
+
+### Configuration Options
+
+Below is a list of options that can be passed to the `dynamicAccessControl` object.
+
+#### `enabled`
+
+This option is used to enable or disable dynamic access control. By default, it is disabled.
+
+```ts
+organization({
+  dynamicAccessControl: {
+    enabled: true // [!code highlight]
+  }
+})
+```
+
+#### `maximumRolesPerOrganization`
+
+This option is used to limit the number of roles that can be created for an organization.
+
+By default, the maximum number of roles that can be created for an organization is infinite.
+
+```ts
+organization({
+  dynamicAccessControl: {
+    maximumRolesPerOrganization: 10 // [!code highlight]
+  }
+})
+```
+
+You can also pass a function that returns a number.
+
+```ts
+organization({
+  dynamicAccessControl: {
+    maximumRolesPerOrganization: async (organizationId) => { // [!code highlight]
+      const organization = await getOrganization(organizationId); // [!code highlight]
+      return organization.plan === "pro" ? 100 : 10; // [!code highlight]
+    } // [!code highlight]
+  }
+})
+```
+
+### Additional Fields
+
+To add additional fields to the `organizationRole` table, you can pass the `additionalFields` configuration option to the `organization` plugin.
+
+```ts
+organization({
+  schema: {
+    organizationRole: {
+      additionalFields: {
+        // Role colors!
+        color: {
+          type: "string",
+          defaultValue: "#ffffff",
+        },
+        //... other fields
+      },
+    },
+  },
+})
+```
+
+Then, if you don't already use `inferOrgAdditionalFields` to infer the additional fields, you can use it to infer the additional fields.
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client"
+import { organizationClient, inferOrgAdditionalFields } from "better-auth/client/plugins"
+import type { auth } from "./auth"
+
+export const authClient = createAuthClient({
+    plugins: [
+        organizationClient({
+            schema: inferOrgAdditionalFields<typeof auth>()
+        })
+    ]
+})
+```
+
+Otherwise, you can pass the schema values directly, the same way you do on the org plugin in the server.
+
+```ts title="auth-client.ts"
+import { createAuthClient } from "better-auth/client"
+import { organizationClient } from "better-auth/client/plugins"
+
+export const authClient = createAuthClient({
+    plugins: [
+        organizationClient({
+            schema: {
+                organizationRole: {
+                    additionalFields: {
+                        color: {
+                            type: "string",
+                            defaultValue: "#ffffff",
+                        }
+                    }
+                }
+            }
+        })
+    ]
+})
+```
+
+***
 
 ## Teams
 
@@ -19693,35 +26838,35 @@ Teams allow you to group members within an organization. The teams feature provi
 To enable teams, pass the `teams` configuration option to both server and client plugins:
 
 ```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { organization } from "better-auth/plugins"
+import { betterAuth } from "better-auth";
+import { organization } from "better-auth/plugins";
 
 export const auth = betterAuth({
-    plugins: [
-        organization({
-            teams: {
-                enabled: true,
-                maximumTeams: 10, // Optional: limit teams per organization
-                allowRemovingAllTeams: false // Optional: prevent removing the last team
-            }
-        })
-    ]
-})
+  plugins: [
+    organization({
+      teams: {
+        enabled: true,
+        maximumTeams: 10, // Optional: limit teams per organization
+        allowRemovingAllTeams: false, // Optional: prevent removing the last team
+      },
+    }),
+  ],
+});
 ```
 
 ```ts title="auth-client.ts"
-import { createAuthClient } from "better-auth/client"
-import { organizationClient } from "better-auth/client/plugins"
+import { createAuthClient } from "better-auth/client";
+import { organizationClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
-    plugins: [
-        organizationClient({
-            teams: {
-                enabled: true
-            }
-        })
-    ]
-})
+  plugins: [
+    organizationClient({
+      teams: {
+        enabled: true,
+      },
+    }),
+  ],
+});
 ```
 
 ### Managing Teams
@@ -19730,169 +26875,361 @@ export const authClient = createAuthClient({
 
 Create a new team within an organization:
 
-<APIMethod path="/organization/create-team" method="POST">
-  ```ts
-  type createTeam = {
-      /**
-       * The name of the team. 
-       */
-      name: string = "my-team"
-      /**
-       * The organization ID which the team will be created in. Defaults to the active organization. 
-       */
-      organizationId?: string = "organization-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.createTeam({
+    name: my-team,
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.createTeam({
+    body: {
+        name: my-team,
+        organizationId: organization-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type createTeam = {
+    /**
+     * The name of the team. 
+     */
+    name: string = "my-team"
+    /**
+     * The organization ID which the team will be created in. Defaults to the active organization. 
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
 
 #### List Teams
 
 Get all teams in an organization:
 
-<APIMethod path="/organization/list-teams" method="GET" requireSession>
-  ```ts
-  type listOrganizationTeams = {
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.listTeams({
+    query, // required
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listOrganizationTeams({
+    query: {
+        query, // required
+        organizationId: organization-id, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listOrganizationTeams = {
+    /**
+    * Query parameters for filtering or scoping the list of teams.
+    */
+    query?: {
       /**
-       * The organization ID which the teams are under to list. Defaults to the users active organization. 
-       */
-      organizationId?: string = "organziation-id"
-  }
-  ```
-</APIMethod>
+      * The organization ID which the teams are under to list. Defaults to the user's active organization. 
+      */
+      organizationId?: string = "organization-id"
+    
+}
+```
 
 #### Update Team
 
 Update a team's details:
 
-<APIMethod path="/organization/update-team" method="POST" requireSession>
-  ```ts
-  type updateTeam = {
-      /**
-       * The ID of the team to be updated. 
-       */
-      teamId: string = "team-id"
-      /**
-       * A partial object containing options for you to update.
-       */
-      data: {
-          /**
-           * The name of the team to be updated.
-           */
-          name?: string = "My new team name"
-          /**
-           * The organization ID which the team falls under.
-           */
-          organizationId?: string = "My new organization ID for this team"
-          /**
-           * The timestamp of when the team was created.
-           */
-          createdAt?: Date = new Date()
-          /**
-           * The timestamp of when the team was last updated.
-           */
-          updatedAt?: Date = new Date()
-      }
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.updateTeam({
+    teamId: team-id,
+    data,
+    name: My new team name, // required
+    organizationId: My new organization ID for this team, // required
+    createdAt, // required
+    updatedAt, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.updateTeam({
+    body: {
+        teamId: team-id,
+        data,
+        name: My new team name, // required
+        organizationId: My new organization ID for this team, // required
+        createdAt, // required
+        updatedAt, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type updateTeam = {
+    /**
+     * The ID of the team to be updated. 
+     */
+    teamId: string = "team-id"
+    /**
+     * A partial object containing options for you to update.
+     */
+    data: {
+        /**
+         * The name of the team to be updated.
+         */
+        name?: string = "My new team name"
+        /**
+         * The organization ID which the team falls under.
+         */
+        organizationId?: string = "My new organization ID for this team"
+        /**
+         * The timestamp of when the team was created.
+         */
+        createdAt?: Date = new Date()
+        /**
+         * The timestamp of when the team was last updated.
+         */
+        updatedAt?: Date = new Date()
+    
+}
+```
 
 #### Remove Team
 
 Delete a team from an organization:
 
-<APIMethod path="/organization/remove-team" method="POST">
-  ```ts
-  type removeTeam = {
-      /**
-       * The team ID of the team to remove. 
-       */
-      teamId: string = "team-id"
-      /**
-       * The organization ID which the team falls under. If not provided, it will default to the user's active organization. 
-       */
-      organizationId?: string = "organization-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.removeTeam({
+    teamId: team-id,
+    organizationId: organization-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.removeTeam({
+    body: {
+        teamId: team-id,
+        organizationId: organization-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type removeTeam = {
+    /**
+     * The team ID of the team to remove. 
+     */
+    teamId: string = "team-id"
+    /**
+     * The organization ID which the team falls under. If not provided, it will default to the user's active organization. 
+     */
+    organizationId?: string = "organization-id"
+
+}
+```
 
 #### Set Active Team
 
 Sets the given team as the current active team. If `teamId` is `null` the current active team is unset.
 
-<APIMethod path="/organization/set-active-team" method="POST">
-  ```ts
-  type setActiveTeam = {
-      /**
-       * The team ID of the team to set as the current active team.
-       */
-      teamId?: string = "team-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.setActiveTeam({
+    teamId: team-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.setActiveTeam({
+    body: {
+        teamId: team-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type setActiveTeam = {
+    /**
+     * The team ID of the team to set as the current active team.
+     */
+    teamId?: string = "team-id"
+
+}
+```
 
 #### List User Teams
 
 List all teams that the current user is a part of.
 
-<APIMethod path="/organization/list-user-teams" method="GET">
-  ```ts
-  type listUserTeams = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.listUserTeams({});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listUserTeams({});
+```
+
+### Type Definition
+
+```ts
+type listUserTeams = {
+  
+}
+```
 
 #### List Team Members
 
 List the members of the given team.
 
-<APIMethod path="/organization/list-team-members" method="POST">
-  ```ts
-  type listTeamMembers = {
-      /**
-       * The team whose members we should return. If this is not provided the members of the current active team get returned.
-       */
-      teamId?: string = "team-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.listTeamMembers({
+    teamId: team-id, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.listTeamMembers({
+    body: {
+        teamId: team-id, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type listTeamMembers = {
+    /**
+     * The team whose members we should return. If this is not provided the members of the current active team get returned.
+     */
+    teamId?: string = "team-id"
+
+}
+```
 
 #### Add Team Member
 
 Add a member to a team.
 
-<APIMethod path="/organization/add-team-member" method="POST">
-  ```ts
-  type addTeamMember = {
-      /**
-       * The team the user should be a member of.
-       */
-      teamId: string = "team-id"
-      /**
-       * The user Id which represents the user to be added as a member.
-       */
-      userId: string = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.addTeamMember({
+    teamId: team-id,
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.addTeamMember({
+    body: {
+        teamId: team-id,
+        userId: user-id,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type addTeamMember = {
+    /**
+     * The team the user should be a member of.
+     */
+    teamId: string = "team-id"
+    /**
+     * The user ID which represents the user to be added as a member.
+     */
+    userId: string = "user-id"
+
+}
+```
 
 #### Remove Team Member
 
 Remove a member from a team.
 
-<APIMethod path="/organization/remove-team-member" method="POST">
-  ```ts
-  type removeTeamMember = {
-      /**
-       * The team the user should be removed from.
-       */
-      teamId: string = "team-id"
-      /**
-       * The user which should be removed from the team.
-       */
-      userId: string = "user-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.organization.removeTeamMember({
+    teamId: team-id,
+    userId: user-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.removeTeamMember({
+    body: {
+        teamId: team-id,
+        userId: user-id,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type removeTeamMember = {
+    /**
+     * The team the user should be removed from.
+     */
+    teamId: string = "team-id"
+    /**
+     * The user which should be removed from the team.
+     */
+    userId: string = "user-id"
+
+}
+```
 
 ### Team Permissions
 
@@ -19912,6 +27249,7 @@ By default:
 The teams feature supports several configuration options:
 
 * `maximumTeams`: Limit the number of teams per organization
+
   ```ts
   teams: {
     enabled: true,
@@ -19946,10 +27284,10 @@ When inviting members to an organization, you can specify a team:
 
 ```ts
 await authClient.organization.inviteMember({
-    email: "user@example.com",
-    role: "member",
-    teamId: "team-id"
-})
+  email: "user@example.com",
+  role: "member",
+  teamId: "team-id",
+});
 ```
 
 The invited member will be added to the specified team upon accepting the invitation.
@@ -19966,29 +27304,29 @@ Table Name: `team`
     name: "id",
     type: "string",
     description: "Unique identifier for each team",
-    isPrimaryKey: true
+    isPrimaryKey: true,
   },
   {
     name: "name",
     type: "string",
-    description: "The name of the team"
+    description: "The name of the team",
   },
   {
     name: "organizationId",
     type: "string",
     description: "The ID of the organization",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "createdAt",
     type: "Date",
-    description: "Timestamp of when the team was created"
+    description: "Timestamp of when the team was created",
   },
   {
     name: "updatedAt",
     type: "Date",
     isOptional: true,
-    description: "Timestamp of when the team was created"
+    description: "Timestamp of when the team was created",
   },
 ]}
 />
@@ -20001,24 +27339,24 @@ Table Name: `teamMember`
     name: "id",
     type: "string",
     description: "Unique identifier for each team member",
-    isPrimaryKey: true
+    isPrimaryKey: true,
   },
   {
     name: "teamId",
     type: "string",
     description: "Unique identifier for each team",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "userId",
     type: "string",
     description: "The ID of the user",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "createdAt",
     type: "Date",
-    description: "Timestamp of when the team member was created"
+    description: "Timestamp of when the team member was created",
   },
 ]}
 />
@@ -20037,34 +27375,34 @@ Table Name: `organization`
     name: "id",
     type: "string",
     description: "Unique identifier for each organization",
-    isPrimaryKey: true
+    isPrimaryKey: true,
   },
   {
     name: "name",
     type: "string",
-    description: "The name of the organization"
+    description: "The name of the organization",
   },
   {
     name: "slug",
     type: "string",
-    description: "The slug of the organization"
+    description: "The slug of the organization",
   },
   {
     name: "logo",
     type: "string",
     description: "The logo of the organization",
-    isOptional: true
+    isOptional: true,
   },
   {
     name: "metadata",
     type: "string",
     description: "Additional metadata for the organization",
-    isOptional: true
+    isOptional: true,
   },
   {
     name: "createdAt",
     type: "Date",
-    description: "Timestamp of when the organization was created"
+    description: "Timestamp of when the organization was created",
   },
 ]}
 />
@@ -20079,29 +27417,29 @@ Table Name: `member`
     name: "id",
     type: "string",
     description: "Unique identifier for each member",
-    isPrimaryKey: true
+    isPrimaryKey: true,
   },
   {
     name: "userId",
     type: "string",
     description: "The ID of the user",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "organizationId",
     type: "string",
     description: "The ID of the organization",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "role",
     type: "string",
-    description: "The role of the user in the organization"
+    description: "The role of the user in the organization",
   },
   {
     name: "createdAt",
     type: "Date",
-    description: "Timestamp of when the member was added to the organization"
+    description: "Timestamp of when the member was added to the organization",
   },
 ]}
 />
@@ -20116,44 +27454,52 @@ Table Name: `invitation`
     name: "id",
     type: "string",
     description: "Unique identifier for each invitation",
-    isPrimaryKey: true
+    isPrimaryKey: true,
   },
   {
     name: "email",
     type: "string",
-    description: "The email address of the user"
+    description: "The email address of the user",
   },
   {
     name: "inviterId",
     type: "string",
     description: "The ID of the inviter",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "organizationId",
     type: "string",
     description: "The ID of the organization",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "role",
     type: "string",
-    description: "The role of the user in the organization"
+    description: "The role of the user in the organization",
   },
   {
     name: "status",
     type: "string",
-    description: "The status of the invitation"
+    description: "The status of the invitation",
   },
   {
     name: "expiresAt",
     type: "Date",
-    description: "Timestamp of when the invitation expires"
+    description: "Timestamp of when the invitation expires",
   },
+]}
+/>
+
+If teams are enabled, you need to add the following fields to the invitation table:
+
+<DatabaseTable
+  fields={[
   {
-    name: "createdAt",
-    type: "Date",
-    description: "Timestamp of when the invitation was created"
+    name: "teamId",
+    type: "string",
+    description: "The ID of the team",
+    isOptional: true,
   },
 ]}
 />
@@ -20170,13 +27516,13 @@ You need to add two more fields to the session table to store the active organiz
     name: "activeOrganizationId",
     type: "string",
     description: "The ID of the active organization",
-    isOptional: true
+    isOptional: true,
   },
   {
     name: "activeTeamId",
     type: "string",
     description: "The ID of the active team",
-    isOptional: true
+    isOptional: true,
   },
 ]}
 />
@@ -20191,29 +27537,29 @@ Table Name: `team`
     name: "id",
     type: "string",
     description: "Unique identifier for each team",
-    isPrimaryKey: true
+    isPrimaryKey: true,
   },
   {
     name: "name",
     type: "string",
-    description: "The name of the team"
+    description: "The name of the team",
   },
   {
     name: "organizationId",
     type: "string",
     description: "The ID of the organization",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "createdAt",
     type: "Date",
-    description: "Timestamp of when the team was created"
+    description: "Timestamp of when the team was created",
   },
   {
     name: "updatedAt",
     type: "Date",
     isOptional: true,
-    description: "Timestamp of when the team was created"
+    description: "Timestamp of when the team was created",
   },
 ]}
 />
@@ -20226,24 +27572,24 @@ Table Name: `teamMember`
     name: "id",
     type: "string",
     description: "Unique identifier for each team member",
-    isPrimaryKey: true
+    isPrimaryKey: true,
   },
   {
     name: "teamId",
     type: "string",
     description: "Unique identifier for each team",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "userId",
     type: "string",
     description: "The ID of the user",
-    isForeignKey: true
+    isForeignKey: true,
   },
   {
     name: "createdAt",
     type: "Date",
-    description: "Timestamp of when the team member was created"
+    description: "Timestamp of when the team member was created",
   },
 ]}
 />
@@ -20256,7 +27602,7 @@ Table Name: `invitation`
     name: "teamId",
     type: "string",
     description: "The ID of the team",
-    isOptional: true
+    isOptional: true,
   },
 ]}
 />
@@ -20271,23 +27617,23 @@ const auth = betterAuth({
     organization({
       schema: {
         organization: {
-          modelName: "organizations",  //map the organization table to organizations
+          modelName: "organizations", //map the organization table to organizations
           fields: {
-            name: "title" //map the name field to title
+            name: "title", //map the name field to title
           },
           additionalFields: {
             // Add a new field to the organization table
             myCustomField: {
               type: "string",
               input: true,
-              required: false
-            }
-          }
-        }
-      }
-    })
-  ]
-})
+              required: false,
+            },
+          },
+        },
+      },
+    }),
+  ],
+});
 ```
 
 #### Additional Fields
@@ -20303,59 +27649,68 @@ const auth = betterAuth({
       schema: {
         organization: {
           additionalFields: {
-            myCustomField: { // [!code highlight]
+            myCustomField: {
+              // [!code highlight]
               type: "string", // [!code highlight]
               input: true, // [!code highlight]
-              required: false // [!code highlight]
-            } // [!code highlight]
-          }
-        }
-      }
-    })
-  ]
-})
+              required: false, // [!code highlight]
+            }, // [!code highlight]
+          },
+        },
+      },
+    }),
+  ],
+});
 ```
 
 For inferring the additional fields, you can use the `inferOrgAdditionalFields` function. This function will infer the additional fields from the auth object type.
 
 ```ts title="auth-client.ts"
 import { createAuthClient } from "better-auth/client";
-import { inferOrgAdditionalFields, organizationClient } from "better-auth/client/plugins";
-import type { auth } from "@/auth" // import the auth object type only
+import {
+  inferOrgAdditionalFields,
+  organizationClient,
+} from "better-auth/client/plugins";
+import type { auth } from "@/auth"; // import the auth object type only
 
 const client = createAuthClient({
-    plugins: [organizationClient({
-        schema: inferOrgAdditionalFields<typeof auth>()
-    })]
-})
+  plugins: [
+    organizationClient({
+      schema: inferOrgAdditionalFields<typeof auth>(),
+    }),
+  ],
+});
 ```
 
 if you can't import the auth object type, you can use the `inferOrgAdditionalFields` function without the generic. This function will infer the additional fields from the schema object.
 
 ```ts title="auth-client.ts"
-
 const client = createAuthClient({
-    plugins: [organizationClient({
-        schema: inferOrgAdditionalFields({
-          organization: { // [!code highlight]
-            additionalFields: {
-              newField: { // [!code highlight]
-                type: "string", // [!code highlight]
-              }, // [!code highlight]
-            },
+  plugins: [
+    organizationClient({
+      schema: inferOrgAdditionalFields({
+        organization: {
+          // [!code highlight]
+          additionalFields: {
+            newField: {
+              // [!code highlight]
+              type: "string", // [!code highlight]
+            }, // [!code highlight]
           },
-        })
-    })]
-})
+        },
+      }),
+    }),
+  ],
+});
 
 //example usage
 await client.organization.create({
-    name: "Test",
-    slug: "test",
-    newField: "123", //this should be allowed
-    //@ts-expect-error - this field is not available
-    unavalibleField: "123", //this should be not allowed
-})
+  name: "Test",
+  slug: "test",
+  newField: "123", //this should be allowed
+  //@ts-expect-error - this field is not available
+  unavalibleField: "123", //this should be not allowed
+});
 ```
 
 ## Options
@@ -20375,6 +27730,8 @@ await client.organization.create({
 **cancelPendingInvitationsOnReInvite**: `boolean` - Whether to cancel pending invitations if the user is already invited to the organization. By default, it's `false`.
 
 **invitationLimit**: `number` | `((user: User) => Promise<boolean> | boolean)` - The maximum number of invitations allowed for a user. By default, it's `100`. You can set it to any number you want or a function that returns a boolean.
+
+**requireEmailVerificationOnInvitation**: `boolean` - Whether to require email verification before accepting or rejecting invitations. By default, it's `false`. When enabled, users must have verified their email address before they can accept or reject organization invitations.
 
 
 
@@ -20483,82 +27840,198 @@ The passkey plugin implementation is powered by [SimpleWebAuthn](https://simplew
 
 To add or register a passkey make sure a user is authenticated and then call the `passkey.addPasskey` function provided by the client.
 
-<APIMethod path="/passkey/add-passkey" method="POST" isClientOnly>
-  ```ts
-  type addPasskey = {
-      /**
-       * You can also specify the type of authenticator you want to register. Default behavior allows both platform and cross-platform passkeys
-      */
-      authenticatorAttachment?: "platform" | "cross-platform" = "cross-platform"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.passkey.addPasskey({
+    name: example-passkey-name, // required
+    authenticatorAttachment: cross-platform, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.addPasskey({
+    body: {
+        name: example-passkey-name, // required
+        authenticatorAttachment: cross-platform, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type addPasskey = {
+    /**
+     * An optional name to label the authenticator account being registered. If not provided, it will default to the user's email address or user ID
+    */
+    name?: string = "example-passkey-name"
+    /**
+     * You can also specify the type of authenticator you want to register. Default behavior allows both platform and cross-platform passkeys
+    */
+    authenticatorAttachment?: "platform" | "cross-platform" = "cross-platform"
+
+}
+```
 
 ### Sign in with a passkey
 
 To sign in with a passkey you can use the `signIn.passkey` method. This will prompt the user to sign in with their passkey.
 
-<APIMethod path="/sign-in/passkey" method="POST" isClientOnly>
-  ```ts
-  type signInPasskey = {
-      /**
-       * The email of the user to sign in.
-       */
-      email: string = "example@gmail.com"
-      /**
-       * Browser autofill, a.k.a. Conditional UI. Read more: https://simplewebauthn.dev/docs/packages/browser#browser-autofill-aka-conditional-ui
-      */
-      autoFill?: boolean = true
-      /**
-       * The URL to redirect to after the user has signed in.
-      */
-      callbackURL?: string = "/dashboard"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signIn.passkey({
+    autoFill, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInPasskey({
+    body: {
+        autoFill, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signInPasskey = {
+    /**
+     * Browser autofill, a.k.a. Conditional UI. Read more: https://simplewebauthn.dev/docs/packages/browser#browser-autofill-aka-conditional-ui
+    */
+    autoFill?: boolean = true
+
+}
+```
+
+#### Example Usage
+
+```ts
+// With post authentication redirect
+await authClient.signIn.passkey({
+    autoFill: true,
+    fetchOptions: {
+        onSuccess(context) {
+            // Redirect to dashboard after successful authentication
+            window.location.href = "/dashboard";
+        },
+        onError(context) {
+            // Handle authentication errors
+            console.error("Authentication failed:", context.error.message);
+        }
+    }
+});
+```
 
 ### List passkeys
 
 You can list all of the passkeys for the authenticated user by calling `passkey.listUserPasskeys`:
 
-<APIMethod path="/passkey/list-user-passkeys" method="GET" requireSession resultVariable="passkeys">
-  ```ts
-  type listPasskeys = {
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.passkey.listUserPasskeys({});
+```
+
+### Server Side
+
+```ts
+const passkeys = await auth.api.listPasskeys({
+
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listPasskeys = {
+
+}
+```
 
 ### Deleting passkeys
 
 You can delete a passkey by calling `passkey.delete` and providing the passkey ID.
 
-<APIMethod path="/passkey/delete-passkey" method="POST" requireSession>
-  ```ts
-  type deletePasskey = {
-      /**
-       * The ID of the passkey to delete. 
-       */
-      id: string = "some-passkey-id"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.passkey.deletePasskey({
+    id: some-passkey-id,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.deletePasskey({
+    body: {
+        id: some-passkey-id,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type deletePasskey = {
+    /**
+     * The ID of the passkey to delete. 
+     */
+    id: string = "some-passkey-id"
+
+}
+```
 
 ### Updating passkey names
 
-<APIMethod path="/passkey/update-passkey" method="POST" requireSession>
-  ```ts
-  type updatePasskey = {
-      /**
-       * The ID of the passkey which you want to update.
-       */
-      id: string = "id of passkey"
-      /**
-       * The new name which the passkey will be updated to. 
-       */
-      name: string = "my-new-passkey-name"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.passkey.updatePasskey({
+    id: id of passkey,
+    name: my-new-passkey-name,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.updatePasskey({
+    body: {
+        id: id of passkey,
+        name: my-new-passkey-name,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type updatePasskey = {
+    /**
+     * The ID of the passkey which you want to update.
+     */
+    id: string = "id of passkey"
+    /**
+     * The new name which the passkey will be updated to. 
+     */
+    name: string = "my-new-passkey-name"
+
+}
+```
 
 ### Conditional UI
 
@@ -20778,43 +28251,87 @@ The phone number plugin extends the authentication system by allowing users to s
 
 To send an OTP to a user's phone number for verification, you can use the `sendVerificationCode` endpoint.
 
-<APIMethod path="/phone-number/send-otp" method="POST">
-  ```ts
-  type sendPhoneNumberOTP = {
-      /**
-       * Phone number to send OTP. 
-       */
-      phoneNumber: string = "+1234567890"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.phoneNumber.sendOtp({
+    phoneNumber: +1234567890,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.sendPhoneNumberOTP({
+    body: {
+        phoneNumber: +1234567890,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type sendPhoneNumberOTP = {
+    /**
+     * Phone number to send OTP. 
+     */
+    phoneNumber: string = "+1234567890"
+
+}
+```
 
 ### Verify Phone Number
 
 After the OTP is sent, users can verify their phone number by providing the code.
 
-<APIMethod path="/phone-number/verify" method="POST">
-  ```ts
-  type verifyPhoneNumber = {
-      /**
-       * Phone number to verify. 
-       */
-      phoneNumber: string = "+1234567890"
-      /**
-       * OTP code. 
-       */
-      code: string = "123456"
-      /**
-       * Disable session creation after verification. 
-       */
-      disableSession?: boolean = false
-      /**
-       * Check if there is a session and update the phone number. 
-       */
-      updatePhoneNumber?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.phoneNumber.verify({
+    phoneNumber: +1234567890,
+    code: 123456,
+    disableSession, // required
+    updatePhoneNumber, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.verifyPhoneNumber({
+    body: {
+        phoneNumber: +1234567890,
+        code: 123456,
+        disableSession, // required
+        updatePhoneNumber, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type verifyPhoneNumber = {
+    /**
+     * Phone number to verify. 
+     */
+    phoneNumber: string = "+1234567890"
+    /**
+     * OTP code. 
+     */
+    code: string = "123456"
+    /**
+     * Disable session creation after verification. 
+     */
+    disableSession?: boolean = false
+    /**
+     * Check if there is a session and update the phone number. 
+     */
+    updatePhoneNumber?: boolean = true
+
+}
+```
 
 <Callout>
   When the phone number is verified, the `phoneNumberVerified` field in the user table is set to `true`. If `disableSession` is not set to `true`, a session is created for the user. Additionally, if `callbackOnVerification` is provided, it will be called.
@@ -20849,24 +28366,47 @@ export const auth = betterAuth({
 
 In addition to signing in a user using send-verify flow, you can also use phone number as an identifier and sign in a user using phone number and password.
 
-<APIMethod path="/sign-in/phone-number" method="POST">
-  ```ts
-  type signInPhoneNumber = {
-      /**
-       * Phone number to sign in. 
-       */
-      phoneNumber: string = "+1234567890"
-      /**
-       * Password to use for sign in. 
-       */
-      password: string
-      /**
-       * Remember the session. 
-       */
-      rememberMe?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signIn.phoneNumber({
+    phoneNumber: +1234567890,
+    password,
+    rememberMe, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInPhoneNumber({
+    body: {
+        phoneNumber: +1234567890,
+        password,
+        rememberMe, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signInPhoneNumber = {
+    /**
+     * Phone number to sign in. 
+     */
+    phoneNumber: string = "+1234567890"
+    /**
+     * Password to use for sign in. 
+     */
+    password: string
+    /**
+     * Remember the session. 
+     */
+    rememberMe?: boolean = true
+
+}
+```
 
 ### Update Phone Number
 
@@ -20906,37 +28446,79 @@ const isVerified = await authClient.phoneNumber.verify({
 
 To initiate a request password reset flow using `phoneNumber`, you can start by calling `requestPasswordReset` on the client to send an OTP code to the user's phone number.
 
-<APIMethod path="/phone-number/request-password-reset" method="POST">
-  ```ts
-  type requestPasswordResetPhoneNumber = {
-      /**
-       * The phone number which is associated with the user. 
-       */
-      phoneNumber: string = "+1234567890"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.phoneNumber.requestPasswordReset({
+    phoneNumber: +1234567890,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.requestPasswordResetPhoneNumber({
+    body: {
+        phoneNumber: +1234567890,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type requestPasswordResetPhoneNumber = {
+    /**
+     * The phone number which is associated with the user. 
+     */
+    phoneNumber: string = "+1234567890"
+
+}
+```
 
 Then, you can reset the password by calling `resetPassword` on the client with the OTP code and the new password.
 
-<APIMethod path="/phone-number/reset-password" method="POST">
-  ```ts
-  type resetPasswordPhoneNumber = {
-      /**
-       * The one time password to reset the password. 
-       */
-      otp: string = "123456"
-      /**
-       * The phone number to the account which intends to reset the password for. 
-       */
-      phoneNumber: string = "+1234567890"
-      /**
-       * The new password. 
-       */
-      newPassword: string = "new-and-secure-password"
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.phoneNumber.resetPassword({
+    otp: 123456,
+    phoneNumber: +1234567890,
+    newPassword: new-and-secure-password,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.resetPasswordPhoneNumber({
+    body: {
+        otp: 123456,
+        phoneNumber: +1234567890,
+        newPassword: new-and-secure-password,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type resetPasswordPhoneNumber = {
+    /**
+     * The one time password to reset the password. 
+     */
+    otp: string = "123456"
+    /**
+     * The phone number to the account which intends to reset the password for. 
+     */
+    phoneNumber: string = "+1234567890"
+    /**
+     * The new password. 
+     */
+    newPassword: string = "new-and-secure-password"
+
+}
+```
 
 ## Options
 
@@ -21134,7 +28716,6 @@ You will be using the BetterAuth Client to interact with the Polar functionaliti
 ```typescript
 import { createAuthClient } from "better-auth/react";
 import { polarClient } from "@polar-sh/better-auth";
-import { organizationClient } from "better-auth/client/plugins";
 
 // This is all that is needed
 // All Polar plugins, etc. should be attached to the server-side BetterAuth config
@@ -21606,7 +29187,7 @@ Before signing a SIWE message, you need to generate a nonce for the wallet addre
 ```ts title="generate-nonce.ts"
 const { data, error } = await authClient.siwe.nonce({
   walletAddress: "0x1234567890abcdef1234567890abcdef12345678",
-  chainId: 1, // optional, defaults to 1 (Ethereum mainnet)
+  chainId: 1, // optional for Ethereum mainnet, required for other chains. Defaults to 1
 });
 
 if (data) {
@@ -21623,7 +29204,7 @@ const { data, error } = await authClient.siwe.verify({
   message: "Your SIWE message string",
   signature: "0x...", // The signature from the user's wallet
   walletAddress: "0x1234567890abcdef1234567890abcdef12345678",
-  chainId: 1, // optional, defaults to 1
+  chainId: 1, // optional for Ethereum mainnet, required for other chains. Must match Chain ID in SIWE message
   email: "user@example.com", // optional, required if anonymous is false
 });
 
@@ -21631,6 +29212,54 @@ if (data) {
   console.log("Authentication successful:", data.user);
 }
 ```
+
+### Chain-Specific Examples
+
+Here are examples for different blockchain networks:
+
+```ts title="ethereum-mainnet.ts"
+// Ethereum Mainnet (chainId can be omitted, defaults to 1)
+const { data, error } = await authClient.siwe.verify({
+  message,
+  signature,
+  walletAddress,
+  // chainId: 1 (default)
+});
+```
+
+```ts title="polygon.ts"
+// Polygon (chainId REQUIRED)
+const { data, error } = await authClient.siwe.verify({
+  message,
+  signature,
+  walletAddress,
+  chainId: 137, // Required for Polygon
+});
+```
+
+```ts title="arbitrum.ts"
+// Arbitrum (chainId REQUIRED)
+const { data, error } = await authClient.siwe.verify({
+  message,
+  signature,
+  walletAddress,
+  chainId: 42161, // Required for Arbitrum
+});
+```
+
+```ts title="base.ts"
+// Base (chainId REQUIRED)
+const { data, error } = await authClient.siwe.verify({
+  message,
+  signature,
+  walletAddress,
+  chainId: 8453, // Required for Base
+});
+```
+
+<Callout type="warning">
+  The `chainId` must match the Chain ID specified in your SIWE message. Verification will fail with a 401 error if there's a mismatch between the message's Chain ID and the `chainId` parameter.
+</Callout>
 
 ## Configuration Options
 
@@ -21859,14 +29488,18 @@ A redirect URL will be automatically generated using the provider ID. For instan
             discoveryEndpoint: "https://idp.example.com/.well-known/openid-configuration",
             scopes: ["openid", "email", "profile"],
             pkce: true,
-        },
-        mapping: {
-            id: "sub",
-            email: "email",
-            emailVerified: "email_verified",
-            name: "name",
-            image: "picture",
-        },
+            mapping: {
+                id: "sub",
+                email: "email",
+                emailVerified: "email_verified",
+                name: "name",
+                image: "picture",
+                extraFields: {
+                    department: "department",
+                    role: "role"
+                }
+            }
+        }
     });
     ```
   </Tab>
@@ -21888,14 +29521,18 @@ A redirect URL will be automatically generated using the provider ID. For instan
                 discoveryEndpoint: "https://idp.example.com/.well-known/openid-configuration",
                 scopes: ["openid", "email", "profile"],
                 pkce: true,
-            },
-            mapping: {
-                id: "sub",
-                email: "email",
-                emailVerified: "email_verified",
-                name: "name",
-                image: "picture",
-            },
+                mapping: {
+                    id: "sub",
+                    email: "email",
+                    emailVerified: "email_verified",
+                    name: "name",
+                    image: "picture",
+                    extraFields: {
+                        department: "department",
+                        role: "role"
+                    }
+                }
+            }
         },
         headers,
     });
@@ -21941,19 +29578,20 @@ To register a SAML provider, use the `registerSSOProvider` endpoint with SAML co
                 isAssertionEncrypted: true,
                 encPrivateKey: "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----",
                 encPrivateKeyPass: "your-sp-encryption-key-password"
+            },
+            mapping: {
+                id: "nameID",
+                email: "email",
+                name: "displayName",
+                firstName: "givenName",
+                lastName: "surname",
+                emailVerified: "email_verified",
+                extraFields: {
+                    department: "department",
+                    role: "role"
+                }
             }
-        },
-        mapping: {
-            id: "nameID",
-            email: "email",
-            name: "displayName",
-            firstName: "givenName",
-            lastName: "surname",
-            extraFields: {
-                department: "department",
-                role: "role"
-            }
-        },
+        }
     });
     ```
   </Tab>
@@ -21991,19 +29629,20 @@ To register a SAML provider, use the `registerSSOProvider` endpoint with SAML co
                     isAssertionEncrypted: true,
                     encPrivateKey: "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----",
                     encPrivateKeyPass: "your-sp-encryption-key-password"
+                },
+                mapping: {
+                    id: "nameID",
+                    email: "email",
+                    name: "displayName",
+                    firstName: "givenName",
+                    lastName: "surname",
+                    emailVerified: "email_verified",
+                    extraFields: {
+                        department: "department",
+                        role: "role"
+                    }
                 }
-            },
-            mapping: {
-                id: "nameID",
-                email: "email",
-                name: "displayName",
-                firstName: "givenName",
-                lastName: "surname",
-                extraFields: {
-                    department: "department",
-                    role: "role"
-                }
-            },
+            }
         },
         headers,
     });
@@ -22080,48 +29719,83 @@ const res = await auth.api.signInSSO({
 
 #### Full method
 
-<APIMethod path="/sign-in/sso" method="POST">
-  ```ts
-  type signInSSO = {
-      /**
-       * The email address to sign in with. This is used to identify the issuer to sign in with. It's optional if the issuer is provided. 
-       */
-      email?: string = "john@example.com"
-      /**
-       * The slug of the organization to sign in with. 
-       */
-      organizationSlug?: string = "example-org"
-      /**
-       * The ID of the provider to sign in with. This can be provided instead of email or issuer. 
-       */
-      providerId?: string = "example-provider"
-      /**
-       * The domain of the provider. 
-       */
-      domain?: string = "example.com"
-      /**
-       * The URL to redirect to after login. 
-       */
-      callbackURL: string = "https://example.com/callback"
-      /**
-       * The URL to redirect to after login. 
-       */
-      errorCallbackURL?: string = "https://example.com/callback"
-      /**
-       * The URL to redirect to after login if the user is new. 
-       */
-      newUserCallbackURL?: string = "https://example.com/new-user"
-      /**
-       * Scopes to request from the provider. 
-       */
-      scopes?: string[] = ["openid", "email", "profile", "offline_access"]
-      /**
-       * Explicitly request sign-up. Useful when disableImplicitSignUp is true for this provider. 
-       */
-      requestSignUp?: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.signIn.sso({
+    email: john@example.com, // required
+    organizationSlug: example-org, // required
+    providerId: example-provider, // required
+    domain: example.com, // required
+    callbackURL: https://example.com/callback,
+    errorCallbackURL: https://example.com/callback, // required
+    newUserCallbackURL: https://example.com/new-user, // required
+    scopes, // required
+    requestSignUp, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInSSO({
+    body: {
+        email: john@example.com, // required
+        organizationSlug: example-org, // required
+        providerId: example-provider, // required
+        domain: example.com, // required
+        callbackURL: https://example.com/callback,
+        errorCallbackURL: https://example.com/callback, // required
+        newUserCallbackURL: https://example.com/new-user, // required
+        scopes, // required
+        requestSignUp, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signInSSO = {
+    /**
+     * The email address to sign in with. This is used to identify the issuer to sign in with. It's optional if the issuer is provided. 
+     */
+    email?: string = "john@example.com"
+    /**
+     * The slug of the organization to sign in with. 
+     */
+    organizationSlug?: string = "example-org"
+    /**
+     * The ID of the provider to sign in with. This can be provided instead of email or issuer. 
+     */
+    providerId?: string = "example-provider"
+    /**
+     * The domain of the provider. 
+     */
+    domain?: string = "example.com"
+    /**
+     * The URL to redirect to after login. 
+     */
+    callbackURL: string = "https://example.com/callback"
+    /**
+     * The URL to redirect to after login. 
+     */
+    errorCallbackURL?: string = "https://example.com/callback"
+    /**
+     * The URL to redirect to after login if the user is new. 
+     */
+    newUserCallbackURL?: string = "https://example.com/new-user"
+    /**
+     * Scopes to request from the provider. 
+     */
+    scopes?: string[] = ["openid", "email", "profile", "offline_access"]
+    /**
+     * Explicitly request sign-up. Useful when disableImplicitSignUp is true for this provider. 
+     */
+    requestSignUp?: boolean = true
+
+}
+```
 
 When a user is authenticated, if the user does not exist, the user will be provisioned using the `provisionUser` function. If the organization provisioning is enabled and a provider is associated with an organization, the user will be added to the organization.
 
@@ -22373,6 +30047,36 @@ organizationProvisioning: {
 
 ## SAML Configuration
 
+### Default SSO Provider
+
+```ts title="auth.ts"
+const auth = betterAuth({
+    plugins: [
+        sso({
+            defaultSSO: {
+                providerId: "default-saml", // Provider ID for the default provider
+                samlConfig: {
+                    issuer: "https://your-app.com",
+                    entryPoint: "https://idp.example.com/sso",
+                    cert: "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+                    callbackUrl: "http://localhost:3000/api/auth/sso/saml2/sp/acs",
+                    spMetadata: {
+                        entityID: "http://localhost:3000/api/auth/sso/saml2/sp/metadata",
+                        metadata: "<!-- Your SP Metadata XML -->",
+                    }
+                }
+            }
+        })
+    ]
+});
+```
+
+The defaultSSO provider will be used when:
+
+1. No matching provider is found in the database
+
+This allows you to test SAML authentication without setting up providers in the database. The defaultSSO provider supports all the same configuration options as regular SAML providers.
+
 ### Service Provider Configuration
 
 When registering a SAML provider, you need to provide Service Provider (SP) metadata configuration:
@@ -22441,6 +30145,8 @@ The plugin requires additional fields in the `ssoProvider` table to store the pr
   ]}
 />
 
+For a detailed guide on setting up SAML SSO with examples for Okta and testing with DummyIDP, see our [SAML SSO Setup Guide](/docs/guides/sso-saml-guide).
+
 ## Options
 
 ### Server
@@ -22497,6 +30203,32 @@ The plugin requires additional fields in the `ssoProvider` table to store the pr
       type: "number | function",
       default: 10,
   },
+  defaultSSO: {
+      description: "Configure a default SSO provider for testing and development. This provider will be used when no matching provider is found in the database.",
+      type: "object",
+      properties: {
+          domain: {
+              description: "The domain to match for this default provider.",
+              type: "string",
+              required: true,
+          },
+          providerId: {
+              description: "The provider ID to use for the default provider.",
+              type: "string",
+              required: true,
+          },
+          samlConfig: {
+              description: "SAML configuration for the default provider.",
+              type: "SAMLConfig",
+              required: false,
+          },
+          oidcConfig: {
+              description: "OIDC configuration for the default provider.",
+              type: "OIDCConfig",
+              required: false,
+          },
+      },
+  },
 }}
 />
 
@@ -22524,6 +30256,7 @@ The Stripe plugin integrates Stripe's payment and subscription functionality wit
 * Handle Stripe webhooks securely with signature verification
 * Expose subscription data to your application
 * Support for trial periods and subscription upgrades
+* **Automatic trial abuse prevention** - Users can only get one trial per account across all plans
 * Flexible reference system to associate subscriptions with users or organizations
 * Team subscription support with seats management
 
@@ -22535,31 +30268,49 @@ The Stripe plugin integrates Stripe's payment and subscription functionality wit
 
     First, install the plugin:
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install @better-auth/stripe
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add @better-auth/stripe
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add @better-auth/stripe
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add @better-auth/stripe
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
 
     <Callout>
       If you're using a separate client and server setup, make sure to install the plugin in both parts of your project.
@@ -22571,31 +30322,49 @@ The Stripe plugin integrates Stripe's payment and subscription functionality wit
 
     Next, install the Stripe SDK on your server:
 
-    <Tabs items={}>
-      <Tab value="npm">
+    <CodeBlockTabs defaultValue="npm">
+      <CodeBlockTabsList>
+        <CodeBlockTabsTrigger value="npm">
+          npm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="pnpm">
+          pnpm
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="yarn">
+          yarn
+        </CodeBlockTabsTrigger>
+
+        <CodeBlockTabsTrigger value="bun">
+          bun
+        </CodeBlockTabsTrigger>
+      </CodeBlockTabsList>
+
+      <CodeBlockTab value="npm">
         ```bash
         npm install stripe@^18.0.0
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="pnpm">
+      <CodeBlockTab value="pnpm">
         ```bash
         pnpm add stripe@^18.0.0
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="yarn">
+      <CodeBlockTab value="yarn">
         ```bash
         yarn add stripe@^18.0.0
         ```
-      </Tab>
+      </CodeBlockTab>
 
-      <Tab value="bun">
+      <CodeBlockTab value="bun">
         ```bash
         bun add stripe@^18.0.0
         ```
-      </Tab>
-    </Tabs>
+      </CodeBlockTab>
+    </CodeBlockTabs>
   </Step>
 
   <Step>
@@ -22766,48 +30535,88 @@ see [plan configuration](#plan-configuration) for more.
 
 To create a subscription, use the `subscription.upgrade` method:
 
-<APIMethod path="/subscription/upgrade" method="POST" requireSession>
-  ```ts
-  type upgradeSubscription = {
-      /**
-       * The name of the plan to upgrade to. 
-       */
-      plan: string = "pro"
-      /**
-       * Whether to upgrade to an annual plan. 
-       */
-      annual?: boolean = true
-      /**
-       * Reference id of the subscription to upgrade. 
-       */
-      referenceId?: string = "123"
-      /**
-       * The id of the subscription to upgrade. 
-       */
-      subscriptionId?: string = "sub_123"
-      metadata?: Record<string, any>
-      /**
-       * Number of seats to upgrade to (if applicable). 
-       */
-      seats?: number = 1
-      /**
-       * Callback URL to redirect back after successful subscription. 
-       */
-      successUrl: string
-      /**
-       * Callback URL to redirect back after successful subscription. 
-       */
-      cancelUrl: string 
-       * Return URL to redirect back after successful subscription. 
-       */
-      returnUrl?: string
-      /**
-       * Disable redirect after successful subscription. 
-       */
-      disableRedirect: boolean = true
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.subscription.upgrade({
+    plan: pro,
+    annual, // required
+    referenceId: 123, // required
+    subscriptionId: sub_123, // required
+    metadata, // required
+    seats, // required
+    successUrl,
+    cancelUrl,
+    returnUrl, // required
+    disableRedirect,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.upgradeSubscription({
+    body: {
+        plan: pro,
+        annual, // required
+        referenceId: 123, // required
+        subscriptionId: sub_123, // required
+        metadata, // required
+        seats, // required
+        successUrl,
+        cancelUrl,
+        returnUrl, // required
+        disableRedirect,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type upgradeSubscription = {
+    /**
+     * The name of the plan to upgrade to. 
+     */
+    plan: string = "pro"
+    /**
+     * Whether to upgrade to an annual plan. 
+     */
+    annual?: boolean = true
+    /**
+     * Reference id of the subscription to upgrade. 
+     */
+    referenceId?: string = "123"
+    /**
+     * The id of the subscription to upgrade. 
+     */
+    subscriptionId?: string = "sub_123"
+    metadata?: Record<string, any>
+    /**
+     * Number of seats to upgrade to (if applicable). 
+     */
+    seats?: number = 1
+    /**
+     * Callback URL to redirect back after successful subscription. 
+     */
+    successUrl: string
+    /**
+     * If set, checkout shows a back button and customers will be directed here if they cancel payment.
+     */
+    cancelUrl: string 
+    /**
+     * URL to take customers to when they click on the billing portal’s link to return to your website.
+     */
+    returnUrl?: string
+    /**
+     * Disable redirect after successful subscription. 
+     */
+    disableRedirect: boolean = true
+
+}
+```
 
 **Simple Example:**
 
@@ -22817,7 +30626,7 @@ await client.subscription.upgrade({
     successUrl: "/dashboard",
     cancelUrl: "/pricing",
     annual: true, // Optional: upgrade to an annual plan
-    referenceId: "org_123" // Optional: defaults to the current logged in user ID
+    referenceId: "org_123", // Optional: defaults to the current logged in user ID
     seats: 5 // Optional: for team plans
 });
 ```
@@ -22864,47 +30673,85 @@ This ensures that the user only pays for the new plan, and not both.
 
 To get the user's active subscriptions:
 
-<APIMethod path="/subscription/list" method="GET" requireSession resultVariable="subscriptions">
-  ```ts
-  type listActiveSubscriptions = {
-      /**
-       * Reference id of the subscription to list. 
-       */
-      referenceId?: string = '123'
-  }
+### Client Side
 
-  // get the active subscription
-  const activeSubscription = subscriptions.find(
-      sub => sub.status === "active" || sub.status === "trialing"
-  );
+```ts
+const { data, error } = await authClient.subscription.list({
+    referenceId: 123, // required
+});
+```
 
-  // Check subscription limits
-  const projectLimit = subscriptions?.limits?.projects || 0;
-  ```
-</APIMethod>
+### Server Side
+
+```ts
+const subscriptions = await auth.api.listActiveSubscriptions({
+    query: {
+        referenceId: 123, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type listActiveSubscriptions = {
+    /**
+     * Reference id of the subscription to list. 
+     */
+    referenceId?: string = '123'
+
+}
+```
 
 #### Canceling a Subscription
 
 To cancel a subscription:
 
-<APIMethod path="/subscription/cancel" method="POST" requireSession>
-  ```ts
-  type cancelSubscription = {
-      /**
-       * Reference id of the subscription to cancel. Defaults to the userId.
-       */
-      referenceId?: string = 'org_123'
-      /**
-       * The id of the subscription to cancel. 
-       */
-      subscriptionId?: string = 'sub_123'
-      /**
-       * Return URL to redirect back after successful subscription. 
-       */
-      returnUrl: string = '/account'
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.subscription.cancel({
+    referenceId: org_123, // required
+    subscriptionId: sub_123, // required
+    returnUrl: /account,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.cancelSubscription({
+    body: {
+        referenceId: org_123, // required
+        subscriptionId: sub_123, // required
+        returnUrl: /account,
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type cancelSubscription = {
+    /**
+     * Reference id of the subscription to cancel. Defaults to the userId.
+     */
+    referenceId?: string = 'org_123'
+    /**
+     * The id of the subscription to cancel. 
+     */
+    subscriptionId?: string = 'sub_123'
+    /**
+     * URL to take customers to when they click on the billing portal’s link to return to your website.
+     */
+    returnUrl: string = '/account'
+
+}
+```
 
 This will redirect the user to the Stripe Billing Portal where they can cancel their subscription.
 
@@ -22912,24 +30759,101 @@ This will redirect the user to the Stripe Billing Portal where they can cancel t
 
 If a user changes their mind after canceling a subscription (but before the subscription period ends), you can restore the subscription:
 
-<APIMethod path="/subscription/restore" method="POST" requireSession>
-  ```ts
-  type restoreSubscription = {
-      /**
-       * Reference id of the subscription to restore. Defaults to the userId.
-       */
-      referenceId?: string = '123'
-      /**
-       * The id of the subscription to restore. 
-       */
-      subscriptionId?: string = 'sub_123'
-  }
-  ```
-</APIMethod>
+### Client Side
+
+```ts
+const { data, error } = await authClient.subscription.restore({
+    referenceId: 123, // required
+    subscriptionId: sub_123, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.restoreSubscription({
+    body: {
+        referenceId: 123, // required
+        subscriptionId: sub_123, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type restoreSubscription = {
+    /**
+     * Reference id of the subscription to restore. Defaults to the userId.
+     */
+    referenceId?: string = '123'
+    /**
+     * The id of the subscription to restore. 
+     */
+    subscriptionId?: string = 'sub_123'
+
+}
+```
 
 This will reactivate a subscription that was previously set to cancel at the end of the billing period (`cancelAtPeriodEnd: true`). The subscription will continue to renew automatically.
 
 > **Note:** This only works for subscriptions that are still active but marked to cancel at the end of the period. It cannot restore subscriptions that have already ended.
+
+#### Creating Billing Portal Sessions
+
+To create a [Stripe billing portal session](https://docs.stripe.com/api/customer_portal/sessions/create) where customers can manage their subscriptions, update payment methods, and view billing history:
+
+### Client Side
+
+```ts
+const { data, error } = await authClient.subscription.billingPortal({
+    locale, // required
+    referenceId: 123, // required
+    returnUrl, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.createBillingPortal({
+    body: {
+        locale, // required
+        referenceId: 123, // required
+        returnUrl, // required
+    },
+    // This endpoint requires session cookies.
+    headers: await headers()
+});
+```
+
+### Type Definition
+
+```ts
+type createBillingPortal = {
+    /**
+    * The IETF language tag of the locale customer portal is displayed in. If blank or auto, browser's locale is used.
+    */
+    locale?: string
+    /**
+     * Reference id of the subscription to upgrade. 
+     */
+    referenceId?: string = "123"
+    /**
+     * Return URL to redirect back after successful subscription. 
+     */
+    returnUrl?: string
+
+}
+```
+
+<Callout type="info">
+  For supported locales, see the [IETF language tag documentation](https://docs.stripe.com/js/appendix/supported_locales).
+</Callout>
+
+This endpoint creates a Stripe billing portal session and returns a URL in the response as `data.url`. You can redirect users to this URL to allow them to manage their subscription, payment methods, and billing history.
 
 ### Reference System
 
@@ -23325,7 +31249,7 @@ subscription: {
 
 ### Automatic Tax Calculation
 
-To enable automatic tax calculation using the customer’s location, set `automatic_tax` to true. Enabling this parameter causes Checkout to collect any billing address information necessary for tax calculation. You need to have tax registration setup and configured in the Stripe dashboard first for this to work.
+To enable automatic tax calculation using the customer's location, set `automatic_tax` to true. Enabling this parameter causes Checkout to collect any billing address information necessary for tax calculation. You need to have tax registration setup and configured in the Stripe dashboard first for this to work.
 
 ```ts title="auth.ts"
 subscription: {
@@ -23341,6 +31265,26 @@ subscription: {
     }
 }
 ```
+
+### Trial Period Management
+
+The Stripe plugin automatically prevents users from getting multiple free trials. Once a user has used a trial period (regardless of which plan), they will not be eligible for additional trials on any plan.
+
+**How it works:**
+
+* The system tracks trial usage across all plans for each user
+* When a user subscribes to a plan with a trial, the system checks their subscription history
+* If the user has ever had a trial (indicated by `trialStart`/`trialEnd` fields or `trialing` status), no new trial will be offered
+* This prevents abuse where users cancel subscriptions and resubscribe to get multiple free trials
+
+**Example scenario:**
+
+1. User subscribes to "Starter" plan with 7-day trial
+2. User cancels the subscription after the trial
+3. User tries to subscribe to "Premium" plan - no trial will be offered
+4. User will be charged immediately for the Premium plan
+
+This behavior is automatic and requires no additional configuration. The trial eligibility is determined at the time of subscription creation and cannot be overridden through configuration.
 
 ## Troubleshooting
 
@@ -23385,7 +31329,7 @@ title: Username
 description: Username plugin
 ----------------------------
 
-The username plugin wraps the email and password authenticator and adds username support. This allows users to sign in and sign up with their username instead of their email.
+The username plugin is a lightweight plugin that adds username support to the email and password authenticator. This allows users to sign in and sign up with their username instead of their email.
 
 ## Installation
 
@@ -23447,55 +31391,314 @@ The username plugin wraps the email and password authenticator and adds username
 
 ### Sign up
 
-To sign up a user with username, you can use the existing `signUp.email` function provided by the client. The `signUp` function should take a new `username` property in the object.
+To sign up a user with username, you can use the existing `signUp.email` function provided by the client.
+The `signUp` function should take a new `username` property in the object.
 
-```ts title="auth-client.ts"
-const data = await authClient.signUp.email({
-    email: "email@domain.com",
-    name: "Test User",
-    password: "password1234",
-    username: "test"
-})
+### Client Side
+
+```ts
+const { data, error } = await authClient.signUp.email({
+    email: email@domain.com,
+    name: Test User,
+    password: password1234,
+    username: test,
+    displayUsername: Test User123, // required
+});
 ```
+
+### Server Side
+
+```ts
+const data = await auth.api.signUpEmail({
+    body: {
+        email: email@domain.com,
+        name: Test User,
+        password: password1234,
+        username: test,
+        displayUsername: Test User123, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signUpEmail = {
+    /**
+     * The email of the user.
+    */
+    email: string = "email@domain.com"
+    /**
+     * The name of the user.
+    */
+    name: string = "Test User"
+    /**
+     * The password of the user.
+    */
+    password: string = "password1234"
+    /**
+     * The username of the user.
+    */
+    username: string = "test"
+    /**
+     * An optional display username of the user.
+    */
+    displayUsername?: string = "Test User123"
+
+}
+```
+
+<Callout type="info">
+  If only `username` is provided, the `displayUsername` will be set to the pre normalized version of the `username`. You can see the [Username Normalization](#username-normalization) and [Display Username Normalization](#display-username-normalization) sections for more details.
+</Callout>
 
 ### Sign in
 
-To sign in a user with username, you can use the `signIn.username` function provided by the client. The `signIn` function takes an object with the following properties:
+To sign in a user with username, you can use the `signIn.username` function provided by the client.
 
-* `username`: The username of the user.
-* `password`: The password of the user.
+### Client Side
 
-```ts title="auth-client.ts" 
-const data = await authClient.signIn.username({
-    username: "test",
-    password: "password1234",
-})
+```ts
+const { data, error } = await authClient.signIn.username({
+    username: test,
+    password: password1234,
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.signInUsername({
+    body: {
+        username: test,
+        password: password1234,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type signInUsername = {
+    /**
+     * The username of the user.
+    */
+    username: string = "test"
+    /**
+     * The password of the user.
+    */
+    password: string = "password1234"
+
+}
 ```
 
 ### Update username
 
 To update the username of a user, you can use the `updateUser` function provided by the client.
 
-```ts title="auth-client.ts"
-const data = await authClient.updateUser({
-    username: "new-username"
-})
+### Client Side
+
+```ts
+const { data, error } = await authClient.updateUser({
+    username: new-username, // required
+});
+```
+
+### Server Side
+
+```ts
+const data = await auth.api.updateUser({
+    body: {
+        username: new-username, // required
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type updateUser = {
+    /**
+     * The username to update.
+    */
+    username?: string = "new-username"
+
+}
 ```
 
 ### Check if username is available
 
 To check if a username is available, you can use the `isUsernameAvailable` function provided by the client.
 
-```ts title="auth-client.ts"
-const response = await authClient.isUsernameAvailable({
-    username: "new-username"
-});
+### Client Side
 
-if(response.data?.available) {
-    console.log("Username is available");
-} else {
-    console.log("Username is not available");
+```ts
+const { data, error } = await authClient.isUsernameAvailable({
+    username: new-username,
+});
+```
+
+### Server Side
+
+```ts
+const response = await auth.api.isUsernameAvailable({
+    body: {
+        username: new-username,
+    }
+});
+```
+
+### Type Definition
+
+```ts
+type isUsernameAvailable = {
+    /**
+     * The username to check.
+    */
+    username: string = "new-username"
+
 }
+```
+
+## Options
+
+### Min Username Length
+
+The minimum length of the username. Default is `3`.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { username } from "better-auth/plugins"
+
+const auth = betterAuth({
+    plugins: [
+        username({
+            minUsernameLength: 5
+        })
+    ]
+})
+```
+
+### Max Username Length
+
+The maximum length of the username. Default is `30`.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { username } from "better-auth/plugins"
+
+const auth = betterAuth({
+    plugins: [
+        username({
+            maxUsernameLength: 100
+        })
+    ]
+})
+```
+
+### Username Validator
+
+A function that validates the username. The function should return false if the username is invalid. By default, the username should only contain alphanumeric characters, underscores, and dots.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { username } from "better-auth/plugins"
+
+const auth = betterAuth({
+    plugins: [
+        username({
+            usernameValidator: (username) => {
+                if (username === "admin") {
+                    return false
+                }
+                return true
+            }
+        })
+    ]
+})
+```
+
+### Display Username Validator
+
+A function that validates the display username. The function should return false if the display username is invalid. By default, no validation is applied to display username.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { username } from "better-auth/plugins"
+
+const auth = betterAuth({
+    plugins: [
+        username({
+            displayUsernameValidator: (displayUsername) => {
+                // Allow only alphanumeric characters, underscores, and hyphens
+                return /^[a-zA-Z0-9_-]+$/.test(displayUsername)
+            }
+        })
+    ]
+})
+```
+
+### Username Normalization
+
+A function that normalizes the username, or `false` if you want to disable normalization.
+
+By default, usernames are normalized to lowercase, so "TestUser" and "testuser", for example, are considered the same username. The `username` field will contain the normalized (lower case) username, while `displayUsername` will contain the original `username`.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { username } from "better-auth/plugins"
+
+const auth = betterAuth({
+    plugins: [
+        username({
+            usernameNormalization: (username) => {
+                return username.toLowerCase()
+                    .replaceAll("0", "o")
+                    .replaceAll("3", "e")
+                    .replaceAll("4", "a");
+            }
+        })
+    ]
+})
+```
+
+### Display Username Normalization
+
+A function that normalizes the display username, or `false` to disable normalization.
+
+By default, display usernames are not normalized. When only `username` is provided during signup or update, the `displayUsername` will be set to match the original `username` value (before normalization). You can also explicitly set a `displayUsername` which will be preserved as-is. For custom normalization, provide a function that takes the display username as input and returns the normalized version.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { username } from "better-auth/plugins"
+
+const auth = betterAuth({
+    plugins: [
+        username({
+            displayUsernameNormalization: (displayUsername) => displayUsername.toLowerCase(),
+        })
+    ]   
+})
+```
+
+### Validation Order
+
+By default, username and display username are validated before normalization. You can change this behavior by setting `validationOrder` to `post-normalization`.
+
+```ts title="auth.ts"
+import { betterAuth } from "better-auth"
+import { username } from "better-auth/plugins"
+
+const auth = betterAuth({
+    plugins: [
+        username({
+            validationOrder: {
+                username: "post-normalization",
+                displayUsername: "post-normalization",
+            }
+        })
+    ]
+})
 ```
 
 ## Schema
@@ -23518,88 +31721,6 @@ The plugin requires 2 fields to be added to the user table:
       },
   ]}
 />
-
-## Options
-
-**Min Username Length**
-
-The minimum length of the username. Default is `3`.
-
-```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { username } from "better-auth/plugins"
-
-const auth = betterAuth({
-    plugins: [
-        username({
-            minUsernameLength: 5
-        })
-    ]
-})
-```
-
-**Max Username Length**
-
-The maximum length of the username. Default is `30`.
-
-```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { username } from "better-auth/plugins"
-
-const auth = betterAuth({
-    plugins: [
-        username({
-            maxUsernameLength: 100
-        })
-    ]
-})
-```
-
-**Username Validator**
-
-A function that validates the username. The function should return false if the username is invalid. By default, the username should only contain alphanumeric characters, underscores, and dots.
-
-```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { username } from "better-auth/plugins"
-
-const auth = betterAuth({
-    plugins: [
-        username({
-            usernameValidator: (username) => {
-                if (username === "admin") {
-                    return false
-                }
-                return true
-            }
-        })
-    ]
-})
-```
-
-### Username Normalization
-
-A function that normalizes the username, or `false` if you want to disable normalization.
-
-By default, usernames are case-insensitive, so "TestUser" and "testuser", for example, are considered the same username. The `username` field will contain the normalized (lower case) username, while `displayUsername` will contain the original `username`.
-
-```ts title="auth.ts"
-import { betterAuth } from "better-auth"
-import { username } from "better-auth/plugins"
-
-const auth = betterAuth({
-    plugins: [
-        username({
-            usernameNormalization: (username) => {
-                return username.toLowerCase()
-                    .replaceAll("0", "o")
-                    .replaceAll("3", "e")
-                    .replaceAll("4", "a");
-            }
-        })
-    ]
-})
-```
 
 
 
@@ -23714,9 +31835,9 @@ Once you have an idea of what you want to contribute, you can start making chang
 
     * Make your changes to the codebase.
 
-    * Write tests if needed. (Read more about testing <Link href="/docs/reference/contribute/testing">here</Link>)
+    * Write tests if needed. (Read more about testing <Link href="/docs/reference/contributing#testing">here</Link>)
 
-    * Update documentation.  (Read more about documenting <Link href="/docs/reference/contribute/documenting">here</Link>)
+    * Update documentation.  (Read more about documenting <Link href="/docs/reference/contributing#documentation">here</Link>)
   </Step>
 </Steps>
 
@@ -23953,12 +32074,43 @@ Default: `/api/auth`
 
 ## `trustedOrigins`
 
-List of trusted origins.
+List of trusted origins. You can provide a static array of origins, a function that returns origins dynamically, or use wildcard patterns to match multiple domains.
+
+### Static Origins
+
+You can provide a static array of origins:
 
 ```ts
 import { betterAuth } from "better-auth";
 export const auth = betterAuth({
 	trustedOrigins: ["http://localhost:3000", "https://example.com"],
+})
+```
+
+### Dynamic Origins
+
+You can provide a function that returns origins dynamically:
+
+```ts
+export const auth = betterAuth({
+	trustedOrigins: async (request: Request) => {
+		// Return an array of trusted origins based on the request
+		return ["https://dynamic-origin.com"];
+	}
+})
+```
+
+### Wildcard Support
+
+You can use wildcard patterns in trusted origins:
+
+```ts
+export const auth = betterAuth({
+	trustedOrigins: [
+		"*.example.com",             // Trust all subdomains of example.com
+		"https://*.example.com",     // Trust only HTTPS subdomains
+		"http://*.dev.example.com"   // Trust HTTP subdomains of dev.example.com
+	]
 })
 ```
 
@@ -24375,6 +32527,7 @@ import { betterAuth } from "better-auth";
 export const auth = betterAuth({
 	logger: {
 		disabled: false,
+		disableColors: false,
 		level: "error",
 		log: (level, message, ...args) => {
 			// Custom logging implementation
@@ -24387,6 +32540,7 @@ export const auth = betterAuth({
 The logger configuration allows you to customize how Better Auth handles logging. It supports the following options:
 
 * `disabled`: Disable all logging when set to `true` (default: `false`)
+* `disableColors`: Disable colors in the default logger implementation (default: determined by the terminal's color support)
 * `level`: Set the minimum log level to display. Available levels are:
   * `"info"`: Show all logs
   * `"warn"`: Show warnings and errors
@@ -24515,6 +32669,19 @@ export const auth = betterAuth({
 })
 ```
 
+## `telemetry`
+
+Enable or disable Better Auth's telemetry collection. (default: `false`)
+
+```ts
+import { betterAuth } from "better-auth";
+export const auth = betterAuth({
+  telemetry: {
+    enabled: false,
+  }
+})
+```
+
 
 
 # reference: Resources
@@ -24559,7 +32726,20 @@ A curated collection of resources to help you learn and master Better Auth. From
   		href: "https://www.youtube.com/watch?v=Hjs3zM7o7NE",
   		tags: ["review", "showcase"],
   	},
-  	
+   	{
+  		title: "8 Reasons To Try Better Auth",
+  		description:
+  			"<strong>CJ</strong> presents 8 compelling reasons why Better Auth is the BEST auth framework he's ever used, demonstrating its superior features and ease of implementation.",
+  		href: "https://www.youtube.com/watch?v=_OApmLmex14",
+  		tags: ["review", "showcase", "implementation"],
+  	},
+  	{
+  		title: "Better Auth is so good that I almost switched programming languages",
+  		description:
+  			"<strong>Dreams of Code</strong> reviews Better Auth's features that nearly made them switch languages.",
+  		href: "https://www.youtube.com/watch?v=dNY4FKXwTsM",
+  		tags: ["review", "showcase", "implementation"],
+  	},
   	{
   		title: "Best authentication framework for next.js",
   		description:
@@ -24578,7 +32758,7 @@ A curated collection of resources to help you learn and master Better Auth. From
   		title: "Stripe was never so easy (with better auth)",
   		description: "A tutorial on how to integrate Stripe with Better Auth.",
   		href: "https://www.youtube.com/watch?v=g-RIrzBEX6M",
-  		tags: [ "implementation"],
+  		tags: ["implementation"],
   	},
   	{
   		title: "Nextjs 15 Authentication Made EASY with Better Auth",
@@ -24591,7 +32771,7 @@ A curated collection of resources to help you learn and master Better Auth. From
   		title: "Better Auth: Headless Authentication for Your TanStack Start App",
   		description: "<strong>Jack</strong> demonstrates how to implement headless authentication in your TanStack Start application using Better Auth, providing a modern approach to auth.",
   		href: "https://www.youtube.com/watch?v=Atev8Nxpw7c", 
-  		tags: ["tanstack" ,  "implementation"],
+  		tags: ["tanstack", "implementation"],
   	},
   	{
   		title: "Goodbye Clerk, Hello Better Auth – Full Migration Guide!",
@@ -24779,4 +32959,97 @@ Trusted origins also support custom schemes for mobile apps and browser extensio
 ## Reporting Vulnerabilities
 
 If you discover a security vulnerability in Better Auth, please report it to us at [security@better-auth.com](mailto:security@better-auth.com). We address all reports promptly, and credits will be given for validated discoveries.
+
+
+
+# reference: Telemetry
+URL: /docs/reference/telemetry
+Source: https://raw.githubusercontent.com/better-auth/better-auth/refs/heads/main/docs/content/docs/reference/telemetry.mdx
+
+Better Auth now collects anonymous telemetry data about general usage.
+        
+***
+
+title: Telemetry
+description: Better Auth now collects anonymous telemetry data about general usage.
+-----------------------------------------------------------------------------------
+
+Better Auth collects anonymous usage data to help us improve the project. This is optional, transparent, and disabled by default.
+
+## Why is telemetry collected?
+
+Since v1.3.5, Better Auth collects anonymous telemetry data about general usage if enabled.
+
+Telemetry data helps us understand how Better Auth is being used across different environments so we can improve performance, prioritize features, and fix issues more effectively. It guides our decisions on performance optimizations, feature development, and bug fixes. All data is collected completely anonymously and with privacy in mind, and users can opt out at any time. We strive to keep what we collect as transparent as possible.
+
+## What is being collected?
+
+The following data points may be reported. Everything is anonymous and intended for aggregate insights only.
+
+* **Anonymous identifier**: A non-reversible hash derived from your project (`package.json` name and optionally `baseURL`). This lets us de‑duplicate events per project without knowing who you are.
+* **Runtime**: `{ name: "node" | "bun" | "deno", version }`.
+* **Environment**: one of `development`, `production`, `test`, or `ci`.
+* **Framework (if detected)**: `{ name, version }` for frameworks like Next.js, Nuxt, Remix, Astro, SvelteKit, etc.
+* **Database (if detected)**: `{ name, version }` for integrations like PostgreSQL, MySQL, SQLite, Prisma, Drizzle, MongoDB, etc.
+* **System info**: platform, OS release, architecture, CPU count/model/speed, total memory, and flags like `isDocker`, `isWSL`, `isTTY`.
+* **Package manager**: `{ name, version }` derived from the npm user agent.
+* **Redacted auth config snapshot**: A minimized, privacy‑preserving view of your `betterAuth` options produced by `getTelemetryAuthConfig`.
+
+We also collect anonymous telemetry from the CLI:
+
+* **CLI generate (`cli_generate`)**: outcome `generated | overwritten | appended | no_changes | aborted` plus redacted config.
+* **CLI migrate (`cli_migrate`)**: outcome `migrated | no_changes | aborted | unsupported_adapter` plus adapter id (when relevant) and redacted config.
+
+<Callout type="info">
+  You can audit telemetry locally by setting the `BETTER_AUTH_TELEMETRY_DEBUG=1` environment variable when running your project or by setting `telemetry: { debug: true }` in your auth config. In this debug mode, telemetry events are logged only to the console.
+
+  ```ts title="auth.ts"
+  export const auth = betterAuth({
+    // [!code highlight]
+    telemetry: { // [!code highlight]
+      debug: true // [!code highlight]
+    } // [!code highlight]
+  });
+  ```
+</Callout>
+
+## How is my data protected?
+
+All collected data is fully anonymous and only useful in aggregate. It cannot be traced back to any individual source and is accessible only to a small group of core Better Auth maintainers to guide roadmap decisions.
+
+* **No PII or secrets**: We do not collect emails, usernames, tokens, secrets, client IDs, client secrets, or database URLs.
+* **No full config**: We never send your full `betterAuth` configuration. Instead we send a reduced, redacted snapshot of non‑sensitive toggles and counts.
+* **Redaction by design**: See [detect-auth-config.ts](https://github.com/better-auth/better-auth/blob/main/packages/better-auth/src/telemetry/detectors/detect-auth-config.ts) in the Better Auth source for the exact shape of what is included. It purposely converts sensitive values to booleans, counts, or generic identifiers.
+
+## How can I enable it?
+
+You can enable telemetry collection in your auth config or by setting an environment variable.
+
+* Via your auth config.
+
+  ```ts title="auth.ts"
+  export const auth = betterAuth({
+    // [!code highlight]
+    telemetry: { // [!code highlight]
+      enabled: true// [!code highlight]
+    } // [!code highlight]
+  });
+  ```
+
+* Via an environment variable.
+
+  ```txt title=".env"
+  # Enable telemetry
+  BETTER_AUTH_TELEMETRY=1
+
+  # Disable telemetry
+  BETTER_AUTH_TELEMETRY=0
+  ```
+
+### When is telemetry sent?
+
+* On `betterAuth` initialization (`type: "init"`).
+* On CLI actions: `generate` and `migrate` as described above.
+
+Telemetry is disabled automatically in tests (`NODE_ENV=test`) unless explicitly overridden by internal tooling.
 

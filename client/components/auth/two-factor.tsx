@@ -25,6 +25,7 @@ import {
 import Link from "next/link";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { useSession } from "@/lib/auth-client";
 
 type FormData = {
     otp: string;
@@ -53,6 +54,8 @@ export default function TwoFactorComponent() {
         },
     });
 
+    const { refetch } = useSession();
+
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
         try {
@@ -67,15 +70,16 @@ export default function TwoFactorComponent() {
                     email: email || "",
                     rememberMe: rememberMe,
                 }),
+                credentials: "include",
             });
-            const responseData = await response.json();
             if (response.ok) {
                 setSuccess(true);
                 setIsSubmitting(false);
                 startRouting(() => {
-                    router.push(`/auth?email=${responseData.email}&rememberMe=${responseData.rememberMe}`);
+                    refetch();
+                    router.push(`/panel`);
                 });
-                toast.info("Weryfikacja powiodła się. Zaloguj się ponownie.");
+                toast.info("Weryfikacja powiodła się. Przekierowanie...");
             } else {
                 setError(true);
                 setIsSubmitting(false);

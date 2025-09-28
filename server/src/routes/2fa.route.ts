@@ -20,12 +20,19 @@ twoFactorRoute.post("/verify", createRateLimiter("twoFactor"), async (c) => {
             ipAddress: ipAddress
         }).where(eq(user.email, email))
 
-        return c.json({ message: "Correct token", email: email, rememberMe: rememberMe }, 200)
+        if (data[0].cookie) {
+            c.header("Set-Cookie", data[0].cookie);
+        }
+
+        await db.delete(twoFactor).where(eq(twoFactor.token, token))
+
+        return c.json({ 
+            message: "Weryfikacja powiodła się", 
+        }, 200)
     }
 
-    return c.json({ message: "The token verification went wrong, was expired or invalid" }, 400)
+    return c.json({ message: "Weryfikacja nie powiodła się, token jest nieprawidłowy lub wygasł" }, 400)
 
 });
-
 
 export default twoFactorRoute;
