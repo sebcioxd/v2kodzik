@@ -27,19 +27,6 @@ import axios from 'axios';
 import { toast } from 'sonner';
 import { useSession } from '@/lib/auth-client';
 
-// Custom Loading Spinner Component
-const LoadingSpinner = ({ size = "default" }: { size?: "small" | "default" | "large" }) => {
-  const sizeClasses = {
-    small: "h-4 w-4",
-    default: "h-6 w-6", 
-    large: "h-8 w-8"
-  };
-
-  return (
-    <div className={`${sizeClasses[size]} animate-spin rounded-full border-2 border-zinc-600 border-t-zinc-300`} />
-  );
-};
-
 // Types
 type Session = {
   id: string;
@@ -107,9 +94,7 @@ export default function Security({ user }: SecurityProps) {
   const [actionType, setActionType] = useState<'disable-2fa' | 'revoke-session' | 'revoke-others' | 'revoke-all' | null>(null);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const queryClient = useQueryClient();
-
-  const { refetch } = useSession();
-
+  const { refetch } = useSession(); // refetch the session
   // Fetch sessions using Better Auth client
   const {
     data: sessionsData,
@@ -117,7 +102,7 @@ export default function Security({ user }: SecurityProps) {
     error: sessionsError,
     refetch: refetchSessions
   } = useQuery({
-    queryKey: ['user-sessions'],  
+    queryKey: ['user-sessions'],
     queryFn: async () => {
       try {
         const result = await authClient.listSessions();
@@ -178,7 +163,7 @@ export default function Security({ user }: SecurityProps) {
   const revokeOtherSessionsMutation = useMutation({
     mutationFn: async () => {
       await authClient.revokeOtherSessions();
-      return { message: "Inne sesje zostały odwołane" };
+      return { message: "Wszystkie inne sesje zostały odwołane" };
     },
     onSuccess: (data) => {
       toast.success(data.message);
@@ -193,7 +178,6 @@ export default function Security({ user }: SecurityProps) {
   const revokeAllSessionsMutation = useMutation({
     mutationFn: async () => {
       await authClient.revokeSessions();
-      refetch();
       return { message: "Wszystkie sesje zostały odwołane" };
     },
     onSuccess: (data) => {
@@ -281,9 +265,9 @@ export default function Security({ user }: SecurityProps) {
           <div className="bg-zinc-900/30 border border-zinc-900 rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-lg ${user.twofactorEnabled ? 'bg-green-400/10' : 'bg-yellow-400/10'}`}>
+                <div className={`p-3 rounded-lg ${user.twofactorEnabled ? 'bg-gray-400/10' : 'bg-gray-400/10'}`}>
                   {user.twofactorEnabled ? (
-                    <ShieldCheck className="h-6 w-6 text-green-400" />
+                    <ShieldCheck className="h-6 w-6 text-gray-400" />
                   ) : (
                     <ShieldAlert className="h-6 w-6 text-yellow-400" />
                   )}
@@ -310,11 +294,7 @@ export default function Security({ user }: SecurityProps) {
                 size="sm"
                 disabled={toggle2FAMutation.isPending}
               >
-                {toggle2FAMutation.isPending ? (
-                  <LoadingSpinner size="small" />
-                ) : (
-                  user.twofactorEnabled ? 'Wyłącz' : 'Włącz'
-                )}
+                {user.twofactorEnabled ? 'Wyłącz' : 'Włącz'}
               </Button>
             </div>
             
@@ -339,14 +319,8 @@ export default function Security({ user }: SecurityProps) {
                 size="sm"
                 disabled={revokeOtherSessionsMutation.isPending || sessionsLoading}
               >
-                {revokeOtherSessionsMutation.isPending ? (
-                  <LoadingSpinner size="small" />
-                ) : (
-                  <>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Odwołaj inne
-                  </>
-                )}
+                <LogOut className="h-4 w-4 mr-2" />
+                Odwołaj inne
               </Button>
               <Button
                 onClick={() => {
@@ -357,37 +331,13 @@ export default function Security({ user }: SecurityProps) {
                 size="sm"
                 disabled={revokeAllSessionsMutation.isPending || sessionsLoading}
               >
-                {revokeAllSessionsMutation.isPending ? (
-                  <LoadingSpinner size="small" />
-                ) : (
-                  <>
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Odwołaj wszystkie
-                  </>
-                )}
+                <Trash2 className="h-4 w-4 mr-2" />
+                Odwołaj wszystkie
               </Button>
             </div>
           </div>
 
-          {/* Sessions List */}
-          {sessionsLoading && (
-            <div className="bg-zinc-900/30 border border-zinc-900 rounded-lg p-6">
-              <div className="flex items-center justify-center">
-                <LoadingSpinner size="large" />
-                <span className="ml-3 text-zinc-400">Ładowanie sesji...</span>
-              </div>
-            </div>
-          )}
-
-          {sessionsError && (
-            <Alert className="bg-red-400/10 border-red-400/20">
-              <XCircle className="h-4 w-4 text-red-400" />
-              <AlertDescription className="text-red-300">
-                Błąd podczas ładowania sesji. Spróbuj ponownie.
-              </AlertDescription>
-            </Alert>
-          )}
-
+          {/* Sessions List - Only render when not loading */}
           {!sessionsLoading && !sessionsError && sessionsData && Array.isArray(sessionsData) && (
             <div className="space-y-3">
               {sessionsData.map((session: Session) => {
@@ -399,7 +349,7 @@ export default function Security({ user }: SecurityProps) {
                     key={session.id}
                     className={`bg-zinc-900/30 border rounded-lg p-4 ${
                       session.isCurrent 
-                        ? 'border-green-400/30 bg-green-400/5' 
+                        ? 'border-gray-400/30 bg-gray-400/5' 
                         : 'border-zinc-900'
                     }`}
                   >
@@ -461,7 +411,7 @@ export default function Security({ user }: SecurityProps) {
             </div>
           )}
 
-          {/* Sessions Summary */}
+          {/* Sessions Summary - Only render when not loading */}
           {!sessionsLoading && !sessionsError && sessionsData && Array.isArray(sessionsData) && (
             <div className="bg-zinc-900/20 border border-zinc-800 rounded-lg p-4">
               <div className="flex items-center justify-between">
@@ -474,6 +424,16 @@ export default function Security({ user }: SecurityProps) {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Error State */}
+          {sessionsError && (
+            <Alert className="bg-red-400/10 border-red-400/20">
+              <XCircle className="h-4 w-4 text-red-400" />
+              <AlertDescription className="text-red-300">
+                Błąd podczas ładowania sesji. Spróbuj ponownie.
+              </AlertDescription>
+            </Alert>
           )}
         </div>
 
@@ -522,14 +482,7 @@ export default function Security({ user }: SecurityProps) {
               }
               className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
             >
-              {(toggle2FAMutation.isPending ||
-                revokeSessionMutation.isPending ||
-                revokeOtherSessionsMutation.isPending ||
-                revokeAllSessionsMutation.isPending) ? (
-                <LoadingSpinner size="small" />
-              ) : (
-                'Potwierdź'
-              )}
+              Potwierdź
             </Button>
           </DialogFooter>
         </DialogContent>

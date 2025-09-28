@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useMemo, useEffect, useTransition } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 import { toast } from "sonner";
 import axios from "axios";
 import { TurnstileRef } from "@/components/turnstile";
