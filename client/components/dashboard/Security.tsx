@@ -26,6 +26,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useSession } from '@/lib/auth-client';
+import { parseAsString, useQueryState } from 'nuqs'
+
 
 // Types
 type Session = {
@@ -93,9 +95,10 @@ export default function Security({ user }: SecurityProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [actionType, setActionType] = useState<'disable-2fa' | 'revoke-session' | 'revoke-others' | 'revoke-all' | null>(null);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [token, setToken] = useQueryState("token", parseAsString);
   const queryClient = useQueryClient();
   const { refetch } = useSession(); // refetch the session
-  // Fetch sessions using Better Auth client
+
   const {
     data: sessionsData,
     isLoading: sessionsLoading,
@@ -121,6 +124,35 @@ export default function Security({ user }: SecurityProps) {
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
+  });
+
+  const {
+    data: tokenData,
+    isLoading: tokenLoading,
+  } = useQuery({
+    queryKey: ['token', token],
+    queryFn: async () => {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/v1/security/confirm?token=${token}`,
+          {
+            withCredentials: true,
+          }
+        );
+        toast.info(response.data.message)
+        setToken(null);
+        refetch()
+        return response.data;
+      } catch (error) {
+        console.error('Error confirming token:', error);
+        setToken(null);
+        toast.error('Wystąpił błąd podczas potwierdzania tokenu');
+        throw error;
+      }
+    },
+    enabled: !!user && !!token,
+    staleTime: 0,
+    retry: false,
   });
 
   // Toggle 2FA mutation
@@ -214,7 +246,7 @@ export default function Security({ user }: SecurityProps) {
   const getActionDescription = () => {
     switch (actionType) {
       case 'disable-2fa':
-        return 'Czy na pewno chcesz wyłączyć dwuskładnikową autoryzację? Twoje konto będzie mniej bezpieczne.';
+        return 'Czy na pewno chcesz wyłączyć dwuskładnikową autoryzację? Twoje konto będzie mniej bezpieczne. Po wyłączeniu, wyślemy na twój e-mail link z potwierdzeniem który musisz kliknąć aby zapisać zmiany.';
       case 'revoke-session':
         return `Czy na pewno chcesz odwołać tę sesję? Zostaniesz wylogowany z tego urządzenia.`;
       case 'revoke-others':

@@ -234,5 +234,17 @@ export const twoFactor = pgTable("two_factor", {
   index("idx_two_factor_user_id").on(t.userId),
 ]);
 
+export const confirm2fa = pgTable("confirm_2fa", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
+  token: text("token").notNull(),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  expiresAt: timestamp('expires_at').notNull().default(sql`NOW() + INTERVAL '30 minutes'`),
+  type: text("type").notNull(),
+}, (t) => [
+  index("idx_confirm_2fa_user_id").on(t.userId),
+  index("idx_confirm_2fa_token").on(t.token),
+]);
+
   
-export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits, twoFactor };
+export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits, twoFactor, confirm2fa };

@@ -6,6 +6,7 @@ import { cancellationTemplate } from "../templates/cancellation";
 import { dataRequestTemplate } from "../templates/data-request";
 import { accountDeletionTemplate } from "../templates/account-deletion";
 import { twoFactorTemplate } from "../templates/2fa-template";
+import { confirm2faTemplate } from "../templates/confirm-2fa";
 import { MAILGUN_API_KEY } from "../lib/env";
 import { createMessage, type Attachment } from "@upyo/core";
 import { MailgunTransport } from "@upyo/mailgun";
@@ -56,6 +57,10 @@ export async function sendEmailService({
     case "2fa":
       const twoFactorDetails = JSON.parse(text);
       emailTemplate = twoFactorTemplate(twoFactorDetails.text, twoFactorDetails.email, twoFactorDetails.token);
+      break;
+    case "confirm-2fa":
+      const confirm2faDetails = JSON.parse(text);
+      emailTemplate = confirm2faTemplate(confirm2faDetails.text, confirm2faDetails.status, confirm2faDetails.token);
       break;
     default:
       emailTemplate = "";

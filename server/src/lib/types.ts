@@ -7,7 +7,7 @@ import { createMessage, type Attachment } from "@upyo/core";
 import { MailgunTransport } from "@upyo/mailgun";
 import { accountDeletionTemplate } from "../templates/account-deletion";
 
-export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation" | "data-request" | "account-deletion" | "2fa";
+export type EmailType = "verify" | "forget" | "order-confirmation" | "cancellation" | "data-request" | "account-deletion" | "2fa" | "confirm-2fa";
 
 export type EmailServiceProps = {
     to: string;
