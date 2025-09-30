@@ -31,7 +31,7 @@ async function createSessionCookie(ctx: MiddlewareContext<EndpointOptions>, user
     const session = await ctx.context.internalAdapter.createSession(
         userId,
         ctx,
-        !ctx.body?.rememberMe,
+        ctx.body?.rememberMe,
     );
     const { name: cookieName, attributes: cookieAttributes } = ctx.context.createAuthCookie("session_token");
 

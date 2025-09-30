@@ -347,7 +347,7 @@ export default function Security({ user }: SecurityProps) {
                 return (
                   <div
                     key={session.id}
-                    className={`bg-zinc-900/30 border rounded-lg p-4 ${
+                    className={`bg-zinc-900/30 border rounded-lg p-4 animate-fade-in-01-text ${
                       session.isCurrent 
                         ? 'border-gray-400/30 bg-gray-400/5' 
                         : 'border-zinc-900'

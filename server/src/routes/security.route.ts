@@ -5,6 +5,8 @@ import { eq, sql } from "drizzle-orm";
 import { createRateLimiter } from "../services/rate-limit.service";
 import { AuthSession } from "../lib/types";
 import { auth } from "../lib/auth";
+import crypto from "node:crypto"
+
 
 const securityRoute = new Hono<AuthSession>();
 

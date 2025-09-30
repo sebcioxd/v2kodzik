@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from '@tanstack/react-query';
 import { 
   Link as LinkIcon, 
   Unlink,
@@ -87,34 +86,12 @@ const providerColors: Record<ProviderType, string> = {
 
 interface IntegrationsProps {
   user: UserType;
+  accounts: Account[];
 }
 
-export default function Integrations({ user }: IntegrationsProps) {
+export default function Integrations({ user, accounts }: IntegrationsProps) {
   const [isLinking, setIsLinking] = useState<string | null>(null);
   const [isUnlinking, setIsUnlinking] = useState<string | null>(null);
-
-  const {
-    data: accounts,
-    isLoading,
-    error,
-    refetch
-  } = useQuery<Account[], Error>({
-    queryKey: ['user-accounts'],
-    queryFn: async (): Promise<Account[]> => {
-      try {
-        const result = await authClient.listAccounts();
-        return result.data ?? [];
-      } catch (error) {
-        console.error('Error fetching accounts:', error);
-        throw error;
-      }
-    },
-    enabled: !!user,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
-  });
 
   const handleLinkAccount = async (provider: ProviderType) => {
     setIsLinking(provider);
@@ -137,10 +114,12 @@ export default function Integrations({ user }: IntegrationsProps) {
       await authClient.unlinkAccount({
         providerId: provider
       });
-      await refetch();
+      // Note: We can't refetch here since we don't have the query client
+      // The page will need to handle refetching or we can use window.location.reload()
+      window.location.reload();
     } catch (error) {
       console.error('Error unlinking account:', error);
-      // You might want to show a toast notification here
+      toast.error('Błąd podczas odłączania konta');
     } finally {
       setIsUnlinking(null);
     }
@@ -148,18 +127,10 @@ export default function Integrations({ user }: IntegrationsProps) {
 
   // Fixed: Use account.providerId instead of account.provider
   // Filter out credential provider and only show social providers
-  const linkedProviders = accounts?.map(account => account.providerId as ProviderType) || [];
+  const linkedProviders = accounts.map(account => account.providerId as ProviderType);
   const availableProviders = (Object.keys(providerNames) as ProviderType[]).filter(
     provider => !linkedProviders.includes(provider)
   );
-
-  if (error) {
-    return (
-      <main className="flex items-center justify-center min-h-[400px]">
-        <div className="text-red-400">Błąd podczas ładowania integracji</div>
-      </main>
-    );
-  }
 
   return (
     <main className="">
@@ -176,101 +147,99 @@ export default function Integrations({ user }: IntegrationsProps) {
         </div>
 
         {/* Linked Accounts */}
-        {!isLoading && (
-          <div className="space-y-4">
-            <h3 className="text-md text-zinc-200 font-medium tracking-tight flex items-center gap-2">
-              <Shield className="h-4 w-4 text-zinc-400" />
-              Połączone konta
-            </h3>
+        <div className="space-y-4">
+          <h3 className="text-md text-zinc-200 font-medium tracking-tight flex items-center gap-2">
+            <Shield className="h-4 w-4 text-zinc-400" />
+            Połączone konta
+          </h3>
 
-            {!accounts || accounts.filter(account => account.providerId !== 'credential').length === 0 ? (
-              <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 text-center">
-                <User className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
-                <p className="text-zinc-400 mb-2">Brak połączonych kont</p>
-                <p className="text-zinc-500 text-sm">
-                  Połącz swoje konto z usługami społecznościowymi, aby uzyskać dodatkowe funkcje
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {accounts
-                  .filter(account => account.providerId !== 'credential')
-                  .map((account) => {
-                  const provider = account.providerId as ProviderType;
-                  const IconComponent = providerIcons[provider];
-                  const providerName = providerNames[provider] || account.providerId;
-                  const providerColor = providerColors[provider] || "text-zinc-400";
-                  
-                  return (
-                    <div 
-                      key={account.id}
-                      className="bg-zinc-900/30 border border-zinc-900 rounded-lg p-4 hover:bg-zinc-900/20 transition-colors animate-slide-in-bottom"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 bg-zinc-800/50 rounded-lg ${providerColor}`}>
-                            {IconComponent ? (
-                              <IconComponent className="h-5 w-5" />
-                            ) : (
-                              <User className="h-5 w-5" />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-zinc-200 font-medium tracking-tight">
-                              {providerName}
-                            </h4>
-                            <p className="text-zinc-400 text-sm">
-                              ID: {account.accountId}
-                            </p>
-                            <p className="text-zinc-400 text-sm">
-                              Wystawca: {account.providerId}
-                            </p>
-                          </div>
+          {accounts.filter(account => account.providerId !== 'credential').length === 0 ? (
+            <div className="bg-zinc-900/20 border border-dashed border-zinc-800 rounded-lg p-6 text-center">
+              <User className="h-12 w-12 text-zinc-500 mx-auto mb-4" />
+              <p className="text-zinc-400 mb-2">Brak połączonych kont</p>
+              <p className="text-zinc-500 text-sm">
+                Połącz swoje konto z usługami społecznościowymi, aby uzyskać dodatkowe funkcje
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {accounts
+                .filter(account => account.providerId !== 'credential')
+                .map((account) => {
+                const provider = account.providerId as ProviderType;
+                const IconComponent = providerIcons[provider];
+                const providerName = providerNames[provider] || account.providerId;
+                const providerColor = providerColors[provider] || "text-zinc-400";
+                
+                return (
+                  <div 
+                    key={account.id}
+                    className="bg-zinc-900/30 border border-zinc-900 rounded-lg p-4 hover:bg-zinc-900/20 transition-colors animate-slide-in-bottom"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 bg-zinc-800/50 rounded-lg ${providerColor}`}>
+                          {IconComponent ? (
+                            <IconComponent className="h-5 w-5" />
+                          ) : (
+                            <User className="h-5 w-5" />
+                          )}
                         </div>
-                        
-                        <div className="flex flex-col items-end gap-2">
-                          <div className="text-right text-sm text-zinc-400">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              Połączono: {formatDate(account.createdAt.toString())}
-                            </div>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleUnlinkAccount(account.id, account.providerId)}
-                            disabled={isUnlinking === account.id}
-                            className="text-red-400 hover:text-red-30 bg-darken hover:bg-red-400/10 border-red-400/20"
-                          >
-                            {isUnlinking === account.id ? (
-                              <LoadingSpinner size="small" />
-                            ) : (
-                              <>
-                                <Unlink className="h-4 w-4 mr-1" />
-                                Odłącz
-                              </>
-                            )}
-                          </Button>
+                        <div>
+                          <h4 className="text-zinc-200 font-medium tracking-tight">
+                            {providerName}
+                          </h4>
+                          <p className="text-zinc-400 text-sm">
+                            ID: {account.accountId}
+                          </p>
+                          <p className="text-zinc-400 text-sm">
+                            Wystawca: {account.providerId}
+                          </p>
                         </div>
                       </div>
                       
-                      {account.scopes && account.scopes.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-zinc-800">
-                          <p className="text-zinc-400 text-sm">
-                            <span className="text-zinc-300">Uprawnienia:</span> {account.scopes.join(', ')}
-                          </p>
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="text-right text-sm text-zinc-400">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            Połączono: {formatDate(account.createdAt.toString())}
+                          </div>
                         </div>
-                      )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleUnlinkAccount(account.id, account.providerId)}
+                          disabled={isUnlinking === account.id}
+                          className="text-red-400 hover:text-red-30 bg-darken hover:bg-red-400/10 border-red-400/20"
+                        >
+                          {isUnlinking === account.id ? (
+                            <LoadingSpinner size="small" />
+                          ) : (
+                            <>
+                              <Unlink className="h-4 w-4 mr-1" />
+                              Odłącz
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+                    
+                    {account.scopes && account.scopes.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-zinc-800">
+                        <p className="text-zinc-400 text-sm">
+                          <span className="text-zinc-300">Uprawnienia:</span> {account.scopes.join(', ')}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
         {/* Available Providers */}
-        {!isLoading && availableProviders.length > 0 && (
+        {availableProviders.length > 0 && (
           <div className="space-y-4">
             <h3 className="text-md text-zinc-200 font-medium tracking-tight flex items-center gap-2">
               <Plus className="h-4 w-4 text-zinc-400" />
