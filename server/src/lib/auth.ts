@@ -31,8 +31,9 @@ async function createSessionCookie(ctx: MiddlewareContext<EndpointOptions>, user
     const session = await ctx.context.internalAdapter.createSession(
         userId,
         ctx,
-        ctx.body?.rememberMe,
+        !ctx.body?.rememberMe,
     );
+
     const { name: cookieName, attributes: cookieAttributes } = ctx.context.createAuthCookie("session_token");
 
     const signedCookie = await ctx.setSignedCookie(cookieName, session.token, ctx.context.secret, cookieAttributes);
@@ -116,6 +117,7 @@ export const auth = betterAuth({
                     .where(eq(user.email, ctx.body?.email))
                     .limit(1);
                     
+                
                     
                 if (data.length > 0 && data[0].ipAddress !== ipAddress && data[0].twofactorEnabled) {
                     const accountData = await db.select()
@@ -123,6 +125,8 @@ export const auth = betterAuth({
                         .where(eq(account.userId, data[0].id));
 
                     const credentialAccount = accountData.find(acc => acc.providerId === "credential");
+
+                  
                     
                     if (credentialAccount?.password) {
                         const verify = await ctx.context.password.verify({
