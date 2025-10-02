@@ -1,4 +1,4 @@
-import { APIError, betterAuth, EndpointOptions, MiddlewareContext } from "better-auth";
+import { APIError, AuthContext, betterAuth, EndpointOptions, MiddlewareContext } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "../db/index"; 
 import { schema, user, account, monthlyIPlimits, twoFactor } from "../db/schema";
@@ -27,7 +27,10 @@ async function getUserEmailByReferenceId(referenceId: string): Promise<string | 
     }
 }
 
-async function createSessionCookie(ctx: MiddlewareContext<EndpointOptions>, userId: string) {
+async function createSessionCookie(ctx: MiddlewareContext<EndpointOptions, AuthContext & {
+    returned?: unknown;
+    responseHeaders?: Headers;
+}>, userId: string) {
     const session = await ctx.context.internalAdapter.createSession(
         userId,
         ctx,
@@ -35,6 +38,12 @@ async function createSessionCookie(ctx: MiddlewareContext<EndpointOptions>, user
     );
 
     const { name: cookieName, attributes: cookieAttributes } = ctx.context.createAuthCookie("session_token");
+
+
+    // if remember me is true, set the max age to 7 days (so the user will be logged in for 7 days)
+    if (ctx.body?.rememberMe) {
+        cookieAttributes.maxAge = 60 * 60 * 24 * 7 // 7 days;
+    }
 
     const signedCookie = await ctx.setSignedCookie(cookieName, session.token, ctx.context.secret, cookieAttributes);
 
