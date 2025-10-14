@@ -8,6 +8,7 @@
         "@hono/zod-validator": "^0.7.3",
         "@upyo/core": "^0.3.0",
         "@upyo/mailgun": "^0.3.0",
+        "@upyo/smtp": "^0.3.0",
         "better-auth": "latest",
         "drizzle-orm": "^0.44.5",
         "hono": "latest",
@@ -122,6 +123,8 @@
     "@upyo/core": ["@upyo/core@0.3.0", "", {}, "sha512-S6M+5Ptp+t8ZA9MxgEcLA5qOidrOcYEwD8/W5pFovAUT0fEItiNnux8xIc0V3KXfVHRRjiyO+rEz+GXo3fEzoA=="],
 
     "@upyo/mailgun": ["@upyo/mailgun@0.3.0", "", { "peerDependencies": { "@upyo/core": "0.3.0" } }, "sha512-VHgfd5ZFnuKWdn5VOYu0zI4RJO78D8cphDMCqC6RTZG91a+a+lPRjLnjLOx3MSJE3LDVHAlY/7bhH4U18DAUhA=="],
+
+    "@upyo/smtp": ["@upyo/smtp@0.3.0", "", { "peerDependencies": { "@upyo/core": "0.3.0" } }, "sha512-vKkFg88CCRyVRDMwhamDjowyV1XY8H1+fJu3rkJuiPOQeseNPL95Kfgv3XMNlNK+TcmzesyQCnTSDAXdMCXuNQ=="],
 
     "accepts": ["accepts@2.0.0", "", { "dependencies": { "mime-types": "^3.0.0", "negotiator": "^1.0.0" } }, "sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng=="],
 

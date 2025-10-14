@@ -7,9 +7,10 @@ import { dataRequestTemplate } from "../templates/data-request";
 import { accountDeletionTemplate } from "../templates/account-deletion";
 import { twoFactorTemplate } from "../templates/2fa-template";
 import { confirm2faTemplate } from "../templates/confirm-2fa";
-import { MAILGUN_API_KEY } from "../lib/env";
-import { createMessage, type Attachment } from "@upyo/core";
+import { MAILGUN_API_KEY, SMTP_PASS, SMTP_USER, ENVIRONMENT } from "../lib/env";
+import { createMessage } from "@upyo/core";
 import { MailgunTransport } from "@upyo/mailgun";
+import { SmtpTransport } from "@upyo/smtp";
 
 export async function sendEmailService({
   to,
@@ -66,14 +67,28 @@ export async function sendEmailService({
       emailTemplate = "";
   }
 
-  const transport = new MailgunTransport({
-    apiKey: MAILGUN_API_KEY,
-    domain: "mail.dajkodzik.pl",
-    region: "eu",
-  });
+  let transport;
+  if (ENVIRONMENT === "development") {
+    transport = new SmtpTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS,
+      },
+    });
+  } else {
+    transport = new MailgunTransport({
+      apiKey: MAILGUN_API_KEY,
+      domain: "mail.dajkodzik.pl",
+      region: "eu",
+    })
+  }
+  
 
   const message = createMessage({
-    from: "Dajkodzik.pl <no-reply@dajkodzik.pl>",
+    from: ENVIRONMENT === "development" ? `Dajkodzik.pl <${SMTP_USER}>` : "Dajkodzik.pl <no-reply@dajkodzik.pl>",
     to: to,
     subject: subject,
     content: { html: emailTemplate || "" },
@@ -81,7 +96,7 @@ export async function sendEmailService({
   });
 
   try {
-    await transport.send(message);
+    await transport?.send(message);
   } catch (err) {
     console.log(err);
   }

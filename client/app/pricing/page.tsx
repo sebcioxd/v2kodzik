@@ -56,7 +56,7 @@ const paymentMethods = [
   },
   {
     name: "Apple Pay/Google Pay",
-    description: "Płatności online",
+    description: "Płatności online poprzez wygodne portfele",
     icon: Smartphone,
   },
   {
@@ -65,8 +65,8 @@ const paymentMethods = [
     icon: Smartphone,
   },
   {
-    name: "PayPal",
-    description: "Płatności online",
+    name: "PayPal i Revolut Pay",
+    description: "Płatności online, znane fintech'y",
     icon: CreditCard,
   },
 ];
