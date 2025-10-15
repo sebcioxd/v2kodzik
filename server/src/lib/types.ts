@@ -150,7 +150,7 @@ export const User = auth.$Infer.Session.user
 
 export interface AuthSession extends Env {
     Variables: {
-        session: typeof Session | null
-        user: typeof User | null
-    }
+		user: typeof auth.$Infer.Session.user | null;
+		session: typeof auth.$Infer.Session.session | null
+	}
 }
