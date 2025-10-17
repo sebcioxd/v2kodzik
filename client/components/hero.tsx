@@ -12,7 +12,7 @@ export default function Hero() {
   return (
     <main className="flex flex-col items-center justify-center md:max-w-4xl  max-w-sm mx-auto px-4">
       {/* Hero Section with Gradient Background */}
-      <div className="w-full  bg-gradient-to-b p-8 backdrop-blur-sm border-dashed border rounded-md border-zinc-800 animate-fade-in-01-text">
+      <div className="w-full  bg-gradient-to-b p-8 backdrop-blur-sm  animate-fade-in-01-text">
         <div className="flex flex-col items-center space-y-6">
           {/* Logo with Glow Effect */}
           <div className="relative">
@@ -63,12 +63,12 @@ export default function Hero() {
 
       {/* Login Prompt with Enhanced Design */}
       {!session && !isPending && (
-        <div className="w-full mt-8 p-4 rounded-xl bg-zinc-900/30 border border-dashed border-zinc-800 animate-slide-in-bottom">
+        <div className="w-full mt-8 p-3 rounded-lg border border-zinc-800/50 border-dashed animate-slide-in-bottom">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-zinc-400" />
               <p className="text-zinc-400 text-md">
-                Zaloguj się, aby zobaczyć historię przesyłanych plików
+                Odkryj wiele korzyści dzięki zalogowaniu się
               </p>
             </div>
             <Link 
