@@ -342,15 +342,7 @@ export function UploadPage() {
                               </FileUploadItemDelete>
                             </FileUploadItem>
                             
-                            {/* Inline filename change notification */}
-                            {originalName && (
-                              <div className=" px-2 py-1 bg-zinc-950/30 border border-dashed border-zinc-800 text-white rounded text-xs  animate-fade-in-01-text">
-                                <div className="flex items-center gap-1">
-                                  
-                                  <span>Automatycznie zmieniono nazwę pliku ze względu na kompatybilność.</span>
-                                </div>
-                              </div>
-                            )}
+                            
                           </div>
                         );
                       }) || []}
@@ -498,7 +490,13 @@ export function UploadPage() {
                                     <InputOTP
                                       maxLength={6}
                                       value={field.value || ""}
-                                      onChange={field.onChange}
+                                      onChange={(value) => {
+                                        // Filter out any non-numeric characters
+                                        const numericOnly = value.replace(/[^0-9]/g, '');
+                                        field.onChange(numericOnly);
+                                      }}
+                                      pattern="[0-9]*"
+                                      inputMode="numeric"
                                     >
                                       <InputOTPGroup>
                                         <InputOTPSlot

@@ -39,6 +39,10 @@ export const uploadFormSchema = z
     accessCode: z
       .string()
       .refine(
+        (val) => !val || /^[0-9]*$/.test(val),
+        { message: "Kod dostępu może zawierać tylko cyfry" }
+      )
+      .refine(
         (val) => !val || val.length === 6 || val.length === 0,
         { message: "Kod dostępu musi zawierać 6 znaków" }
       )

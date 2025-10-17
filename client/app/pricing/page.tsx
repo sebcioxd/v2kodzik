@@ -20,7 +20,7 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Star,
-    image: "/kodzik-basic-no-bg.png",
+    image: "https://cdn.dajkodzik.pl/kodzik-basic-no-bg.png",
   },
   {
     name: "Plan Plus",
@@ -32,7 +32,7 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Zap,
-    image: "/kodizik-plus-no-bg.png",
+    image: "https://cdn.dajkodzik.pl/kodizik-plus-no-bg.png",
   },
   {
     name: "Plan Pro",
@@ -44,7 +44,7 @@ const plans = [
       "Wsparcie priorytetowe",
     ],
     icon: Crown,
-    image: "/kodzik-pro-no-bg.png",
+    image: "https://cdn.dajkodzik.pl/kodzik-pro-no-bg.png",
   },
 ];
 

@@ -286,7 +286,7 @@ export default function RecentShareCard({
   const isSnippet = type === "snippet";
   
   return (
-    <div className="border border-dashed border-zinc-800 rounded-sm p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-all duration-200 w-full animate-slide-in-bottom group">
+    <div className="border border-dashed border-zinc-800 rounded-md p-4 bg-zinc-950/10 hover:bg-zinc-950/20 transition-all duration-200 w-full animate-slide-in-bottom group">
       {/* Header with slug and external link */}
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-1.5 min-w-0 flex-1">

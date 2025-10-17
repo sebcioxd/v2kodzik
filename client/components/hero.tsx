@@ -10,18 +10,19 @@ export default function Hero() {
   const { data: session, isPending } = useSession();
 
   return (
-    <main className="flex flex-col items-center justify-center md:max-w-4xl  max-w-sm mx-auto px-4">
+    <main className="flex flex-col items-center justify-center md:max-w-5xl  max-w-sm mx-auto px-4">
       {/* Hero Section with Gradient Background */}
       <div className="w-full  bg-gradient-to-b p-8 backdrop-blur-sm  animate-fade-in-01-text">
         <div className="flex flex-col items-center space-y-6">
           {/* Logo with Glow Effect */}
           <div className="relative">
             <Image 
-              src="/logo-no-bg.png" 
+              src="https://cdn.dajkodzik.pl/logo-no-bg.png" 
               alt="Hero" 
-              width={220} 
-              height={220} 
+              width={240} 
+              height={240} 
               className=" animate-fade-in-01-image opacity-0"
+              priority
             />
             <div className="absolute inset-0 bg-zinc-400/10 blur-2xl rounded-full animate-pulse" />
           </div>
@@ -82,7 +83,7 @@ export default function Hero() {
       )}
 
       {/* Recent Shares Section with Enhanced Design */}
-      <div className="w-full mt-8 space-y-4 animate-slide-in-bottom">
+      <div className="w-full  mt-8 space-y-4 animate-slide-in-bottom">
         <div className="flex items-center gap-2">
           <History className="w-5 h-5 text-zinc-400" />
           <h2 className="text-zinc-300 font-medium tracking-tight">Ostatnio wygenerowane linki</h2>

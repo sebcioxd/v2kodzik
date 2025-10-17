@@ -16,7 +16,7 @@ export default function Navbar() {
         <nav className="flex flex-col p-2 rounded-md w-full border-b border-dashed sticky top-0 z-50  border-zinc-800 pt-2  backdrop-blur-md animate-fade-in-01-text">
             <div className="flex justify-between items-center w-full mx-auto md:max-w-4xl">
                 <Link href="/" className="flex items-center gap-2 group">
-                    <h1 className="text-zinc-200 md:text-xl text-lg tracking-tight group-hover:text-zinc-200 transition-colors">Dajkodzik</h1>
+                    <h1 className="text-zinc-200 md:text-xl text-lg tracking-tight group-hover:text-zinc-200 transition-colors">dajkodzik</h1>
                 </Link>
                 
                 <button 
@@ -36,6 +36,16 @@ export default function Navbar() {
                         }`}
                     >
                         Prześlij pliki
+                    </Link>
+                    <Link 
+                        href="/schowek" 
+                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
+                            pathname === "/schowek" 
+                                ? "text-zinc-200 bg-zinc-800/50" 
+                                : "text-zinc-400"
+                        }`}
+                    >
+                        Schowek
                     </Link>
                     <Link 
                         href="/search" 
@@ -67,16 +77,7 @@ export default function Navbar() {
                     >
                         FAQ
                     </Link>
-                    <Link 
-                        href="/schowek" 
-                        className={`text-sm font-medium transition-colors hover:text-zinc-200 hover:bg-zinc-800/50 rounded-md px-2 py-1 relative ${
-                            pathname === "/schowek" 
-                                ? "text-zinc-200 bg-zinc-800/50" 
-                                : "text-zinc-400"
-                        }`}
-                    >
-                        Schowek
-                    </Link>
+                    
                     {isPending ? (
                         <div className="h-5 w-14 bg-zinc-800 animate-pulse rounded-full" />
                     ) : session ? (

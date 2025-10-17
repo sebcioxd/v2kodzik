@@ -12,6 +12,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -213,6 +214,7 @@ export default function Schowek() {
                   ))}
                 </SelectContent>
               </Select>
+              <FormDescription className="text-zinc-400 text-sm mt-2 tracking-tight">opcjonalne, używane tylko do syntax highlighting'u</FormDescription>
               <FormMessage className="text-red-400 animate-fade-in-01-text" />
             </FormItem>
           )}
