@@ -181,7 +181,7 @@ export default function ShareHistory({ user }: { user: User }) {
     const allShares = data?.pages.flatMap(page => page.history) ?? [];
 
     const isExpired = (expiresAt: string) => {
-        const exp = new Date(expiresAt).getTime() - (2 * 60 * 60 * 1000);
+        const exp = new Date(expiresAt).getTime() - (1 * 60 * 60 * 1000);
         const now = Date.now();
         
         return !Number.isNaN(exp) && exp <= now;
