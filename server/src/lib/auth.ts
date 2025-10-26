@@ -51,7 +51,7 @@ async function createSessionCookie(ctx: MiddlewareContext<EndpointOptions, AuthC
 }
 
 const stripeClient = new Stripe(ENVIRONMENT === "production" ? STRIPE_SECRET_KEY : SANDBOX_STRIPE_SECRET_KEY, {
-    apiVersion: "2025-07-30.basil",
+    apiVersion: "2025-09-30.clover",
 })
 
 export const auth = betterAuth({
