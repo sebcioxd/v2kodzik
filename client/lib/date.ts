@@ -1,7 +1,7 @@
 export function formatDate(dateString: string) {
     try {
       const date = new Date(dateString);
-      const localDate = new Date(date.getTime() - (2 * 60 * 60 * 1000));
+      const localDate = new Date(date.getTime() - (1 * 60 * 60 * 1000));
       return localDate.toLocaleDateString('pl-PL', {
         month: 'long',
         day: 'numeric',
@@ -19,7 +19,7 @@ export function formatDate(dateString: string) {
     }
     
     const expires = new Date(expiresAt);
-    const localExpires = new Date(expires.getTime() - (2 * 60 * 60 * 1000));
+    const localExpires = new Date(expires.getTime() - (1 * 60 * 60 * 1000));
     
     const now = new Date();
     const diff = localExpires.getTime() - now.getTime();
