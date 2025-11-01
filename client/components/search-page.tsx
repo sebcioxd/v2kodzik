@@ -49,9 +49,9 @@ export default function SearchPage() {
     try {
       startTransition(() => {
         if (activeTab === "snippet") {
-          router.push(`/s/${data.searchQuery}`);
+          router.push(`/s/${data.searchQuery}?returnUrl=/search`);
         } else {
-          router.push(`/${data.searchQuery}`);
+          router.push(`/${data.searchQuery}?returnUrl=/search`);
         }
       });
     } catch (error) {
