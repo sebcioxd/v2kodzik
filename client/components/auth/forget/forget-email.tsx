@@ -51,7 +51,7 @@ export default function ForgetEmail() {
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
         try {
-            await authClient.forgetPassword({
+            await authClient.requestPasswordReset({
                 email: data.email,
                 redirectTo: "/auth/forget/password",
             },

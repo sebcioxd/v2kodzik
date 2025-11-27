@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Star, Zap, Crown, CreditCard, Building2, Smartphone } from "lucide-react";
+import { Check, Star, Zap, Crown, CreditCard, Building2, Smartphone, Plus } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,36 +11,36 @@ import { Loader2 } from "lucide-react";
 
 const plans = [
   {
-    name: "Plan Basic",
+    name: "BASIC",
     planName: "basic",
     price: "11,99 zł / miesiąc",
     features: [
-      "10 GB transferu miesięcznie",
-      "Maks 1 GB co link",
+      "10 GB  transferu miesięcznie",
+      "Zwiększenie do 1 GB co link",
       "Wsparcie priorytetowe",
     ],
     icon: Star,
     image: "https://cdn.dajkodzik.pl/kodzik-basic-no-bg.png",
   },
   {
-    name: "Plan Plus",
+    name: "PLUS",
     planName: "plus",
     price: "24,99 zł / miesiąc",
     features: [
       "50 GB transferu miesięcznie",
-      "Maks 2 GB co link",
+      "Zwiększenie do 2 GB co link",
       "Wsparcie priorytetowe",
     ],
     icon: Zap,
     image: "https://cdn.dajkodzik.pl/kodizik-plus-no-bg.png",
   },
   {
-    name: "Plan Pro",
+    name: "PRO",
     planName: "pro",
     price: "49,99 zł / miesiąc",
     features: [
       "150 GB transferu miesięcznie",
-      "Maks 5 GB co link",
+      "Zwiększenie do 2 GB co link",
       "Wsparcie priorytetowe",
     ],
     icon: Crown,
@@ -162,24 +162,23 @@ export default function PricingPage() {
               >
                 
                 <div className="flex items-center gap-2 mb-2">
-                  <Icon className="h-5 w-5 text-zinc-400" />
-                  <span className="text-lg text-zinc-200 tracking-tight">{plan.name}</span>
+                  <span className="text-xl font-mono text-zinc-100 font-bold tracking-tight">{plan.name}</span>
                   {isCurrentPlan && (
                     <span className="text-xs bg-zinc-700 text-zinc-300 px-2 py-1 rounded">
                       Aktualny
                     </span>
                   )}
                 </div>
-                  <div className="text-2xl text-zinc-100 mb-4">{plan.price}</div>
+                  <div className="text-xl text-zinc-100 mb-4">{plan.price}</div>
                 <ul className="space-y-2 mb-4">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2 text-zinc-300 text-sm tracking-tight">
-                      <Check className="h-4 w-4 text-zinc-400" />
+                      <Plus className="h-4 w-4 text-zinc-400" />
                       {feature}
                     </li>
                   ))}
                 </ul>
-                <Image src={plan.image} alt={plan.name} width={80} height={80} className="my-10 self-center"/>
+                <Image src={plan.image} alt={plan.name} width={70} height={70} className="my-10 self-center"/>
                 <Button
                   className={`w-full tracking-tight ${
                     isCurrentPlan 

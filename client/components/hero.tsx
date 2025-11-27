@@ -6,6 +6,7 @@ import { ArrowRight, Link as LinkIcon, History, AlertCircle, Upload, Download } 
 import { RecentShares } from "./link-comp";
 import { useSession } from "@/lib/auth-client";
 
+
 export default function Hero() {
   const { data: session, isPending } = useSession();
 
@@ -57,7 +58,9 @@ export default function Hero() {
             </Link>
           </section>
           
-          {/* File Size Limit Notice */}
+          <p className="text-zinc-400 text-md tracking-tight text-wrap max-w-2xl text-center animate-slide-in-left opacity-0 leading-relaxed">
+              Dajkodzik.pl korzysta z najnowszej wersjii Next.js v16, mogą występować nieoczekiwane błędy. <Link href="https://nextjs.org/blog/next-16" className="flex-1 underline text-zinc-50">Czytaj Więcej</Link>
+            </p>
           
         </div>
       </div>
@@ -69,7 +72,7 @@ export default function Hero() {
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-zinc-400" />
               <p className="text-zinc-400 text-md">
-                Odkryj wiele korzyści dzięki zalogowaniu się
+                Odkryj wiele korzyści dzięki zalogowaniu się 
               </p>
             </div>
             <Link 

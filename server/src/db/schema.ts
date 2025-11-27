@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { sql, relations } from 'drizzle-orm';
 import { integer, pgTable, text, timestamp, uuid, boolean, index } from 'drizzle-orm/pg-core';
 
 export const shares = pgTable('shares', {
@@ -246,5 +246,82 @@ export const confirm2fa = pgTable("confirm_2fa", {
   index("idx_confirm_2fa_token").on(t.token),
 ]);
 
+export const sharesRelations = relations(shares, ({ one, many }) => ({
+  user: one(user, {
+    fields: [shares.userId],
+    references: [user.id],
+  }),
+  uploadedFiles: many(uploadedFiles),
+}));
+
+export const uploadedFilesRelations = relations(uploadedFiles, ({ one }) => ({
+  share: one(shares, {
+    fields: [uploadedFiles.shareId],
+    references: [shares.id],
+  }),
+}));
+
+export const snippetsRelations = relations(snippets, ({ one }) => ({
+  user: one(user, {
+    fields: [snippets.userId],
+    references: [user.id],
+  }),
+}));
+
+export const monthlyLimitsRelations = relations(monthlyLimits, ({ one }) => ({
+  user: one(user, {
+    fields: [monthlyLimits.userId],
+    references: [user.id],
+  }),
+}));
+
+export const sharesHistoryRelations = relations(sharesHistory, ({ one }) => ({
+  user: one(user, {
+    fields: [sharesHistory.userId],
+    references: [user.id],
+  }),
+}));
+
+export const twoFactorRelations = relations(twoFactor, ({ one }) => ({
+  user: one(user, {
+    fields: [twoFactor.userId],
+    references: [user.id],
+  }),
+}));
+
+export const confirm2faRelations = relations(confirm2fa, ({ one }) => ({
+  user: one(user, {
+    fields: [confirm2fa.userId],
+    references: [user.id],
+  }),
+}));
+
+export const sessionRelations = relations(session, ({ one }) => ({
+  user: one(user, {
+    fields: [session.userId],
+    references: [user.id],
+  }),
+}));
+
+export const accountRelations = relations(account, ({ one }) => ({
+  user: one(user, {
+    fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+
+export const userRelations = relations(user, ({ many }) => ({
+  sessions: many(session),
+  accounts: many(account),
+  shares: many(shares),
+  snippets: many(snippets),
+  monthlyLimits: many(monthlyLimits),
+  sharesHistory: many(sharesHistory),
+  twoFactor: many(twoFactor),
+  confirm2fa: many(confirm2fa),
+}));
+
+
   
-export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits, twoFactor, confirm2fa };
+export const schema = { user, session, account, verification, shares, uploadedFiles, snippets, subscription, monthlyLimits, monthlyIPlimits, twoFactor, confirm2fa, userRelations, sessionRelations, accountRelations, monthlyLimitsRelations, sharesHistoryRelations, twoFactorRelations, confirm2faRelations };

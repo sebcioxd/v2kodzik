@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
  
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     
 	const sessionCookie = getSessionCookie(request, {
         cookiePrefix: "dajkodzik"
@@ -29,5 +29,6 @@ export async function middleware(request: NextRequest) {
 }
  
 export const config = {
-	matcher: ["/panel/:path*", "/auth/:path*", "/oauth-password"], // Specify the routes the middleware applies to
+    // Specify the routes the middleware applies to
+    matcher: ["/panel/:path*", "/auth/:path*", "/oauth-password"]
 };

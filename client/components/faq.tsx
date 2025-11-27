@@ -5,6 +5,7 @@ import {
     AccordionTrigger,
   } from "@/components/ui/accordion"
 import Link from "next/link"
+import Image from "next/image";
 export default function FAQ() {
   return (
     <main className="flex flex-col items-center justify-center w-full max-w-md mx-auto animate-fade-in-01-text">
@@ -78,6 +79,14 @@ export default function FAQ() {
             </AccordionContent>
         </AccordionItem>
       </Accordion>
+      <Image 
+              src="https://cdn.dajkodzik.pl/leftppartament.jpg" 
+              alt="Hero" 
+              width={220} 
+              height={220} 
+              className=" animate-fade-in-01-image opacity-0 my-10 rounded-md"
+              priority
+            />
     </main>
   );
 }

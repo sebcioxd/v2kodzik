@@ -107,7 +107,7 @@ export default function SignUp() {
                     });
                   
                 },
-                onError: (ctx) => {
+                onError: (ctx: any) => {
                     if (ctx.response.status !== 429) {
                         setError(true);
                         setRateLimited(false);

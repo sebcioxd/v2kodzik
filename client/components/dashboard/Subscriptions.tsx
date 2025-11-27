@@ -13,7 +13,8 @@ import {
   Loader2,
   X,
   RefreshCw,
-  Settings
+  Settings,
+  Plus
 } from 'lucide-react';
 import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -53,33 +54,33 @@ type Subscription = {
 const plans = [
   {
     name: "basic",
-    displayName: "Plan Basic",
+    displayName: "BASIC",
     price: "11,99 zł / miesiąc",
     features: [
       "10 GB transferu miesięcznie",
-      "Maks 1GB co link",
+      "Zwiększenie do 1 GB co link",
       "Wsparcie priorytetowe",
     ],
     icon: Star,
   },
   {
     name: "plus",
-    displayName: "Plan Plus", 
+    displayName: "PLUS", 
     price: "24,99 zł / miesiąc",
     features: [
       "50 GB transferu miesięcznie",
-      "Maks 2 GB co link",
+      "Zwiększenie do 2 GB co link",
       "Wsparcie priorytetowe",
     ],
     icon: Zap,
   },
   {
     name: "pro",
-    displayName: "Plan Pro",
+    displayName: "PRO",
     price: "49,99 zł / miesiąc", 
     features: [
       "150 GB transferu miesięcznie",
-      "Maks 5 GB co link",
+      "Zwiększenie do 2 GB co link",
       "Wsparcie priorytetowe",
     ],
     icon: Crown,
@@ -440,8 +441,7 @@ export default function Subscriptions({
                     } transition-colors`}
                   >
                     <div className="flex items-center gap-2 mb-3">
-                      <Icon className="h-5 w-5 text-zinc-300" />
-                      <span className="text-lg font-medium text-zinc-200 tracking-tight">
+                      <span className="text-xl font-mono text-zinc-100 font-bold tracking-tight">
                         {plan.displayName}
                       </span>
                       {isCurrentPlan && (
@@ -458,7 +458,7 @@ export default function Subscriptions({
                     <ul className="space-y-2 mb-4">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-zinc-300 text-sm">
-                          <CheckCircle className="h-4 w-4 text-zinc-400" />
+                          <Plus className="h-4 w-4 text-zinc-400" />
                           {feature}
                         </li>
                       ))}

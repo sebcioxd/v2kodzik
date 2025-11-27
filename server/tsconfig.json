@@ -4,5 +4,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "esModuleInterop": true,
+    "declaration": false,
+    "composite": false,
   },
 }

@@ -84,7 +84,7 @@ export default function SignIn() {
             });
           },
 
-          onError: (c) => {
+          onError: (c: any) => {
             if (c.response.status === 307) {
               toast.info("Wykryliśmy zmianę urządzenia. Proszę wprowadzić kod 2FA.");
               router.push(`/auth/2fa?token=${c.error.authToken}&email=${c.error.email}&rememberMe=${data.rememberMe}`);

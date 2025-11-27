@@ -246,7 +246,12 @@ export default function Security({ user }: SecurityProps) {
   const getActionDescription = () => {
     switch (actionType) {
       case 'disable-2fa':
-        return 'Czy na pewno chcesz wyłączyć dwuskładnikową autoryzację? Twoje konto będzie mniej bezpieczne. Po wyłączeniu, wyślemy na twój e-mail link z potwierdzeniem który musisz kliknąć aby zapisać zmiany.';
+        // Check current state to determine action
+        if (user.twofactorEnabled) {
+          return 'Czy na pewno chcesz wyłączyć dwuskładnikową autoryzację? Twoje konto będzie mniej bezpieczne. Po wyłączeniu, wyślemy na twój e-mail link z potwierdzeniem który musisz kliknąć aby zapisać zmiany.';
+        } else {
+          return 'Czy na pewno chcesz włączyć dwuskładnikową autoryzację? Twoje konto będzie bardziej bezpieczne. Po włączeniu, wyślemy na twój e-mail link z potwierdzeniem który musisz kliknąć aby zapisać zmiany.';
+        }
       case 'revoke-session':
         return `Czy na pewno chcesz odwołać tę sesję? Zostaniesz wylogowany z tego urządzenia.`;
       case 'revoke-others':
@@ -257,11 +262,14 @@ export default function Security({ user }: SecurityProps) {
         return '';
     }
   };
-
+  
   const getActionTitle = () => {
     switch (actionType) {
       case 'disable-2fa':
-        return 'Wyłącz dwuskładnikową autoryzację';
+        // Check current state to determine action
+        return user.twofactorEnabled 
+          ? 'Wyłącz dwuskładnikową autoryzację' 
+          : 'Włącz dwuskładnikową autoryzację';
       case 'revoke-session':
         return 'Odwołaj sesję';
       case 'revoke-others':
@@ -297,7 +305,7 @@ export default function Security({ user }: SecurityProps) {
           <div className="bg-zinc-900/30 border border-zinc-900 rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-lg ${user.twofactorEnabled ? 'bg-gray-400/10' : 'bg-gray-400/10'}`}>
+                <div className={`p-3 rounded-lg ${user.twofactorEnabled ? 'bg-gray-400/10' : 'bg-gray-400/10'}`}> 
                   {user.twofactorEnabled ? (
                     <ShieldCheck className="h-6 w-6 text-gray-400" />
                   ) : (

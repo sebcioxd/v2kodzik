@@ -3,7 +3,7 @@ import { SANDBOX_STRIPE_SECRET_KEY, STRIPE_SECRET_KEY, ENVIRONMENT, SITE_URL } f
 import { User } from "../lib/types";
 
 const stripeClient = new Stripe(ENVIRONMENT === "production" ? STRIPE_SECRET_KEY : SANDBOX_STRIPE_SECRET_KEY, {
-    apiVersion: "2025-07-30.basil",
+    apiVersion: "2025-11-17.clover",
 })
 
 export class CheckoutService {
