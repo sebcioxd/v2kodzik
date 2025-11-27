@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@better-auth/stripe": "^1.4.3",
-    "better-auth": "^1.4.3",
     "@hookform/resolvers": "^5.0.1",
     "@marsidev/react-turnstile": "^1.1.0",
     "@radix-ui/react-accordion": "^1.2.10",
@@ -32,6 +31,7 @@
     "@zip.js/zip.js": "^2.7.62",
     "axios": "^1.9.0",
     "bcrypt": "^6.0.0",
+    "better-auth": "^1.4.3",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
