@@ -9,6 +9,7 @@ const twoFactorRoute = new Hono();
 twoFactorRoute.post("/verify", createRateLimiter("twoFactor"), async (c) => {
     const { token, code, email, rememberMe } = await c.req.json()
     const ipAddress = c.req.header("CF-Connecting-IP") || c.req.header("x-forwarded-for") || "127.0.0.1"
+    const UA = c.req.header("x-real-user-agent") || c.req.header("User-Agent")
 
     const data = await db.select().from(twoFactor).where(eq(twoFactor.token, token)).limit(1)
     if (data.length === 0) {
@@ -17,7 +18,8 @@ twoFactorRoute.post("/verify", createRateLimiter("twoFactor"), async (c) => {
     
     if (data[0].secret.toString() === code && data[0].expiresAt > new Date())  {
         await db.update(user).set({
-            ipAddress: ipAddress
+            ipAddress: ipAddress,
+            userAgent: UA,
         }).where(eq(user.email, email))
 
         if (data[0].cookie) {

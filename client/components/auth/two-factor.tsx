@@ -39,6 +39,7 @@ const formSchema = z.object({
 export default function TwoFactorComponent() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(false);
+    const [remaining, setRemaining] = useState("");
     const [success, setSuccess] = useState(false);
     const [isRouting, startRouting] = useTransition();
     const [token] = useQueryState("token");
@@ -79,10 +80,13 @@ export default function TwoFactorComponent() {
                     refetch();
                     router.push(`/panel`);
                 });
+                
             } else {
                 setError(true);
                 setIsSubmitting(false);
                 toast.error("Nieprawidłowy kod weryfikacyjny. Proszę spróbować ponownie.");
+                console.log(response.headers.get("RateLimit-Remaining"))
+                setRemaining(response.headers.get("RateLimit-Remaining") ?? "");
             }
         } catch (error) {
             console.error("Error verifying 2FA:", error);
@@ -94,14 +98,14 @@ export default function TwoFactorComponent() {
     };
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto max-w-sm animate-slide-in-left mt-5">
+        <main className="flex flex-col items-center justify-center container mx-auto max-w-md px-12 mt-5">
             <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 backdrop-blur-sm rounded-lg">
                 <div className="flex flex-col items-center justify-center pb-6 animate-fade-in-01-text opacity-0">
                     <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
-                        Weryfikacja kodu 2FA
+                        Dwuetapowa weryfikacja
                     </h1>
                     <p className="text-zinc-500 text-sm text-center">
-                        Wprowadź 6-cyfrowy kod weryfikacyjny wysłany na adres <span className="text-zinc-200 font-medium">{email}</span> w celu zweryfikowania osobistości
+                        Wprowadź 6-cyfrowy kod weryfikacyjny wysłany na adres <span className="text-zinc-200 font-medium">{email}</span> w celu zweryfikowania osobowości.
                     </p>
                 </div>
 
@@ -177,8 +181,8 @@ export default function TwoFactorComponent() {
 
                         {error && (
                             <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text flex items-center gap-2">
-                                <XCircle className="h-4 w-4" />
-                                Nieprawidłowy kod weryfikacyjny. Proszę spróbować ponownie.
+                                
+                                Nieprawidłowy kod weryfikacyjny. 
                             </div>
                         )}
                         {success && (
