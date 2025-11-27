@@ -84,10 +84,10 @@ export default function SignIn() {
             });
           },
 
-          onError: (c: any) => {
-            if (c.response.status === 307) {
+          onError: (ctx) => {
+            if (ctx.response.status === 307) {
               toast.info("Wykryliśmy zmianę urządzenia. Proszę wprowadzić kod 2FA.");
-              router.push(`/auth/2fa?token=${c.error.authToken}&email=${c.error.email}&rememberMe=${data.rememberMe}`);
+              router.push(`/auth/2fa?token=${ctx.error.authToken}&email=${ctx.error.email}&rememberMe=${data.rememberMe}`);
             } else {
               setError(true);
               setRateLimited(false);

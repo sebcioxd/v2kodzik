@@ -229,6 +229,7 @@ export const auth = betterAuth({
 
       if (ctx.path.startsWith("/sign-in") && ctx.context.newSession?.user) {
         const sessionUser = ctx.context.newSession.user;
+        console.log("user agent:", ctx.headers?.get("user-agent"))
         const ipAddress =
           ctx.headers?.get("CF-Connecting-IP") ||
           ctx.headers?.get("x-forwarded-for") ||
