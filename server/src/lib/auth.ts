@@ -32,6 +32,7 @@ import {
   SANDBOX_STRIPE_SECRET_KEY,
 } from "../lib/env";
 import { createAuthMiddleware, emailOTP } from "better-auth/plugins";
+import { multiAccountService } from "../services/multiaccounts.service";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
 import { eq } from "drizzle-orm";
@@ -226,17 +227,45 @@ export const auth = betterAuth({
         }
        
       }
+
+      if (ctx.path.startsWith("/sign-up")) {
+        const multiAccount = new multiAccountService();
+        const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
+
+        const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
+
+        if (!multiAccounts) return;
+
+        if (multiAccounts?.numberOfAccounts > 5) {
+          throw new APIError("FORBIDDEN", {
+            message: "Uzytkownik przekroczyl limit zalozonych kont",
+          });
+        }
+
+      }
+
+      if (ctx.path.startsWith("/callback")) {
+        // const multiAccount = new multiAccountService();
+        // const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
+
+        // const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
+
+        // if (!multiAccounts) return;
+
+        // if (multiAccounts?.numberOfAccounts > 5) {
+        //   throw new APIError("TEMPORARY_REDIRECT", {
+        //     message: "Uzytkownik przekroczyl limit zalozonych kont",
+        //   });
+        // }
+      }
     }),
 
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up")) {
-        const userSession = ctx.context.newSession;
-        console.log(userSession)
-        const ipAddress =
-          ctx.headers?.get("CF-Connecting-IP") ||
-          ctx.headers?.get("x-forwarded-for") ||
-          "127.0.0.1";
+        const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
         const UA = ctx.headers?.get("x-real-user-agent") || ctx.headers?.get("User-Agent")
+        const trustedDevices = new trustedDeviceService()
+        const multiAccount = new multiAccountService();
         
         const userData = await db.query.user.findFirst({
           where: eq(user.email, ctx.body?.email),
@@ -244,50 +273,40 @@ export const auth = betterAuth({
 
         if (!userData) return;
         
-
-        const trustedDevices = new trustedDeviceService()
         await trustedDevices.addDevice({ referenceId: userData.id, ipAddress: ipAddress, userAgent: UA})
+        const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
 
-        if (user) {
-          await db.insert(schema.monthlyLimits).values({
-            userId: userData.id,
-            megabytesLimit: 1000,
-            megabytesUsed: 0,
-          });
-        }
-      }
-
-      if (ctx.path.startsWith("/sign-in") && ctx.context.newSession?.user) {
-        const sessionUser = ctx.context.newSession.user;
-        const ipAddress =
-          ctx.headers?.get("CF-Connecting-IP") ||
-          ctx.headers?.get("x-forwarded-for") ||
-          "127.0.0.1";
-
-        const [limitsData] = await db
-          .select()
-          .from(schema.monthlyLimits)
-          .where(eq(schema.monthlyLimits.userId, sessionUser.id));
-
-        if (!limitsData) {
+        if (!multiAccounts) {
           const ipLimits = await db.query.monthlyIPlimits.findFirst({
             where: eq(monthlyIPlimits.ipAddress, ipAddress),
           });
 
           await db.insert(schema.monthlyLimits).values({
-            userId: sessionUser.id,
+            userId: userData.id,
             megabytesLimit: 1000,
             megabytesUsed: ipLimits?.megabytesUsed || 0,
           });
-        }
+        } else if (multiAccounts?.numberOfAccounts > 1) {
+          await db.insert(schema.monthlyLimits).values({
+            userId: userData.id,
+            megabytesLimit: 1000,
+            megabytesUsed: multiAccounts?.highestMegabytesUsed,
+          });
+        };
+
+
       }
 
-      if (ctx.path.startsWith("/callback") && ctx.context.newSession?.user) {
+      // if (ctx.path.startsWith("/sign-in") && ctx.context.newSession?.user) {
+      //   const sessionUser = ctx.context.newSession.user;
+      //   const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
+        
+      // }
+
+      if (ctx.path.startsWith("/sign-in/social") && ctx.context.newSession?.user) {
         const sessionUser = ctx.context.newSession.user;
-        const ipAddress =
-          ctx.headers?.get("CF-Connecting-IP") ||
-          ctx.headers?.get("x-forwarded-for") ||
-          "127.0.0.1";
+        const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
+        const multiAccount = new multiAccountService();
 
         const [userData, existingLimits] = await Promise.all([
           db.query.user.findFirst({
@@ -337,14 +356,31 @@ export const auth = betterAuth({
           const ipLimits = await db.query.monthlyIPlimits.findFirst({
             where: eq(monthlyIPlimits.ipAddress, ipAddress),
           });
+          const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
 
-          updates.push(
-            db.insert(schema.monthlyLimits).values({
-              userId: sessionUser.id,
-              megabytesLimit: 1000,
-              megabytesUsed: ipLimits?.megabytesUsed || 0,
-            })
-          );
+          if (!multiAccounts) return;
+
+          // dlatego sprawdzamy 1 ponieważ konto już będzie utworzone 
+          // (to jest after hook wiec konto BEDZIE juz stworzone)
+
+          if (multiAccounts?.numberOfAccounts === 1) {
+            updates.push(
+              db.insert(schema.monthlyLimits).values({
+                userId: sessionUser.id,
+                megabytesLimit: 1000,
+                megabytesUsed: ipLimits?.megabytesUsed || 0,
+              })
+            );
+          } else if (multiAccounts?.numberOfAccounts > 1) {
+            updates.push(
+              db.insert(schema.monthlyLimits).values({
+                userId: userData.id,
+                megabytesLimit: 1000,
+                megabytesUsed: multiAccounts?.highestMegabytesUsed,
+              })
+            );
+          }
+         
         }
 
         if (updates.length > 0) {
@@ -451,12 +487,14 @@ export const auth = betterAuth({
             // prod: price_1Rrpbc12nSzGEbfJco6U50U7
           },
         ],
+        
         onSubscriptionComplete: async ({
           subscription,
           plan,
           stripeSubscription,
         }) => {
           const monthlyService = new MonthlyUsageService();
+          
 
           const userEmail = await getUserEmailByReferenceId(
             subscription.referenceId

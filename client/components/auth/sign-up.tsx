@@ -70,6 +70,7 @@ export default function SignUp() {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isRouting, startRouting] = useTransition();
+    const [isMultiAccountBanned, setIsMultiAccountBanned] = useState(false)
    
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
@@ -108,15 +109,23 @@ export default function SignUp() {
                   
                 },
                 onError: (ctx) => {
-                    if (ctx.response.status !== 429) {
+                    if (ctx.response.status !== 429 && ctx.response.status !== 403) {
                         setError(true);
                         setRateLimited(false);
                         setIsSubmitting(false);
+                        setIsMultiAccountBanned(false)
                     }
-                    setRateLimited(true);
-                    setError(false)
-                    setIsSubmitting(false);
-                   
+                    if (ctx.response.status === 403) {
+                        setIsMultiAccountBanned(true)
+                        setRateLimited(false)
+                        setIsSubmitting(false)
+                    } else {
+                        setRateLimited(true);
+                        setError(false)
+                        setIsSubmitting(false);
+                        setIsMultiAccountBanned(false)               
+                    }
+                       
                 },
                 onRequest: () => {
                     setIsSubmitting(true);
@@ -320,6 +329,11 @@ export default function SignUp() {
                         {rateLimited && (
                             <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text">
                                 Wykryto podejrzane działania na Twoim koncie. Proszę spróbować ponownie później.
+                            </div>
+                        )}
+                        {isMultiAccountBanned && (
+                            <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text">
+                                Wykryliśmy, że przekroczyłeś limit założonych kont w naszym serwisie.
                             </div>
                         )}
                     </form>

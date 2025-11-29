@@ -85,6 +85,15 @@ const setupCronJob = async () => {
         `;
         console.log('🟢 Trusted devices cleanup cron pomyślnie ustawiony', trustedDevicesCleanup);
 
+        // const unusedStripeSubscriptionDelete = await sql`
+        // SELECT cron.schedule(
+        //     'unused_stripe_sub_cleanup',                    
+        //     '*/5 * * * *',                      
+        //     'DELETE FROM subscription WHERE status = ''incomplete'''  
+        // );
+        // `;
+        // console.log('🟢 Unused subscription cleanup cron pomyślnie ustawiony', unusedStripeSubscriptionDelete);
+
 
     } catch (error) {
             console.error('🔴 Wystąpił błąd podczas ustawiania cron jobów:', error);
