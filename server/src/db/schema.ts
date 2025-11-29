@@ -136,6 +136,18 @@ export const session = pgTable("session", {
   index("idx_session_token").on(t.token),
 ]);
 
+export const trustedDevice = pgTable("trusted_device", {
+  id: text("id").primaryKey().default(sql`gen_random_uuid()`),
+  expiresAt: timestamp('expires_at').notNull().default(sql`NOW() + INTERVAL '1 month'`),
+  createdAt: timestamp('created_at').$defaultFn(() => sql`NOW()`).notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+});
+
+
 export const account = pgTable("account", {
   id: text("id").primaryKey(),
   accountId: text("account_id").notNull(),

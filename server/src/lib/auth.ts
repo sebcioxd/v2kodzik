@@ -16,6 +16,7 @@ import {
 } from "../db/schema";
 import { sendEmailService } from "../services/email.service";
 import { MonthlyUsageService } from "../services/monthly-limits.service";
+import { trustedDeviceService } from "../services/trustedDevice.service";
 import {
   BETTER_AUTH_URL,
   SITE_URL,
@@ -161,6 +162,7 @@ export const auth = betterAuth({
           ctx.headers?.get("CF-Connecting-IP") ||
           ctx.headers?.get("x-forwarded-for") ||
           "127.0.0.1";
+        const UA = ctx.headers?.get("x-real-user-agent") || ctx.headers?.get("User-Agent")
 
         const userData = await db.query.user.findFirst({
           where: eq(user.email, ctx.body?.email),
@@ -171,56 +173,84 @@ export const auth = betterAuth({
 
         if (!userData) return;
 
-        if (userData.ipAddress !== ipAddress && userData.twofactorEnabled) {
-          const credentialAccount = userData.accounts.find(
-            (acc) => acc.providerId === "credential"
-          );
+        
+        if (userData.twofactorEnabled) {
+          const trustedDevices = new trustedDeviceService()
+          const deviceCheck = await trustedDevices.checkDevice({ referenceId: userData.id, ipAddress: ipAddress, userAgent: UA})
 
-          if (credentialAccount?.password) {
-            const verify = await ctx.context.password.verify({
-              hash: credentialAccount.password,
-              password: ctx.body?.password,
-            });
+          if (deviceCheck?.isTrusted) {
+            await trustedDevices.extendExpireDateOfDevice({ deviceId: deviceCheck.deviceId })
+          }
 
-            if (verify && ipAddress !== userData.ipAddress) {
-              const twoFactorData = await db
-                .insert(twoFactor)
-                .values({
-                  userId: userData.id,
-                  secret: crypto.randomInt(100000, 999999),
-                  token: Bun.randomUUIDv7(),
-                  cookie: await createSessionCookie(ctx, userData.id),
-                })
-                .returning();
-
-              await sendEmailService({
-                to: ctx.body?.email,
-                subject: "Zweryfikuj swoją tożsamość - dajkodzik.pl",
-                text: JSON.stringify({
-                  text: twoFactorData[0].secret.toString(),
+          if (!deviceCheck?.isTrusted) {
+            const credentialAccount = userData.accounts.find(
+              (acc) => acc.providerId === "credential"
+            );
+  
+            if (credentialAccount?.password) {
+              const verify = await ctx.context.password.verify({
+                hash: credentialAccount.password,
+                password: ctx.body?.password,
+              });
+  
+              if (verify) {
+                const twoFactorData = await db
+                  .insert(twoFactor)
+                  .values({
+                    userId: userData.id,
+                    secret: crypto.randomInt(100000, 999999),
+                    token: Bun.randomUUIDv7(),
+                    cookie: await createSessionCookie(ctx, userData.id),
+                  })
+                  .returning();
+  
+                await sendEmailService({
+                  to: ctx.body?.email,
+                  subject: "Zweryfikuj swoją tożsamość - dajkodzik.pl",
+                  text: JSON.stringify({
+                    text: twoFactorData[0].secret.toString(),
+                    email: ctx.body?.email,
+                    token: twoFactorData[0].token,
+                  }),
+                  emailType: "2fa",
+                });
+  
+                throw new APIError("TEMPORARY_REDIRECT", {
+                  message: "Untrusted device detected",
+                  authToken: twoFactorData[0].token,
                   email: ctx.body?.email,
-                  token: twoFactorData[0].token,
-                }),
-                emailType: "2fa",
-              });
-
-              throw new APIError("TEMPORARY_REDIRECT", {
-                message: "IP address changed",
-                authToken: twoFactorData[0].token,
-                email: ctx.body?.email,
-              });
+                });
+              }
             }
           }
         }
+       
       }
     }),
 
     after: createAuthMiddleware(async (ctx) => {
       if (ctx.path.startsWith("/sign-up")) {
-        const user = ctx.context.newSession?.user;
+        const userSession = ctx.context.newSession;
+        console.log(userSession)
+        const ipAddress =
+          ctx.headers?.get("CF-Connecting-IP") ||
+          ctx.headers?.get("x-forwarded-for") ||
+          "127.0.0.1";
+        const UA = ctx.headers?.get("x-real-user-agent") || ctx.headers?.get("User-Agent")
+        
+        const userData = await db.query.user.findFirst({
+          where: eq(user.email, ctx.body?.email),
+        });
+
+        if (!userData) return;
+        
+
+        const trustedDevices = new trustedDeviceService()
+        await trustedDevices.addDevice({ referenceId: userData.id, ipAddress: ipAddress, userAgent: UA})
+
         if (user) {
           await db.insert(schema.monthlyLimits).values({
-            userId: user.id,
+            userId: userData.id,
             megabytesLimit: 1000,
             megabytesUsed: 0,
           });

@@ -65,6 +65,7 @@ const setupCronJob = async () => {
             );
         `;
         console.log('🟢 Monthly IP limits cleanup cron pomyślnie ustawiony', monthlyIPLimitsCleanup);
+
         
         const twoFactorCleanup = await sql`
             SELECT cron.schedule(
@@ -75,6 +76,14 @@ const setupCronJob = async () => {
         `;
         console.log('🟢 Two factor cleanup cron pomyślnie ustawiony', twoFactorCleanup);
 
+        const trustedDevicesCleanup = await sql`
+        SELECT cron.schedule(
+            'trusted_devices_limits_cleanup',                    
+            '*/5 * * * *',                      
+            'DELETE FROM trusted_device WHERE expires_at < NOW()'  
+        );
+        `;
+        console.log('🟢 Trusted devices cleanup cron pomyślnie ustawiony', trustedDevicesCleanup);
 
 
     } catch (error) {

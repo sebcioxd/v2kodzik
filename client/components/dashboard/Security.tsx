@@ -1,121 +1,148 @@
 "use client";
 
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { 
   Shield, 
   ShieldCheck, 
-  ShieldAlert,
-  Smartphone,
-  Monitor,
-  Globe,
+  ShieldAlert, 
+  Smartphone, 
+  Monitor, 
+  Globe, 
+  Trash2, 
+  XCircle, 
+  Calendar,
   Clock,
-  Trash2,
-  LogOut,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-  MoreHorizontal
+  MapPinHouse,
+  Laptop,
+  Tablet
 } from 'lucide-react';
-import { User as UserType, authClient } from '@/lib/auth-client';
+import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import axios from 'axios';
 import { toast } from 'sonner';
 import { useSession } from '@/lib/auth-client';
 import { parseAsString, useQueryState } from 'nuqs'
 
-
 // Types
-type Session = {
+type TrustedDevice = {
   id: string;
-  token: string;
-  createdAt: Date;
-  updatedAt: Date;
-  expiresAt: Date;
-  ipAddress?: string | null;
-  userAgent?: string | null;
-  isCurrent?: boolean;
+  expiresAt: string;
+  createdAt: string;
+  ipAddress: string;
+  userAgent: string;
+  userId: string;
 };
 
 interface SecurityProps {
   user: UserType;
 }
 
-// Helper function to detect device type from user agent
+// --- Enhanced Helper Functions ---
+
+/**
+ * Parses the User Agent string to extract OS, Browser, and Device Type.
+ */
 const getDeviceInfo = (userAgent: string | null) => {
-  if (!userAgent) return { type: 'unknown', icon: Globe, name: 'Nieznane urządzenie' };
+  if (!userAgent) return { 
+    type: 'unknown', 
+    icon: Globe, 
+    os: 'Nieznany system', 
+    browser: 'Nieznana przeglądarka', 
+    name: 'Nieznane urządzenie' 
+  };
   
   const ua = userAgent.toLowerCase();
   
+  // 1. Detect Operating System
+  let os = 'Nieznany system';
+  if (ua.includes('windows')) os = 'Windows';
+  else if (ua.includes('mac') && !ua.includes('iphone') && !ua.includes('ipad')) os = 'macOS';
+  else if (ua.includes('android')) os = 'Android';
+  else if (ua.includes('iphone') || ua.includes('ipad')) os = 'iOS';
+  else if (ua.includes('linux')) os = 'Linux';
+  else if (ua.includes('cros')) os = 'Chrome OS';
+
+  // 2. Detect Browser
+  let browser = 'Nieznana przeglądarka';
+  if (ua.includes('firefox')) browser = 'Firefox';
+  else if (ua.includes('edg')) browser = 'Edge';
+  else if (ua.includes('opr') || ua.includes('opera')) browser = 'Opera';
+  else if (ua.includes('chrome') && !ua.includes('edg') && !ua.includes('opr')) browser = 'Chrome';
+  else if (ua.includes('safari') && !ua.includes('chrome')) browser = 'Safari';
+
+  // 3. Detect Device Type & Icon
+  let type = 'desktop';
+  let icon = Monitor; // Default to Monitor/Desktop
+
   if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
-    return { type: 'mobile', icon: Smartphone, name: 'Telefon' };
-  } else if (ua.includes('tablet') || ua.includes('ipad')) {
-    return { type: 'tablet', icon: Monitor, name: 'Tablet' };
-  } else if (ua.includes('mac') || ua.includes('windows') || ua.includes('linux')) {
-    return { type: 'desktop', icon: Monitor, name: 'Komputer' };
-  }
+    type = 'mobile';
+    icon = Smartphone;
+  } 
   
-  return { type: 'unknown', icon: Globe, name: 'Nieznane urządzenie' };
+  if (ua.includes('tablet') || ua.includes('ipad')) {
+    type = 'tablet';
+    icon = Tablet;
+  }
+
+  // Refine Desktop Icon
+  if (type === 'desktop') {
+    if (os === 'macOS' || ua.includes('laptop')) {
+        icon = Laptop;
+    }
+  }
+
+  return { 
+    type, 
+    icon, 
+    os, 
+    browser,
+    name: `${os} • ${browser}` // Combined friendly name
+  };
 };
 
-// Helper function to format date
-const formatDate = (date: Date) => {
-  const now = new Date();
-  const diffTime = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) {
-    return 'Dzisiaj';
-  } else if (diffDays === 1) {
-    return 'Wczoraj';
-  } else if (diffDays < 7) {
-    return `${diffDays} dni temu`;
-  } else {
-    return date.toLocaleDateString('pl-PL', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
-  }
-};
-
-// Helper function to format time
-const formatTime = (date: Date) => {
-  return date.toLocaleTimeString('pl-PL', {
-    hour: '2-digit',
-    minute: '2-digit'
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('pl-PL', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
   });
 };
 
+// --- Main Component ---
+
 export default function Security({ user }: SecurityProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [actionType, setActionType] = useState<'disable-2fa' | 'revoke-session' | 'revoke-others' | 'revoke-all' | null>(null);
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [actionType, setActionType] = useState<'disable-2fa' | 'delete-device' | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<TrustedDevice | null>(null);
+  
   const [token, setToken] = useQueryState("token", parseAsString);
-  const queryClient = useQueryClient();
-  const { refetch } = useSession(); // refetch the session
+  const { refetch } = useSession(); 
 
+  // 1. Fetch Trusted Devices
   const {
-    data: sessionsData,
-    isLoading: sessionsLoading,
-    error: sessionsError,
-    refetch: refetchSessions
+    data: devicesData,
+    isLoading: devicesLoading,
+    error: devicesError,
+    refetch: refetchDevices
   } = useQuery({
-    queryKey: ['user-sessions'],
+    queryKey: ['trusted-devices'],
     queryFn: async () => {
       try {
-        const result = await authClient.listSessions();
-        // Handle the data structure properly
-        if (result.data && Array.isArray(result.data)) {
-          return result.data;
-        }
-        return [];
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/2fa/trusted-devices`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include' 
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch devices');
+
+        const data = await response.json();
+        return data.devices as TrustedDevice[];
       } catch (error) {
-        console.error('Error fetching sessions:', error);
+        console.error('Error fetching trusted devices:', error);
         throw error;
       }
     },
@@ -123,9 +150,9 @@ export default function Security({ user }: SecurityProps) {
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
   });
 
+  // 2. Token Confirmation
   const {
     data: tokenData,
     isLoading: tokenLoading,
@@ -133,16 +160,18 @@ export default function Security({ user }: SecurityProps) {
     queryKey: ['token', token],
     queryFn: async () => {
       try {
-        const response = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/v1/security/confirm?token=${token}`,
-          {
-            withCredentials: true,
-          }
-        );
-        toast.info(response.data.message)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/security/confirm?token=${token}`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Error');
+
+        toast.info(data.message);
         setToken(null);
-        refetch()
-        return response.data;
+        refetch();
+        return data;
       } catch (error) {
         console.error('Error confirming token:', error);
         setToken(null);
@@ -155,69 +184,46 @@ export default function Security({ user }: SecurityProps) {
     retry: false,
   });
 
-  // Toggle 2FA mutation
+  // 3. Toggle 2FA Mutation
   const toggle2FAMutation = useMutation({
     mutationFn: async () => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/v1/security/twostep`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
-      return response.data;
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/security/twostep`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Error');
+      return data;
     },
     onSuccess: (data) => {
       toast.success(data.message);
       refetch();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Wystąpił błąd podczas zmiany ustawień 2FA');
+      toast.error(error.message || 'Wystąpił błąd podczas zmiany ustawień 2FA');
     },
   });
 
-  // Revoke session mutation using Better Auth client
-  const revokeSessionMutation = useMutation({
-    mutationFn: async (token: string) => {
-      await authClient.revokeSession({ token });
-      return { message: "Sesja została odwołana" };
+  // 4. Delete Device Mutation
+  const deleteDeviceMutation = useMutation({
+    mutationFn: async (deviceId: string) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/2fa/trusted-devices/delete/${deviceId}`, {
+        method: 'POST', 
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Error deleting device');
+      return data;
     },
     onSuccess: (data) => {
-      toast.success(data.message);
-      refetchSessions();
+      toast.success(data.message || 'Urządzenie zostało usunięte');
+      refetchDevices();
     },
     onError: (error: any) => {
-      toast.error('Wystąpił błąd podczas odwoływania sesji');
-    },
-  });
-
-  // Revoke other sessions mutation using Better Auth client
-  const revokeOtherSessionsMutation = useMutation({
-    mutationFn: async () => {
-      await authClient.revokeOtherSessions();
-      return { message: "Wszystkie inne sesje zostały odwołane" };
-    },
-    onSuccess: (data) => {
-      toast.success(data.message);
-      refetchSessions();
-    },
-    onError: (error: any) => {
-      toast.error('Wystąpił błąd podczas odwoływania innych sesji');
-    },
-  });
-
-  // Revoke all sessions mutation using Better Auth client
-  const revokeAllSessionsMutation = useMutation({
-    mutationFn: async () => {
-      await authClient.revokeSessions();
-      return { message: "Wszystkie sesje zostały odwołane" };
-    },
-    onSuccess: (data) => {
-      toast.success(data.message);
-      refetchSessions();
-    },
-    onError: (error: any) => {
-      toast.error('Wystąpił błąd podczas odwoływania wszystkich sesji');
+      toast.error(error.message || 'Wystąpił błąd podczas usuwania urządzenia');
     },
   });
 
@@ -226,38 +232,27 @@ export default function Security({ user }: SecurityProps) {
       case 'disable-2fa':
         toggle2FAMutation.mutate();
         break;
-      case 'revoke-session':
-        if (selectedSession) {
-          revokeSessionMutation.mutate(selectedSession.token);
+      case 'delete-device':
+        if (selectedDevice) {
+            deleteDeviceMutation.mutate(selectedDevice.id);
         }
-        break;
-      case 'revoke-others':
-        revokeOtherSessionsMutation.mutate();
-        break;
-      case 'revoke-all':
-        revokeAllSessionsMutation.mutate();
         break;
     }
     setShowConfirmDialog(false);
     setActionType(null);
-    setSelectedSession(null);
+    setSelectedDevice(null);
   };
 
   const getActionDescription = () => {
     switch (actionType) {
       case 'disable-2fa':
-        // Check current state to determine action
         if (user.twofactorEnabled) {
           return 'Czy na pewno chcesz wyłączyć dwuskładnikową autoryzację? Twoje konto będzie mniej bezpieczne. Po wyłączeniu, wyślemy na twój e-mail link z potwierdzeniem który musisz kliknąć aby zapisać zmiany.';
         } else {
           return 'Czy na pewno chcesz włączyć dwuskładnikową autoryzację? Twoje konto będzie bardziej bezpieczne. Po włączeniu, wyślemy na twój e-mail link z potwierdzeniem który musisz kliknąć aby zapisać zmiany.';
         }
-      case 'revoke-session':
-        return `Czy na pewno chcesz odwołać tę sesję? Zostaniesz wylogowany z tego urządzenia.`;
-      case 'revoke-others':
-        return 'Czy na pewno chcesz odwołać wszystkie inne sesje? Zostaniesz wylogowany ze wszystkich innych urządzeń.';
-      case 'revoke-all':
-        return 'Czy na pewno chcesz odwołać wszystkie sesje? Zostaniesz wylogowany ze wszystkich urządzeń.';
+      case 'delete-device':
+        return `Czy na pewno chcesz usunąć to zaufane urządzenie? Przy kolejnym logowaniu z tego urządzenia konieczna będzie ponowna weryfikacja.`;
       default:
         return '';
     }
@@ -266,16 +261,11 @@ export default function Security({ user }: SecurityProps) {
   const getActionTitle = () => {
     switch (actionType) {
       case 'disable-2fa':
-        // Check current state to determine action
         return user.twofactorEnabled 
           ? 'Wyłącz dwuskładnikową autoryzację' 
           : 'Włącz dwuskładnikową autoryzację';
-      case 'revoke-session':
-        return 'Odwołaj sesję';
-      case 'revoke-others':
-        return 'Odwołaj inne sesje';
-      case 'revoke-all':
-        return 'Odwołaj wszystkie sesje';
+      case 'delete-device':
+        return 'Usuń zaufane urządzenie';
       default:
         return '';
     }
@@ -291,7 +281,7 @@ export default function Security({ user }: SecurityProps) {
             Bezpieczeństwo konta
           </h2>
           <p className="text-zinc-400 text-sm">
-            Zarządzaj bezpieczeństwem swojego konta i sesjami
+            Zarządzaj bezpieczeństwem swojego konta i urządzeniami
           </p>
         </div>
 
@@ -337,158 +327,118 @@ export default function Security({ user }: SecurityProps) {
                 {user.twofactorEnabled ? 'Wyłącz' : 'Włącz'}
               </Button>
             </div>
-            
-            
           </div>
         </div>
 
-        {/* Active Sessions Section */}
+        {/* Trusted Devices Section */}
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <h3 className="text-lg text-zinc-200 font-medium tracking-tight flex items-center gap-2">
               <Monitor className="h-4 w-4 text-zinc-400" />
-              Aktywne sesje
+              Zaufane urządzenia
             </h3>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => {
-                  setActionType('revoke-others');
-                  setShowConfirmDialog(true);
-                }}
-                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
-                size="sm"
-                disabled={revokeOtherSessionsMutation.isPending || sessionsLoading}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Odwołaj inne
-              </Button>
-              <Button
-                onClick={() => {
-                  setActionType('revoke-all');
-                  setShowConfirmDialog(true);
-                }}
-                className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
-                size="sm"
-                disabled={revokeAllSessionsMutation.isPending || sessionsLoading}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Odwołaj wszystkie
-              </Button>
-            </div>
           </div>
 
-          {/* Sessions List - Only render when not loading */}
-          {!sessionsLoading && !sessionsError && sessionsData && Array.isArray(sessionsData) && (
+          {/* Devices List */}
+          {!devicesLoading && !devicesError && devicesData && Array.isArray(devicesData) && devicesData.length > 0 ? (
             <div className="space-y-3">
-              {sessionsData.map((session: Session) => {
-                const deviceInfo = getDeviceInfo(session.userAgent || null);
+              {devicesData.map((device: TrustedDevice) => {
+                const deviceInfo = getDeviceInfo(device.userAgent);
                 const DeviceIcon = deviceInfo.icon;
                 
                 return (
                   <div
-                    key={session.id}
-                    className={`bg-zinc-900/30 border rounded-lg p-4 animate-fade-in-01-text ${
-                      session.isCurrent 
-                        ? 'border-gray-400/30 bg-gray-400/5' 
-                        : 'border-zinc-900'
-                    }`}
+                    key={device.id}
+                    className="bg-zinc-900/30 border border-dotted border-zinc-900 rounded-lg p-4 animate-fade-in-01-text hover:border-zinc-800 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-lg ${
-                          session.isCurrent ? 'bg-green-400/10' : 'bg-zinc-800/50'
-                        }`}>
-                          <DeviceIcon className={`h-5 w-5 ${
-                            session.isCurrent ? 'text-green-400' : 'text-zinc-300'
-                          }`} />
+                        <div className="p-3 rounded-lg bg-zinc-800/50">
+                          <DeviceIcon className="h-5 w-5 text-zinc-300" />
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-zinc-200 font-medium">
-                              {deviceInfo.name}
-                            </h4>
-                            {session.isCurrent && (
-                              <span className="px-2 py-1 text-xs bg-green-400/20 text-green-300 rounded-full">
-                                Aktualna sesja
-                              </span>
-                            )}
+                        
+                        <div className="space-y-1">
+                          
+                          {/* Device Name (OS + Browser) */}
+                          <div className="flex items-center gap-1">
+                             <h4 className="text-zinc-200 ">
+                                {deviceInfo.os}
+                             </h4>
+                             <span className="text-zinc-600">•</span>
+                             <p className="text-zinc-400 text-sm">
+                                {deviceInfo.browser}
+                             </p>
                           </div>
-                          <p className="text-zinc-400 text-sm">
-                            {session.ipAddress || 'Nieznany adres IP'}
-                          </p>
-                          <p className="text-zinc-500 text-xs">
-                            Ostatnia aktywność: {formatDate(session.updatedAt)} o {formatTime(session.updatedAt)}
-                          </p>
+                          
+                          {/* Details Row */}
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-xs text-zinc-500 pt-1">
+                            <span className="flex items-center gap-1">
+                                <MapPinHouse className="h-3 w-3" />
+                                Adres IP: {device.ipAddress}
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Dodano: {formatDate(device.createdAt)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                Wygasa: {formatDate(device.expiresAt)}
+                            </span>
+                           
+                          </div>
                         </div>
                       </div>
                       
-                      {!session.isCurrent && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setActionType('revoke-session');
-                                setSelectedSession(session);
-                                setShowConfirmDialog(true);
-                              }}
-                              className="text-red-400 focus:text-red-400"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Odwołaj sesję
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                      {/* Delete Icon Button */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
+                        onClick={() => {
+                            setActionType('delete-device');
+                            setSelectedDevice(device);
+                            setShowConfirmDialog(true);
+                        }}
+                        disabled={deleteDeviceMutation.isPending}
+                      >
+                         <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 );
               })}
             </div>
-          )}
-
-          {/* Sessions Summary - Only render when not loading */}
-          {!sessionsLoading && !sessionsError && sessionsData && Array.isArray(sessionsData) && (
-            <div className="bg-zinc-900/20 border border-zinc-800 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Monitor className="h-4 w-4 text-zinc-400" />
-                  <span className="text-zinc-200 font-medium text-sm">Podsumowanie sesji</span>
+          ) : (
+             // Empty State or Loading
+            !devicesLoading && (
+                <div className="text-zinc-500 text-center py-8 text-sm bg-zinc-900/20 rounded-lg border border-zinc-900 border-dashed">
+                    Brak zaufanych urządzeń.
                 </div>
-                <div className="text-sm text-zinc-400">
-                  {sessionsData.length} aktywnych sesji
-                </div>
-              </div>
-            </div>
+            )
           )}
 
           {/* Error State */}
-          {sessionsError && (
+          {devicesError && (
             <Alert className="bg-red-400/10 border-red-400/20">
               <XCircle className="h-4 w-4 text-red-400" />
               <AlertDescription className="text-red-300">
-                Błąd podczas ładowania sesji. Spróbuj ponownie.
+                Błąd podczas ładowania urządzeń. Spróbuj ponownie.
               </AlertDescription>
             </Alert>
           )}
         </div>
 
         {/* Security Tips */}
-        <div className="bg-zinc-900/20 border border-zinc-800 rounded-lg p-6">
+        <div className="bg-zinc-900/30 border border-dotted border-zinc-900 rounded-lg p-4 animate-fade-in-01-text hover:border-zinc-800 transition-colors">
           <h3 className="text-zinc-200 font-medium mb-3 tracking-tight flex items-center gap-2">
             <Shield className="h-4 w-4 text-zinc-400" />
             Wskazówki bezpieczeństwa
           </h3>
           <div className="space-y-2 text-sm text-zinc-400">
-            <p>• Zawsze wylogowuj się z urządzeń, których nie używasz</p>
+            <p>• Zawsze usuwaj urządzenia, których już nie używasz</p>
             <p>• Włącz dwuskładnikową autoryzację dla zwiększonego bezpieczeństwa</p>
-            <p>• Regularnie sprawdzaj aktywne sesje i odwołuj podejrzane</p>
-            <p>• Używaj silnych, unikalnych haseł</p>
-            <p>• Nie udostępniaj swoich danych logowania</p>
+            <p>• Regularnie sprawdzaj listę zaufanych urządzeń</p>
+            <p>• Nie udostępniaj nikomu kodów 2FA</p>
           </div>
         </div>
       </div>
@@ -514,12 +464,7 @@ export default function Security({ user }: SecurityProps) {
             </Button>
             <Button
               onClick={handleConfirmAction}
-              disabled={
-                toggle2FAMutation.isPending ||
-                revokeSessionMutation.isPending ||
-                revokeOtherSessionsMutation.isPending ||
-                revokeAllSessionsMutation.isPending
-              }
+              disabled={toggle2FAMutation.isPending || deleteDeviceMutation.isPending}
               className="bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
             >
               Potwierdź

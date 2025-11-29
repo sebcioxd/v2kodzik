@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Loader2, KeyRound, Mail, XCircle, CheckCircle, Terminal } from "lucide-react";
+import { Loader2, KeyRound, CheckCircle, Terminal } from "lucide-react";
 import { useRouter } from "nextjs-toploader/app";
 import {
     Form,
@@ -21,19 +21,21 @@ import {
     InputOTPSlot,
     InputOTPSeparator,
 } from "@/components/ui/input-otp";
-import Link from "next/link";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useSession } from "@/lib/auth-client";
 
 type FormData = {
     otp: string;
+    rememberDevice?: boolean;
 };
 
 const formSchema = z.object({
     otp: z.string().min(6, {
         message: "Kod OTP musi składać się z 6 cyfr",
     }),
+    rememberDevice: z.boolean().default(false),
 });
 
 export default function TwoFactorComponent() {
@@ -44,13 +46,13 @@ export default function TwoFactorComponent() {
     const [isRouting, startRouting] = useTransition();
     const [token] = useQueryState("token");
     const [email] = useQueryState("email");
-    const [rememberMe] = useQueryState("rememberMe");
     const router = useRouter();
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             otp: "",
+            rememberDevice: false,
         },
     });
 
@@ -68,7 +70,7 @@ export default function TwoFactorComponent() {
                     token: token,
                     code: data.otp,
                     email: email || "",
-                    rememberMe: rememberMe,
+                    rememberDevice: data.rememberDevice,
                 }),
                 credentials: "include",
             });
@@ -98,7 +100,7 @@ export default function TwoFactorComponent() {
     };
 
     return (
-        <main className="flex flex-col items-center justify-center container mx-auto max-w-md px-12 mt-5">
+        <main className="flex flex-col items-center justify-center container mx-auto max-w-lg px-12 mt-5">
             <div className="w-full max-w-2xl p-8 relative border border-dashed border-zinc-800 backdrop-blur-sm rounded-lg">
                 <div className="flex flex-col items-center justify-center pb-6 animate-fade-in-01-text opacity-0">
                     <h1 className="text-xl font-semibold tracking-tight text-zinc-100">
@@ -110,19 +112,18 @@ export default function TwoFactorComponent() {
                 </div>
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 relative w-full"> 
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 relative w-full">
                         <FormField
                             control={form.control}
                             name="otp"
                             render={({ field }) => (
                                 <FormItem className="flex flex-col items-center">
-                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-sm pb-1">Kod weryfikacyjny</FormLabel>
+                                    <FormLabel className="text-zinc-200 animate-fade-in-01-text text-md pb-1">Kod weryfikacyjny</FormLabel>
                                     <FormControl>
                                         <InputOTP
                                             maxLength={6}
                                             value={field.value}
                                             onChange={field.onChange}
-                                        
                                         >
                                             <InputOTPGroup>
                                                 <InputOTPSlot 
@@ -160,6 +161,27 @@ export default function TwoFactorComponent() {
                             )}
                         />
 
+                        <FormField
+                            control={form.control}
+                            name="rememberDevice"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-y-0 rounded-md border border-dashed border-zinc-800 p-2 bg-zinc-900/20 backdrop-blur-sm  hover:bg-zinc-900/30">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                            className="border-zinc-700 data-[state=checked]:bg-zinc-700 data-[state=checked]:border-zinc-600 transition-all duration-100"
+                                        />
+                                    </FormControl>    
+                                    <div className="leading-none">
+                                        <FormLabel className="text-xs font-medium text-zinc-200 cursor-pointer flex items-center  hover:text-zinc-100">
+                                            Zapamiętaj to urządzenie przez 30 dni
+                                        </FormLabel>
+                                    </div>
+                                </FormItem>
+                            )}
+                        />
+
                         <Button
                             type="submit"
                             className="w-full bg-zinc-900 backdrop-blur-sm border border-dashed border-zinc-800 hover:bg-zinc-800 duration-50 text-zinc-300"
@@ -181,7 +203,6 @@ export default function TwoFactorComponent() {
 
                         {error && (
                             <div className="p-3 border border-dashed border-red-800 text-red-400 rounded-md text-sm animate-fade-in-01-text flex items-center gap-2">
-                                
                                 Nieprawidłowy kod weryfikacyjny. 
                             </div>
                         )}
