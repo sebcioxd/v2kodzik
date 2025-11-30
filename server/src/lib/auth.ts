@@ -306,7 +306,7 @@ export const auth = betterAuth({
         
       // }
 
-      if (ctx.path.startsWith("/sign-in/social") && ctx.context.newSession?.user) {
+      if (ctx.path.startsWith("/callback") && ctx.context.newSession?.user) {
         const sessionUser = ctx.context.newSession.user;
         const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
         const multiAccount = new multiAccountService();
