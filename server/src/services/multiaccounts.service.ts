@@ -18,6 +18,9 @@ export class multiAccountService {
 
         const allLimits = accounts.flatMap(account => account.monthlyLimits);
         const highestMegabytesUsed = Math.max(0, ...allLimits.map(l => l.megabytesUsed));
+        const highestLinksGenerated = Math.max(0, ...allLimits.map(l => l.linksGenerated));
+        const highestFilesUploaded = Math.max(0, ...allLimits.map(l => l.filesUploaded));
+        const highestLifetimeMegabytesUsed = Math.max(0, ...allLimits.map(l => l.lifetimeMegabytesUsed));
 
         const filteredData = accounts.map(account => {
             if (account.emailVerified) {
@@ -41,6 +44,9 @@ export class multiAccountService {
         const data = {
             numberOfAccounts: accounts.length,
             highestMegabytesUsed: highestMegabytesUsed,
+            highestLinksGenerated: highestLinksGenerated,
+            highestFilesUploaded: highestFilesUploaded,
+            highestLifetimeMegabytesUsed: highestLifetimeMegabytesUsed,
             accountsData: filteredData,         
         }
 
