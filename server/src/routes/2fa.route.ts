@@ -67,11 +67,14 @@ twoFactorRoute.post("/verify", createRateLimiter("twoFactor"), async (c) => {
 twoFactorRoute.get("/trusted-devices", async (c) =>{
     const user = c.get("user");
 
+    const ipAddress = c.req.header("CF-Connecting-IP") || c.req.header("x-forwarded-for") || "127.0.0.1"
+    const UA = c.req.header("x-real-user-agent") || c.req.header("User-Agent")
+
     if (!user) {
         return c.json(null, 401);
     }
     
-    const devices = await trustedDevice.listDevices({ referenceId: user.id })
+    const devices = await trustedDevice.listDevices({ referenceId: user.id, ipAddress: ipAddress, userAgent: UA })
 
     return c.json({ devices }, 200)
 })

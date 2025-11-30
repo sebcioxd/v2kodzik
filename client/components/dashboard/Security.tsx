@@ -21,6 +21,12 @@ import { User as UserType } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { useSession } from '@/lib/auth-client';
 import { parseAsString, useQueryState } from 'nuqs'
@@ -33,6 +39,7 @@ type TrustedDevice = {
   ipAddress: string;
   userAgent: string;
   userId: string;
+  isCurrentDevice: boolean;
 };
 
 interface SecurityProps {
@@ -41,9 +48,6 @@ interface SecurityProps {
 
 // --- Enhanced Helper Functions ---
 
-/**
- * Parses the User Agent string to extract OS, Browser, and Device Type.
- */
 const getDeviceInfo = (userAgent: string | null) => {
   if (!userAgent) return { 
     type: 'unknown', 
@@ -74,7 +78,7 @@ const getDeviceInfo = (userAgent: string | null) => {
 
   // 3. Detect Device Type & Icon
   let type = 'desktop';
-  let icon = Monitor; // Default to Monitor/Desktop
+  let icon = Monitor; 
 
   if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
     type = 'mobile';
@@ -98,7 +102,7 @@ const getDeviceInfo = (userAgent: string | null) => {
     icon, 
     os, 
     browser,
-    name: `${os} • ${browser}` // Combined friendly name
+    name: `${os} • ${browser}` 
   };
 };
 
@@ -140,7 +144,7 @@ export default function Security({ user }: SecurityProps) {
         if (!response.ok) throw new Error('Failed to fetch devices');
 
         const data = await response.json();
-        return data.devices as TrustedDevice[];
+        return data.devices as TrustedDevice[]; 
       } catch (error) {
         console.error('Error fetching trusted devices:', error);
         throw error;
@@ -345,64 +349,98 @@ export default function Security({ user }: SecurityProps) {
               {devicesData.map((device: TrustedDevice) => {
                 const deviceInfo = getDeviceInfo(device.userAgent);
                 const DeviceIcon = deviceInfo.icon;
+                const isCurrent = device.isCurrentDevice; // Flag from API
                 
                 return (
                   <div
                     key={device.id}
-                    className="bg-zinc-900/30 border border-dotted border-zinc-900 rounded-lg p-4 animate-fade-in-01-text hover:border-zinc-800 transition-colors"
+                    className={`
+                      relative p-4 rounded-lg animate-fade-in-01-text transition-all
+                      ${isCurrent 
+                        ? 'bg-zinc-900/30 border border-emerald-500/30 hover:border-emerald-500/50' 
+                        : 'bg-zinc-900/30 border border-dotted border-zinc-900 hover:border-zinc-800'
+                      }
+                    `}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-lg bg-zinc-800/50">
-                          <DeviceIcon className="h-5 w-5 text-zinc-300" />
+                        <div className={`p-3 rounded-lg ${isCurrent ? 'bg-emerald-500/10' : 'bg-zinc-800/50'}`}>
+                          <DeviceIcon className={`h-5 w-5 ${isCurrent ? 'text-emerald-400' : 'text-zinc-300'}`} />
                         </div>
                         
                         <div className="space-y-1">
                           
                           {/* Device Name (OS + Browser) */}
-                          <div className="flex items-center gap-1">
-                             <h4 className="text-zinc-200 ">
+                          <div className="flex items-center gap-2">
+                             <h4 className={`font-medium ${isCurrent ? 'text-emerald-100' : 'text-zinc-200'}`}>
                                 {deviceInfo.os}
                              </h4>
                              <span className="text-zinc-600">•</span>
                              <p className="text-zinc-400 text-sm">
                                 {deviceInfo.browser}
                              </p>
+                             {isCurrent && (
+                               <span className="ml-2 text-[10px] font-medium px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                                 To urządzenie
+                               </span>
+                             )}
                           </div>
                           
                           {/* Details Row */}
                           <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-1 text-xs text-zinc-500 pt-1">
                             <span className="flex items-center gap-1">
                                 <MapPinHouse className="h-3 w-3" />
-                                Adres IP: {device.ipAddress}
+                                IP: {device.ipAddress}
                             </span>
                             <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                Dodano: {formatDate(device.createdAt)}
+                                {formatDate(device.createdAt)}
                             </span>
                             <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 Wygasa: {formatDate(device.expiresAt)}
                             </span>
-                           
                           </div>
                         </div>
                       </div>
                       
                       {/* Delete Icon Button */}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
-                        onClick={() => {
-                            setActionType('delete-device');
-                            setSelectedDevice(device);
-                            setShowConfirmDialog(true);
-                        }}
-                        disabled={deleteDeviceMutation.isPending}
-                      >
-                         <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isCurrent ? (
+                        <TooltipProvider>
+                          <Tooltip delayDuration={0}>
+                            <TooltipTrigger asChild>
+                                {/* Span is required for tooltips on disabled buttons to work in some browsers */}
+                                <span tabIndex={0}> 
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled
+                                    className="text-zinc-600 opacity-50 cursor-not-allowed hover:bg-transparent"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </span>
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-zinc-950 border-zinc-800 text-zinc-300 text-xs">
+                              <p>Nie możesz usunąć bieżącego urządzenia</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
+                            onClick={() => {
+                                setActionType('delete-device');
+                                setSelectedDevice(device);
+                                setShowConfirmDialog(true);
+                            }}
+                            disabled={deleteDeviceMutation.isPending}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );

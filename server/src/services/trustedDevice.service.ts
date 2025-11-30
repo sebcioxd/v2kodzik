@@ -49,9 +49,18 @@ export class trustedDeviceService {
             })
     }
 
-    async listDevices({ referenceId }: { referenceId: string }) {
+    async listDevices({ referenceId, userAgent, ipAddress }: { referenceId: string, userAgent: string | undefined, ipAddress: string }) {
         const devices = await db.select().from(trustedDevice).where(eq(trustedDevice.userId, referenceId)); 
-        return devices;
+
+        const devicesData = devices.map(device => ({
+            ...device,
+            isCurrentDevice: (
+                device.ipAddress === ipAddress && 
+                device.userAgent?.toLowerCase() === userAgent?.toLowerCase()
+            )
+        }));
+
+        return devicesData;
     }
 
     async removeDevice({ deviceId }: { deviceId: string }) {

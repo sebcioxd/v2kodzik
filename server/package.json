@@ -5,12 +5,12 @@
     "start": "bun run src/main.ts"
   },
   "dependencies": {
-    "@better-auth/stripe": "^1.4.3",
+    "@better-auth/stripe": "^1.4.4",
     "@hono/zod-validator": "^0.7.5",
     "@upyo/core": "^0.3.1",
     "@upyo/mailgun": "^0.3.1",
     "@upyo/smtp": "^0.3.1",
-    "better-auth": "^1.4.3",
+    "better-auth": "^1.4.4",
     "drizzle-orm": "^0.44.7",
     "hono": "^4.10.7",
     "hono-rate-limiter": "^0.4.2",
