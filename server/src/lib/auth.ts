@@ -236,13 +236,14 @@ export const auth = betterAuth({
 
         if (!multiAccounts) return;
 
-        if (multiAccounts?.numberOfAccounts > 5) {
-          throw new APIError("FORBIDDEN", {
-            message: "Uzytkownik przekroczyl limit zalozonych kont",
-          });
-        }
+        // if (multiAccounts?.numberOfAccounts > 5) {
+        //   throw new APIError("FORBIDDEN", {
+        //     message: "Uzytkownik przekroczyl limit zalozonych kont",
+        //   });
+        // }
 
       }
+
 
       if (ctx.path.startsWith("/callback")) {
         // const multiAccount = new multiAccountService();
@@ -276,7 +277,9 @@ export const auth = betterAuth({
         await trustedDevices.addDevice({ referenceId: userData.id, ipAddress: ipAddress, userAgent: UA})
         const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
 
-        if (!multiAccounts) {
+        if (!multiAccounts) return;
+
+        if (multiAccounts?.numberOfAccounts === 1) {
           const ipLimits = await db.query.monthlyIPlimits.findFirst({
             where: eq(monthlyIPlimits.ipAddress, ipAddress),
           });
