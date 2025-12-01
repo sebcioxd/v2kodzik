@@ -92,6 +92,14 @@ export class UploadService {
 
 
             if (user && fileSizes) {
+
+                if (user.isFlagged) {
+                    return c.json({
+                        message: "Twoje konto zostało zablokowane",
+                        success: false,
+                        hasReachedLimit: false,
+                    }, 403);
+                }
                 
                 const limitCheck = await this.monthlyService.updateMonthlyLimits({ 
                     c, 
