@@ -116,6 +116,7 @@ export const user = pgTable("user", {
   userAgent: text('user_agent'),
   oauth: boolean("oauth").default(false),
   twofactorEnabled: boolean("twofactor_enabled").default(true),
+  isFlagged: boolean("is_flagged").default(false),
 }, (t) => [
   index("idx_user_emails").on(t.email),
 ]);

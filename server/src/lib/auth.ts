@@ -134,6 +134,12 @@ export const auth = betterAuth({
         defaultValue: true,
         input: true,
       },
+      isFlagged: {
+        type: "boolean",
+        required: false,
+        defaultValue: true,
+        input: true,
+      }
     },
     deleteUser: {
       enabled: true,
@@ -173,6 +179,12 @@ export const auth = betterAuth({
         });
 
         if (!userData) return;
+
+        if (userData.isFlagged) {
+          throw new APIError("FORBIDDEN", {
+            message: "Uzytkownik został zablokowany",
+          });
+        }
 
         
         if (userData.twofactorEnabled) {
@@ -236,28 +248,12 @@ export const auth = betterAuth({
 
         if (!multiAccounts) return;
 
-        // if (multiAccounts?.numberOfAccounts > 5) {
-        //   throw new APIError("FORBIDDEN", {
-        //     message: "Uzytkownik przekroczyl limit zalozonych kont",
-        //   });
-        // }
+        if (multiAccounts?.numberOfAccounts > 5) {
+          throw new APIError("FORBIDDEN", {
+            message: "Uzytkownik przekroczyl limit zalozonych kont",
+          });
+        }
 
-      }
-
-
-      if (ctx.path.startsWith("/callback")) {
-        // const multiAccount = new multiAccountService();
-        // const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
-
-        // const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
-
-        // if (!multiAccounts) return;
-
-        // if (multiAccounts?.numberOfAccounts > 5) {
-        //   throw new APIError("TEMPORARY_REDIRECT", {
-        //     message: "Uzytkownik przekroczyl limit zalozonych kont",
-        //   });
-        // }
       }
     }),
 
@@ -310,6 +306,8 @@ export const auth = betterAuth({
         const sessionUser = ctx.context.newSession.user;
         const ipAddress = ctx.headers?.get("CF-Connecting-IP") || ctx.headers?.get("x-forwarded-for") || "127.0.0.1";
         const multiAccount = new multiAccountService();
+        const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
+
 
         const [userData, existingLimits] = await Promise.all([
           db.query.user.findFirst({
@@ -359,8 +357,6 @@ export const auth = betterAuth({
           const ipLimits = await db.query.monthlyIPlimits.findFirst({
             where: eq(monthlyIPlimits.ipAddress, ipAddress),
           });
-          const multiAccounts = await multiAccount.getUserAccounts({ ipAddress: ipAddress })
-
           if (!multiAccounts) return;
 
           // dlatego sprawdzamy 1 ponieważ konto już będzie utworzone 
@@ -390,7 +386,31 @@ export const auth = betterAuth({
           await Promise.all(updates);
         }
 
-        const redirectPath = hasPassword ? "/panel" : "/oauth-password";
+        let redirectPath;
+
+        if (!multiAccounts) return;
+
+        const sessionCreationTime = new Date(sessionUser.createdAt).getTime();
+        const currentTime = new Date().getTime();
+        const isSessionRecent = (currentTime - sessionCreationTime) < 10 * 60 * 1000;
+
+        if(multiAccounts?.numberOfAccounts > 5 && isSessionRecent) {
+          if (!userData.isFlagged) {
+            await db.update(user).set({
+              isFlagged: true,
+            }).where(eq(user.id, sessionUser.id))
+          }
+         
+          redirectPath = "/too-many-accounts"
+        }
+
+        if (userData.isFlagged) {
+          redirectPath = "/too-many-accounts"
+        } else {
+          redirectPath = hasPassword ? "/panel" : "/oauth-password";
+        }
+
+
         ctx.redirect(`${SITE_URL}${redirectPath}`);
       }
     }),
