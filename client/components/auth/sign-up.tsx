@@ -97,6 +97,7 @@ export default function SignUp() {
                 userAgent: apiResponse.userAgent,
                 oauth: false,
                 twofactorEnabled: true,
+                isFlagged: false,
             },
             {
                 onSuccess: () => {
