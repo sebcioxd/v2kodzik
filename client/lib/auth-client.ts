@@ -21,6 +21,9 @@ export const authClient = createAuthClient({
             },
             twofactorEnabled: {
                 type: "boolean",
+            },
+            isFlagged: {
+                type: "boolean",
             }
         }
     }),

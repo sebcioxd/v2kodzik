@@ -15,6 +15,7 @@ import {
   CreditCard,
   Menu,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ export default function DashboardSidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const { data: session, isPending } = authClient.useSession();
+  const isBlocked = session?.user.isFlagged;
 
   return (
     <>
@@ -47,15 +49,13 @@ export default function DashboardSidebar() {
         />
       )}
       
-      {/* Sidebar - Desktop layout unchanged, mobile gets responsive classes */}
+      {/* Sidebar */}
       <div className={cn(
-        // Desktop: exactly as before (sticky positioning)
         "lg:w-64 lg:bg-darken lg:backdrop-blur-sm lg:border-dashed lg:border-zinc-800 lg:text-sm lg:top-20 lg:sticky lg:h-full lg:animate-fade-in-01-text",
-        // Mobile: overlay sidebar (fixed positioning)
         "fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out w-64 bg-darken backdrop-blur-sm border-dashed border-zinc-800 text-sm",
         isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       )}>
-        {/* Mobile Header - Only visible on mobile */}
+        {/* Mobile Header */}
         <div className="flex items-center justify-between p-4 border-b border-dashed border-zinc-800 lg:hidden">
           <div className="space-y-1">
             <p className="text-zinc-200 font-medium tracking-tight">
@@ -73,7 +73,7 @@ export default function DashboardSidebar() {
           </button>
         </div>
 
-        {/* Desktop User Info - Hidden on mobile since we have mobile header */}
+        {/* Desktop User Info */}
         <div className="hidden lg:block py-4 pl-2 border-b border-dashed border-zinc-800">
           <div className="space-y-1">
             <p className="text-zinc-200 font-medium tracking-tight">
@@ -83,143 +83,161 @@ export default function DashboardSidebar() {
               {session?.user.email}
             </p>
           </div>
+          {isBlocked ? (
+            <div className="py-4 pr-4 space-y-2">
+              <div className="flex items-center gap-2 px-2 py-1 rounded-md text-sm transition-all duration-100 group bg-red-500/20 border border-dashed border-red-500 backdrop-blur-sm text-red-400">
+                <AlertTriangle className="w-4 h-4" />Użytkownik zablokowany
+              </div>
+            </div>
+          ) : null}
         </div>
 
-        {/* Navigation Links */}
-        <div className="py-4 pr-4 space-y-2">
-          <Link
-            href="/panel"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <Target className="w-4 h-4 " />
-            <span className="tracking-tight">Przegląd</span>
-          </Link>
+        {/* WARUNEK: Renderuj linki tylko jeśli użytkownik NIE jest zablokowany */}
+        {!isBlocked && (
+          <>
+            {/* Navigation Links Group 1 */}
+            <div className="py-4 pr-4 space-y-2">
+              <Link
+                href="/panel"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <Target className="w-4 h-4 " />
+                <span className="tracking-tight">Przegląd</span>
+              </Link>
 
-          <Link
-            href="/panel/history"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel/history" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <FileText className="w-4 h-4 " />
-            <span className="tracking-tight">Historia plików</span>
-          </Link>
+              <Link
+                href="/panel/history"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel/history" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <FileText className="w-4 h-4 " />
+                <span className="tracking-tight">Historia plików</span>
+              </Link>
 
-          <Link
-            href="/panel/s-history"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel/s-history" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <Clipboard className="w-4 h-4 " />
-            <span className="tracking-tight">Historia schowka</span>
-          </Link>
-        </div>
+              <Link
+                href="/panel/s-history"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel/s-history" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <Clipboard className="w-4 h-4 " />
+                <span className="tracking-tight">Historia schowka</span>
+              </Link>
+            </div>
 
-        {/* Settings/Password/Integrations Section*/}
-        <div className="py-4 pr-4 mt-auto border-t border-dashed border-zinc-800 space-y-2">
-          <Link
-            href="/panel/integrations"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel/integrations" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <Server className="w-4 h-4 " />
-            <span className="tracking-tight">Integracje</span>
-          </Link>
-          <Link
-            href="/panel/settings"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel/settings" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <Settings className="w-4 h-4 " />
-            <span className="tracking-tight">Ustawienia</span>
-          </Link>
-          {session?.user.oauth && (
-            <Link
-              href="/oauth-password"
-              className={cn(
-                "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-                "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-                "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-                pathname === "/oauth-password" && "bg-zinc-800 text-zinc-200"
+            {/* Settings/Password/Integrations Section */}
+            <div className="py-4 pr-4 mt-auto border-t border-dashed border-zinc-800 space-y-2">
+              <Link
+                href="/panel/integrations"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel/integrations" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <Server className="w-4 h-4 " />
+                <span className="tracking-tight">Integracje</span>
+              </Link>
+              <Link
+                href="/panel/settings"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel/settings" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <Settings className="w-4 h-4 " />
+                <span className="tracking-tight">Ustawienia</span>
+              </Link>
+              {session?.user.oauth && (
+                <Link
+                  href="/oauth-password"
+                  className={cn(
+                    "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                    "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                    "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                    pathname === "/oauth-password" && "bg-zinc-800 text-zinc-200"
+                  )}
+                  onClick={() => setIsMobileOpen(false)}
+                >
+                  <Lock className="w-4 h-4 " />
+                  <span className="tracking-tight">Ustaw hasło</span>
+                </Link>
               )}
-              onClick={() => setIsMobileOpen(false)}
-            >
-              <Lock className="w-4 h-4 " />
-              <span className="tracking-tight">Ustaw hasło</span>
-            </Link>
-          )}
-        </div>
+            </div>
 
-        <div className="py-4 pr-4 mt-auto border-t border-dashed border-zinc-800 space-y-2">
-          <Link
-            href="/panel/limits"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel/limits" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <HardDrive className="w-4 h-4 " />
-            <span className="tracking-tight">Transfer i statystyki</span>
-          </Link>
-          <Link
-            href="/panel/subscription"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel/subscription" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <CreditCard className="w-4 h-4 " />
-            <span className="tracking-tight">Subskrypcje</span>
-          </Link>
-          
-           <Link
-            href="/panel/security"
-            className={cn(
-              "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
-              "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
-              "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
-              pathname === "/panel/security" && "bg-zinc-800 text-zinc-200"
-            )}
-            onClick={() => setIsMobileOpen(false)}
-          >
-            <Lock className="w-4 h-4 " />
-            <span className="tracking-tight">Bezpieczeństwo</span>
-          </Link>
-        </div>
+            {/* Limits/Sub/Security Section */}
+            <div className="py-4 pr-4 mt-auto border-t border-dashed border-zinc-800 space-y-2">
+              <Link
+                href="/panel/limits"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel/limits" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <HardDrive className="w-4 h-4 " />
+                <span className="tracking-tight">Transfer i statystyki</span>
+              </Link>
+              <Link
+                href="/panel/subscription"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel/subscription" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <CreditCard className="w-4 h-4 " />
+                <span className="tracking-tight">Subskrypcje</span>
+              </Link>
+              
+               <Link
+                href="/panel/security"
+                className={cn(
+                  "flex items-center gap-3 px-2 py-1 rounded-md text-sm transition-all duration-100 group",
+                  "bg-zinc-950/20 border border-dashed border-zinc-800 backdrop-blur-sm",
+                  "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200",
+                  pathname === "/panel/security" && "bg-zinc-800 text-zinc-200"
+                )}
+                onClick={() => setIsMobileOpen(false)}
+              >
+                <Lock className="w-4 h-4 " />
+                <span className="tracking-tight">Bezpieczeństwo</span>
+              </Link>
+            </div>
+          </>
+        )}
 
-        {/* Logout Section */}
-        <div className="py-4 pr-4 mt-auto border-t border-dashed border-zinc-800 space-y-2">
+        {/* Logout Section - ZAWSZE widoczne (poza blokiem warunkowym) */}
+        <div className={cn(
+            "py-4 pr-4 mt-auto border-dashed border-zinc-800 space-y-2",
+            // Jeśli użytkownik nie jest zablokowany, dodajemy border-t, żeby oddzielić od linków powyżej.
+            // Jeśli jest zablokowany, linków nie ma, więc border-t wyglądałby dziwnie (podwójna linia pod nagłówkiem).
+            !isBlocked && "border-t"
+          )}>
           <button
             onClick={async () => {
               setIsLogoutLoading(true);
