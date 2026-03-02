@@ -36,6 +36,7 @@ interface InfoResponse {
 export const useInfo = () => {
     return useQuery<InfoResponse>({
         queryKey: ["info"],
+        refetchOnWindowFocus: false,
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/info`);
             return response.json();
@@ -46,6 +47,7 @@ export const useInfo = () => {
 export const useUpdate = (remoteAddress?: string, userAgent?: string) => {
     return useQuery({
         queryKey: ["update", remoteAddress, userAgent],
+        refetchOnWindowFocus: false,
         enabled: !!remoteAddress && !!userAgent,
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/update`, {
@@ -64,6 +66,7 @@ export const useUpdate = (remoteAddress?: string, userAgent?: string) => {
 export const useOauth = (updateEnabled: boolean) => {
     return useQuery({
         queryKey: ["oauth"],
+        refetchOnWindowFocus: false,
         enabled: updateEnabled,
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/oauth/set`, {
@@ -78,6 +81,7 @@ export const useOauth = (updateEnabled: boolean) => {
 export const useStatus = () => {
     return useQuery<Status>({
         queryKey: ["status"],
+        refetchOnWindowFocus: false,
         queryFn: async () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/status`);
             return response.json();
@@ -92,6 +96,7 @@ export const useLastPosts = () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/last-posts`);
             return response.json();
         },
+        refetchOnWindowFocus: false,
         retry: 3,
         retryDelay: 2000,
     });

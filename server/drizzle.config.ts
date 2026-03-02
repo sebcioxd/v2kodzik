@@ -7,6 +7,9 @@ import { DATABASE_URL } from "./src/lib/env";
 // for studio 
 // bunx drizzle-kit studio
 
+// to generate the schema:
+// bun x --bun auth@latest generate
+
 export default defineConfig({
     schema: './src/db/schema.ts',
     out: './src/db/migrations',

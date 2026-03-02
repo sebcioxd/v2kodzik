@@ -58,15 +58,15 @@ export default function Hero() {
             </Link>
           </section>
           
-          <p className="text-zinc-400 text-md tracking-tight text-wrap max-w-2xl text-center animate-slide-in-left opacity-0 leading-relaxed">
+          {/* <p className="text-zinc-400 text-md tracking-tight text-wrap max-w-2xl text-center animate-slide-in-left opacity-0 leading-relaxed">
               Dajkodzik.pl korzysta z najnowszej wersjii Next.js v16, mogą występować nieoczekiwane błędy. <Link href="https://nextjs.org/blog/next-16" className="flex-1 underline text-zinc-50">Czytaj Więcej</Link>
             </p>
-          
+           */}
         </div>
       </div>
 
       {/* Login Prompt with Enhanced Design */}
-      {!session && !isPending && (
+      {/* {!session && !isPending && (
         <div className="w-full mt-8 p-3 rounded-lg border border-zinc-800/50 border-dashed animate-slide-in-bottom">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -83,7 +83,7 @@ export default function Hero() {
             </Link>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Recent Shares Section with Enhanced Design */}
       <div className="w-full  mt-8 space-y-4 animate-slide-in-bottom">

@@ -31,7 +31,8 @@ import {
   SANDBOX_STRIPE_AUTH_WEBHOOK_SECRET,
   SANDBOX_STRIPE_SECRET_KEY,
 } from "../lib/env";
-import { createAuthMiddleware, emailOTP } from "better-auth/plugins";
+import { emailOTP } from "better-auth/plugins";
+import { createAuthMiddleware } from "better-auth/api";
 import { multiAccountService } from "../services/multiaccounts.service";
 import { stripe } from "@better-auth/stripe";
 import Stripe from "stripe";
